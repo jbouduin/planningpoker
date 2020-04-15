@@ -1,0 +1,36 @@
+{
+  "generator-ngx-rocket": {
+    "version": "8.0.1",
+    "props": {
+      "location": "path",
+      "strict": true,
+      "skipInstall": false,
+      "skipQuickstart": false,
+      "initGit": true,
+      "usePrefix": true,
+      "deploy": "netlify",
+      "appName": "planningpoker",
+      "target": [
+        "web"
+      ],
+      "pwa": true,
+      "ui": "material",
+      "layout": "simple",
+      "auth": false,
+      "lazy": true,
+      "angulartics": false,
+      "languages": [
+        "de-DE",
+        "en-US"
+      ],
+      "tools": [
+        "prettier"
+      ],
+      "utility": [],
+      "projectName": "planningpoker",
+      "packageManager": "npm",
+      "mobile": [],
+      "desktop": []
+    }
+  }
+}
