@@ -1,0 +1,13 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended",
+        "../../tslint.json"
+    ],
+    "jsRules": {},
+    "rules": {
+      "ordered-imports": false,
+      "array-type": [true, "generic"]
+    },
+    "rulesDirectory": []
+}
