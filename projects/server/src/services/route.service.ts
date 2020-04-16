@@ -24,25 +24,29 @@ export class RouteService implements IRouteService {
     const router = Router() as expressWs.Router;
 
     router.ws(
-      '/play',
+      '/',
       (ws, req) => {
         ws.on('message', (msg: String) => {
           ws.send(msg);
+          console.log(msg);
         });
     });
+    app.use('/game', router);
 
-    router.all(
+    const router2 = Router();
+    router2.all(
       '/hello',
       (_request: Request, response: Response) => {
+        console.log('hello');
         this.homeController.HelloWorld(_request, response);
       });
 
-    router.all(
+    router2.all(
       '*',
       (_request: Request, response: Response) => {
         response.sendStatus(404);
       });
 
-    app.use('/', router);
+    app.use('/', router2);
   }
 }

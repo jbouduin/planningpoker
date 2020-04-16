@@ -11,7 +11,9 @@ class App {
   public app: expressWs.Application;
 
   public constructor() {
+
     this.app = expressWs(express()).app;
+    console.log(this.app);
     this.config();
     container.get<IRouteService>(SERVICETYPES.RouteService).setRoutes(this.app);
   }
