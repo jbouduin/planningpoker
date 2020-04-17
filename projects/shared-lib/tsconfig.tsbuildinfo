@@ -113,89 +113,41 @@
         "version": "1377923021927244ea19433873b997ad8585533b0a56d5de29cda497f7842756",
         "signature": "1377923021927244ea19433873b997ad8585533b0a56d5de29cda497f7842756"
       },
-      "./node_modules/typescript-collections/dist/lib/util.d.ts": {
-        "version": "1c52824d106bd2a3b87081de9560401254349c2a2ebec77435613268f62264f4",
-        "signature": "1c52824d106bd2a3b87081de9560401254349c2a2ebec77435613268f62264f4"
+      "./lib/game/role.ts": {
+        "version": "5e5770cea0cee87d7b7d912c2e9e590dc36ce65c614277e4ee6f629c9a8b342a",
+        "signature": "17d96b8e9fb29588f7e403c5de3cdcab63e57fb0dacc8e618efed31bfc4cfde9"
       },
-      "./node_modules/typescript-collections/dist/lib/arrays.d.ts": {
-        "version": "6523cdab31c7d7a7ce4e1b6fc0a91efd6507fb6b9872f3f539fb117a17967fe8",
-        "signature": "6523cdab31c7d7a7ce4e1b6fc0a91efd6507fb6b9872f3f539fb117a17967fe8"
+      "./lib/game/dto-participant.ts": {
+        "version": "72e450e44930730fd73a5ab8fdd16348ae3a22591fa8e159c8d85c85eb4f1e00",
+        "signature": "6181ffa84dd2c9ffc14858a754b0365e60cf6e85ee93298174962462defd46a1"
       },
-      "./node_modules/typescript-collections/dist/lib/dictionary.d.ts": {
-        "version": "3f94786cbe47b9d53ee879c17e850de444c39ff4bf71cb222bf875c19fe5c8fc",
-        "signature": "3f94786cbe47b9d53ee879c17e850de444c39ff4bf71cb222bf875c19fe5c8fc"
+      "./lib/game/index.ts": {
+        "version": "888844a4002c025978c11263653f88ac820c5f1fe1c810ffdbe22154c9d489bf",
+        "signature": "8b2a147999c0eec29adee7ffd4d4b4f031135b563e66a78146b194defc708357"
       },
-      "./node_modules/typescript-collections/dist/lib/set.d.ts": {
-        "version": "72244416d468b751cdf94d83f6c4a624ef2679e030ea7af1764496cad047c2a4",
-        "signature": "72244416d468b751cdf94d83f6c4a624ef2679e030ea7af1764496cad047c2a4"
+      "./lib/messages/messagetype.ts": {
+        "version": "cc15ec5c791f21527ea2db4fe6286528e370db4d76555de195bdf6253a535117",
+        "signature": "ab0d7a0509035252ebb17d6f18f12d0b5e08f0c8597590372c03412701b245b2"
       },
-      "./node_modules/typescript-collections/dist/lib/bag.d.ts": {
-        "version": "b1e8e8adfe3019ee5eb368d3f1ecee03d38d3fd44e7320a34e9ae128718608a4",
-        "signature": "b1e8e8adfe3019ee5eb368d3f1ecee03d38d3fd44e7320a34e9ae128718608a4"
+      "./lib/messages/verb.ts": {
+        "version": "581d815c8ca2aaabb8f15afe1810e7142b401dde1fbdfda8f90cce0b73ab27ec",
+        "signature": "e4adbb8be4c82b6ffb47e9d2ad2a9d01376f2959c542050cb101e543133bbfa0"
       },
-      "./node_modules/typescript-collections/dist/lib/bstreekv.d.ts": {
-        "version": "6d60fd1bdb9d2761368593194e7be9d199d78a98e64616adf99d82767c305ba3",
-        "signature": "6d60fd1bdb9d2761368593194e7be9d199d78a98e64616adf99d82767c305ba3"
+      "./lib/messages/message.ts": {
+        "version": "5ad0b4c45348ded563d2328f3d8adc7beb49af06e3e351d711a262f3a3c8f88b",
+        "signature": "588a25dc3126256f184442c42fa58a3c7c1fabdb3226f55c84b1ee903442db30"
       },
-      "./node_modules/typescript-collections/dist/lib/bstree.d.ts": {
-        "version": "a9c1b2d92811781c0cdfff4e6072130b75da1645e1ea395a60eea18cca27b12e",
-        "signature": "a9c1b2d92811781c0cdfff4e6072130b75da1645e1ea395a60eea18cca27b12e"
-      },
-      "./node_modules/typescript-collections/dist/lib/heap.d.ts": {
-        "version": "2d03fc28f541f0c40f5ae098ba10fe66e6581b9cf56d9f029682eb3cff548fe3",
-        "signature": "2d03fc28f541f0c40f5ae098ba10fe66e6581b9cf56d9f029682eb3cff548fe3"
-      },
-      "./node_modules/typescript-collections/dist/lib/linkeddictionary.d.ts": {
-        "version": "3e8d6e10192ef9650f4382d71e6ba449bb817828c5448dde2f1f4813b6282395",
-        "signature": "3e8d6e10192ef9650f4382d71e6ba449bb817828c5448dde2f1f4813b6282395"
-      },
-      "./node_modules/typescript-collections/dist/lib/linkedlist.d.ts": {
-        "version": "bc5045f39a6ae7e62f54a4ba1354d7421d98eb2a060ffb5afb6a590a6031e80d",
-        "signature": "bc5045f39a6ae7e62f54a4ba1354d7421d98eb2a060ffb5afb6a590a6031e80d"
-      },
-      "./node_modules/typescript-collections/dist/lib/multidictionary.d.ts": {
-        "version": "0ab9c0176e8ab7c45d4f541b479c4cc2c276c26213e796a53935ca6e5025ff94",
-        "signature": "0ab9c0176e8ab7c45d4f541b479c4cc2c276c26213e796a53935ca6e5025ff94"
-      },
-      "./node_modules/typescript-collections/dist/lib/factorydictionary.d.ts": {
-        "version": "ecb591c3b936bd9776b170062bd555c85cd8444a70cae1e207b8607f0ea1a589",
-        "signature": "ecb591c3b936bd9776b170062bd555c85cd8444a70cae1e207b8607f0ea1a589"
-      },
-      "./node_modules/typescript-collections/dist/lib/queue.d.ts": {
-        "version": "3d1ee11a697d17f67dc0f055c4f3781bfefd9c46fc9aacb563e8a1664c6983e5",
-        "signature": "3d1ee11a697d17f67dc0f055c4f3781bfefd9c46fc9aacb563e8a1664c6983e5"
-      },
-      "./node_modules/typescript-collections/dist/lib/priorityqueue.d.ts": {
-        "version": "751f7a8c284e4c2119f6bda0142b887a4fe206b6ea15374ca6911a385b24c65d",
-        "signature": "751f7a8c284e4c2119f6bda0142b887a4fe206b6ea15374ca6911a385b24c65d"
-      },
-      "./node_modules/typescript-collections/dist/lib/stack.d.ts": {
-        "version": "cc91cc9e759d6118a436050988d9e0f1bb7aa89edac69885ac2999ed9250245f",
-        "signature": "cc91cc9e759d6118a436050988d9e0f1bb7aa89edac69885ac2999ed9250245f"
-      },
-      "./node_modules/typescript-collections/dist/lib/multiroottree.d.ts": {
-        "version": "5a6fcda001590a4cc1ac3f099ff5be5f335cdec50755dd3323ff9825a41a223e",
-        "signature": "5a6fcda001590a4cc1ac3f099ff5be5f335cdec50755dd3323ff9825a41a223e"
-      },
-      "./node_modules/typescript-collections/dist/lib/index.d.ts": {
-        "version": "00017c5c467da5e2263f3f648b8c35d799a2069974edd5d215ebe8eda6208c90",
-        "signature": "00017c5c467da5e2263f3f648b8c35d799a2069974edd5d215ebe8eda6208c90"
-      },
-      "./lib/role.ts": {
-        "version": "f6ac649ddba80320a7a8c668ab100d949ef2fdf3e165b2033d5a930a6d2e1cb4",
-        "signature": "1d441538549d846d28296ee7b91518686cfd690c5153b5e8b7481c858e636bed"
-      },
-      "./lib/participant.ts": {
-        "version": "f3e2f6cf62ed9d7500cccbf678116a789e524f915702764e40c913136a8d47d5",
-        "signature": "952dbf2a440824ae0e44a6eaaa384c3055c58735017669b921e24257e6b60bc7"
-      },
-      "./lib/game.ts": {
-        "version": "354b2fa67741f0756d80687a461a6260d6c3af9aa42894f09f0215db631a8c34",
-        "signature": "83694467d82932109bfcd08b0f6df5a8f2a5874ae88c2660e1a115356b8f903c"
+      "./lib/messages/index.ts": {
+        "version": "1fa62ddb80dd12b10e2c83acf4637035902cbfb287479a5bc3466564991b827a",
+        "signature": "93074d1d944d57460729b6c6b52c173018695271b573061c01b761da4c0758ae"
       },
       "./lib/index.ts": {
-        "version": "be900ae452904ccff4dfcb36ddf7f3ed6c5c09bccbe8c632c9e4a2a2ce0e792f",
-        "signature": "3110e608e03c090498c1f338d839cef5259d5e43f33e01206c1c33364309e921"
+        "version": "5e731580467575625a7ce219af0b26562ac23449103098299e86a9829b45136e",
+        "signature": "5a46097a462ae9e817c725f1201ab56737f445021d0b0ae65ecea43100e88b49"
+      },
+      "./lib/messages/server-message.d.ts": {
+        "version": "3f0cff5a2afb67f6408e9f3ef647a662708166494692a27e94d116d849574472",
+        "signature": "3f0cff5a2afb67f6408e9f3ef647a662708166494692a27e94d116d849574472"
       },
       "../../node_modules/reflect-metadata/index.d.ts": {
         "version": "8d6d51a5118d000ed3bfe6e1dd1335bebfff3fef23cd2af2f84a24d30f90cc90",
@@ -576,164 +528,69 @@
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/util.d.ts": [
+      "./lib/game/role.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/arrays.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
+      "./lib/game/dto-participant.ts": [
+        "./lib/game/role.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/dictionary.d.ts": [
+      "./lib/game/index.ts": [
+        "./lib/game/dto-participant.ts",
+        "./lib/game/role.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/set.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/typescript-collections/dist/lib/dictionary.d.ts",
+      "./lib/messages/messagetype.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/bag.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/typescript-collections/dist/lib/set.d.ts",
+      "./lib/messages/verb.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/bstreekv.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
+      "./lib/messages/message.ts": [
+        "./lib/game/index.ts",
+        "./lib/messages/messagetype.ts",
+        "./lib/messages/verb.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/bstree.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/bstreekv.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/heap.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/linkeddictionary.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/dictionary.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/linkedlist.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/multidictionary.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/factorydictionary.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/dictionary.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/queue.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/priorityqueue.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/stack.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/multiroottree.d.ts": [
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/index.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/arrays.d.ts",
-        "./node_modules/typescript-collections/dist/lib/bag.d.ts",
-        "./node_modules/typescript-collections/dist/lib/bstree.d.ts",
-        "./node_modules/typescript-collections/dist/lib/bstreekv.d.ts",
-        "./node_modules/typescript-collections/dist/lib/dictionary.d.ts",
-        "./node_modules/typescript-collections/dist/lib/heap.d.ts",
-        "./node_modules/typescript-collections/dist/lib/linkeddictionary.d.ts",
-        "./node_modules/typescript-collections/dist/lib/linkedlist.d.ts",
-        "./node_modules/typescript-collections/dist/lib/multidictionary.d.ts",
-        "./node_modules/typescript-collections/dist/lib/factorydictionary.d.ts",
-        "./node_modules/typescript-collections/dist/lib/queue.d.ts",
-        "./node_modules/typescript-collections/dist/lib/priorityqueue.d.ts",
-        "./node_modules/typescript-collections/dist/lib/set.d.ts",
-        "./node_modules/typescript-collections/dist/lib/stack.d.ts",
-        "./node_modules/typescript-collections/dist/lib/multiroottree.d.ts",
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./lib/role.ts": [
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./lib/participant.ts": [
-        "./lib/role.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./lib/game.ts": [
-        "./node_modules/typescript-collections/dist/lib/index.d.ts",
-        "./lib/participant.ts",
+      "./lib/messages/index.ts": [
+        "./lib/messages/message.ts",
+        "./lib/messages/messagetype.ts",
+        "./lib/messages/verb.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
       "./lib/index.ts": [
-        "./lib/game.ts",
-        "./lib/participant.ts",
-        "./lib/role.ts",
+        "./lib/game/index.ts",
+        "./lib/messages/index.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "./lib/messages/server-message.d.ts": [
+        "./lib/game/index.ts",
+        "./lib/messages/messagetype.ts",
+        "./lib/messages/verb.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
@@ -1281,149 +1138,21 @@
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/util.d.ts": [
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
+      "./lib/game/dto-participant.ts": [
+        "./lib/game/role.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/arrays.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
+      "./lib/game/index.ts": [
+        "./lib/game/dto-participant.ts",
+        "./lib/game/role.ts"
       ],
-      "./node_modules/typescript-collections/dist/lib/dictionary.d.ts": [
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/set.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/typescript-collections/dist/lib/dictionary.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/bag.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/typescript-collections/dist/lib/set.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/bstreekv.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/bstree.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/bstreekv.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/heap.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/linkeddictionary.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/dictionary.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/linkedlist.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/multidictionary.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/factorydictionary.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/dictionary.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/queue.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/priorityqueue.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/stack.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/multiroottree.d.ts": [
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./node_modules/typescript-collections/dist/lib/index.d.ts": [
-        "./node_modules/typescript-collections/dist/lib/arrays.d.ts",
-        "./node_modules/typescript-collections/dist/lib/bag.d.ts",
-        "./node_modules/typescript-collections/dist/lib/bstree.d.ts",
-        "./node_modules/typescript-collections/dist/lib/bstreekv.d.ts",
-        "./node_modules/typescript-collections/dist/lib/dictionary.d.ts",
-        "./node_modules/typescript-collections/dist/lib/heap.d.ts",
-        "./node_modules/typescript-collections/dist/lib/linkeddictionary.d.ts",
-        "./node_modules/typescript-collections/dist/lib/linkedlist.d.ts",
-        "./node_modules/typescript-collections/dist/lib/multidictionary.d.ts",
-        "./node_modules/typescript-collections/dist/lib/factorydictionary.d.ts",
-        "./node_modules/typescript-collections/dist/lib/queue.d.ts",
-        "./node_modules/typescript-collections/dist/lib/priorityqueue.d.ts",
-        "./node_modules/typescript-collections/dist/lib/set.d.ts",
-        "./node_modules/typescript-collections/dist/lib/stack.d.ts",
-        "./node_modules/typescript-collections/dist/lib/multiroottree.d.ts",
-        "./node_modules/typescript-collections/dist/lib/util.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./lib/participant.ts": [
-        "./lib/role.ts"
-      ],
-      "./lib/game.ts": [
-        "./lib/participant.ts"
+      "./lib/messages/index.ts": [
+        "./lib/messages/message.ts",
+        "./lib/messages/messagetype.ts",
+        "./lib/messages/verb.ts"
       ],
       "./lib/index.ts": [
-        "./lib/game.ts",
-        "./lib/participant.ts",
-        "./lib/role.ts"
+        "./lib/game/index.ts",
+        "./lib/messages/index.ts"
       ],
       "../../node_modules/reflect-metadata/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
@@ -1796,6 +1525,20 @@
         "./node_modules/@types/node/ts3.2/globals.d.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/util.d.ts"
+      ],
+      "./lib/messages/message.ts": [
+        "./lib/messages/messagetype.ts",
+        "./lib/messages/verb.ts",
+        "./lib/game/index.ts"
+      ],
+      "./lib/messages/server-message.d.ts": [
+        "./lib/game/index.ts",
+        "./lib/messages/messagetype.ts",
+        "./lib/messages/verb.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
@@ -1827,26 +1570,11 @@
       "./node_modules/typescript/lib/lib.es2018.regexp.d.ts",
       "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
-      "./node_modules/typescript-collections/dist/lib/util.d.ts",
-      "./node_modules/typescript-collections/dist/lib/arrays.d.ts",
-      "./node_modules/typescript-collections/dist/lib/dictionary.d.ts",
-      "./node_modules/typescript-collections/dist/lib/set.d.ts",
-      "./node_modules/typescript-collections/dist/lib/bag.d.ts",
-      "./node_modules/typescript-collections/dist/lib/bstreekv.d.ts",
-      "./node_modules/typescript-collections/dist/lib/bstree.d.ts",
-      "./node_modules/typescript-collections/dist/lib/heap.d.ts",
-      "./node_modules/typescript-collections/dist/lib/linkeddictionary.d.ts",
-      "./node_modules/typescript-collections/dist/lib/linkedlist.d.ts",
-      "./node_modules/typescript-collections/dist/lib/multidictionary.d.ts",
-      "./node_modules/typescript-collections/dist/lib/factorydictionary.d.ts",
-      "./node_modules/typescript-collections/dist/lib/queue.d.ts",
-      "./node_modules/typescript-collections/dist/lib/priorityqueue.d.ts",
-      "./node_modules/typescript-collections/dist/lib/stack.d.ts",
-      "./node_modules/typescript-collections/dist/lib/multiroottree.d.ts",
-      "./node_modules/typescript-collections/dist/lib/index.d.ts",
-      "./lib/role.ts",
-      "./lib/participant.ts",
-      "./lib/index.ts",
+      "./lib/game/role.ts",
+      "./lib/game/dto-participant.ts",
+      "./lib/game/index.ts",
+      "./lib/messages/messagetype.ts",
+      "./lib/messages/verb.ts",
       "../../node_modules/reflect-metadata/index.d.ts",
       "./node_modules/@types/node/globals.d.ts",
       "./node_modules/@types/node/assert.d.ts",
@@ -1894,7 +1622,10 @@
       "./node_modules/@types/node/ts3.2/util.d.ts",
       "./node_modules/@types/node/ts3.2/globals.d.ts",
       "./node_modules/@types/node/ts3.2/index.d.ts",
-      "./lib/game.ts"
+      "./lib/messages/message.ts",
+      "./lib/messages/index.ts",
+      "./lib/index.ts",
+      "./lib/messages/server-message.d.ts"
     ]
   },
   "version": "3.8.3"

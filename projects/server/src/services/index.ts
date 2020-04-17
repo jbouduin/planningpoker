@@ -1,2 +1,2 @@
-export * from './game.service';
+export * from './game';
 export * from './route.service';

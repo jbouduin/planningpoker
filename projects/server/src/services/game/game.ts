@@ -2,6 +2,7 @@ import * as Collections from 'typescript-collections';
 import { v4 as Uuid } from 'uuid';
 
 import { Participant } from './participant';
+import { Role } from '../../../../shared-lib/lib';
 
 export class Game {
 
@@ -19,16 +20,16 @@ export class Game {
 
   public addNewParticipant(ws: any): Participant {
     const uuid = Uuid();
-    const newParticipant = new Participant();
-    newParticipant.nick = `participant ${++this.cnt}`;
-    newParticipant.uuid = uuid;
-    // newParticipant.role: boolean;
-    newParticipant.socket = ws;
+    const newParticipant = new Participant(
+      `participant ${++this.cnt}`,
+      uuid,
+      this.participantsDictionary.size() > 0 ? Role.Developer : Role.ScrumMaster,
+      ws);
     this.participantsDictionary.setValue(uuid, newParticipant);
     return newParticipant;
   }
 
-  public remove(uuid): void {
+  public remove(uuid: string): void {
     this.participantsDictionary.remove(uuid);
   }
 
@@ -36,7 +37,12 @@ export class Game {
     return this.participantsDictionary.size();
   }
 
-  public participants(filter: (Participant) => boolean): Array<Participant> {
+  public getParticipant(key: string): Participant {
+    return this.participantsDictionary.getValue(key);
+  }
+
+  public participants(filter: (participant: Participant) => boolean): Array<Participant> {
     return this.participantsDictionary.values().filter(filter);
   }
+
 }

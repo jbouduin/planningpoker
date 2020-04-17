@@ -13,20 +13,11 @@ class App {
   public constructor() {
     this.expressWS = expressWs(express());
 
-    container.get<IGameService>(SERVICETYPES.GameService).setRoutes(this.expressWS);
+    container.get<IGameService>(SERVICETYPES.GameService).initializeGame(this.expressWS);
     container.get<IRouteService>(SERVICETYPES.RouteService).setRoutes(this.expressWS);
 
     this.config(this.expressWS.app);
-
-    setInterval(
-      () => {
-        console.log(`${new Date().toLocaleString()}: ping`);
-        this.expressWS.getWss().clients.forEach(function (client) {
-          client.send(`${new Date().toLocaleString()}: ping`);
-        });
-      },
-      10000);
-    };
+  };
 
   private config(app: express.Application): void {
 
