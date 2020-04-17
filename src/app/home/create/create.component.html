@@ -1,24 +1,25 @@
-<mat-card>
+<mat-card [formGroup]="createData">
   <mat-card-title translate>
     Start a new game
   </mat-card-title>
   <mat-card-content>
-
     <div>
       <mat-form-field>
         <mat-label>Team name</mat-label>
-        <input matInput>
+        <input matInput placeholder="enter a team name" formControlName="teamName" required />
+        <mat-error>{{ getErrorMessage('teamName') }}</mat-error>
       </mat-form-field>
     </div>
 
     <div>
       <mat-form-field>
         <mat-label>My name</mat-label>
-        <input matInput>
+        <input matInput placeholder="enter your name" formControlName="screenName" required />
+        <mat-error>{{ getErrorMessage('screenName') }}</mat-error>
       </mat-form-field>
     </div>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-stroked-button color="primary">Create</button>
+    <button mat-stroked-button color="primary" [disabled]="createData.invalid" (click)="create()">Create</button>
   </mat-card-actions>
 </mat-card>

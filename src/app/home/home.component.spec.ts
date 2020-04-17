@@ -22,7 +22,7 @@ describe('HomeComponent', () => {
         SharedModule,
         HttpClientTestingModule,
       ],
-      declarations: [HomeComponent]
+      declarations: [HomeComponent],
     }).compileComponents();
   }));
 
