@@ -10,6 +10,8 @@ import { MaterialModule } from './material.module';
 import { environment } from '@env/environment';
 import { CoreModule } from '@core';
 import { SharedModule } from '@shared';
+
+
 import { HomeModule } from './home/home.module';
 import { ShellModule } from './shell/shell.module';
 import { AppComponent } from './app.component';
@@ -20,6 +22,7 @@ import { AppRoutingModule } from './app-routing.module';
     BrowserModule,
     ServiceWorkerModule.register('./ngsw-worker.js', { enabled: environment.production }),
     FormsModule,
+  //  SocketIoModule.forRoot(config),
     HttpClientModule,
     TranslateModule.forRoot(),
     BrowserAnimationsModule,

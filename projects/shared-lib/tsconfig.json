@@ -3,20 +3,18 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "pretty": true,
-        "sourceMap": true,
+        "declaration": true,
+        "declarationMap": true,
+        "rootDir": "./lib",
+        "composite": true,
         "target": "es6",
-        "outDir": "../../dist/server",
-        "baseUrl": "./src",
         "lib": ["es6", "dom"],
         "types": ["reflect-metadata", "node"],
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
-    "references": [
-        { "path": "../shared-lib" }
-    ],
     "include": [
-        "src/**/*.ts"
+        "**/*.ts"
     ],
     "exclude": [
         "node_modules"

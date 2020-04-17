@@ -1,5 +1,6 @@
 const SERVICETYPES = {
-  RouteService: Symbol('RouteService'),
+  GameService: Symbol('GameService'),
+  RouteService: Symbol('RouteService')
 };
 
 export default SERVICETYPES;

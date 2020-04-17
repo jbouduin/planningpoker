@@ -5,6 +5,6 @@
   "ext": "ts",
   "env": {
     "NODE_ENV": "development",
-    "DEBUG": "express:*"
+    "DEBUG": "socket.io*"
   }
 }

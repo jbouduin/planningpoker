@@ -3,13 +3,22 @@ import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { RouteReuseStrategy, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+// import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
-import { RouteReusableStrategy } from './route-reusable-strategy';
 import { ApiPrefixInterceptor } from './http/api-prefix.interceptor';
 import { ErrorHandlerInterceptor } from './http/error-handler.interceptor';
+import { RouteReusableStrategy } from './route-reusable-strategy';
+
+// const config: SocketIoConfig = { url: 'http://localhost:4200', options: { path: 'api/game'} };
 
 @NgModule({
-  imports: [CommonModule, HttpClientModule, TranslateModule, RouterModule],
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    TranslateModule,
+  //  SocketIoModule.forRoot(config),
+    RouterModule
+  ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
