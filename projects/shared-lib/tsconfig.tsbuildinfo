@@ -134,8 +134,8 @@
         "signature": "e4adbb8be4c82b6ffb47e9d2ad2a9d01376f2959c542050cb101e543133bbfa0"
       },
       "./lib/messages/message.ts": {
-        "version": "5ad0b4c45348ded563d2328f3d8adc7beb49af06e3e351d711a262f3a3c8f88b",
-        "signature": "588a25dc3126256f184442c42fa58a3c7c1fabdb3226f55c84b1ee903442db30"
+        "version": "b068b3d54ed54814afcf41ecdb428242645e39e895971d388b1165e4eee8359e",
+        "signature": "eeb2142b07186376182750ca6ea27503eab6cad861ff96d4d212e37c042a04e7"
       },
       "./lib/messages/index.ts": {
         "version": "1fa62ddb80dd12b10e2c83acf4637035902cbfb287479a5bc3466564991b827a",
@@ -144,10 +144,6 @@
       "./lib/index.ts": {
         "version": "5e731580467575625a7ce219af0b26562ac23449103098299e86a9829b45136e",
         "signature": "5a46097a462ae9e817c725f1201ab56737f445021d0b0ae65ecea43100e88b49"
-      },
-      "./lib/messages/server-message.d.ts": {
-        "version": "3f0cff5a2afb67f6408e9f3ef647a662708166494692a27e94d116d849574472",
-        "signature": "3f0cff5a2afb67f6408e9f3ef647a662708166494692a27e94d116d849574472"
       },
       "../../node_modules/reflect-metadata/index.d.ts": {
         "version": "8d6d51a5118d000ed3bfe6e1dd1335bebfff3fef23cd2af2f84a24d30f90cc90",
@@ -582,15 +578,6 @@
       "./lib/index.ts": [
         "./lib/game/index.ts",
         "./lib/messages/index.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./lib/messages/server-message.d.ts": [
-        "./lib/game/index.ts",
-        "./lib/messages/messagetype.ts",
-        "./lib/messages/verb.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
@@ -1145,6 +1132,10 @@
         "./lib/game/dto-participant.ts",
         "./lib/game/role.ts"
       ],
+      "./lib/messages/message.ts": [
+        "./lib/messages/messagetype.ts",
+        "./lib/messages/verb.ts"
+      ],
       "./lib/messages/index.ts": [
         "./lib/messages/message.ts",
         "./lib/messages/messagetype.ts",
@@ -1525,20 +1516,6 @@
         "./node_modules/@types/node/ts3.2/globals.d.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/util.d.ts"
-      ],
-      "./lib/messages/message.ts": [
-        "./lib/messages/messagetype.ts",
-        "./lib/messages/verb.ts",
-        "./lib/game/index.ts"
-      ],
-      "./lib/messages/server-message.d.ts": [
-        "./lib/game/index.ts",
-        "./lib/messages/messagetype.ts",
-        "./lib/messages/verb.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
@@ -1624,8 +1601,7 @@
       "./node_modules/@types/node/ts3.2/index.d.ts",
       "./lib/messages/message.ts",
       "./lib/messages/index.ts",
-      "./lib/index.ts",
-      "./lib/messages/server-message.d.ts"
+      "./lib/index.ts"
     ]
   },
   "version": "3.8.3"
