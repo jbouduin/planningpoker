@@ -8,6 +8,8 @@ import { SharedModule } from '@shared';
 import { MaterialModule } from '@app/material.module';
 import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './home.component';
+import { JoinComponent } from './join/join.component';
+import { CreateComponent } from './create/create.component';
 
 @NgModule({
   imports: [
@@ -19,6 +21,6 @@ import { HomeComponent } from './home.component';
     MaterialModule,
     HomeRoutingModule,
   ],
-  declarations: [HomeComponent],
+  declarations: [HomeComponent, JoinComponent, CreateComponent],
 })
 export class HomeModule {}

@@ -16,7 +16,6 @@ export class HomeComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit() {
     console.log('ngAfterViewInit');
-    this.gameService.initConnection(this.connectionChanged);
   }
 
   ngOnInit() {
