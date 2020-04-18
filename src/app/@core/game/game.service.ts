@@ -4,9 +4,11 @@ import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 import * as Collections from 'typescript-collections';
 
-import { DtoGame, DtoParticipant } from '../../../projects/shared-lib/lib';
-import { Message, MessageType, Verb } from '../../../projects/shared-lib/lib';
-import { WebsocketService } from './websocket.service';
+import { DtoGame, Role } from '../../../../projects/shared-lib/lib';
+import { ErrorCode, Message, MessageType, Verb } from '../../../../projects/shared-lib/lib';
+import { ToastService } from '../../toast'
+import { WebsocketService } from '../websocket.service';
+import { Participant } from './participant';
 
 @Injectable({
   providedIn: 'root',
@@ -15,18 +17,20 @@ export class GameService {
 
   // public properties
   public game?: DtoGame;
-  public self?: DtoParticipant;
-  public participants: Collections.Dictionary<string, DtoParticipant>;
+  public self?: Participant;
+  public participants: Collections.Dictionary<string, Participant>;
 
   // private properties
   private socket?: Subject<Message>;
+  private nickInitialized = false;
+  private gameInitialized = false;
 
   // constructor
   public constructor(
     private router: Router,
-    private websocketService: WebsocketService) {
-
-    this.participants = new Collections.Dictionary<string, DtoParticipant>();
+    private websocketService: WebsocketService,
+    private toastService: ToastService) {
+    this.participants = new Collections.Dictionary<string, Participant>();
     console.log('in Gameservice constructor');
   }
 
@@ -52,57 +56,95 @@ export class GameService {
     this.createConnection(team, nick, this.createTeam.bind(this));
   }
 
+  public developers(): Array<Participant> {
+    const result = new Array<Participant>();
+    if (this.self?.role === Role.Developer) {
+      result.push(this.self);
+    }
+    return result.concat(
+      this.participants.values().filter(participant => participant.role === Role.Developer)
+    );
+  }
+
+  public scrumMaster(): Participant | undefined {
+    if (this.self?.role === Role.ScrumMaster) {
+      return this.self;
+    }
+    const result = this.participants.values()
+      .filter(participant => participant.role === Role.ScrumMaster)[0];
+    return result ? result : undefined;
+  }
   // private methods
   private createConnection(
     team: string,
     nick: string,
     teamCallback: (uuid: string, team: string) => void) {
     this.socket = this.createSocket(team);
+
     this.socket.subscribe(msg => {
-      console.log(msg);
       // if the message is not an error message
       if (msg.type !== MessageType.Error)
       {
         // check if we still have to set our nick
-        if (!this.self) {
+        if (!this.nickInitialized) {
           this.changeNick(msg.data.uuid, nick);
+          this.nickInitialized = true;
         }
         // check if we already belong to a team
         // if not do the appropriate action
-        if (!this.game) {
-          teamCallback(msg.data.uuid, nick);
+        if (!this.gameInitialized) {
+          teamCallback(msg.data.uuid, team);
+          this.gameInitialized = true;
         }
       }
 
       switch(msg.type) {
         case MessageType.Error: {
+          console.log(`MessageType: Error`);
           console.log(msg.data);
-          // Todo: close the socket in some cases...
+          this.toastService.show({
+            text: `Error code: ${msg.data.code}`,
+            type: 'warning',
+          });
+
+          if (msg.data.code === ErrorCode.TeamAlreadyExists ||
+            msg.data.code === ErrorCode.TeamDoesNotExist ||
+            msg.data.code === ErrorCode.ParticipantNotFound) {
+            if (this.socket) {
+              this.socket.unsubscribe();
+            }
+            this.websocketService.disconnect();
+          }
           break;
         }
         case MessageType.Game: {
+          console.log(`MessageType: Game`);
           console.log(msg.data);
           // if we are not in there yet, this is the moment
           if (!this.game) {
+            console.log('navigating to game')
             this.router.navigate(['game']);
           }
           this.game = msg.data;
           break;
         }
         case MessageType.Self: {
-          this.self = msg.data;
-          console.log('setting self');
-          console.log(this.self);
+          console.log(`MessageType: Self`);
+          console.log(msg.data);
+          this.self = new Participant(msg.data, true);
           break;
         }
         case MessageType.Participant: {
-          const participant: DtoParticipant = msg.data;
+          console.log(`MessageType: Participant`);
           console.log(msg.data);
+          const participant: Participant = new Participant(msg.data, false);
+
           this.participants.setValue(participant.uuid, participant);
           break;
         }
         case MessageType.Ping: {
-          console.log(`Ping received: ${msg.data}`);
+          console.log(`MessageType: Ping`);
+          console.log(msg.data);
           console.log('me:')
           console.log(this.self);
           console.log('the others:')
@@ -110,7 +152,7 @@ export class GameService {
           break;
         }
         default: {
-          console.log('unknown message type');
+          console.log(`MessageType ?: ${msg}`);
         }
       }
     });
@@ -120,7 +162,6 @@ export class GameService {
     return <Subject<Message>>this.websocketService
 			.connect(`ws://localhost:3001/game/${encodeURI(team)}`)
 			.pipe(map((response: MessageEvent): Message => {
-        console.log(response);
 				const message: Message = JSON.parse(response.data);
         return message;
 			}));

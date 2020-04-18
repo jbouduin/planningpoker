@@ -16,26 +16,20 @@ export class GameComponent implements OnInit {
   }
 
   public get team(): string {
-    return this.gameService?.game?.team || 'Not connected';
+    return this.gameService.game?.team || 'Not connected';
   }
 
   public get scrumMaster(): string {
-    if (this.gameService?.self?.role === Role.ScrumMaster) {
-      return this.gameService.self.nick + ' (me)';
+    const scrumMaster = this.gameService.scrumMaster();
+    if (scrumMaster) {
+      return `${scrumMaster.nick}${scrumMaster.me ? ' (me)' : ''}`;
     }
-
-    const result = this.gameService.participants.values().filter(participant => participant.role === Role.ScrumMaster)[0];
-    return result ? result.nick : 'not connected';
-
+    return '';
   }
 
-  public get participants(): Array<string> {
-    if (this.gameService?.self) {
-      return this.gameService.participants.values()
-        .filter(participant => participant.role !== Role.ScrumMaster)
-        .map(participant => `${participant.nick}${participant.uuid === this.gameService.self?.uuid || '' ? ' (me)' : ''} `)
-    }
-    return new Array<string>();
+  public get developers(): Array<string> {
+    return this.gameService.developers()
+      .map(participant => `${participant.nick}${participant.me ? ' (me)' : ''} `);
   }
 
   public get availableCards(): Array<string> {

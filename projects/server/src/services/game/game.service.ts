@@ -92,76 +92,83 @@ export class GameService implements IGameService {
             if (!sender) {
               console.log(`participant with 'uuid' ${message.uuid} not found`);
               this.sendErrorMessage(ws, ErrorCode.ParticipantNotFound);
-              return;
-            }
+            } else {
 
-            const team = req.params.team;
-            const game = this.games.getValue(team);
-            switch (message.type) {
-              case (Verb.Create) : {
-                console.log(`message type: Create`);
-                if (game) {
-                  console.log(`Create: '${sender.nick}' is trying to create existing team '${message.data}'`);
-                  this.sendErrorMessage(ws, ErrorCode.TeamAlreadyExists);
-                } else {
-                  console.log(`Create: '${sender.nick}' is creating '${message.data}'`);
-                  const newGame = new Game(message.data);
-                  sender.role = Role.ScrumMaster;
-                  newGame.upsertParticipant(sender);
-                  this.games.setValue(team, newGame);
-                  this.participantGameMap.setValue(message.uuid, team);
+              const team = req.params.team;
+              const game = this.games.getValue(team);
+              switch (message.type) {
+                case (Verb.Create) : {
+                  console.log(`message type: Create`);
+                  if (game) {
+                    console.log(`Create: '${sender.nick}' is trying to create existing team '${message.data}'`);
+                    this.sendErrorMessage(ws, ErrorCode.TeamAlreadyExists);
+                  } else {
+                    console.log(`Create: '${sender.nick}' is creating '${message.data}'`);
+                    const newGame = new Game(message.data);
+                    sender.role = Role.ScrumMaster;
+                    newGame.upsertParticipant(sender);
+                    this.games.setValue(team, newGame);
+                    this.participantGameMap.setValue(message.uuid, team);
+                    // send the creator himself to tell him that he is now Scrum Master
+                    this.sendParticipant(ws, MessageType.Self, sender);
+                    this.sendGame(ws, newGame);
+                  }
+                  break;
+                }
+                case (Verb.Join) : {
+                  if (!game) {
+                    console.log(`Join: '${sender.nick}' is trying to join non existing team.`);
+                    this.sendErrorMessage(ws, ErrorCode.TeamDoesNotExist);
+                  } else {
+                    console.log(`Join: '${sender.nick}' is joining '${game.team}'`);
+                    sender.role = Role.Developer;
+                    game.upsertParticipant(sender);
+                    this.participantGameMap.setValue(message.uuid, team);
+                    // send the joinee himself to tell him that he is now developer
+                    this.sendParticipant(ws, MessageType.Self, sender);
+                    // tell the others someone joined
+                    this.broadcastParticipantToOthers(game, sender);
+                    // send the new participant all other participants
+                    game
+                      .filterParticipants(participant => participant.uuid !== sender.uuid)
+                      .forEach(participant => this.sendParticipant(ws, MessageType.Participant, participant));
+                    // send the new participant the game
+                    this.sendGame(ws, game);
+                  }
+                  break;
+                }
+                case (Verb.Leave) : {
+                  if (!game) {
+                    console.log(`Leave: '${sender.nick}' is trying to leave a game he is not participating`);
+                    this.sendErrorMessage(ws, ErrorCode.TeamDoesNotExist);
+                  } else {
+                    console.log(`Leave: '${sender.nick}' is leaving '${game.team}'`);
+                    // TODO: leave the game
+                  }
+                  break;
+                }
+                case (Verb.Nick) : {
+                  console.log(`Nick: '${sender.nick}' => '${message.data}'`);
+                  sender.nick = message.data;
+                  // send the data back as aknowledgment
                   this.sendParticipant(ws, MessageType.Self, sender);
-                  this.sendGame(ws, newGame);
+                  // check if this user is in a game:
+                  // depending on the client implementation, it can be that the sender changes his nick before entering a game
+                  if (game) {
+                    this.broadcastParticipantToOthers(game, sender);
+                  }
+                  break;
                 }
-                break;
-              }
-              case (Verb.Join) : {
-                if (!game) {
-                  console.log(`Join: '${sender.nick}' is trying to join non existing team.`);
-                  this.sendErrorMessage(ws, ErrorCode.TeamDoesNotExist);
-                } else {
-                  console.log(`Join: '${sender.nick}' is joining '${game.team}'`);
-                  game.upsertParticipant(sender);
-                  this.participantGameMap.setValue(message.uuid, team);
-                  this.broadcastParticipantToOthers(game, sender);
-                  game
-                    .filterParticipants(participant => participant.uuid !== sender.uuid)
-                    .forEach(participant => this.sendParticipant(ws, MessageType.Participant, participant));
-                  this.sendGame(ws, game);
+                default: {
+                  console.log('unexpected messagetype');
                 }
-                break;
-              }
-              case (Verb.Leave) : {
-                if (!game) {
-                  console.log(`Leave: '${sender.nick}' is trying to leave a game he is not participating`);
-                  this.sendErrorMessage(ws, ErrorCode.TeamDoesNotExist);
-                } else {
-                  console.log(`Leave: '${sender.nick}' is leaving '${game.team}'`);
-                  // TODO: leave the game
-                }
-                break;
-              }
-              case (Verb.Nick) : {
-                console.log(`Nick: '${sender.nick}' => '${message.data}'`);
-                sender.nick = message.data;
-                // send the data back as aknowledgment
-                this.sendParticipant(ws, MessageType.Self, sender);
-                // check if this user is in a game:
-                // depending on the client implementation, it can be that the sender changes his nick before entering a game
-                if (game) {
-                  this.broadcastParticipantToOthers(game, sender);
-                }
-                break;
-              }
-              default: {
-                console.log('unexpected messagetype');
-              }
-            }
-          } catch (err) {
-            this.sendErrorMessage(ws, ErrorCode.Error, err.message);
-            console.log(err);
-          }
-        });
+              } // end switch
+            } // end of known uuid
+        } catch (err) {
+          this.sendErrorMessage(ws, ErrorCode.Error, err.message);
+          console.log(err);
+        }
+      });
     });
 
     if (this.pingInterval > 0) {
@@ -201,7 +208,9 @@ export class GameService implements IGameService {
         role: participant.role
       }
     });
+    console.log('send participant');
     client.send(message);
+    console.log('after send participant');
   }
 
   private sendGame(client: any, game: Game): void {

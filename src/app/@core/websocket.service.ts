@@ -13,14 +13,18 @@ export class WebsocketService {
 	public connect(url: string): Subject<MessageEvent> {
 		if (!this.subject) {
 			this.subject = this.create(url);
-      console.log("Successfully connected: " + url);
+      console.log(`Successfully connected to ${url}`);
 		}
 		return this.subject;
 	}
 
+  public disconnect(): void {
+    // TODO: find out how to close
+
+  }
+
   private create(url: string): Subject<MessageEvent> {
 		let ws = new WebSocket(url);
-    console.log('ws created');
 		let observable = Observable.create(
 			(obs: Observer<MessageEvent>) => {
 				ws.onmessage = obs.next.bind(obs);
