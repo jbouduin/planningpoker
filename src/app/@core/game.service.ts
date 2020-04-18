@@ -3,10 +3,9 @@ import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 import * as Collections from 'typescript-collections';
 
-import { DtoParticipant, Message, MessageType, Verb } from '../../../projects/shared-lib/lib';
+import { DtoGame, DtoParticipant } from '../../../projects/shared-lib/lib';
+import { Message, MessageType, Verb } from '../../../projects/shared-lib/lib';
 import { WebsocketService } from './websocket.service';
-
-
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +15,9 @@ export class GameService {
   private communicator?: Subject<Message>;
 
   private self?: DtoParticipant;
+  private game?: DtoGame;
   private participants: Collections.Dictionary<string, DtoParticipant>;
+
 
   public constructor(private websocketService: WebsocketService) {
 
@@ -37,13 +38,24 @@ export class GameService {
 
   public create(teamName: string, screenName: string): void {
     console.log(`creating: ${screenName}@${teamName}`);
-    this.communicator = this.createSocket();
+
+    this.communicator = this.createSocket(teamName);
     this.communicator.subscribe(msg => {
       console.log(msg);
       switch(msg.type) {
+        case MessageType.Error: {
+          console.log(msg.data);
+          // Todo: close the socket in some cases...
+        }
+        case MessageType.Game: {
+          console.log(msg.data);
+          this.game = msg.data;
+          // Todo: route to playfield
+        }
         case MessageType.Self: {
           if (!this.self) {
             this.changeNick(msg.data.uuid, screenName);
+            this.createTeam(msg.data.uuid);
           }
           this.self = msg.data;
           break;
@@ -69,9 +81,9 @@ export class GameService {
     });
   }
 
-  private createSocket(): Subject<Message> {
+  private createSocket(teamName: string): Subject<Message> {
     return <Subject<Message>>this.websocketService
-			.connect('ws://localhost:3001/game')
+			.connect(`ws://localhost:3001/game/${encodeURI(teamName)}`)
 			.pipe(map((response: MessageEvent): Message => {
         console.log(response);
 				const message: Message = JSON.parse(response.data);
@@ -79,4 +91,14 @@ export class GameService {
 			}));
   }
 
+  private createTeam(uuid: string) {
+    if (this.communicator) {
+      const message: Message = {
+        type: Verb.Create,
+        uuid,
+        data: ''
+      };
+      this.communicator.next(message);
+    }
+  }
 }

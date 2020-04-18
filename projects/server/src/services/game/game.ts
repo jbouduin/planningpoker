@@ -6,43 +6,36 @@ import { Role } from '../../../../shared-lib/lib';
 
 export class Game {
 
-  public name: string;
-
-  private cnt: number;
-  private participantsDictionary: Collections.Dictionary<string, Participant>;
+  // private properties
+  private participants: Collections.Dictionary<string, Participant>;
 
   // constructor
-  public constructor(name: string) {
-    this.name = name;
-    this.participantsDictionary = new Collections.Dictionary<string, Participant>();
-    this.cnt = 0;
+  public constructor(public team: string) {
+    this.team = team;
+    this.participants = new Collections.Dictionary<string, Participant>();
   }
 
-  public addNewParticipant(ws: any): Participant {
-    const uuid = Uuid();
-    const newParticipant = new Participant(
-      `participant ${++this.cnt}`,
-      uuid,
-      this.participantsDictionary.size() > 0 ? Role.Developer : Role.ScrumMaster,
-      ws);
-    this.participantsDictionary.setValue(uuid, newParticipant);
-    return newParticipant;
+  // insert a new participant or update an existing one
+  public upsertParticipant(participant: Participant) {
+    this.participants.setValue(participant.uuid, participant);
   }
 
-  public remove(uuid: string): void {
-    this.participantsDictionary.remove(uuid);
+  // remove a participant from the game
+  public deleteParticipant(uuid: string): void {
+    this.participants.remove(uuid);
   }
 
+  // the number of participants
   public size(): number {
-    return this.participantsDictionary.size();
+    return this.participants.size();
   }
 
-  public getParticipant(key: string): Participant {
-    return this.participantsDictionary.getValue(key);
+  public getParticipant(uuid: string): Participant {
+    return this.participants.getValue(uuid);
   }
 
-  public participants(filter: (participant: Participant) => boolean): Array<Participant> {
-    return this.participantsDictionary.values().filter(filter);
+  public filterParticipants(filter: (participant: Participant) => boolean): Array<Participant> {
+    return this.participants.values().filter(filter);
   }
 
 }

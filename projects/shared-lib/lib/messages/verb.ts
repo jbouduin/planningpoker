@@ -1,4 +1,6 @@
 export enum Verb {
-  Nick,
-  Leave
+  Create,
+  Join,
+  Leave,
+  Nick
 }

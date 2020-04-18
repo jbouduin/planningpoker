@@ -113,6 +113,34 @@
         "version": "1377923021927244ea19433873b997ad8585533b0a56d5de29cda497f7842756",
         "signature": "1377923021927244ea19433873b997ad8585533b0a56d5de29cda497f7842756"
       },
+      "./lib/messages/error-code.ts": {
+        "version": "20ec5b01677a0f456aeab568a9c9ec75d90d42c8f248660e18cd618cc14a1ce3",
+        "signature": "9c35648c24a25d174214fd707b341f73d75a82139ffe69e15cc80ce7791fe8ef"
+      },
+      "./lib/messages/messagetype.ts": {
+        "version": "42138e4eaf911112439e28268173a1986be5006e6165dc303f19c8ca5ad23947",
+        "signature": "b3f470321d326d1098ea7c843c218be970fefaadb31628d43214c83aceb4c71c"
+      },
+      "./lib/messages/verb.ts": {
+        "version": "b4511b0952e85ed6771466401602c17686fa23b043b0f7e9a3ed45ab88198e86",
+        "signature": "5c8e1fcadcd1045dd1b2f5c2c3de71993765a82c8ed1b7c8ada557492b68c5dc"
+      },
+      "./lib/messages/message.ts": {
+        "version": "b068b3d54ed54814afcf41ecdb428242645e39e895971d388b1165e4eee8359e",
+        "signature": "eeb2142b07186376182750ca6ea27503eab6cad861ff96d4d212e37c042a04e7"
+      },
+      "./lib/messages/index.ts": {
+        "version": "08856b047e88167f9ec98c5db389345bdf437f664c58aa1a54b424b3a5c4060d",
+        "signature": "7463c750819cf9ac5bd28affeb97e4000e1fa3fe3be810379a96c802ea074b20"
+      },
+      "./lib/game/dto-error.ts": {
+        "version": "44576456e5df5ea80ba1376a89a9518dfee33fd0dcf5a9e77d9d1b3966e32784",
+        "signature": "807987f01dbf9bda9efcb58cc102041e4d915ba16759da2ba9a381ed73db4fbc"
+      },
+      "./lib/game/dto-game.ts": {
+        "version": "2200f727e3580155ffb17b45e0930a50170593426a3d1b881493eff1a5c9af68",
+        "signature": "5795084d45946e0dd84c55cf26e806d32f9b05b1d62ad50e06e14c461d99919b"
+      },
       "./lib/game/role.ts": {
         "version": "5e5770cea0cee87d7b7d912c2e9e590dc36ce65c614277e4ee6f629c9a8b342a",
         "signature": "17d96b8e9fb29588f7e403c5de3cdcab63e57fb0dacc8e618efed31bfc4cfde9"
@@ -122,24 +150,8 @@
         "signature": "6181ffa84dd2c9ffc14858a754b0365e60cf6e85ee93298174962462defd46a1"
       },
       "./lib/game/index.ts": {
-        "version": "888844a4002c025978c11263653f88ac820c5f1fe1c810ffdbe22154c9d489bf",
-        "signature": "8b2a147999c0eec29adee7ffd4d4b4f031135b563e66a78146b194defc708357"
-      },
-      "./lib/messages/messagetype.ts": {
-        "version": "cc15ec5c791f21527ea2db4fe6286528e370db4d76555de195bdf6253a535117",
-        "signature": "ab0d7a0509035252ebb17d6f18f12d0b5e08f0c8597590372c03412701b245b2"
-      },
-      "./lib/messages/verb.ts": {
-        "version": "581d815c8ca2aaabb8f15afe1810e7142b401dde1fbdfda8f90cce0b73ab27ec",
-        "signature": "e4adbb8be4c82b6ffb47e9d2ad2a9d01376f2959c542050cb101e543133bbfa0"
-      },
-      "./lib/messages/message.ts": {
-        "version": "b068b3d54ed54814afcf41ecdb428242645e39e895971d388b1165e4eee8359e",
-        "signature": "eeb2142b07186376182750ca6ea27503eab6cad861ff96d4d212e37c042a04e7"
-      },
-      "./lib/messages/index.ts": {
-        "version": "1fa62ddb80dd12b10e2c83acf4637035902cbfb287479a5bc3466564991b827a",
-        "signature": "93074d1d944d57460729b6c6b52c173018695271b573061c01b761da4c0758ae"
+        "version": "1b1773e3e34f691c260ce2d8e44db39605095985a1ac545bc2c10b40aed20a94",
+        "signature": "2229927882a33d2ad22e461c364ee2bd0626ddb207d4bee15ea20f06645bdda3"
       },
       "./lib/index.ts": {
         "version": "5e731580467575625a7ce219af0b26562ac23449103098299e86a9829b45136e",
@@ -524,22 +536,7 @@
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./lib/game/role.ts": [
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./lib/game/dto-participant.ts": [
-        "./lib/game/role.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "./lib/game/index.ts": [
-        "./lib/game/dto-participant.ts",
-        "./lib/game/role.ts",
+      "./lib/messages/error-code.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
@@ -567,9 +564,46 @@
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
       "./lib/messages/index.ts": [
+        "./lib/messages/error-code.ts",
         "./lib/messages/message.ts",
         "./lib/messages/messagetype.ts",
         "./lib/messages/verb.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "./lib/game/dto-error.ts": [
+        "./lib/messages/index.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "./lib/game/dto-game.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "./lib/game/role.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "./lib/game/dto-participant.ts": [
+        "./lib/game/role.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "./lib/game/index.ts": [
+        "./lib/game/dto-error.ts",
+        "./lib/game/dto-game.ts",
+        "./lib/game/dto-participant.ts",
+        "./lib/game/role.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
@@ -1125,21 +1159,27 @@
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./lib/game/dto-participant.ts": [
-        "./lib/game/role.ts"
-      ],
-      "./lib/game/index.ts": [
-        "./lib/game/dto-participant.ts",
-        "./lib/game/role.ts"
-      ],
       "./lib/messages/message.ts": [
         "./lib/messages/messagetype.ts",
         "./lib/messages/verb.ts"
       ],
       "./lib/messages/index.ts": [
+        "./lib/messages/error-code.ts",
         "./lib/messages/message.ts",
         "./lib/messages/messagetype.ts",
         "./lib/messages/verb.ts"
+      ],
+      "./lib/game/dto-error.ts": [
+        "./lib/messages/index.ts"
+      ],
+      "./lib/game/dto-participant.ts": [
+        "./lib/game/role.ts"
+      ],
+      "./lib/game/index.ts": [
+        "./lib/game/dto-error.ts",
+        "./lib/game/dto-game.ts",
+        "./lib/game/dto-participant.ts",
+        "./lib/game/role.ts"
       ],
       "./lib/index.ts": [
         "./lib/game/index.ts",
@@ -1547,11 +1587,11 @@
       "./node_modules/typescript/lib/lib.es2018.regexp.d.ts",
       "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
-      "./lib/game/role.ts",
-      "./lib/game/dto-participant.ts",
-      "./lib/game/index.ts",
       "./lib/messages/messagetype.ts",
       "./lib/messages/verb.ts",
+      "./lib/game/dto-game.ts",
+      "./lib/game/role.ts",
+      "./lib/game/dto-participant.ts",
       "../../node_modules/reflect-metadata/index.d.ts",
       "./node_modules/@types/node/globals.d.ts",
       "./node_modules/@types/node/assert.d.ts",
@@ -1599,8 +1639,11 @@
       "./node_modules/@types/node/ts3.2/util.d.ts",
       "./node_modules/@types/node/ts3.2/globals.d.ts",
       "./node_modules/@types/node/ts3.2/index.d.ts",
-      "./lib/messages/message.ts",
+      "./lib/messages/error-code.ts",
       "./lib/messages/index.ts",
+      "./lib/messages/message.ts",
+      "./lib/game/dto-error.ts",
+      "./lib/game/index.ts",
       "./lib/index.ts"
     ]
   },

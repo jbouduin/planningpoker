@@ -6,7 +6,7 @@ import * as Collections from 'typescript-collections';
 import { v4 as Uuid } from 'uuid';
 import * as ws from 'ws';
 
-import { DtoParticipant, Message, MessageType, Verb } from '../../../../shared-lib/lib';
+import { ErrorCode, Message, MessageType, Role, Verb } from '../../../../shared-lib/lib';
 import { Game } from './game';
 import { Participant } from './participant';
 
@@ -18,78 +18,166 @@ export interface IGameService {
 export class GameService implements IGameService {
 
   // private properties
-  private game: Game;
+  private cnt: number;
+  private games: Collections.Dictionary<string, Game>;
+  private participants: Collections.Dictionary<string, Participant>;
+  private participantGameMap: Collections.Dictionary<string, string>;
+  private pingInterval: number;
 
   // constructor
   public constructor() {
-    this.game = new Game('root');
+    console.log('gameservice constructor');
+    this.cnt = 0;
+    this.games = new Collections.Dictionary<string, Game>();
+    this.participants = new Collections.Dictionary<string, Participant>();
+    this.participantGameMap = new Collections.Dictionary<string, string>();
+    this.pingInterval = 0;
   }
 
+  // interface members
   public initializeGame(expressWs: expressWs.Instance): void {
     const router = Router() as expressWs.Router;
     const wss = expressWs.getWss();
     wss.on('connection', (ws, req) => {
-      const newParticipant = this.game.addNewParticipant(ws);
+      // new connection:
+      // store in the participants collection
+      // assign it an uuid and send the participant back to the sender
+      console.log(req['params']);
+      const uuid = Uuid();
+      const newParticipant = new Participant(
+        `participant ${++this.cnt}`,
+        uuid,
+        Role.Undefined,
+        ws);
+      this.participants.setValue(uuid, newParticipant);
       console.log(`${new Date().toLocaleString()}: connection from client ${req.headers['sec-websocket-key']} entered as ${newParticipant.nick}`);
-      this.broadcastParticipantToOthers(wss, ws, newParticipant);
       this.sendParticipant(ws, MessageType.Self, newParticipant);
-      this.game
-        .participants(participant => participant.uuid !== newParticipant.uuid)
-        .forEach(participant => this.sendParticipant(ws, MessageType.Participant, participant));
 
+      // if an existing connection closes
+      // set the connection status to disconnected
+      // if the user was in a game: send other participants an update
       ws.on('close', (number, reason) => {
-        const leaving = this.game.participants(participant => participant.socket == ws)[0];
-        if (leaving) {
-          console.log(`${new Date().toLocaleString()}: ${leaving.nick} has been disconnected`);
-          leaving.connected = false;
-          this.broadcastParticipantToOthers(wss, ws, leaving);
+        const closed = this.participants.values().filter(participant => participant.socket == ws)[0];
+        if (closed) {
+          console.log(`${new Date().toLocaleString()}: ${closed.nick} has been disconnected`);
+          closed.connected = false;
+          const gameName = this.participantGameMap.getValue(closed.uuid);
+          if (gameName) {
+            console.log('sending to other participants');
+            const game = this.games.getValue(gameName);
+            this.broadcastParticipantToOthers(game, closed);
+          } else {
+            console.log('participant was not in a game');
+          }
         }
       });
     });
 
     router.ws(
-      '/',
+      '/:team',
       (ws, req, next) => {
         ws.on('message', (msg: string) => {
           console.log(`${new Date().toLocaleString()}: message received => ${msg}`);
-          const message: Message = JSON.parse(msg);
-          switch (message.type) {
-            case (Verb.Nick) : {
-              const changed = this.game.getParticipant(message.uuid);
-              if (changed) {
-                changed.nick = message.data;
-                this.broadcastParticipantToOthers(wss, ws, changed);
+          try {
+            // parse the message
+            const message: Message = JSON.parse(msg);
+            // find the participant by uuid
+            // if not found: send error message back
+            const sender = this.participants.getValue(message.uuid);
+            if (sender) {
+              console.log(`message from: ${sender.nick}`);
+            } else {
+              console.log('participant not found');
+              this.sendErrorMessage(ws, ErrorCode.ParticipantNotFound);
+              return;
+            }
+            const team = req.params.team;
+            const game = this.games.getValue(team);
+            switch (message.type) {
+              case (Verb.Create) : {
+                console.log(`message type: Create`);
+                if (game) {
+                  this.sendErrorMessage(ws, ErrorCode.TeamAlreadyExists);
+                } else {
+                  const newGame = new Game(team);
+                  sender.role = Role.ScrumMaster;
+                  newGame.upsertParticipant(sender);
+                  this.games.setValue(team, newGame);
+                  this.participantGameMap.setValue(message.uuid, team);
+                  this.sendParticipant(ws, MessageType.Self, sender);
+                  this.sendGame(ws, newGame);
+                }
+                break;
               }
-              break;
+              case (Verb.Join) : {
+                console.log(`message type: join`);
+                if (!game) {
+                  this.sendErrorMessage(ws, ErrorCode.TeamDoesNotExist);
+                } else {
+                  game.upsertParticipant(sender);
+                  this.participantGameMap.setValue(message.uuid, team);
+                  this.broadcastParticipantToOthers(game, sender);
+                  game
+                    .filterParticipants(participant => participant.uuid !== sender.uuid)
+                    .forEach(participant => this.sendParticipant(ws, MessageType.Participant, participant));
+                  this.sendGame(ws, game);
+                }
+                break;
+              }
+              case (Verb.Leave) : {
+                if (!game) {
+                  this.sendErrorMessage(ws, ErrorCode.TeamDoesNotExist);
+                } else {
+                  // TODO: leave the game
+                }
+                break;
+              }
+              case (Verb.Nick) : {
+                sender.nick = message.data;
+                // check if this user is in a game:
+                // depending on the client implementation, it can be that the sender changes his nick before entering a game
+                if (game) {
+                  this.broadcastParticipantToOthers(game, sender);
+                }
+                break;
+              }
+              default: {
+                console.log('unexpected messagetype');
+              }
             }
-            default: {
-              console.log('unexpected messagetype');
-            }
+          } catch (err) {
+            this.sendErrorMessage(ws, ErrorCode.Error, err.message);
+            console.log(err);
           }
         });
     });
 
-    setInterval(
-      () => {
-        console.log(`${new Date().toLocaleString()}: ping`);
-        wss.clients.forEach( client => {
-          const message = JSON.stringify({
-            type: MessageType.Ping,
-            data: new Date().toLocaleString()
+    if (this.pingInterval > 0) {
+      setInterval(
+        () => {
+          console.log(`${new Date().toLocaleString()}: ping`);
+          wss.clients.forEach( client => {
+            const message = JSON.stringify({
+              type: MessageType.Ping,
+              data: new Date().toLocaleString()
+            });
+            client.send(message);
           });
-          client.send(message);
-        });
-      },
-      10000);
+        },
+        this.pingInterval);
+    }
 
     expressWs.app.use('/game', router);
   }
 
   // private helper methods
-  private broadcastParticipantToOthers(wss: ws.Server, sender: any, participant: Participant): void {
-    Array.from(wss.clients)
-      .filter( client => client != sender)
-      .forEach( client => this.sendParticipant(client, MessageType.Participant, participant));
+  private broadcastParticipantToOthers(game: Game, sender: Participant): void {
+    game
+      .filterParticipants(participant => participant.uuid !== sender.uuid)
+      .forEach(participant => {
+        console.log(`broadcasting from ${sender.nick} to ${participant.nick}`)
+        this.sendParticipant(participant.socket, MessageType.Participant, sender);
+      });
   }
 
   private sendParticipant(client: any, type: MessageType, participant: Participant): void {
@@ -105,4 +193,24 @@ export class GameService implements IGameService {
     client.send(message);
   }
 
+  private sendGame(client: any, game: Game): void {
+    const message = JSON.stringify({
+      type: MessageType.Game,
+      data: {
+        team: game.team
+      }
+    });
+    client.send(message);
+  }
+
+  private sendErrorMessage(client: any, code: ErrorCode, message?: string): void {
+    const msg = JSON.stringify({
+      type: MessageType.Error,
+      data: {
+        code,
+        message
+      }
+    });
+    client.send(msg);
+  }
 }
