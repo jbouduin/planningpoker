@@ -180,7 +180,7 @@ export class GameService implements IGameService {
               type: MessageType.Ping,
               data: new Date().toLocaleString()
             });
-            client.send(message);
+            this.send(client, message);
           });
         },
         this.pingInterval);
@@ -208,9 +208,7 @@ export class GameService implements IGameService {
         role: participant.role
       }
     });
-    console.log('send participant');
-    client.send(message);
-    console.log('after send participant');
+    this.send(client, message);
   }
 
   private sendGame(client: any, game: Game): void {
@@ -221,7 +219,7 @@ export class GameService implements IGameService {
         cards: this.cardService.generateCardSet()
       }
     });
-    client.send(message);
+    this.send(client, message);
   }
 
   private sendErrorMessage(client: any, code: ErrorCode, message?: string): void {
@@ -232,6 +230,14 @@ export class GameService implements IGameService {
         message
       }
     });
-    client.send(msg);
+    this.send(client, msg);
+  }
+
+  private send(client: any, message: string) {
+    try {
+      client.send(message);
+    } catch (err) {
+      console.log(err);
+    }
   }
 }
