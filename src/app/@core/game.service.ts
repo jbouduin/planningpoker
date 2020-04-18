@@ -13,12 +13,15 @@ import { WebsocketService } from './websocket.service';
 })
 export class GameService {
 
+  // public properties
   public game?: DtoGame;
   public self?: DtoParticipant;
   public participants: Collections.Dictionary<string, DtoParticipant>;
 
-  private communicator?: Subject<Message>;
+  // private properties
+  private socket?: Subject<Message>;
 
+  // constructor
   public constructor(
     private router: Router,
     private websocketService: WebsocketService) {
@@ -27,23 +30,50 @@ export class GameService {
     console.log('in Gameservice constructor');
   }
 
+  // public methods
   public changeNick(uuid: string, nick: string): void {
-    if (this.communicator) {
+    if (this.socket) {
       const message: Message = {
         type: Verb.Nick,
         uuid,
         data: nick
       };
-      this.communicator.next(message);
+      this.socket.next(message);
     }
   }
 
-  public create(teamName: string, screenName: string): void {
-    console.log(`creating: ${screenName}@${teamName}`);
+  public join(team: string, nick: string): void {
+    console.log(`joining: ${nick}@${team}`);
+    this.createConnection(team, nick, this.joinTeam.bind(this));
+  }
 
-    this.communicator = this.createSocket(teamName);
-    this.communicator.subscribe(msg => {
+  public create(team: string, nick: string): void {
+    console.log(`creating: ${nick}@${team}`);
+    this.createConnection(team, nick, this.createTeam.bind(this));
+  }
+
+  // private methods
+  private createConnection(
+    team: string,
+    nick: string,
+    teamCallback: (uuid: string, team: string) => void) {
+    this.socket = this.createSocket(team);
+    this.socket.subscribe(msg => {
       console.log(msg);
+      // if the message is not an error message
+      if (msg.type !== MessageType.Error)
+      {
+        // check if we still have to set our nick
+        if (!this.self) {
+          this.changeNick(msg.data.uuid, nick);
+        }
+        // check if we already belong to a team
+        // if not do the appropriate action
+        if (!this.game) {
+          teamCallback(msg.data.uuid, nick);
+        }
+      }
+
       switch(msg.type) {
         case MessageType.Error: {
           console.log(msg.data);
@@ -52,16 +82,14 @@ export class GameService {
         }
         case MessageType.Game: {
           console.log(msg.data);
+          // if we are not in there yet, this is the moment
+          if (!this.game) {
+            this.router.navigate(['game']);
+          }
           this.game = msg.data;
-          this.router.navigate(['game']);
           break;
         }
         case MessageType.Self: {
-          if (!this.self) {
-            // TODO: this way we do not catch game already exists
-            this.changeNick(msg.data.uuid, screenName);
-            this.createTeam(msg.data.uuid);
-          }
           this.self = msg.data;
           console.log('setting self');
           console.log(this.self);
@@ -88,9 +116,9 @@ export class GameService {
     });
   }
 
-  private createSocket(teamName: string): Subject<Message> {
+  private createSocket(team: string): Subject<Message> {
     return <Subject<Message>>this.websocketService
-			.connect(`ws://localhost:3001/game/${encodeURI(teamName)}`)
+			.connect(`ws://localhost:3001/game/${encodeURI(team)}`)
 			.pipe(map((response: MessageEvent): Message => {
         console.log(response);
 				const message: Message = JSON.parse(response.data);
@@ -98,14 +126,25 @@ export class GameService {
 			}));
   }
 
-  private createTeam(uuid: string) {
-    if (this.communicator) {
+  private createTeam(uuid: string, team: string) {
+    if (this.socket) {
       const message: Message = {
         type: Verb.Create,
         uuid,
-        data: ''
+        data: team
       };
-      this.communicator.next(message);
+      this.socket.next(message);
+    }
+  }
+
+  private joinTeam(uuid: string, team: string) {
+    if (this.socket) {
+      const message: Message = {
+        type: Verb.Join,
+        uuid,
+        data: team
+      };
+      this.socket.next(message);
     }
   }
 }

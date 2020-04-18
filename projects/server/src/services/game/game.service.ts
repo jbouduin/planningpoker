@@ -47,7 +47,7 @@ export class GameService implements IGameService {
       // new connection:
       // store in the participants collection
       // assign it an uuid and send the participant back to the sender
-      console.log(req['params']);
+      const param = req['params'] ?req['params'].team : 'not specified';
       const uuid = Uuid();
       const newParticipant = new Participant(
         `participant ${++this.cnt}`,
@@ -55,7 +55,7 @@ export class GameService implements IGameService {
         Role.Undefined,
         ws);
       this.participants.setValue(uuid, newParticipant);
-      console.log(`${new Date().toLocaleString()}: connection from client ${req.headers['sec-websocket-key']} entered as ${newParticipant.nick}`);
+      console.log(`${new Date().toLocaleString()}: connection from client '${req.headers['sec-websocket-key']}' entered as '${newParticipant.nick}' in '${param}'`);
       this.sendParticipant(ws, MessageType.Self, newParticipant);
 
       // if an existing connection closes
@@ -64,7 +64,7 @@ export class GameService implements IGameService {
       ws.on('close', (number, reason) => {
         const closed = this.participants.values().filter(participant => participant.socket == ws)[0];
         if (closed) {
-          console.log(`${new Date().toLocaleString()}: ${closed.nick} has been disconnected`);
+          console.log(`${new Date().toLocaleString()}: '${closed.nick}'' has been disconnected`);
           closed.connected = false;
           const gameName = this.participantGameMap.getValue(closed.uuid);
           if (gameName) {
@@ -89,22 +89,23 @@ export class GameService implements IGameService {
             // find the participant by uuid
             // if not found: send error message back
             const sender = this.participants.getValue(message.uuid);
-            if (sender) {
-              console.log(`message from: ${sender.nick}`);
-            } else {
-              console.log('participant not found');
+            if (!sender) {
+              console.log(`participant with 'uuid' ${message.uuid} not found`);
               this.sendErrorMessage(ws, ErrorCode.ParticipantNotFound);
               return;
             }
+
             const team = req.params.team;
             const game = this.games.getValue(team);
             switch (message.type) {
               case (Verb.Create) : {
                 console.log(`message type: Create`);
                 if (game) {
+                  console.log(`Create: '${sender.nick}' is trying to create existing team '${message.data}'`);
                   this.sendErrorMessage(ws, ErrorCode.TeamAlreadyExists);
                 } else {
-                  const newGame = new Game(team);
+                  console.log(`Create: '${sender.nick}' is creating '${message.data}'`);
+                  const newGame = new Game(message.data);
                   sender.role = Role.ScrumMaster;
                   newGame.upsertParticipant(sender);
                   this.games.setValue(team, newGame);
@@ -115,10 +116,11 @@ export class GameService implements IGameService {
                 break;
               }
               case (Verb.Join) : {
-                console.log(`message type: join`);
                 if (!game) {
+                  console.log(`Join: '${sender.nick}' is trying to join non existing team.`);
                   this.sendErrorMessage(ws, ErrorCode.TeamDoesNotExist);
                 } else {
+                  console.log(`Join: '${sender.nick}' is joining '${game.team}'`);
                   game.upsertParticipant(sender);
                   this.participantGameMap.setValue(message.uuid, team);
                   this.broadcastParticipantToOthers(game, sender);
@@ -131,14 +133,19 @@ export class GameService implements IGameService {
               }
               case (Verb.Leave) : {
                 if (!game) {
+                  console.log(`Leave: '${sender.nick}' is trying to leave a game he is not participating`);
                   this.sendErrorMessage(ws, ErrorCode.TeamDoesNotExist);
                 } else {
+                  console.log(`Leave: '${sender.nick}' is leaving '${game.team}'`);
                   // TODO: leave the game
                 }
                 break;
               }
               case (Verb.Nick) : {
+                console.log(`Nick: '${sender.nick}' => '${message.data}'`);
                 sender.nick = message.data;
+                // send the data back as aknowledgment
+                this.sendParticipant(ws, MessageType.Self, sender);
                 // check if this user is in a game:
                 // depending on the client implementation, it can be that the sender changes his nick before entering a game
                 if (game) {
@@ -180,7 +187,6 @@ export class GameService implements IGameService {
     game
       .filterParticipants(participant => participant.uuid !== sender.uuid)
       .forEach(participant => {
-        console.log(`broadcasting from ${sender.nick} to ${participant.nick}`)
         this.sendParticipant(participant.socket, MessageType.Participant, sender);
       });
   }

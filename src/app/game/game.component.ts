@@ -20,18 +20,20 @@ export class GameComponent implements OnInit {
   }
 
   public get scrumMaster(): string {
-    console.log(this.gameService?.self?.role);
     if (this.gameService?.self?.role === Role.ScrumMaster) {
       return this.gameService.self.nick + ' (me)';
     }
 
-    return this.gameService.participants.values().filter(participant => participant.role === Role.ScrumMaster)[0].nick;
-    //return 'not connected'
+    const result = this.gameService.participants.values().filter(participant => participant.role === Role.ScrumMaster)[0];
+    return result ? result.nick : 'not connected';
+
   }
 
   public get participants(): Array<string> {
     if (this.gameService?.self) {
-      return this.gameService.participants.values().map(participant => `${participant.nick}${participant.uuid === this.gameService.self?.uuid || '' ? ' (me)' : ''} `)
+      return this.gameService.participants.values()
+        .filter(participant => participant.role !== Role.ScrumMaster)
+        .map(participant => `${participant.nick}${participant.uuid === this.gameService.self?.uuid || '' ? ' (me)' : ''} `)
     }
     return new Array<string>();
   }

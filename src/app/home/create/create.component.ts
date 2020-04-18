@@ -13,15 +13,15 @@ export class CreateComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder, private gameService: GameService) {
     this.createData = this.formBuilder.group({
-      teamName: new FormControl('', [Validators.required]),
-      screenName: new FormControl('', [Validators.required]),
+      team: new FormControl('', [Validators.required]),
+      nick: new FormControl('', [Validators.required]),
     });
   }
 
   ngOnInit(): void {}
 
   create(): void {
-    this.gameService.create(this.createData.get('teamName')?.value, this.createData.get('screenName')?.value);
+    this.gameService.create(this.createData.get('team')?.value, this.createData.get('nick')?.value);
   }
 
   getErrorMessage(name: string) {
