@@ -7,8 +7,11 @@ import { v4 as Uuid } from 'uuid';
 import * as ws from 'ws';
 
 import { ErrorCode, Message, MessageType, Role, Verb } from '../../../../shared-lib/lib';
+import { ICardService } from '../card';
 import { Game } from './game';
 import { Participant } from './participant';
+
+import SERVICETYPES from '../service.types';
 
 export interface IGameService {
   initializeGame(expressWS: expressWs.Instance): void;
@@ -25,7 +28,9 @@ export class GameService implements IGameService {
   private pingInterval: number;
 
   // constructor
-  public constructor() {
+  public constructor(
+    @inject(SERVICETYPES.CardService) private cardService: ICardService) {
+
     console.log('gameservice constructor');
     this.cnt = 0;
     this.games = new Collections.Dictionary<string, Game>();
@@ -197,7 +202,8 @@ export class GameService implements IGameService {
     const message = JSON.stringify({
       type: MessageType.Game,
       data: {
-        team: game.team
+        team: game.team,
+        cards: this.cardService.generateCardSet()
       }
     });
     client.send(message);

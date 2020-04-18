@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 import * as Collections from 'typescript-collections';
@@ -12,14 +13,15 @@ import { WebsocketService } from './websocket.service';
 })
 export class GameService {
 
+  public game?: DtoGame;
+  public self?: DtoParticipant;
+  public participants: Collections.Dictionary<string, DtoParticipant>;
+
   private communicator?: Subject<Message>;
 
-  private self?: DtoParticipant;
-  private game?: DtoGame;
-  private participants: Collections.Dictionary<string, DtoParticipant>;
-
-
-  public constructor(private websocketService: WebsocketService) {
+  public constructor(
+    private router: Router,
+    private websocketService: WebsocketService) {
 
     this.participants = new Collections.Dictionary<string, DtoParticipant>();
     console.log('in Gameservice constructor');
@@ -46,18 +48,23 @@ export class GameService {
         case MessageType.Error: {
           console.log(msg.data);
           // Todo: close the socket in some cases...
+          break;
         }
         case MessageType.Game: {
           console.log(msg.data);
           this.game = msg.data;
-          // Todo: route to playfield
+          this.router.navigate(['game']);
+          break;
         }
         case MessageType.Self: {
           if (!this.self) {
+            // TODO: this way we do not catch game already exists
             this.changeNick(msg.data.uuid, screenName);
             this.createTeam(msg.data.uuid);
           }
           this.self = msg.data;
+          console.log('setting self');
+          console.log(this.self);
           break;
         }
         case MessageType.Participant: {

@@ -1,0 +1,26 @@
+<div fxFlex>
+  <h2>{{team}}</h2>
+  <mat-card>
+    <mat-card-title>Scrum Master</mat-card-title>
+    <mat-card-content>{{scrumMaster}}</mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-title>Participants</mat-card-title>
+    <mat-card-content>
+      <ul >
+        <li class="list-group-item" *ngFor="let participant of participants">
+          {{participant}}
+        </li>
+      </ul>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-title>Game</mat-card-title>
+    <mat-card-content>This is the playfield</mat-card-content>
+    <mat-card-footer>
+      <li class="list-group-item" *ngFor="let card of availableCards">
+        {{card}}
+      </li>
+    </mat-card-footer>
+  </mat-card>
+</div>

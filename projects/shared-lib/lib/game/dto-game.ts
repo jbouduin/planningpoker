@@ -1,3 +1,6 @@
+import { DtoCard } from './dto-card';
+
 export interface DtoGame {
-  team: string;
+    team: string;
+    cards: Array<DtoCard>;
 }

@@ -113,6 +113,10 @@
         "version": "1377923021927244ea19433873b997ad8585533b0a56d5de29cda497f7842756",
         "signature": "1377923021927244ea19433873b997ad8585533b0a56d5de29cda497f7842756"
       },
+      "./lib/game/dto-card.ts": {
+        "version": "cfff3c6b639b7ae70420490718943b3d98ce7c89508ffae921424de963945540",
+        "signature": "acb99ca040bd2a0213e599475518ad361caf2ca2bcfb69bed9b28941aadd5f9d"
+      },
       "./lib/messages/error-code.ts": {
         "version": "20ec5b01677a0f456aeab568a9c9ec75d90d42c8f248660e18cd618cc14a1ce3",
         "signature": "9c35648c24a25d174214fd707b341f73d75a82139ffe69e15cc80ce7791fe8ef"
@@ -138,8 +142,8 @@
         "signature": "807987f01dbf9bda9efcb58cc102041e4d915ba16759da2ba9a381ed73db4fbc"
       },
       "./lib/game/dto-game.ts": {
-        "version": "2200f727e3580155ffb17b45e0930a50170593426a3d1b881493eff1a5c9af68",
-        "signature": "5795084d45946e0dd84c55cf26e806d32f9b05b1d62ad50e06e14c461d99919b"
+        "version": "d3c5a12851ad7b9967391e4f19bf31545c4517212715c5fbad77e14d66f7a9fd",
+        "signature": "2a1c79dd325b1090b19550a0e623c4c7fc2d280faadfa8ab90f6f346c230685d"
       },
       "./lib/game/role.ts": {
         "version": "5e5770cea0cee87d7b7d912c2e9e590dc36ce65c614277e4ee6f629c9a8b342a",
@@ -150,8 +154,8 @@
         "signature": "6181ffa84dd2c9ffc14858a754b0365e60cf6e85ee93298174962462defd46a1"
       },
       "./lib/game/index.ts": {
-        "version": "1b1773e3e34f691c260ce2d8e44db39605095985a1ac545bc2c10b40aed20a94",
-        "signature": "2229927882a33d2ad22e461c364ee2bd0626ddb207d4bee15ea20f06645bdda3"
+        "version": "9b41ae62679557f59bd6f877500a7c80ee85749e6f8546a7bfcaa61f9d4ad273",
+        "signature": "74784cacf0c270e5a7b2fb4ca5729a59c9b6b94a9ea5c6db032f341bf1bfd158"
       },
       "./lib/index.ts": {
         "version": "5e731580467575625a7ce219af0b26562ac23449103098299e86a9829b45136e",
@@ -536,6 +540,12 @@
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "./lib/game/dto-card.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "./lib/messages/error-code.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
@@ -581,6 +591,7 @@
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
       "./lib/game/dto-game.ts": [
+        "./lib/game/dto-card.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
@@ -600,6 +611,7 @@
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
       "./lib/game/index.ts": [
+        "./lib/game/dto-card.ts",
         "./lib/game/dto-error.ts",
         "./lib/game/dto-game.ts",
         "./lib/game/dto-participant.ts",
@@ -1176,6 +1188,7 @@
         "./lib/game/role.ts"
       ],
       "./lib/game/index.ts": [
+        "./lib/game/dto-card.ts",
         "./lib/game/dto-error.ts",
         "./lib/game/dto-game.ts",
         "./lib/game/dto-participant.ts",
@@ -1556,6 +1569,9 @@
         "./node_modules/@types/node/ts3.2/globals.d.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/util.d.ts"
+      ],
+      "./lib/game/dto-game.ts": [
+        "./lib/game/dto-card.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
@@ -1587,9 +1603,9 @@
       "./node_modules/typescript/lib/lib.es2018.regexp.d.ts",
       "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
+      "./lib/messages/error-code.ts",
       "./lib/messages/messagetype.ts",
       "./lib/messages/verb.ts",
-      "./lib/game/dto-game.ts",
       "./lib/game/role.ts",
       "./lib/game/dto-participant.ts",
       "../../node_modules/reflect-metadata/index.d.ts",
@@ -1639,9 +1655,10 @@
       "./node_modules/@types/node/ts3.2/util.d.ts",
       "./node_modules/@types/node/ts3.2/globals.d.ts",
       "./node_modules/@types/node/ts3.2/index.d.ts",
-      "./lib/messages/error-code.ts",
-      "./lib/messages/index.ts",
+      "./lib/game/dto-card.ts",
+      "./lib/game/dto-game.ts",
       "./lib/messages/message.ts",
+      "./lib/messages/index.ts",
       "./lib/game/dto-error.ts",
       "./lib/game/index.ts",
       "./lib/index.ts"
