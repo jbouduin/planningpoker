@@ -6,7 +6,7 @@ import { GameComponent } from './game.component';
 
 const routes: Routes = [
   // Module is lazy loaded, see app-routing.module.ts
-  { path: '', component: GameComponent, data: { title: extract('About') } },
+  { path: '', component: GameComponent, data: { title: extract('Play') } },
 ];
 
 @NgModule({
