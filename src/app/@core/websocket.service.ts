@@ -8,7 +8,7 @@ export class WebsocketService {
 
   constructor() { }
 
-  private subject: any; //Rx.Subject<MessageEvent> = undefined;
+  private subject?: Subject<MessageEvent>;
 
 	public connect(url: string): Subject<MessageEvent> {
 		if (!this.subject) {
@@ -20,7 +20,7 @@ export class WebsocketService {
 
   public disconnect(): void {
     // TODO: find out how to close
-
+    this.subject = undefined;
   }
 
   private create(url: string): Subject<MessageEvent> {

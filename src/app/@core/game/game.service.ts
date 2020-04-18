@@ -114,6 +114,10 @@ export class GameService {
               this.socket.unsubscribe();
             }
             this.websocketService.disconnect();
+            this.game = undefined;
+            this.self = undefined;
+            this.gameInitialized = false;
+            this.nickInitialized = false;
           }
           break;
         }

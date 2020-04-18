@@ -192,7 +192,7 @@ export class GameService implements IGameService {
   // private helper methods
   private broadcastParticipantToOthers(game: Game, sender: Participant): void {
     game
-      .filterParticipants(participant => participant.uuid !== sender.uuid)
+      .filterParticipants(participant => participant.uuid !== sender.uuid && participant.connected)
       .forEach(participant => {
         this.sendParticipant(participant.socket, MessageType.Participant, sender);
       });
