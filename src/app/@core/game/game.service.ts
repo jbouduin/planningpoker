@@ -21,6 +21,9 @@ export class GameService {
   public participants: Collections.Dictionary<string, Participant>;
 
   // private properties
+  private readonly localStorageUuidKey: string = "current_uuid";
+  private readonly localStorageTeamKey: string = "current_team";
+
   private socket?: Subject<Message>;
   private nickInitialized = false;
   private gameInitialized = false;
@@ -46,14 +49,18 @@ export class GameService {
     }
   }
 
+  public create(team: string, nick: string): void {
+    console.log(`creating: ${nick}@${team}`);
+    this.createConnection(team, nick, this.createTeam.bind(this));
+  }
+
   public join(team: string, nick: string): void {
     console.log(`joining: ${nick}@${team}`);
     this.createConnection(team, nick, this.joinTeam.bind(this));
   }
 
-  public create(team: string, nick: string): void {
-    console.log(`creating: ${nick}@${team}`);
-    this.createConnection(team, nick, this.createTeam.bind(this));
+  public rejoin(): void {
+
   }
 
   public developers(): Array<Participant> {
@@ -118,6 +125,8 @@ export class GameService {
             this.self = undefined;
             this.gameInitialized = false;
             this.nickInitialized = false;
+            localStorage.removeItem(this.localStorageUuidKey);
+            localStorage.removeItem(this.localStorageTeamKey);
           }
           break;
         }
@@ -126,16 +135,18 @@ export class GameService {
           console.log(msg.data);
           // if we are not in there yet, this is the moment
           if (!this.game) {
-            console.log('navigating to game')
+            console.log('navigating to game');
             this.router.navigate(['game']);
           }
           this.game = msg.data;
+          localStorage.setItem(this.localStorageTeamKey, team);
           break;
         }
         case MessageType.Self: {
           console.log(`MessageType: Self`);
           console.log(msg.data);
           this.self = new Participant(msg.data, true);
+          localStorage.setItem(this.localStorageUuidKey, this.self.uuid);
           break;
         }
         case MessageType.Participant: {
