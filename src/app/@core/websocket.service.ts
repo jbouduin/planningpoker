@@ -6,9 +6,10 @@ import { Observable, Observer, Subject } from 'rxjs';
 })
 export class WebsocketService {
 
-  constructor() { }
-
   private subject?: Subject<MessageEvent>;
+  private webSocket?: WebSocket;
+
+  constructor() { }
 
 	public connect(url: string): Subject<MessageEvent> {
 		if (!this.subject) {
@@ -21,11 +22,14 @@ export class WebsocketService {
   public disconnect(): void {
     // TODO: find out how to close
     this.subject = undefined;
+    if (this.webSocket) {
+      this.webSocket.close();
+    }
   }
 
   private create(url: string): Subject<MessageEvent> {
-		let ws = new WebSocket(url);
-		let observable = Observable.create(
+		const ws = new WebSocket(url);
+		const observable = Observable.create(
 			(obs: Observer<MessageEvent>) => {
 				ws.onmessage = obs.next.bind(obs);
 				ws.onerror = obs.error.bind(obs);
@@ -33,7 +37,7 @@ export class WebsocketService {
 				return ws.close.bind(ws);
 		});
 
-		let observer = {
+		const observer = {
 			next: (data: Object) => {
 				if (ws.readyState === WebSocket.OPEN) {
 					ws.send(JSON.stringify(data));
@@ -41,6 +45,7 @@ export class WebsocketService {
 			}
 		}
 
+    this.webSocket = ws;
 		return Subject.create(observer, observable);
 	}
 }

@@ -159,7 +159,15 @@ export class GameService {
           console.log(`MessageType ?: ${msg}`);
         }
       }
-    });
+    },
+    err => this.toastService.show({
+      text: `Error code: ${err}`,
+      type: 'warning',
+    }),
+    () => this.toastService.show({
+      text: `Socket done`,
+      type: 'warning',
+    }));
   }
 
   private createSocket(team: string): Subject<Message> {
