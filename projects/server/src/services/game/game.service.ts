@@ -6,7 +6,7 @@ import * as Collections from 'typescript-collections';
 import { v4 as Uuid } from 'uuid';
 import * as ws from 'ws';
 
-import { ErrorCode, Message, MessageType, Role, Verb } from '../../../../shared-lib/lib';
+import { ErrorCode, Message, MessageType, ParticipantStatus, Role, Verb } from '../../../../shared-lib/lib';
 import { ICardService } from '../card';
 import { Game } from './game';
 import { Participant } from './participant';
@@ -65,7 +65,7 @@ export class GameService implements IGameService {
         const closed = this.participants.values().filter(participant => participant.socket == ws)[0];
         if (closed) {
           console.log(`${new Date().toLocaleString()}: '${closed.nick}'' has been disconnected`);
-          closed.connected = false;
+          closed.status = ParticipantStatus.Disconnected;
           const gameName = this.participantGameMap.getValue(closed.uuid);
           if (gameName) {
             console.log('sending to other participants');
@@ -143,7 +143,12 @@ export class GameService implements IGameService {
                     this.sendErrorMessage(ws, ErrorCode.TeamDoesNotExist);
                   } else {
                     console.log(`Leave: '${sender.nick}' is leaving '${game.team}'`);
-                    // TODO: leave the game
+                    game.deleteParticipant(sender.uuid);
+                    this.participantGameMap.remove(sender.uuid);
+                    this.participants.remove(sender.uuid);
+                    // tell the others someone left
+                    sender.status = ParticipantStatus.Left;
+                    this.broadcastParticipantToOthers(game, sender);
                   }
                   break;
                 }
@@ -192,7 +197,7 @@ export class GameService implements IGameService {
   // private helper methods
   private broadcastParticipantToOthers(game: Game, sender: Participant): void {
     game
-      .filterParticipants(participant => participant.uuid !== sender.uuid && participant.connected)
+      .filterParticipants(participant => participant.uuid !== sender.uuid && participant.status === ParticipantStatus.Connected)
       .forEach(participant => {
         this.sendParticipant(participant.socket, MessageType.Participant, sender);
       });
@@ -202,7 +207,7 @@ export class GameService implements IGameService {
     const message = JSON.stringify({
       type: type,
       data: {
-        connected: participant.connected,
+        status: participant.status,
         nick: participant.nick,
         uuid: participant.uuid,
         role: participant.role

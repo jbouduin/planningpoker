@@ -1,7 +1,8 @@
+import { ParticipantStatus } from './participant-status';
 import { Role } from './role';
 
 export interface DtoParticipant {
-  connected: boolean;
+  status: ParticipantStatus;
   nick: string;
   uuid: string;
   role: Role;

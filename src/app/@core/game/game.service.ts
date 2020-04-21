@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import * as Collections from 'typescript-collections';
 
-import { DtoGame, Role } from '../../../../projects/shared-lib/lib';
+import { DtoCard, DtoGame, ParticipantStatus, Role } from '../../../../projects/shared-lib/lib';
 import { ErrorCode, Message, MessageType, Verb } from '../../../../projects/shared-lib/lib';
 import { ToastService } from '../../toast'
 import { WebsocketService } from '../websocket.service';
+
+import { Game } from './game';
 import { Participant } from './participant';
 
 @Injectable({
@@ -15,15 +18,15 @@ import { Participant } from './participant';
 })
 export class GameService {
 
-  // public properties
-  public game?: DtoGame;
-  public self?: Participant;
-  public participants: Collections.Dictionary<string, Participant>;
-
   // private properties
+  private readonly localStorageNickKey: string = "current_nick";
   private readonly localStorageUuidKey: string = "current_uuid";
   private readonly localStorageTeamKey: string = "current_team";
 
+  private currentRoute: string;
+  private game?: Game;
+  private self?: Participant;
+  private participants: Collections.Dictionary<string, Participant>;
   private socket?: Subject<Message>;
   private nickInitialized = false;
   private gameInitialized = false;
@@ -31,13 +34,64 @@ export class GameService {
   // constructor
   public constructor(
     private router: Router,
-    private websocketService: WebsocketService,
-    private toastService: ToastService) {
-    this.participants = new Collections.Dictionary<string, Participant>();
+    private toastService: ToastService,
+    private websocketService: WebsocketService) {
     console.log('in Gameservice constructor');
+    this.router.events
+      .pipe(filter((event: any) => event instanceof NavigationEnd))
+      .subscribe(event => this.currentRoute = event.urlAfterRedirect );
+      this.currentRoute = '/';
+      this.participants = new Collections.Dictionary<string, Participant>();
+  }
+
+  // getter methods
+  public get cards() : Array<DtoCard> {
+    return this.game ? this.game.cards : new Array<DtoCard>();
+  }
+
+  public get developers(): Array<Participant> {
+    const result = new Array<Participant>();
+    if (this.self?.role === Role.Developer) {
+      result.push(this.self);
+    }
+    return result.concat(
+      this.participants.values().filter(participant => participant.role === Role.Developer)
+    );
+  }
+
+  public get myNick(): string {
+    return this.self ?
+      this.self.nick :
+      localStorage.getItem(this.localStorageNickKey) || '';
+  }
+
+  public get myUuid(): string {
+    return this.self ?
+      this.self.uuid :
+      localStorage.getItem(this.localStorageUuidKey) || '';
+  }
+
+  public get scrumMaster(): Participant | undefined {
+    if (this.self?.role === Role.ScrumMaster) {
+      return this.self;
+    }
+    const result = this.participants.values()
+      .filter(participant => participant.role === Role.ScrumMaster)[0];
+    return result ? result : undefined;
+  }
+
+  public get team(): string {
+    return this.game ?
+      this.game.team :
+      localStorage.getItem(this.localStorageTeamKey) || '';
   }
 
   // public methods
+  public canReconnect() {
+    return localStorage.getItem(this.localStorageUuidKey) &&
+    localStorage.getItem(this.localStorageTeamKey);
+  }
+
   public changeNick(uuid: string, nick: string): void {
     if (this.socket) {
       const message: Message = {
@@ -59,28 +113,29 @@ export class GameService {
     this.createConnection(team, nick, this.joinTeam.bind(this));
   }
 
+  public leave(): void {
+    const message: Message = {
+      type: Verb.Leave,
+      uuid: this.myUuid,
+      data: ''
+    };
+    // if we are connected, we are just leaving the game
+    // if not we are leaving a game we have been disconnected from before
+    if (this.socket) {
+      this.socket.next(message);
+    } else {
+      const team = localStorage.getItem(this.team);
+      if (team) {
+        const socket = this.createSocket(team);
+        socket.next(message);
+      }
+    }
+    this.reset();
+  }
+
   public rejoin(): void {
-
   }
 
-  public developers(): Array<Participant> {
-    const result = new Array<Participant>();
-    if (this.self?.role === Role.Developer) {
-      result.push(this.self);
-    }
-    return result.concat(
-      this.participants.values().filter(participant => participant.role === Role.Developer)
-    );
-  }
-
-  public scrumMaster(): Participant | undefined {
-    if (this.self?.role === Role.ScrumMaster) {
-      return this.self;
-    }
-    const result = this.participants.values()
-      .filter(participant => participant.role === Role.ScrumMaster)[0];
-    return result ? result : undefined;
-  }
   // private methods
   private createConnection(
     team: string,
@@ -117,16 +172,7 @@ export class GameService {
           if (msg.data.code === ErrorCode.TeamAlreadyExists ||
             msg.data.code === ErrorCode.TeamDoesNotExist ||
             msg.data.code === ErrorCode.ParticipantNotFound) {
-            if (this.socket) {
-              this.socket.unsubscribe();
-            }
-            this.websocketService.disconnect();
-            this.game = undefined;
-            this.self = undefined;
-            this.gameInitialized = false;
-            this.nickInitialized = false;
-            localStorage.removeItem(this.localStorageUuidKey);
-            localStorage.removeItem(this.localStorageTeamKey);
+            this.reset();
           }
           break;
         }
@@ -134,7 +180,7 @@ export class GameService {
           console.log(`MessageType: Game`);
           console.log(msg.data);
           // if we are not in there yet, this is the moment
-          if (!this.game) {
+          if (this.currentRoute !== '/game') {
             console.log('navigating to game');
             this.router.navigate(['game']);
           }
@@ -146,6 +192,7 @@ export class GameService {
           console.log(`MessageType: Self`);
           console.log(msg.data);
           this.self = new Participant(msg.data, true);
+          localStorage.setItem(this.localStorageNickKey, this.self.nick);
           localStorage.setItem(this.localStorageUuidKey, this.self.uuid);
           break;
         }
@@ -153,8 +200,24 @@ export class GameService {
           console.log(`MessageType: Participant`);
           console.log(msg.data);
           const participant: Participant = new Participant(msg.data, false);
-
-          this.participants.setValue(participant.uuid, participant);
+          if (participant.status === ParticipantStatus.Left)
+          {
+            this.toastService.show({
+              text: `'${participant.nick}' has left.`,
+              type: 'info',
+            });
+            this.participants.remove(participant.uuid);
+          } else {
+            // TODO: difference between the participants arriving after joining
+            // and someone really entering the game
+            if (!this.participants.containsKey(participant.uuid)) {
+              this.toastService.show({
+                text: `'${participant.nick}' connected.`,
+                type: 'info',
+              });
+            }
+            this.participants.setValue(participant.uuid, participant);
+          }
           break;
         }
         case MessageType.Ping: {
@@ -175,10 +238,14 @@ export class GameService {
       text: `Error code: ${err}`,
       type: 'warning',
     }),
-    () => this.toastService.show({
-      text: `Socket done`,
-      type: 'warning',
-    }));
+    () => {
+      if (this.currentRoute === '/game') {
+        this.toastService.show({
+          text: `You have been disconnected`,
+          type: 'warning',
+        });
+      }
+    });
   }
 
   private createSocket(team: string): Subject<Message> {
@@ -211,4 +278,24 @@ export class GameService {
       this.socket.next(message);
     }
   }
+
+  private reset() {
+    if (this.socket) {
+      this.socket.unsubscribe();
+    }
+    this.websocketService.disconnect();
+    this.game = undefined;
+    this.self = undefined;
+    this.gameInitialized = false;
+    this.nickInitialized = false;
+    localStorage.removeItem(this.localStorageNickKey);
+    localStorage.removeItem(this.localStorageUuidKey);
+    localStorage.removeItem(this.localStorageTeamKey);
+
+    if (this.currentRoute !== '/home') {
+      console.log('navigating to home');
+      this.router.navigate(['home']);
+    }
+  }
+
 }

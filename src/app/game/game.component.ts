@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
-import { Role } from '../../../projects/shared-lib/lib';
+import { DtoCard } from '../../../projects/shared-lib/lib';
 import { GameService } from '../@core';
 
 @Component({
@@ -8,19 +9,18 @@ import { GameService } from '../@core';
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements AfterViewInit, OnInit {
 
-  constructor(private gameService: GameService) { }
+  // constructor
+  public constructor(private ar: ActivatedRoute, private gameService: GameService) { }
 
-  ngOnInit(): void {
-  }
-
+  // getters
   public get team(): string {
-    return this.gameService.game?.team || 'Not connected';
+    return this.gameService.team;
   }
 
   public get scrumMaster(): string {
-    const scrumMaster = this.gameService.scrumMaster();
+    const scrumMaster = this.gameService.scrumMaster;
     if (scrumMaster) {
       return `${scrumMaster.nick}${scrumMaster.me ? ' (me)' : ''}`;
     }
@@ -28,14 +28,29 @@ export class GameComponent implements OnInit {
   }
 
   public get developers(): Array<string> {
-    return this.gameService.developers()
+    return this.gameService.developers
       .map(participant => `${participant.nick}${participant.me ? ' (me)' : ''} `);
   }
 
-  public get availableCards(): Array<string> {
-    if (this.gameService?.game) {
-      return this.gameService.game.cards.map(card => card.label);
-    }
-    return new Array<string>();
+  public get availableCards(): Array<DtoCard> {
+    return this.gameService.cards; //.map(card => card.label);
+  }
+
+  // interface members
+  public ngAfterViewInit(): void {
+    // TODO: remove this afterwards
+    console.log(this.ar);
+  }
+
+  public ngOnInit(): void {
+  }
+
+  // public methods
+  public leave(): void {
+    this.gameService.leave();
+  }
+
+  public estimate(cardIndex: number) {
+
   }
 }

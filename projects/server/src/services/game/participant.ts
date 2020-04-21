@@ -1,14 +1,14 @@
-import { DtoParticipant, Role } from '../../../../shared-lib/lib';
+import { DtoParticipant, ParticipantStatus, Role } from '../../../../shared-lib/lib';
 
 export class Participant implements DtoParticipant {
 
-  public connected: boolean;
+  public status: ParticipantStatus;
 
   constructor(
     public nick: string,
     public uuid: string,
     public role: Role,
     public socket: any) {
-    this.connected = true;
+    this.status = ParticipantStatus.Connected;
   }
 }
