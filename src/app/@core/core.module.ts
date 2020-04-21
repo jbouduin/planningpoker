@@ -13,24 +13,24 @@ import { RouteReusableStrategy } from './route-reusable-strategy';
     CommonModule,
     HttpClientModule,
     TranslateModule,
-    RouterModule,
+    RouterModule
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiPrefixInterceptor,
-      multi: true,
+      multi: true
     },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorHandlerInterceptor,
-      multi: true,
+      multi: true
     },
     {
       provide: RouteReuseStrategy,
-      useClass: RouteReusableStrategy,
-    },
-  ],
+      useClass: RouteReusableStrategy
+    }
+  ]
 })
 export class CoreModule {
   constructor(@Optional() @SkipSelf() parentModule: CoreModule) {

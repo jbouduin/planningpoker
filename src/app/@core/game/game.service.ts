@@ -22,14 +22,14 @@ interface CallBackParameter {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class GameService {
 
   // <editor-fold desc='private readonly properties'>
-  private readonly localStorageNickKey: string = "current_nick";
-  private readonly localStorageUuidKey: string = "current_uuid";
-  private readonly localStorageTeamKey: string = "current_team";
+  private readonly localStorageNickKey: string = 'current_nick';
+  private readonly localStorageUuidKey: string = 'current_uuid';
+  private readonly localStorageTeamKey: string = 'current_team';
   // </editor-fold>
 
   // <editor-fold desc='private properties'>
@@ -151,7 +151,7 @@ export class GameService {
           },
           err => this.toastService.show({
             text: `Error code: ${err}`,
-            type: 'warning',
+            type: 'warning'
           })
         )
       }
@@ -187,7 +187,7 @@ export class GameService {
           this.logErrorMessage(msg);
           this.toastService.show({
             text: `Error code: ${msg.data.code}`,
-            type: 'warning',
+            type: 'warning'
           });
 
           if (msg.data.code === ErrorCode.TeamAlreadyExists ||
@@ -215,9 +215,9 @@ export class GameService {
           if (msg.reason === Reason.Init) {
             const callBackParams: CallBackParameter = {
               uuid: msg.data.uuid,
-              team: team,
-              nick: nick,
-              oldUuid: oldUuid
+              team,
+              nick,
+              oldUuid
             }
             callbacks.forEach(callback => callback(callBackParams));
           }
@@ -233,14 +233,14 @@ export class GameService {
           {
             this.toastService.show({
               text: `'${participant.nick}' has left.`,
-              type: 'info',
+              type: 'info'
             });
             this.participants.remove(participant.uuid);
           } else {
             if (msg.reason !== Reason.Init && !this.participants.getValue(participant.uuid)) {
               this.toastService.show({
                 text: `'${participant.nick}' joined.`,
-                type: 'info',
+                type: 'info'
               });
             }
             this.participants.setValue(participant.uuid, participant);
@@ -258,13 +258,13 @@ export class GameService {
     },
     err => this.toastService.show({
       text: `Error code: ${err}`,
-      type: 'warning',
+      type: 'warning'
     }),
     () => {
       if (this.currentRoute === '/game') {
         this.toastService.show({
-          text: `You have been disconnected`,
-          type: 'warning',
+          text: 'You have been disconnected',
+          type: 'warning'
         });
       }
     });
@@ -272,13 +272,13 @@ export class GameService {
 
   private createSocket(team: string): Subject<Message> {
     console.log(`in createsocket: ${team}`);
-    return <Subject<Message>>this.websocketService
+    return this.websocketService
 			.connect(`ws://localhost:3001/game/${encodeURI(team)}`)
 			.pipe(map((response: MessageEvent): Message => {
         console.log(response.data);
 				const message: Message = JSON.parse(response.data);
         return message;
-			}));
+			})) as Subject<Message>;
   }
 
   private reset() {

@@ -20,9 +20,9 @@ describe('HomeComponent', () => {
         MaterialModule,
         CoreModule,
         SharedModule,
-        HttpClientTestingModule,
+        HttpClientTestingModule
       ],
-      declarations: [HomeComponent],
+      declarations: [HomeComponent]
     }).compileComponents();
   }));
 

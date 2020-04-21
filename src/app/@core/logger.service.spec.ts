@@ -3,13 +3,13 @@ import { Logger, LogLevel, LogOutput } from './logger.service';
 const logMethods = ['log', 'info', 'warn', 'error'];
 
 describe('Logger', () => {
-  let savedConsole: any[];
+  let savedConsole: Array<any>;
   let savedLevel: LogLevel;
-  let savedOutputs: LogOutput[];
+  let savedOutputs: Array<LogOutput>;
 
   beforeAll(() => {
-    savedConsole = [];
-    logMethods.forEach((m) => {
+    savedConsole = new Array<any>;
+    logMethods.forEach( m => {
       savedConsole[m] = console[m];
       console[m] = () => {};
     });
@@ -22,7 +22,7 @@ describe('Logger', () => {
   });
 
   afterAll(() => {
-    logMethods.forEach((m) => {
+    logMethods.forEach( m => {
       console[m] = savedConsole[m];
     });
     Logger.level = savedLevel;

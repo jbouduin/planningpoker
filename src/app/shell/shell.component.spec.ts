@@ -24,9 +24,9 @@ describe('ShellComponent', () => {
         BrowserAnimationsModule,
         FlexLayoutModule,
         MaterialModule,
-        CoreModule,
+        CoreModule
       ],
-      declarations: [HeaderComponent, ShellComponent],
+      declarations: [HeaderComponent, ShellComponent]
     }).compileComponents();
   }));
 

@@ -20,9 +20,9 @@ import { CreateComponent } from './create/create.component';
     SharedModule,
     FlexLayoutModule,
     MaterialModule,
-    HomeRoutingModule,
+    HomeRoutingModule
   ],
   declarations: [HomeComponent, JoinComponent, CreateComponent],
-  providers: [],
+  providers: []
 })
 export class HomeModule {}

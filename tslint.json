@@ -7,8 +7,8 @@
     "codelyzer"
   ],
   "rules": {
-    "array-type": false,
-    "arrow-parens": false,
+    "array-type": [true, "generic"],
+    "arrow-parens": [true, "ban-single-arg-parens"],
     "deprecation": {
       "severity": "warn"
     },
@@ -67,7 +67,9 @@
     "object-literal-sort-keys": false,
     "quotemark": [
       true,
-      "single"
+      "single",
+      "avoid-escape",
+      "avoid-template"
     ],
     "typedef": [
       true,
@@ -78,7 +80,7 @@
     "no-var-requires": false,
     "object-literal-key-quotes": false,
     "ordered-imports": false,
-    "trailing-comma": false,
+    "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
     "no-conflicting-lifecycle": true,
     "no-output-native": true,
     "directive-selector": [

@@ -14,7 +14,7 @@ describe('HeaderComponent', () => {
     TestBed.configureTestingModule({
       imports: [RouterTestingModule, MaterialModule, TranslateModule.forRoot(), I18nModule],
       declarations: [HeaderComponent],
-      providers: [],
+      providers: []
     }).compileComponents();
   }));
 

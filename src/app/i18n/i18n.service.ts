@@ -20,11 +20,11 @@ export function extract(s: string) {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class I18nService {
   defaultLanguage!: string;
-  supportedLanguages!: string[];
+  supportedLanguages!: Array<string>;
 
   private langChangeSubscription!: Subscription;
 
@@ -40,7 +40,7 @@ export class I18nService {
    * @param defaultLanguage The default language to use.
    * @param supportedLanguages The list of supported languages.
    */
-  init(defaultLanguage: string, supportedLanguages: string[]) {
+  init(defaultLanguage: string, supportedLanguages: Array<string>) {
     this.defaultLanguage = defaultLanguage;
     this.supportedLanguages = supportedLanguages;
     this.language = '';
@@ -73,7 +73,7 @@ export class I18nService {
     // If no exact match is found, search without the region
     if (language && !isSupportedLanguage) {
       language = language.split('-')[0];
-      language = this.supportedLanguages.find((supportedLanguage) => supportedLanguage.startsWith(language)) || '';
+      language = this.supportedLanguages.find( supportedLanguage => supportedLanguage.startsWith(language)) || '';
       isSupportedLanguage = Boolean(language);
     }
 

@@ -6,7 +6,7 @@ import { GameService } from '../../@core';
 @Component({
   selector: 'app-create',
   templateUrl: './create.component.html',
-  styleUrls: ['./create.component.scss'],
+  styleUrls: ['./create.component.scss']
 })
 export class CreateComponent implements OnInit {
   public createData: FormGroup;
@@ -14,7 +14,7 @@ export class CreateComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private gameService: GameService) {
     this.createData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
-      nick: new FormControl('', [Validators.required]),
+      nick: new FormControl('', [Validators.required])
     });
   }
 

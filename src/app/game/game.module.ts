@@ -9,6 +9,6 @@ import { GameComponent } from './game.component';
 
 @NgModule({
   imports: [CommonModule, TranslateModule, FlexLayoutModule, MaterialModule, GameRoutingModule],
-  declarations: [GameComponent],
+  declarations: [GameComponent]
 })
 export class GameModule { }

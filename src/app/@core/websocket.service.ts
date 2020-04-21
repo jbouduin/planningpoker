@@ -36,7 +36,7 @@ export class WebsocketService {
   // <editor-fold desc='Private methods'>
   private create(url: string): Subject<MessageEvent> {
 		const ws = new WebSocket(url);
-		const observable = Observable.create(
+		const observable = new Observable(
 			(obs: Observer<MessageEvent>) => {
 				ws.onmessage = obs.next.bind(obs);
 				ws.onerror = obs.error.bind(obs);
@@ -45,7 +45,7 @@ export class WebsocketService {
 		});
 
 		const observer = {
-			next: (data: Object) => {
+			next: (data: object) => {
 				if (ws.readyState === WebSocket.OPEN) {
 					ws.send(JSON.stringify(data));
 				}
@@ -53,6 +53,7 @@ export class WebsocketService {
 		}
 
     this.webSocket = ws;
+    // TODO: lint says to use new Subject
 		return Subject.create(observer, observable);
 	}
   // </editor-fold>

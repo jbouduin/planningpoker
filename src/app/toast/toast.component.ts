@@ -9,14 +9,20 @@ import { toastAnimations, ToastAnimationState } from './toast-animation';
   selector: 'app-toast',
   templateUrl: './toast.component.html',
   styleUrls: ['toast.component.scss'],
-  animations: [toastAnimations.fadeToast],
+  animations: [toastAnimations.fadeToast]
 })
 export class ToastComponent implements OnInit, OnDestroy {
+
+  // <editor-fold desc='Public properties'>
   public animationState: ToastAnimationState = 'default';
   public iconType: string;
+  // </editor-fold>
 
-  private intervalId: number = 0;
+  // <editor-fold desc='Private properties'>
+  private intervalId = 0;
+  // </editor-fold>
 
+  // <editor-fold desc='Constructor & C°'>
   public constructor(
     public readonly data: ToastData,
     readonly ref: ToastRef,
@@ -24,7 +30,9 @@ export class ToastComponent implements OnInit, OnDestroy {
     ) {
       this.iconType = data.type === 'success' ? 'done' : data.type;
   }
+  // </editor-fold>
 
+  // <editor-fold desc='Public Angular interface methods'>
   public ngOnInit() {
     this.intervalId = setTimeout(() => this.animationState = 'closing', 5000);
   }
@@ -32,7 +40,9 @@ export class ToastComponent implements OnInit, OnDestroy {
   public ngOnDestroy() {
     clearTimeout(this.intervalId);
   }
+  // </editor-fold>
 
+  // <editor-fold desc='Public methods'>
   public close() {
     this.ref.close();
   }
@@ -46,4 +56,5 @@ export class ToastComponent implements OnInit, OnDestroy {
       this.close();
     }
   }
+  // </editor-fold>
 }

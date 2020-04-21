@@ -15,7 +15,7 @@ describe('LanguageSelectorComponent', () => {
     TestBed.configureTestingModule({
       imports: [BrowserAnimationsModule, FlexLayoutModule, MaterialModule, TranslateModule.forRoot()],
       declarations: [LanguageSelectorComponent],
-      providers: [I18nService],
+      providers: [I18nService]
     }).compileComponents();
   }));
 

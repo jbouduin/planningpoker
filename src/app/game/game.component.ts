@@ -34,7 +34,7 @@ export class GameComponent implements OnInit {
   }
 
   public get availableCards(): Array<DtoCard> {
-    return this.gameService.cards; //.map(card => card.label);
+    return this.gameService.cards;
   }
   // </editor-fold>
 

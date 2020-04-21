@@ -7,7 +7,7 @@ import { GameService } from '../../@core';
 @Component({
   selector: 'app-join',
   templateUrl: './join.component.html',
-  styleUrls: ['./join.component.scss'],
+  styleUrls: ['./join.component.scss']
 })
 export class JoinComponent implements OnInit {
 
@@ -16,7 +16,7 @@ export class JoinComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private gameService: GameService) {
     this.joinData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
-      nick: new FormControl('', [Validators.required]),
+      nick: new FormControl('', [Validators.required])
     });
   }
 
