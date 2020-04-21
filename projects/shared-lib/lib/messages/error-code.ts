@@ -4,4 +4,5 @@ export enum ErrorCode {
   ParticipantNotFound = 200,
   Error = 500,
   NotImplemented = 501,
+  UnknownVerb = 502
 }

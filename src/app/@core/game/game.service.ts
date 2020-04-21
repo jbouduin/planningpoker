@@ -5,7 +5,8 @@ import { Observable, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import * as Collections from 'typescript-collections';
 
-import { DtoCard, DtoGame, ParticipantStatus, Role } from '../../../../projects/shared-lib/lib';
+import { DtoCard, DtoGame, DtoParticipant } from '../../../../projects/shared-lib/lib';
+import { ParticipantStatus, Reason, Role } from '../../../../projects/shared-lib/lib';
 import { ErrorCode, Message, MessageType, Verb } from '../../../../projects/shared-lib/lib';
 import { ToastService } from '../../toast'
 import { WebsocketService } from '../websocket.service';
@@ -13,13 +14,19 @@ import { WebsocketService } from '../websocket.service';
 import { Game } from './game';
 import { Participant } from './participant';
 
+interface CallBackParameter {
+  uuid: string,
+  team?: string,
+  nick?: string,
+  oldUuid?: string
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
 
   // <editor-fold desc='private readonly properties'>
-
   private readonly localStorageNickKey: string = "current_nick";
   private readonly localStorageUuidKey: string = "current_uuid";
   private readonly localStorageTeamKey: string = "current_team";
@@ -31,8 +38,6 @@ export class GameService {
   private self?: Participant;
   private participants: Collections.Dictionary<string, Participant>;
   private socket?: Subject<Message>;
-  private nickInitialized = false;
-  private gameInitialized = false;
   // </editor-fold>
 
   // <editor-fold desc='constructor & C°'>
@@ -44,8 +49,8 @@ export class GameService {
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd))
       .subscribe(event => this.currentRoute = event.urlAfterRedirect );
-      this.currentRoute = '/';
-      this.participants = new Collections.Dictionary<string, Participant>();
+    this.currentRoute = '/';
+    this.participants = new Collections.Dictionary<string, Participant>();
   }
   // </editor-fold>
 
@@ -101,35 +106,33 @@ export class GameService {
   }
   // </editor-fold>
 
-  // <editor-fold desc='public methods'>
-
-  // <editor-fold desc='verb related methods'>
-  public changeNick(uuid: string, nick: string): void {
-    if (this.socket) {
-      const message: Message = {
-        type: Verb.Nick,
-        uuid,
-        data: nick
-      };
-      this.socket.next(message);
-    }
-  }
-
+  // <editor-fold desc='public verb related methods'>
   public create(team: string, nick: string): void {
     console.log(`creating: ${nick}@${team}`);
-    this.createConnection(team, nick, this.createTeam.bind(this));
+    this.createConnection(
+      team,
+      nick,
+      undefined,
+      [ this.setNick.bind(this),  this.createTeam.bind(this) ]
+    );
   }
 
   public join(team: string, nick: string): void {
     console.log(`joining: ${nick}@${team}`);
-    this.createConnection(team, nick, this.joinTeam.bind(this));
+    this.createConnection(
+      team,
+      nick,
+      undefined,
+      [ this.setNick.bind(this), this.joinTeam.bind(this) ]
+    );
   }
 
   public leave(): void {
     const message: Message = {
       type: Verb.Leave,
       uuid: this.myUuid,
-      data: ''
+      data: '',
+      reason: Reason.Refresh
     };
     // if we are connected, we are just leaving the game
     // if not we are leaving a game we have been disconnected from before
@@ -159,41 +162,29 @@ export class GameService {
   }
 
   public rejoin(): void {
+    console.log(`rejoining: ${this.myNick}@${this.team}`);
+    this.createConnection(
+      this.team,
+      undefined,
+      localStorage.getItem(this.localStorageUuidKey) || undefined,
+      [ this.switchUuid.bind(this) ]
+    );
   }
   // </editor-fold>
 
-  // </editor-fold>
-
-  // <editor-fold desc='private methods'>
-
-  // <editor-fold desc='connection related methods'>
+  // <editor-fold desc='private connection related methods'>
   private createConnection(
     team: string,
-    nick: string,
-    teamCallback: (uuid: string, team: string) => void) {
+    nick: string | undefined,
+    oldUuid: string | undefined,
+    callbacks: Array<(params: CallBackParameter) => void>) {
     this.socket = this.createSocket(team);
 
     this.socket.subscribe(msg => {
-      // if the message is not an error message
-      if (msg.type !== MessageType.Error)
-      {
-        // check if we still have to set our nick
-        if (!this.nickInitialized) {
-          this.changeNick(msg.data.uuid, nick);
-          this.nickInitialized = true;
-        }
-        // check if we already belong to a team
-        // if not do the appropriate action
-        if (!this.gameInitialized) {
-          teamCallback(msg.data.uuid, team);
-          this.gameInitialized = true;
-        }
-      }
 
       switch(msg.type) {
         case MessageType.Error: {
-          console.log(`MessageType: Error`);
-          console.log(msg.data);
+          this.logErrorMessage(msg);
           this.toastService.show({
             text: `Error code: ${msg.data.code}`,
             type: 'warning',
@@ -207,8 +198,7 @@ export class GameService {
           break;
         }
         case MessageType.Game: {
-          console.log(`MessageType: Game`);
-          console.log(msg.data);
+          this.logGameMessage(msg);
           // if we are not in there yet, this is the moment
           if (this.currentRoute !== '/game') {
             console.log('navigating to game');
@@ -219,16 +209,25 @@ export class GameService {
           break;
         }
         case MessageType.Self: {
-          console.log(`MessageType: Self`);
-          console.log(msg.data);
+          this.logParticipantMessage(msg);
+          // if this is the very first response from the server, execute the callbacks
+          // this will occur only once
+          if (msg.reason === Reason.Init) {
+            const callBackParams: CallBackParameter = {
+              uuid: msg.data.uuid,
+              team: team,
+              nick: nick,
+              oldUuid: oldUuid
+            }
+            callbacks.forEach(callback => callback(callBackParams));
+          }
           this.self = new Participant(msg.data, true);
           localStorage.setItem(this.localStorageNickKey, this.self.nick);
           localStorage.setItem(this.localStorageUuidKey, this.self.uuid);
           break;
         }
         case MessageType.Participant: {
-          console.log(`MessageType: Participant`);
-          console.log(msg.data);
+          this.logParticipantMessage(msg);
           const participant: Participant = new Participant(msg.data, false);
           if (participant.status === ParticipantStatus.Left)
           {
@@ -238,11 +237,9 @@ export class GameService {
             });
             this.participants.remove(participant.uuid);
           } else {
-            // TODO: difference between the participants arriving after joining
-            // and someone really entering the game
-            if (!this.participants.containsKey(participant.uuid)) {
+            if (msg.reason !== Reason.Init && !this.participants.getValue(participant.uuid)) {
               this.toastService.show({
-                text: `'${participant.nick}' connected.`,
+                text: `'${participant.nick}' joined.`,
                 type: 'info',
               });
             }
@@ -251,12 +248,7 @@ export class GameService {
           break;
         }
         case MessageType.Ping: {
-          console.log(`MessageType: Ping`);
-          console.log(msg.data);
-          console.log('me:')
-          console.log(this.self);
-          console.log('the others:')
-          this.participants.values().forEach(participant => console.log(participant));
+          this.logPingMessage(msg)
           break;
         }
         default: {
@@ -279,9 +271,11 @@ export class GameService {
   }
 
   private createSocket(team: string): Subject<Message> {
+    console.log(`in createsocket: ${team}`);
     return <Subject<Message>>this.websocketService
 			.connect(`ws://localhost:3001/game/${encodeURI(team)}`)
 			.pipe(map((response: MessageEvent): Message => {
+        console.log(response.data);
 				const message: Message = JSON.parse(response.data);
         return message;
 			}));
@@ -294,8 +288,6 @@ export class GameService {
     this.websocketService.disconnect();
     this.game = undefined;
     this.self = undefined;
-    this.gameInitialized = false;
-    this.nickInitialized = false;
     localStorage.removeItem(this.localStorageNickKey);
     localStorage.removeItem(this.localStorageUuidKey);
     localStorage.removeItem(this.localStorageTeamKey);
@@ -305,32 +297,108 @@ export class GameService {
       this.router.navigate(['home']);
     }
   }
-  // </editor-fold>
 
-  // <editor-fold desc='teamCallback methods'>
+  // <editor-fold desc='Private Init-Callback methods'>
 
-  private createTeam(uuid: string, team: string) {
+  private createTeam(params: CallBackParameter) {
+    console.log(`call createTeam: ${params}`);
+
     if (this.socket) {
       const message: Message = {
         type: Verb.Create,
-        uuid,
-        data: team
+        uuid: params.uuid,
+        data: params.team,
+        reason: Reason.Refresh
       };
       this.socket.next(message);
     }
   }
 
-  private joinTeam(uuid: string, team: string) {
+  private joinTeam(params: CallBackParameter) {
+    console.log(`call joinTeam: ${params}`);
     if (this.socket) {
       const message: Message = {
         type: Verb.Join,
-        uuid,
-        data: team
+        uuid: params.uuid,
+        data: params.team,
+        reason: Reason.Refresh
       };
       this.socket.next(message);
     }
   }
+
+  private switchUuid (params: CallBackParameter) {
+    console.log(`call switchUuid: ${params}`);
+    if (this.socket) {
+      const message: Message = {
+        type: Verb.Switch,
+        uuid: params.uuid,
+        data: params.oldUuid,
+        reason: Reason.Refresh
+      };
+      this.socket.next(message);
+    }
+  }
+
+  private setNick(params: CallBackParameter) {
+    console.log(`call setNick: ${params}`);
+    if (this.socket) {
+      const message: Message = {
+        type: Verb.Nick,
+        uuid: params.uuid,
+        data: params.nick,
+        reason: Reason.Refresh
+      };
+      this.socket.next(message);
+    }
+  }
+
   // </editor-fold>
 
+  // <editor-fold desc='logger methods'>
+  private logErrorMessage(message: Message) {
+    console.log({
+      message: {
+        reason: Reason[message.reason],
+        type: MessageType[message.type]
+      },
+      code: ErrorCode[message.data.code],
+      error: message.data.message
+    });
+  }
+
+  private logGameMessage(message: Message) {
+    console.log({
+      message: {
+        reason: Reason[message.reason],
+        type: MessageType[message.type]
+      },
+      team: message.data.team,
+      cards: message.data.cards
+    });
+  }
+
+  private logParticipantMessage(message: Message) {
+    console.log({
+      message: {
+        reason: Reason[message.reason],
+        type: MessageType[message.type]
+      },
+      status: ParticipantStatus[message.data.status],
+      nick: message.data.nick,
+      uuid: message.data.uuid,
+      role: Role[message.data.role]
+    });
+  }
+
+  private logPingMessage(message: Message) {
+    console.log({
+      message: {
+        reason: Reason[message.reason],
+        type: MessageType[message.type]
+      },
+      data: message.data
+    });
+  }
   // </editor-fold>
 }
