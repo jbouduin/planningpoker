@@ -134,15 +134,28 @@ export class GameService {
     // if we are connected, we are just leaving the game
     // if not we are leaving a game we have been disconnected from before
     if (this.socket) {
+      console.log('leaving with existing connection');
       this.socket.next(message);
+      this.reset();
     } else {
-      const team = localStorage.getItem(this.team);
-      if (team) {
-        const socket = this.createSocket(team);
-        socket.next(message);
+      console.log(`creating a connection to leave ${this.team}`);
+      if (this.team) {
+        const socket = this.createSocket(this.team);
+        socket.subscribe(
+          msg => {
+            socket.next(message);
+            this.reset();
+          },
+          err => this.toastService.show({
+            text: `Error code: ${err}`,
+            type: 'warning',
+          })
+        )
+      }
+      else {
+        console.log('this should not happen: no team');
       }
     }
-    this.reset();
   }
 
   public rejoin(): void {
