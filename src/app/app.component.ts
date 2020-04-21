@@ -17,6 +17,8 @@ const log = new Logger('App');
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, OnDestroy {
+
+  // <editor-fold desc='Constructor & C°'>
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -24,6 +26,11 @@ export class AppComponent implements OnInit, OnDestroy {
     private translateService: TranslateService,
     private i18nService: I18nService
   ) {}
+  // </editor-fold>
+
+  // <editor-fold desc='public methods'>
+
+  // <editor-fold desc='Angular interface methods'>
 
   ngOnInit() {
     // Setup logger
@@ -63,4 +70,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.i18nService.destroy();
   }
+  // </editor-fold>
+
+  // </editor-fold>
 }

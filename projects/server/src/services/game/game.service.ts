@@ -20,17 +20,17 @@ export interface IGameService {
 @injectable()
 export class GameService implements IGameService {
 
-  // private properties
+  // <editor-fold desc='Private properties'>
   private cnt: number;
   private games: Collections.Dictionary<string, Game>;
   private participants: Collections.Dictionary<string, Participant>;
   private participantGameMap: Collections.Dictionary<string, string>;
   private pingInterval: number;
+  // </editor-fold>
 
-  // constructor
+  // <editor-fold desc='Constructor & C°'>
   public constructor(
     @inject(SERVICETYPES.CardService) private cardService: ICardService) {
-
     console.log('gameservice constructor');
     this.cnt = 0;
     this.games = new Collections.Dictionary<string, Game>();
@@ -38,8 +38,9 @@ export class GameService implements IGameService {
     this.participantGameMap = new Collections.Dictionary<string, string>();
     this.pingInterval = 0;
   }
+  // </editor-fold>
 
-  // interface members
+  // <editor-fold desc='Interface members'>
   public initializeGame(expressWs: expressWs.Instance): void {
     const router = Router() as expressWs.Router;
     const wss = expressWs.getWss();
@@ -193,8 +194,9 @@ export class GameService implements IGameService {
 
     expressWs.app.use('/game', router);
   }
+  // </editor-fold>
 
-  // private helper methods
+  // <editor-fold desc='Private methods'>
   private broadcastParticipantToOthers(game: Game, sender: Participant): void {
     game
       .filterParticipants(participant => participant.uuid !== sender.uuid && participant.status === ParticipantStatus.Connected)
@@ -245,4 +247,5 @@ export class GameService implements IGameService {
       console.log(err);
     }
   }
+  // </editor-fold>
 }

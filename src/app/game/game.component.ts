@@ -11,10 +11,14 @@ import { GameService } from '../@core';
 })
 export class GameComponent implements AfterViewInit, OnInit {
 
-  // constructor
+  // <editor-fold desc='Constructor & C°'>
   public constructor(private ar: ActivatedRoute, private gameService: GameService) { }
+  // </editor-fold>
 
-  // getters
+  // <editor-fold desc='Public methods'>
+
+  // <editor-fold desc='Getter methods'>
+
   public get team(): string {
     return this.gameService.team;
   }
@@ -35,8 +39,10 @@ export class GameComponent implements AfterViewInit, OnInit {
   public get availableCards(): Array<DtoCard> {
     return this.gameService.cards; //.map(card => card.label);
   }
+  // </editor-fold>
 
-  // interface members
+  // <editor-fold desc='Angular interface methods'>
+
   public ngAfterViewInit(): void {
     // TODO: remove this afterwards
     console.log(this.ar);
@@ -44,13 +50,17 @@ export class GameComponent implements AfterViewInit, OnInit {
 
   public ngOnInit(): void {
   }
+  // </editor-fold>
 
-  // public methods
+  // <editor-fold desc='UI Trigger methods'>
   public leave(): void {
     this.gameService.leave();
   }
 
   public estimate(cardIndex: number) {
-
+    console.log(`estimated ${cardIndex}`);
   }
+  // </editor-fold>
+
+  // </editor-fold>//
 }

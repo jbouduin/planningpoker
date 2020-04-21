@@ -9,8 +9,12 @@ export interface ICardService {
 @injectable()
 export class CardService implements ICardService {
 
-  public constructor() { }
 
+  // <editor-fold desc='Constructor & C°'>
+  public constructor() { }
+  // </editor-fold>
+
+  // <editor-fold desc='Interface members'>
   public generateCardSet(): Array<DtoCard> {
     const result = new Array<DtoCard>();
     result.push({ index: 0, label: '0' });
@@ -28,4 +32,5 @@ export class CardService implements ICardService {
 
     return result;
   }
+  // </editor-fold>
 }

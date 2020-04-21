@@ -6,11 +6,16 @@ import { Observable, Observer, Subject } from 'rxjs';
 })
 export class WebsocketService {
 
+  // <editor-fold desc='private properties'>
   private subject?: Subject<MessageEvent>;
   private webSocket?: WebSocket;
+  // </editor-fold>
 
+  // <editor-fold desc='Constructor & C°'>
   constructor() { }
+  // </editor-fold>
 
+  // <editor-fold desc='Public methods'>
 	public connect(url: string): Subject<MessageEvent> {
 		if (!this.subject) {
 			this.subject = this.create(url);
@@ -26,7 +31,9 @@ export class WebsocketService {
       this.webSocket.close();
     }
   }
+  // </editor-fold>
 
+  // <editor-fold desc='Private methods'>
   private create(url: string): Subject<MessageEvent> {
 		const ws = new WebSocket(url);
 		const observable = Observable.create(
@@ -48,4 +55,5 @@ export class WebsocketService {
     this.webSocket = ws;
 		return Subject.create(observer, observable);
 	}
+  // </editor-fold>
 }

@@ -19,7 +19,7 @@
     <mat-card-content>This is the playfield</mat-card-content>
     <mat-card-actions>
       <li class="list-group-item" *ngFor="let card of availableCards">
-        <button mat-stroked-button color="primary" ng-click="estimate(card.index)">{{card.label}}</button>
+        <button mat-stroked-button color="primary" (click)="estimate(card.index)">{{card.label}}</button>
       </li>
     </mat-card-actions>
   </mat-card>

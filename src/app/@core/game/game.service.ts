@@ -18,11 +18,14 @@ import { Participant } from './participant';
 })
 export class GameService {
 
-  // private properties
+  // <editor-fold desc='private readonly properties'>
+
   private readonly localStorageNickKey: string = "current_nick";
   private readonly localStorageUuidKey: string = "current_uuid";
   private readonly localStorageTeamKey: string = "current_team";
+  // </editor-fold>
 
+  // <editor-fold desc='private properties'>
   private currentRoute: string;
   private game?: Game;
   private self?: Participant;
@@ -30,8 +33,9 @@ export class GameService {
   private socket?: Subject<Message>;
   private nickInitialized = false;
   private gameInitialized = false;
+  // </editor-fold>
 
-  // constructor
+  // <editor-fold desc='constructor & C°'>
   public constructor(
     private router: Router,
     private toastService: ToastService,
@@ -43,8 +47,18 @@ export class GameService {
       this.currentRoute = '/';
       this.participants = new Collections.Dictionary<string, Participant>();
   }
+  // </editor-fold>
 
-  // getter methods
+  // <editor-fold desc='getter methods'>
+  public get canReconnect(): boolean {
+    if (localStorage.getItem(this.localStorageUuidKey) &&
+      localStorage.getItem(this.localStorageTeamKey)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public get cards() : Array<DtoCard> {
     return this.game ? this.game.cards : new Array<DtoCard>();
   }
@@ -85,13 +99,11 @@ export class GameService {
       this.game.team :
       localStorage.getItem(this.localStorageTeamKey) || '';
   }
+  // </editor-fold>
 
-  // public methods
-  public canReconnect() {
-    return localStorage.getItem(this.localStorageUuidKey) &&
-    localStorage.getItem(this.localStorageTeamKey);
-  }
+  // <editor-fold desc='public methods'>
 
+  // <editor-fold desc='verb related methods'>
   public changeNick(uuid: string, nick: string): void {
     if (this.socket) {
       const message: Message = {
@@ -135,8 +147,13 @@ export class GameService {
 
   public rejoin(): void {
   }
+  // </editor-fold>
 
-  // private methods
+  // </editor-fold>
+
+  // <editor-fold desc='private methods'>
+
+  // <editor-fold desc='connection related methods'>
   private createConnection(
     team: string,
     nick: string,
@@ -257,6 +274,28 @@ export class GameService {
 			}));
   }
 
+  private reset() {
+    if (this.socket) {
+      this.socket.unsubscribe();
+    }
+    this.websocketService.disconnect();
+    this.game = undefined;
+    this.self = undefined;
+    this.gameInitialized = false;
+    this.nickInitialized = false;
+    localStorage.removeItem(this.localStorageNickKey);
+    localStorage.removeItem(this.localStorageUuidKey);
+    localStorage.removeItem(this.localStorageTeamKey);
+
+    if (this.currentRoute !== '/home') {
+      console.log('navigating to home');
+      this.router.navigate(['home']);
+    }
+  }
+  // </editor-fold>
+
+  // <editor-fold desc='teamCallback methods'>
+
   private createTeam(uuid: string, team: string) {
     if (this.socket) {
       const message: Message = {
@@ -278,24 +317,7 @@ export class GameService {
       this.socket.next(message);
     }
   }
+  // </editor-fold>
 
-  private reset() {
-    if (this.socket) {
-      this.socket.unsubscribe();
-    }
-    this.websocketService.disconnect();
-    this.game = undefined;
-    this.self = undefined;
-    this.gameInitialized = false;
-    this.nickInitialized = false;
-    localStorage.removeItem(this.localStorageNickKey);
-    localStorage.removeItem(this.localStorageUuidKey);
-    localStorage.removeItem(this.localStorageTeamKey);
-
-    if (this.currentRoute !== '/home') {
-      console.log('navigating to home');
-      this.router.navigate(['home']);
-    }
-  }
-
+  // </editor-fold>
 }

@@ -10,12 +10,15 @@ import { GameService } from '../@core';
 })
 export class HomeComponent implements AfterViewInit, OnInit {
 
-  // constructor
+  // <editor-fold desc='Constructor & C°'>
   public constructor(private gameService: GameService) { }
+  // </editor-fold>
 
-  // public methods
+  // <editor-fold desc='public methods'>
+
+  // <editor-fold desc='Angular interface members'>
   public ngAfterViewInit() {
-    if (this.gameService.canReconnect()) {
+    if (this.gameService.canReconnect) {
       const tryReenter = confirm(`Do you want to rejoin the game '${this.gameService.team}' as '${this.gameService.myNick}'?`);
       if (tryReenter === true) {
         this.gameService.rejoin();
@@ -27,4 +30,7 @@ export class HomeComponent implements AfterViewInit, OnInit {
   }
 
   public ngOnInit() {}
+  // </editor-fold>//
+
+  // </editor-fold>
 }
