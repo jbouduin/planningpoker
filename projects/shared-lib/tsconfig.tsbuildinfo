@@ -154,8 +154,8 @@
         "signature": "559d7ed5586c16cd90dfdb29fe992f89596374e124a6aa411a632b5c4369381b"
       },
       "./lib/game/role.ts": {
-        "version": "5e5770cea0cee87d7b7d912c2e9e590dc36ce65c614277e4ee6f629c9a8b342a",
-        "signature": "17d96b8e9fb29588f7e403c5de3cdcab63e57fb0dacc8e618efed31bfc4cfde9"
+        "version": "2896fcb37e00b512d10860d4d63b64902f68edc1127bd4b0717a8ca17db042ae",
+        "signature": "0ad40e10657af277a55cc2edbe512b36542a868a6a0c2fc877ff69591cf11034"
       },
       "./lib/game/dto-participant.ts": {
         "version": "6b9971c17ebee7573189694f171a5f0ce29cb4b94379a12fcbe13ffe6028a369",
@@ -367,6 +367,7 @@
       "rootDir": "./lib",
       "composite": true,
       "target": 2,
+      "strict": true,
       "lib": [
         "lib.es2015.d.ts",
         "lib.dom.d.ts"
@@ -1632,9 +1633,12 @@
       "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
       "./lib/game/dto-card.ts",
+      "./lib/messages/error-code.ts",
       "./lib/messages/messagetype.ts",
       "./lib/messages/verb.ts",
       "./lib/messages/reason.ts",
+      "./lib/messages/index.ts",
+      "./lib/game/dto-error.ts",
       "./lib/game/dto-game.ts",
       "./lib/game/participant-status.ts",
       "./lib/game/role.ts",
@@ -1686,12 +1690,9 @@
       "./node_modules/@types/node/ts3.2/util.d.ts",
       "./node_modules/@types/node/ts3.2/globals.d.ts",
       "./node_modules/@types/node/ts3.2/index.d.ts",
-      "./lib/messages/error-code.ts",
-      "./lib/messages/index.ts",
-      "./lib/messages/message.ts",
-      "./lib/game/dto-error.ts",
       "./lib/game/index.ts",
-      "./lib/index.ts"
+      "./lib/index.ts",
+      "./lib/messages/message.ts"
     ]
   },
   "version": "3.8.3"

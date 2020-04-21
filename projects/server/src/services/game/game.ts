@@ -30,7 +30,7 @@ export class Game {
     return this.participants.size();
   }
 
-  public getParticipant(uuid: string): Participant {
+  public getParticipant(uuid: string): Participant | undefined {
     return this.participants.getValue(uuid);
   }
 

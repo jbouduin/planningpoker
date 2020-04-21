@@ -1,5 +1,5 @@
 export enum Role {
-  Undefined,
+  Unknown,
   Developer,
   ScrumMaster,
   Observer

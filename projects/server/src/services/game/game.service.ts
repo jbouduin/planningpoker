@@ -48,15 +48,15 @@ export class GameService implements IGameService {
       // new connection:
       // store in the participants collection
       // assign it an uuid and send the participant back to the sender
-      const param = req['params'] ? req['params'].team : 'not specified';
+      // TODO: const param = req['params'] ? req['params'].team : 'not specified';
       const uuid = Uuid();
       const newParticipant = new Participant(
         `participant ${++this.cnt}`,
         uuid,
-        Role.Undefined,
+        Role.Unknown,
         ws);
       this.participants.setValue(uuid, newParticipant);
-      console.log(`${new Date().toISOString()}: connection from client '${req.headers['sec-websocket-key']}' entered as '${newParticipant.nick}' in '${param}'`);
+      console.log(`${new Date().toISOString()}: connection from client '${req.headers['sec-websocket-key']}' entered as '${newParticipant.nick}' in '{TODO param}'`);
       // send the participant himself back, so he knows his assigned uuid
       this.sendParticipant(ws, Reason.Init, MessageType.Self, newParticipant);
 
@@ -179,10 +179,10 @@ export class GameService implements IGameService {
                       // update self to reflect the new-old uuid
                       this.sendParticipant(ws, Reason.Change, MessageType.Self, oldParticipant);
                       // tell the others that participant rejoined
-                      this.broadcastParticipantToOthers(game, Reason.Change, oldParticipant);
+                      this.broadcastParticipantToOthers(oldGame, Reason.Change, oldParticipant);
                       // send the game data to the participant
-                      this.broadcastOthersToParticipant(game, Reason.Init, oldParticipant);
-                      this.sendGame(ws, Reason.Init, game);
+                      this.broadcastOthersToParticipant(oldGame, Reason.Init, oldParticipant);
+                      this.sendGame(ws, Reason.Init, oldGame);
                     }
                   }
                   break;
@@ -288,9 +288,9 @@ export class GameService implements IGameService {
   // </editor-fold>
 
   // <editor-fold desc='Private helpers'>
-  private getGameOfUuid(uuid: string): Game {
+  private getGameOfUuid(uuid: string): Game | undefined {
     const gameName = this.participantGameMap.getValue(uuid);
-    return this.games.getValue(gameName);
+    return gameName ? this.games.getValue(gameName) : undefined;
   }
   // </editor-fold>
 }

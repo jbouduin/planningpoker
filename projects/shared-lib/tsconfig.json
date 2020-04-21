@@ -8,6 +8,7 @@
         "rootDir": "./lib",
         "composite": true,
         "target": "es6",
+        "strict": true,
         "lib": ["es6", "dom"],
         "types": ["reflect-metadata", "node"],
         "experimentalDecorators": true,
