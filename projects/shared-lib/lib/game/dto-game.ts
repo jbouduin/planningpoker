@@ -1,6 +1,7 @@
+import { GameStatus } from './game-status';
 import { DtoCard } from './dto-card';
 
 export interface DtoGame {
-    team: string;
-    cards: Array<DtoCard>;
+  team: string;
+  status: GameStatus;
 }

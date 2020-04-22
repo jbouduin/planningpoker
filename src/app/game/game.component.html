@@ -1,31 +1,73 @@
-<div fxFlex>
-  <h2>{{team}}</h2>
-  <mat-card>
-    <mat-card-title>Scrum Master</mat-card-title>
-    <mat-card-content>{{scrumMaster}}</mat-card-content>
-  </mat-card>
-  <mat-card>
-    <mat-card-title>Developers</mat-card-title>
-    <mat-card-content>
-      <ul >
-        <li class="list-group-item" *ngFor="let developer of developers">
-          {{developer}}
-        </li>
-      </ul>
-    </mat-card-content>
-  </mat-card>
-  <mat-card>
-    <mat-card-title>Game</mat-card-title>
-    <mat-card-content>This is the playfield</mat-card-content>
-    <mat-card-actions>
-      <li class="list-group-item" *ngFor="let card of availableCards">
-        <button mat-stroked-button color="primary" (click)="estimate(card.index)">{{card.label}}</button>
-      </li>
-    </mat-card-actions>
-  </mat-card>
-  <mat-card>
-    <mat-card-actions>
-      <button mat-stroked-button color="primary" (click)="leave()">Leave</button>
-    </mat-card-actions>
-  </mat-card>
+<div fxLayout="row">
+  <div fxLayout="column">
+    <div fxLayout="column">
+      <mat-card>
+        <mat-card-title>Scrum Master</mat-card-title>
+        <mat-card-content>{{scrumMaster}}</mat-card-content>
+      </mat-card>
+      <mat-card>
+        <mat-card-title>Developers</mat-card-title>
+        <mat-card-content>
+          <ul>
+            <li class="list-group-item" *ngFor="let developer of developers">
+              {{developer}}
+            </li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+    <div fxLayout="column">
+      <mat-card>
+        <mat-card-title>{{team}} ({{status}})</mat-card-title>
+        <mat-card-content>
+          <div fxLayout="row wrap">
+            <div class="list-group-item" *ngFor="let estimation of estimations" >
+              <div *ngIf="estimation.mine; then myEstimation else otherEstimation"></div>
+                <ng-template #myEstimation>
+                  <button mat-stroked-button color="secondary" (click)="withdraw()" [disabled]="!canEstimate">
+                    <p>{{estimation.label}}</p>
+                    <p>{{estimation.nick}}</p>
+                  </button>
+                </ng-template>
+                <ng-template #otherEstimation>
+                  <button mat-stroked-button color="primary" [disabled]="true">
+                    <p>{{estimation.revealed}}</p>
+                    <p *ngIf="estimation.revealed; then revealed else unrevealed"></p>
+                    <ng-template #revealed>
+                      {{estimation.label}}
+                    </ng-template>
+                    <ng-template #unrevealed>
+                      X
+                    </ng-template>
+                    <p>{{estimation.nick}}</p>
+                  </button>
+                </ng-template>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <div fxLayout="row wrap">
+            <div class="list-group-item" *ngFor="let card of availableCards">
+              <button mat-stroked-button color="primary" (click)="estimate(card.index)" [disabled]="!canEstimate">
+                {{card.label}}
+              </button>
+            </div>
+          </div>
+        </mat-card-actions>
+      </mat-card>
+      <mat-card>
+        <mat-card-actions>
+          <div fxLayout="row">
+            <div *ngIf="canStart">
+              <button mat-stroked-button color="primary" (click)="start()">Start</button>
+            </div>
+            <div *ngIf="canReveal">
+              <button mat-stroked-button color="primary" (click)="reveal()">Reveal</button>
+            </div>
+            <button mat-stroked-button color="primary" (click)="leave()">Leave</button>
+          </div>
+        </mat-card-actions>
+      </mat-card>
+    </div>
 </div>

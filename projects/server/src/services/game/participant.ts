@@ -9,6 +9,7 @@ export class Participant implements DtoParticipant {
     public uuid: string,
     public role: Role,
     public socket: any) {
+    // TODO: (#691) Socket
     this.status = ParticipantStatus.Connected;
   }
 }

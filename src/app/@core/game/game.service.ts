@@ -5,13 +5,14 @@ import { Observable, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import * as Collections from 'typescript-collections';
 
-import { DtoCard, DtoGame, DtoParticipant } from '../../../../projects/shared-lib/lib';
-import { ParticipantStatus, Reason, Role } from '../../../../projects/shared-lib/lib';
+import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '../../../../projects/shared-lib/lib';
 import { ErrorCode, Message, MessageType, Verb } from '../../../../projects/shared-lib/lib';
 import { ToastService } from '../../toast'
 import { WebsocketService } from '../websocket.service';
 
+import { Card } from './card';
 import { Game } from './game';
+import { Estimation } from './estimation';
 import { Participant } from './participant';
 
 interface CallBackParameter {
@@ -27,6 +28,7 @@ interface CallBackParameter {
 export class GameService {
 
   // <editor-fold desc='private readonly properties'>
+  private readonly game: Game;
   private readonly localStorageNickKey: string = 'current_nick';
   private readonly localStorageUuidKey: string = 'current_uuid';
   private readonly localStorageTeamKey: string = 'current_team';
@@ -34,7 +36,7 @@ export class GameService {
 
   // <editor-fold desc='private properties'>
   private currentRoute: string;
-  private game?: Game;
+  // TODO (#696) move self and participants to game
   private self?: Participant;
   private participants: Collections.Dictionary<string, Participant>;
   private socket?: Subject<Message>;
@@ -46,26 +48,26 @@ export class GameService {
     private toastService: ToastService,
     private websocketService: WebsocketService) {
     console.log('in Gameservice constructor');
+    this.currentRoute = '/';
+    this.game = Game.createGame(
+      localStorage.getItem(this.localStorageTeamKey) || '',
+      localStorage.getItem(this.localStorageTeamKey) && localStorage.getItem(this.localStorageUuidKey) ?
+        GameStatus.Disconnected : GameStatus.NoGame
+    );
+    this.participants = new Collections.Dictionary<string, Participant>();
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd))
       .subscribe(event => this.currentRoute = event.urlAfterRedirect );
-    this.currentRoute = '/';
-    this.participants = new Collections.Dictionary<string, Participant>();
   }
   // </editor-fold>
 
   // <editor-fold desc='getter methods'>
   public get canReconnect(): boolean {
-    if (localStorage.getItem(this.localStorageUuidKey) &&
-      localStorage.getItem(this.localStorageTeamKey)) {
-      return true;
-    } else {
-      return false;
-    }
+    return this.game.status === GameStatus.Disconnected;
   }
 
-  public get cards() : Array<DtoCard> {
-    return this.game ? this.game.cards : new Array<DtoCard>();
+  public get cards() : Array<Card> {
+    return this.game.availableCards;
   }
 
   public get developers(): Array<Participant> {
@@ -78,10 +80,18 @@ export class GameService {
     );
   }
 
+  public get estimations(): Array<Estimation> {
+    return this.game.estimations;
+  }
+
   public get myNick(): string {
     return this.self ?
       this.self.nick :
       localStorage.getItem(this.localStorageNickKey) || '';
+  }
+
+  public get myRole(): Role {
+    return this.self ? this.self.role : Role.Unknown;
   }
 
   public get myUuid(): string {
@@ -99,14 +109,16 @@ export class GameService {
     return result ? result : undefined;
   }
 
+  public get status(): GameStatus {
+    return this.game.status;
+  }
+
   public get team(): string {
-    return this.game ?
-      this.game.team :
-      localStorage.getItem(this.localStorageTeamKey) || '';
+    return this.game.team;
   }
   // </editor-fold>
 
-  // <editor-fold desc='public verb related methods'>
+  // <editor-fold desc='public connection related methods'>
   public create(team: string, nick: string): void {
     console.log(`creating: ${nick}@${team}`);
     this.createConnection(
@@ -127,6 +139,31 @@ export class GameService {
     );
   }
 
+  public rejoin(): void {
+    console.log(`rejoining: ${this.myNick}@${this.team}`);
+    this.createConnection(
+      this.team,
+      undefined,
+      localStorage.getItem(this.localStorageUuidKey) || undefined,
+      [ this.switchUuid.bind(this) ]
+    );
+  }
+  // </editor-fold>
+
+  // <editor-fold desc='Public verb related methods'>
+  public estimate(index: number): void {
+    console.log(`estimated ${index}`);
+    if (this.socket) {
+      const message: Message = {
+        type: Verb.Estimate,
+        uuid: this.myUuid,
+        data: index,
+        reason: Reason.Refresh
+      };
+      this.socket.next(message);
+    }
+  }
+
   public leave(): void {
     const message: Message = {
       type: Verb.Leave,
@@ -142,33 +179,57 @@ export class GameService {
       this.reset();
     } else {
       console.log(`creating a connection to leave ${this.team}`);
-      if (this.team) {
-        const socket = this.createSocket(this.team);
-        socket.subscribe(
-          msg => {
-            socket.next(message);
-            this.reset();
-          },
-          err => this.toastService.show({
-            text: `Error code: ${err}`,
-            type: 'warning'
-          })
-        )
-      }
-      else {
-        console.log('this should not happen: no team');
-      }
+      const socket = this.createSocket(this.team);
+      socket.subscribe(
+        msg => {
+          socket.next(message);
+          this.reset();
+        },
+        err => this.toastService.show({
+          text: `Error code: ${err}`,
+          type: 'warning'
+        })
+      );
     }
   }
 
-  public rejoin(): void {
-    console.log(`rejoining: ${this.myNick}@${this.team}`);
-    this.createConnection(
-      this.team,
-      undefined,
-      localStorage.getItem(this.localStorageUuidKey) || undefined,
-      [ this.switchUuid.bind(this) ]
-    );
+  public reveal(): void {
+    console.log('reveal');
+    if (this.socket) {
+      const message: Message = {
+        type: Verb.Reveal,
+        uuid: this.myUuid,
+        data: this.team,
+        reason: Reason.Refresh
+      };
+      this.socket.next(message);
+    }
+  }
+
+  public start(): void {
+    console.log('starting');
+    if (this.socket) {
+      const message: Message = {
+        type: Verb.Start,
+        uuid: this.myUuid,
+        data: this.team,
+        reason: Reason.Refresh
+      };
+      this.socket.next(message);
+    }
+  }
+
+  public withdraw(): void {
+    console.log('withdraw estimation');
+    if (this.socket) {
+      const message: Message = {
+        type: Verb.Estimate,
+        uuid: this.myUuid,
+        data: -1,
+        reason: Reason.Refresh
+      };
+      this.socket.next(message);
+    }
   }
   // </editor-fold>
 
@@ -183,6 +244,15 @@ export class GameService {
     this.socket.subscribe(msg => {
 
       switch(msg.type) {
+        case MessageType.Cards: {
+          this.logCardsMessage(msg);
+          this.game.setCards(msg.data);
+          break;
+        }
+        case MessageType.ClearEstimations: {
+          this.game.clearEstimations();
+          break;
+        }
         case MessageType.Error: {
           this.logErrorMessage(msg);
           this.toastService.show({
@@ -197,6 +267,12 @@ export class GameService {
           }
           break;
         }
+        case MessageType.Estimation: {
+          this.logEstimationMessage(msg);
+          console.log('upserting estimation');
+          this.game.handleEstimations(msg.data, this.participants, this.self);
+          break;
+        }
         case MessageType.Game: {
           this.logGameMessage(msg);
           // if we are not in there yet, this is the moment
@@ -204,7 +280,7 @@ export class GameService {
             console.log('navigating to game');
             this.router.navigate(['game']);
           }
-          this.game = msg.data;
+          this.game.update(msg.data);
           localStorage.setItem(this.localStorageTeamKey, team);
           break;
         }
@@ -214,37 +290,39 @@ export class GameService {
           // this will occur only once
           if (msg.reason === Reason.Init) {
             const callBackParams: CallBackParameter = {
-              uuid: msg.data.uuid,
+              uuid: msg.data[0].uuid,
               team,
               nick,
               oldUuid
             }
             callbacks.forEach(callback => callback(callBackParams));
           }
-          this.self = new Participant(msg.data, true);
+          this.self = Participant.createParticipant(msg.data[0], true);
           localStorage.setItem(this.localStorageNickKey, this.self.nick);
           localStorage.setItem(this.localStorageUuidKey, this.self.uuid);
           break;
         }
         case MessageType.Participant: {
           this.logParticipantMessage(msg);
-          const participant: Participant = new Participant(msg.data, false);
-          if (participant.status === ParticipantStatus.Left)
-          {
-            this.toastService.show({
-              text: `'${participant.nick}' has left.`,
-              type: 'info'
-            });
-            this.participants.remove(participant.uuid);
-          } else {
-            if (msg.reason !== Reason.Init && !this.participants.getValue(participant.uuid)) {
+          msg.data.forEach( (dtoParticipant: DtoParticipant) => {
+            const participant: Participant = Participant.createParticipant(dtoParticipant, false);
+            if (participant.status === ParticipantStatus.Left)
+            {
               this.toastService.show({
-                text: `'${participant.nick}' joined.`,
+                text: `'${participant.nick}' has left.`,
                 type: 'info'
               });
+              this.participants.remove(participant.uuid);
+            } else {
+              if (msg.reason !== Reason.Init && !this.participants.getValue(participant.uuid)) {
+                this.toastService.show({
+                  text: `'${participant.nick}' joined.`,
+                  type: 'info'
+                });
+              }
+              this.participants.setValue(participant.uuid, participant);
             }
-            this.participants.setValue(participant.uuid, participant);
-          }
+          });
           break;
         }
         case MessageType.Ping: {
@@ -253,6 +331,10 @@ export class GameService {
         }
         default: {
           console.log(`MessageType ?: ${msg}`);
+          this.toastService.show({
+            text: `Received unknown message type from server: '${msg.type}'.`,
+            type: 'info'
+          });
         }
       }
     },
@@ -286,7 +368,7 @@ export class GameService {
       this.socket.unsubscribe();
     }
     this.websocketService.disconnect();
-    this.game = undefined;
+    this.game.reset();
     this.self = undefined;
     localStorage.removeItem(this.localStorageNickKey);
     localStorage.removeItem(this.localStorageUuidKey);
@@ -297,6 +379,7 @@ export class GameService {
       this.router.navigate(['home']);
     }
   }
+  // </editor-fold>
 
   // <editor-fold desc='Private Init-Callback methods'>
 
@@ -352,51 +435,79 @@ export class GameService {
       this.socket.next(message);
     }
   }
-
   // </editor-fold>
 
-  // <editor-fold desc='logger methods'>
+  // <editor-fold desc='private logger methods for incoming messages'>
+  private logCardsMessage(message: Message) {
+    const cards = message.data.map( (card:any) => {
+      return {
+        index: card.index,
+        label: card.label
+      };
+    });
+
+    console.log({
+      reason: Reason[message.reason],
+      type: MessageType[message.type],
+      cards
+    });
+  }
+
   private logErrorMessage(message: Message) {
     console.log({
-      message: {
-        reason: Reason[message.reason],
-        type: MessageType[message.type]
-      },
+      _reason: Reason[message.reason],
+      _type: MessageType[message.type],
       code: ErrorCode[message.data.code],
       error: message.data.message
     });
   }
 
+  private logEstimationMessage(message: Message) {
+    const estimations = message.data.map( (estimation: any) => {
+      return {
+        card: estimation.card,
+        revealed: estimation.revealed,
+        uuid: estimation.uuid
+      };
+    });
+
+    console.log({
+      reason: Reason[message.reason],
+      type: MessageType[message.type],
+      estimations
+    });
+  }
+
   private logGameMessage(message: Message) {
     console.log({
-      message: {
-        reason: Reason[message.reason],
-        type: MessageType[message.type]
-      },
+      reason: Reason[message.reason],
+      type: MessageType[message.type],
       team: message.data.team,
-      cards: message.data.cards
+      status: GameStatus[message.data.status]
     });
   }
 
   private logParticipantMessage(message: Message) {
+    const data = message.data.forEach( (item: any) => {
+      return {
+        status: ParticipantStatus[item.status],
+        nick: item.nick,
+        uuid: item.uuid,
+        role: Role[item.role]
+      };
+    });
+
     console.log({
-      message: {
-        reason: Reason[message.reason],
-        type: MessageType[message.type]
-      },
-      status: ParticipantStatus[message.data.status],
-      nick: message.data.nick,
-      uuid: message.data.uuid,
-      role: Role[message.data.role]
+      reason: Reason[message.reason],
+      type: MessageType[message.type],
+      data
     });
   }
 
   private logPingMessage(message: Message) {
     console.log({
-      message: {
-        reason: Reason[message.reason],
-        type: MessageType[message.type]
-      },
+      reason: Reason[message.reason],
+      type: MessageType[message.type],
       data: message.data
     });
   }

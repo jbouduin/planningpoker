@@ -1,7 +1,10 @@
 export enum MessageType {
+  Cards,
+  ClearEstimations,
   Error,
+  Estimation,
   Game,
-  Self,
   Participant,
-  Ping
+  Ping,
+  Self
 }

@@ -25,7 +25,6 @@ export class WebsocketService {
 	}
 
   public disconnect(): void {
-    // TODO: find out how to close
     this.subject = undefined;
     if (this.webSocket) {
       this.webSocket.close();
@@ -53,7 +52,7 @@ export class WebsocketService {
 		}
 
     this.webSocket = ws;
-    // TODO: lint says to use new Subject
+    // TODO: (#695) lint says to use new Subject
 		return Subject.create(observer, observable);
 	}
   // </editor-fold>

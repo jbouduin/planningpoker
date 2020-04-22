@@ -118,24 +118,24 @@
         "signature": "acb99ca040bd2a0213e599475518ad361caf2ca2bcfb69bed9b28941aadd5f9d"
       },
       "./lib/messages/error-code.ts": {
-        "version": "8e39c9a3a3d1853e239a91474cbdec031ad67294a4a60779b532a0ed1e590468",
-        "signature": "316c1875d5aab8ade51189ea02ae03d6475b3cdbfc6e8b97d68230ce27225c07"
+        "version": "f64a6d29405420d399bcacba22adc11d45d820b0ce84f6622a389193ab2fce80",
+        "signature": "8d211252392bfda0db027034fd95d0cfb0c08d65f4cf683e0069b6efd848da1a"
       },
       "./lib/messages/messagetype.ts": {
-        "version": "42138e4eaf911112439e28268173a1986be5006e6165dc303f19c8ca5ad23947",
-        "signature": "b3f470321d326d1098ea7c843c218be970fefaadb31628d43214c83aceb4c71c"
+        "version": "39c491af2e44ba21e64b42ef96954ee0beb72d94868f8e29b92660be98ac671d",
+        "signature": "665597ea2c7ce446d6f5c29c7be71f618ca33d4ce922cbc1cf1f9fba96b0f6e6"
       },
       "./lib/messages/verb.ts": {
-        "version": "3182fecf10754e40e6446018d513a5c41bdaecdcbb3e098a64fcb10b8bcb10af",
-        "signature": "eef83b5d1f4392113277d40a63eac59c6423250350efcfffd80f011e11c9c6de"
+        "version": "a453f960cb578d00a05063f0335694ca3e21b27e3e08f68b3b150bbd1c2037d7",
+        "signature": "cbce865596bc4bc36b78aa77ae84e76460732fd52d774a7d8558baa8b1904907"
       },
       "./lib/messages/reason.ts": {
         "version": "94391c587ab719ba7d81bfef81c5514b8aa17c946856247b3e6f3b4e36a052cb",
         "signature": "ab85b4dbd1ca4c049b489dc2ec3bb8e36c436cfb22638946c03cd1c8c8aae88d"
       },
       "./lib/messages/message.ts": {
-        "version": "8a6f38124e1470464ca95573532bc2857a8877f3488aeddd8284b310a6a408a1",
-        "signature": "a5c72f9ae8ece72b32ee97730517e63b0f28d197ce90ec8c892f87821ecc78f2"
+        "version": "a72a29f58a2ddc3c73bb44ba4065347ea96fd75a93439003bb3cdb473725bfb8",
+        "signature": "81ad4a1d0b4ce854cdbef9777b03bb4d9ea5492ba9348bc600e52c338ce926eb"
       },
       "./lib/messages/index.ts": {
         "version": "3235d8c1188f284e8fd60e5077315b6907fd1021e32cbef55cdb15582e25c0ec",
@@ -145,9 +145,17 @@
         "version": "44576456e5df5ea80ba1376a89a9518dfee33fd0dcf5a9e77d9d1b3966e32784",
         "signature": "807987f01dbf9bda9efcb58cc102041e4d915ba16759da2ba9a381ed73db4fbc"
       },
+      "./lib/game/dto-estimation.ts": {
+        "version": "4a2efdb8feafccb8d026ffee178ad8712f0cc7932bfe996f77876257340ab4f4",
+        "signature": "7bea2e603428bb5cc8b11325f23231e8875e323e44374ffda7bfcd891a4324a1"
+      },
+      "./lib/game/game-status.ts": {
+        "version": "435057c408ae6d6e624e972dcd5d3dbe0927972628a8ae4dad151bdb48c9bef4",
+        "signature": "a49574545aba9f67eb3c767a653b1cf4cabc98affbb7f9bd9cf859e341fefc1d"
+      },
       "./lib/game/dto-game.ts": {
-        "version": "d3c5a12851ad7b9967391e4f19bf31545c4517212715c5fbad77e14d66f7a9fd",
-        "signature": "2a1c79dd325b1090b19550a0e623c4c7fc2d280faadfa8ab90f6f346c230685d"
+        "version": "00a8565faac4078ad62d42ad90789630ef3e2778447e60408ae29f5d3aac3c3d",
+        "signature": "da349e56bed0205e6aabb15bda4b9fd93470fc60f413ef62b356c19b366aafc8"
       },
       "./lib/game/participant-status.ts": {
         "version": "3065db98e14d1885951e6997a25c9361fb341587b1b681717273952811ea1b3a",
@@ -162,8 +170,8 @@
         "signature": "e812a16cab028a4f02401b7ec3f4bc2414f43257f45d7a471588f41388fd6f7f"
       },
       "./lib/game/index.ts": {
-        "version": "f017054856848259917b471be23d4b70b2717a455c5bbd490727e747aa49c708",
-        "signature": "bd866aef04b8d01cc53d25b10840a01a3a325ff86a0275334d2c06f27a38c2cc"
+        "version": "2dd1715a13042cf440276fd8d1de02327e47caed17c73c19cd885ad3e73d7346",
+        "signature": "55f79b44b191c8e2fbcce3e309c3834be481c9d7cc6dfd57d0bae3a7615dc88d"
       },
       "./lib/index.ts": {
         "version": "5e731580467575625a7ce219af0b26562ac23449103098299e86a9829b45136e",
@@ -607,7 +615,20 @@
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "./lib/game/dto-estimation.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "./lib/game/game-status.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "./lib/game/dto-game.ts": [
+        "./lib/game/game-status.ts",
         "./lib/game/dto-card.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
@@ -637,8 +658,10 @@
       "./lib/game/index.ts": [
         "./lib/game/dto-card.ts",
         "./lib/game/dto-error.ts",
+        "./lib/game/dto-estimation.ts",
         "./lib/game/dto-game.ts",
         "./lib/game/dto-participant.ts",
+        "./lib/game/game-status.ts",
         "./lib/game/participant-status.ts",
         "./lib/game/role.ts",
         "./node_modules/@types/node/fs.d.ts",
@@ -1212,7 +1235,7 @@
         "./lib/messages/index.ts"
       ],
       "./lib/game/dto-game.ts": [
-        "./lib/game/dto-card.ts"
+        "./lib/game/game-status.ts"
       ],
       "./lib/game/dto-participant.ts": [
         "./lib/game/participant-status.ts",
@@ -1221,8 +1244,10 @@
       "./lib/game/index.ts": [
         "./lib/game/dto-card.ts",
         "./lib/game/dto-error.ts",
+        "./lib/game/dto-estimation.ts",
         "./lib/game/dto-game.ts",
         "./lib/game/dto-participant.ts",
+        "./lib/game/game-status.ts",
         "./lib/game/participant-status.ts",
         "./lib/game/role.ts"
       ],
@@ -1637,9 +1662,7 @@
       "./lib/messages/messagetype.ts",
       "./lib/messages/verb.ts",
       "./lib/messages/reason.ts",
-      "./lib/messages/index.ts",
-      "./lib/game/dto-error.ts",
-      "./lib/game/dto-game.ts",
+      "./lib/game/dto-estimation.ts",
       "./lib/game/participant-status.ts",
       "./lib/game/role.ts",
       "./lib/game/dto-participant.ts",
@@ -1690,9 +1713,13 @@
       "./node_modules/@types/node/ts3.2/util.d.ts",
       "./node_modules/@types/node/ts3.2/globals.d.ts",
       "./node_modules/@types/node/ts3.2/index.d.ts",
+      "./lib/game/game-status.ts",
       "./lib/game/index.ts",
-      "./lib/index.ts",
-      "./lib/messages/message.ts"
+      "./lib/game/dto-game.ts",
+      "./lib/messages/message.ts",
+      "./lib/messages/index.ts",
+      "./lib/game/dto-error.ts",
+      "./lib/index.ts"
     ]
   },
   "version": "3.8.3"

@@ -1,8 +1,11 @@
 export declare enum Verb {
     Create = 0,
-    Join = 1,
-    Leave = 2,
-    Nick = 3,
-    Switch = 4
+    Estimate = 1,
+    Join = 2,
+    Leave = 3,
+    Nick = 4,
+    Reveal = 5,
+    Switch = 6,
+    Start = 7
 }
 //# sourceMappingURL=verb.d.ts.map
