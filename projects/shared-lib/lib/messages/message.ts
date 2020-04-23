@@ -6,6 +6,6 @@ import { Reason } from './reason';
 export interface Message {
     data: any, // DtoParticipant | DtoGame | string;
     reason: Reason,
-    type: MessageType | Verb;
+    type: MessageType;
     uuid: string
 }

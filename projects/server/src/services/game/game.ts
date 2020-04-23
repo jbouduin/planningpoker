@@ -16,6 +16,10 @@ export class Game {
   // </editor-fold>
 
   // <editor-fold desc='Constructor & C°'>
+  public static dummyGame(): Game {
+    return new Game('dummy');
+  }
+
   public constructor(public team: string) {
     this.team = team;
     this.gameStatus = GameStatus.Stopped;

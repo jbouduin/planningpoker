@@ -4,6 +4,7 @@ marker('TeamAlreadyExists');
 marker('TeamDoesNotExist');
 marker('ParticipantNotFound');
 marker('ParticipantNotInTeam');
+marker('ParticipantAllReadyInTeam');
 marker('ScrumMasterRequired');
 marker('DeveloperRequired');
 marker('ServerError');

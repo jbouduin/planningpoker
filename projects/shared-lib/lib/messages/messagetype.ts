@@ -1,4 +1,5 @@
 export enum MessageType {
+  // the message types from server to client
   Cards,
   ClearEstimations,
   Error,
@@ -6,5 +7,14 @@ export enum MessageType {
   Game,
   Participant,
   Ping,
-  Self
+  Self,
+  // the message types from client to server
+  Create,
+  Estimate,
+  Join,
+  Leave,
+  Nick,
+  Reveal,
+  Switch,
+  Start
 }

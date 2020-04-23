@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as Collections from 'typescript-collections';
 
 import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '../../../../projects/shared-lib/lib';
-import { ErrorCode, Message, MessageType, Verb } from '../../../../projects/shared-lib/lib';
+import { ErrorCode, Message, MessageType } from '../../../../projects/shared-lib/lib';
 import { ToastService } from '../../toast'
 import { WebsocketService } from '../websocket.service';
 
@@ -151,12 +151,12 @@ export class GameService {
   }
   // </editor-fold>
 
-  // <editor-fold desc='Public verb related methods'>
+  // <editor-fold desc='Public MessageType-related methods'>
   public estimate(index: number): void {
     console.log(`estimated ${index}`);
     if (this.socket) {
       const message: Message = {
-        type: Verb.Estimate,
+        type: MessageType.Estimate,
         uuid: this.myUuid,
         data: index,
         reason: Reason.Refresh
@@ -167,7 +167,7 @@ export class GameService {
 
   public leave(): void {
     const message: Message = {
-      type: Verb.Leave,
+      type: MessageType.Leave,
       uuid: this.myUuid,
       data: '',
       reason: Reason.Refresh
@@ -203,7 +203,7 @@ export class GameService {
     console.log('reveal');
     if (this.socket) {
       const message: Message = {
-        type: Verb.Reveal,
+        type: MessageType.Reveal,
         uuid: this.myUuid,
         data: this.team,
         reason: Reason.Refresh
@@ -216,7 +216,7 @@ export class GameService {
     console.log('starting');
     if (this.socket) {
       const message: Message = {
-        type: Verb.Start,
+        type: MessageType.Start,
         uuid: this.myUuid,
         data: this.team,
         reason: Reason.Refresh
@@ -229,7 +229,7 @@ export class GameService {
     console.log('withdraw estimation');
     if (this.socket) {
       const message: Message = {
-        type: Verb.Estimate,
+        type: MessageType.Estimate,
         uuid: this.myUuid,
         data: -1,
         reason: Reason.Refresh
@@ -393,7 +393,7 @@ export class GameService {
 
     if (this.socket) {
       const message: Message = {
-        type: Verb.Create,
+        type: MessageType.Create,
         uuid: params.uuid,
         data: params.team,
         reason: Reason.Refresh
@@ -406,7 +406,7 @@ export class GameService {
     console.log(`call joinTeam: ${params}`);
     if (this.socket) {
       const message: Message = {
-        type: Verb.Join,
+        type: MessageType.Join,
         uuid: params.uuid,
         data: params.team,
         reason: Reason.Refresh
@@ -419,7 +419,7 @@ export class GameService {
     console.log(`call switchUuid: ${params}`);
     if (this.socket) {
       const message: Message = {
-        type: Verb.Switch,
+        type: MessageType.Switch,
         uuid: params.uuid,
         data: params.oldUuid,
         reason: Reason.Refresh
@@ -432,7 +432,7 @@ export class GameService {
     console.log(`call setNick: ${params}`);
     if (this.socket) {
       const message: Message = {
-        type: Verb.Nick,
+        type: MessageType.Nick,
         uuid: params.uuid,
         data: params.nick,
         reason: Reason.Refresh

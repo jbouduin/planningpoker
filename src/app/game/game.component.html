@@ -32,7 +32,6 @@
                 </ng-template>
                 <ng-template #otherEstimation>
                   <button mat-stroked-button color="primary" [disabled]="true">
-                    <p>{{estimation.revealed}}</p>
                     <p *ngIf="estimation.revealed; then revealed else unrevealed"></p>
                     <ng-template #revealed>
                       {{estimation.label}}

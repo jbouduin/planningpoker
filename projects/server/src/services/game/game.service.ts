@@ -13,8 +13,7 @@ import {
   MessageType,
   ParticipantStatus,
   Reason,
-  Role,
-  Verb
+  Role
 } from '../../../../shared-lib/lib';
 
 import { ICardService } from '../card';
@@ -98,174 +97,69 @@ export class GameService implements IGameService {
           try {
             // parse the message
             const message: Message = JSON.parse(msg);
-            console.log(`${new Date().toISOString()}: <= ${Verb[message.type]}: ${msg}`);
-            // find the participant by uuid
-            // if not found: send error message back
-            const sender = this.participants.getValue(message.uuid);
-            if (!sender) {
-              console.log(`participant with uuid '${message.uuid}' not found`);
-              this.sendParticipantNotFound(ws, message.uuid);
+            console.log(`${new Date().toISOString()}: <= ${MessageType[message.type]}: ${msg}`);
+
+            const preflight = this.preflight(message, req.params.team);
+            if (preflight === ErrorCode.ParticipantNotFound) {
+              this.sendParticipantNotFound(ws);
             } else {
-              // TODO (#692) one single method that checks if a team is required
-              const team = req.params.team;
-              const game = this.games.getValue(team);
-              switch (message.type) {
-                case (Verb.Create): {
-                  console.log(`message type: Create`);
-                  if (game) {
-                    console.log(`Create: '${sender.nick}' is trying to create existing team '${message.data}'`);
-                    this.sendErrorMessage(sender, ErrorCode.TeamAlreadyExists);
-                  } else {
-                    console.log(`Create: '${sender.nick}' is creating '${message.data}'`);
-                    const newGame = new Game(message.data);
-                    sender.role = Role.ScrumMaster;
-                    newGame.upsertParticipant(sender);
-                    this.games.setValue(team, newGame);
-                    this.participantGameMap.setValue(message.uuid, team);
-                    // send the creator himself to tell him that he is now Scrum Master
-                    this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
-                    this.sendGame(sender, Reason.Init, newGame);
-                    this.sendCards(sender);
+              // make sure we always have a sender, although preflight has checked this
+              const sender = this.getParticipantByUuid(message.uuid, ws);
+              const auth = this.checkAuthorization(message.type, sender.role);
+              if (preflight === ErrorCode.NoError && auth === ErrorCode.NoError) {
+                // make sure we always have a game, although preflight has checked this
+                const game = this.games.getValue(req.params.team) || Game.dummyGame();
+                switch (message.type) {
+                  case (MessageType.Create): {
+                    this.handleCreate(sender, message, req.params.team);
+                    break;
                   }
-                  break;
-                }
-                case (Verb.Estimate): {
-                  if (!game) {
-                    console.log(`Estimate: '${sender.nick}' is trying to estimate without being in a team.`);
-                    this.sendErrorMessage(sender, ErrorCode.ParticipantNotInTeam);
-                  } else {
-                    const estimation = new Estimation(sender.uuid, message.data);
-                    if (estimation.card >= 0) {
-                      game.upsertEstimation(estimation);
-                    }
-                    else {
-                      game.deleteEstimation(estimation);
-                    }
-                    this.broadCastEstimation(game, estimation);
+                  case (MessageType.Estimate): {
+                    this.handleEstimate(sender, message, game);
+                    break;
                   }
-                  break;
-                }
-                case (Verb.Join): {
-                  if (!game) {
-                    console.log(`Join: '${sender.nick}' is trying to join non existing team '${message.data}'.`);
-                    this.sendErrorMessage(sender, ErrorCode.TeamDoesNotExist);
-                  } else {
-                    console.log(`Join: '${sender.nick}' is joining '${game.team}'`);
-                    sender.role = Role.Developer;
-                    game.upsertParticipant(sender);
-                    this.participantGameMap.setValue(message.uuid, team);
-                    // TODO (#697) group all following calls in one single send
-                    // send the joinee himself to tell him that he is now developer
-                    this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
-                    // tell the others someone joined
-                    this.broadcastParticipantToOthers(game, Reason.Change, sender);
-                    // send the new participant all other participants
-                    this.broadcastOthersToParticipant(game, Reason.Init, sender);
-                    // send the new participant the game
-                    this.sendGame(sender, Reason.Init, game);
-                    // send the new participant the cards
-                    this.sendCards(sender);
-                    // send the new participant the dtoEstimations
-                    this.sendEstimations(sender, game.status === GameStatus.Revealed, game.allEstimations());
+                  case (MessageType.Join): {
+                    this.handleJoin(sender, message, game, req.params.team);
+                    break;
                   }
-                  break;
-                }
-                case (Verb.Leave): {
-                  if (!game) {
-                    console.log(`Leave: '${sender.nick}' is trying to leave a game he is not participating`);
-                    this.sendErrorMessage(sender, ErrorCode.TeamDoesNotExist);
-                  } else {
-                    console.log(`Leave: '${sender.nick}' is leaving '${game.team}'`);
-                    // remove participant from game and dictionaries
-                    game.deleteParticipant(sender.uuid);
-                    this.participantGameMap.remove(sender.uuid);
-                    this.participants.remove(sender.uuid);
-                    // tell the others someone left
-                    sender.status = ParticipantStatus.Left;
-                    this.broadcastParticipantToOthers(game, Reason.Change, sender);
+                  case (MessageType.Leave): {
+                    this.handleLeave(sender, message, game);
+                    break;
                   }
-                  break;
-                }
-                case (Verb.Nick): {
-                  console.log(`Nick: '${sender.nick}' => '${message.data}'`);
-                  sender.nick = message.data;
-                  // send the data back as aknowledgment
-                  this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
-                  // check if this user is in a game:
-                  // depending on the client implementation, it can be that the sender changes his nick before entering a game
-                  if (game) {
-                    this.broadcastParticipantToOthers(game, Reason.Change, sender);
+                  case (MessageType.Nick): {
+                    this.handleNick(sender, message, game);
+                    break;
                   }
-                  break;
-                }
-                case (Verb.Reveal): {
-                  if (!game) {
-                    console.log(`Estimate: '${sender.nick}' is trying to estimate without being in a team'.`);
-                    this.sendErrorMessage(sender, ErrorCode.ParticipantNotInTeam);
-                  } else {
-                    if (sender.role !== Role.ScrumMaster) {
-                      this.sendErrorMessage(sender, ErrorCode.ScrumMasterRequired);
-                    } else {
-                      game.reveal();
-                      this.broadCastGame(game);
-                      this.broadCastAllEstimations(game);
-                    }
+                  case (MessageType.Reveal): {
+                    this.handleReveal(sender, message, game);
+                    break;
                   }
-                  break;
-                }
-                case (Verb.Start): {
-                  if (!game) {
-                    console.log(`Estimate: '${sender.nick}' is trying to estimate without being in a team'.`);
-                    this.sendErrorMessage(sender, ErrorCode.ParticipantNotInTeam);
-                  } else {
-                    if (sender.role !== Role.ScrumMaster) {
-                      this.sendErrorMessage(sender, ErrorCode.ScrumMasterRequired);
-                    } else {
-                      game.startEstimating();
-                      this.broadCastClearEstimations(game);
-                      this.broadCastGame(game);
-                    }
+                  case (MessageType.Start): {
+                    this.handleStart(sender, message, game);
+                    break;
                   }
-                  break;
-                }
-                case (Verb.Switch): {
-                  console.log(`Switch: '${message.uuid}' => '${message.data}' `);
-                  const oldParticipant = this.participants.getValue(message.data);
-                  if (!oldParticipant) {
-                    this.sendErrorMessage(sender, ErrorCode.ParticipantNotFound);
-                  } else {
-                    const oldGame = this.getGameOfUuid(message.data)
-                    if (!oldGame) {
-                      this.sendErrorMessage(sender, ErrorCode.TeamDoesNotExist);
-                    } else {
-                      this.participants.remove(sender.uuid);
-                      oldParticipant.status = ParticipantStatus.Connected;
-                      oldParticipant.socket = ws;
-                      // TODO (#697) group all following calls in one single send
-                      // update self to reflect the new-old uuid
-                      this.sendParticipants(sender, Reason.Change, MessageType.Self, [ oldParticipant ]);
-                      // tell the others that participant rejoined
-                      this.broadcastParticipantToOthers(oldGame, Reason.Change, oldParticipant);
-                      // send the game data to the participant
-                      this.broadcastOthersToParticipant(oldGame, Reason.Init, oldParticipant);
-                      this.sendGame(sender, Reason.Init, oldGame);
-                      this.sendCards(sender);
-                      this.sendEstimations(sender, oldGame.status === GameStatus.Revealed, oldGame.allEstimations());
-                    }
+                  case (MessageType.Switch): {
+                    this.handleSwitch(sender, message, ws);
+                    break;
                   }
-                  break;
+                  default: {
+                    this.sendErrorMessage(sender, ErrorCode.UnknownVerb);
+                    console.log('unexpected messagetype');
+                  }
+                } // end switch
+              } else { // end of preflight = NoError && auth = NoError
+                if (preflight !== ErrorCode.NoError) {
+                  this.sendErrorMessage(sender, preflight);
+                } else {
+                  this.sendErrorMessage(sender, auth);
                 }
-                default: {
-                  this.sendErrorMessage(sender, ErrorCode.UnknownVerb);
-                  console.log('unexpected messagetype');
-                }
-              } // end switch
-            } // end of known uuid
-        } catch (err) {
-          console.log(`${new Date().toISOString()}: <= ${msg}`);
-          console.log(err);
-          this.sendException(ws, err.message);
-        }
+              }
+            } // end of else preflight != ParticipantNotFound
+          } catch (err) {
+            console.log(`${new Date().toISOString()}: <= ${msg}`);
+            console.log(err);
+            this.sendException(ws, err.message);
+          }
       });
     });
 
@@ -289,6 +183,115 @@ export class GameService implements IGameService {
     }
 
     expressWs.app.use('/game', router);
+  }
+  // </editor-fold>
+
+  // <editor-fold desc='Private message handling methods'>
+  private handleCreate(sender: Participant, message: Message, requestTeam: string): void {
+    console.log(`Create: '${sender.nick}' is creating '${message.data}'`);
+    const newGame = new Game(message.data);
+    sender.role = Role.ScrumMaster;
+    newGame.upsertParticipant(sender);
+    this.games.setValue(requestTeam, newGame);
+    this.participantGameMap.setValue(message.uuid, requestTeam);
+    // send the creator himself to tell him that he is now Scrum Master
+    this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
+    this.sendGame(sender, Reason.Init, newGame);
+    this.sendCards(sender);
+  }
+
+  private handleEstimate(sender: Participant, message: Message, game: Game): void {
+    const estimation = new Estimation(sender.uuid, message.data);
+    if (estimation.card >= 0) {
+      game.upsertEstimation(estimation);
+    }
+    else {
+      game.deleteEstimation(estimation);
+    }
+    this.broadCastEstimation(game, estimation);
+  }
+
+  private handleJoin(sender: Participant, message: Message, game: Game, requestTeam: string): void {
+    console.log(`Join: '${sender.nick}' is joining '${game.team}'`);
+    sender.role = Role.Developer;
+    game.upsertParticipant(sender);
+    this.participantGameMap.setValue(message.uuid, requestTeam);
+    // TODO (#697) group all following calls in one single send
+    // send the joinee himself to tell him that he is now developer
+    this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
+    // tell the others someone joined
+    this.broadcastParticipantToOthers(game, Reason.Change, sender);
+    // send the new participant all other participants
+    this.broadcastOthersToParticipant(game, Reason.Init, sender);
+    // send the new participant the game
+    this.sendGame(sender, Reason.Init, game);
+    // send the new participant the cards
+    this.sendCards(sender);
+    // send the new participant the dtoEstimations
+    this.sendEstimations(sender, game.status === GameStatus.Revealed, game.allEstimations());
+  }
+
+  private handleLeave(sender: Participant, message: Message, game: Game): void {
+    console.log(`Leave: '${sender.nick}' is leaving '${game.team}'`);
+    // remove participant from game and dictionaries
+    game.deleteParticipant(sender.uuid);
+    this.participantGameMap.remove(sender.uuid);
+    this.participants.remove(sender.uuid);
+    // tell the others someone left
+    sender.status = ParticipantStatus.Left;
+    this.broadcastParticipantToOthers(game, Reason.Change, sender);
+  }
+
+  private handleNick(sender: Participant, message: Message, game?: Game): void {
+    console.log(`Nick: '${sender.nick}' => '${message.data}'`);
+    sender.nick = message.data;
+    // send the data back as aknowledgment
+    this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
+    // check if this user is in a game:
+    // depending on the client implementation, it can be that the sender changes his nick before entering a game
+    if (game) {
+      this.broadcastParticipantToOthers(game, Reason.Change, sender);
+    }
+  }
+
+  private handleReveal(sender: Participant, message: Message, game: Game): void {
+    if (sender.role !== Role.ScrumMaster) {
+      this.sendErrorMessage(sender, ErrorCode.ScrumMasterRequired);
+    } else {
+      game.reveal();
+      this.broadCastGame(game);
+      this.broadCastAllEstimations(game);
+    }
+  }
+
+  private handleStart(sender: Participant, message: Message, game: Game): void {
+    if (sender.role !== Role.ScrumMaster) {
+      this.sendErrorMessage(sender, ErrorCode.ScrumMasterRequired);
+    } else {
+      game.startEstimating();
+      this.broadCastClearEstimations(game);
+      this.broadCastGame(game);
+    }
+  }
+
+  private handleSwitch(sender: Participant, message: Message, ws: any): void {
+    console.log(`Switch: '${message.uuid}' => '${message.data}' `);
+    const oldParticipant = this.getParticipantByUuid(message.data, sender.socket);
+    const oldGame = this.getGameOfUuid(message.data) || Game.dummyGame();
+
+    this.participants.remove(sender.uuid);
+    oldParticipant.status = ParticipantStatus.Connected;
+    oldParticipant.socket = ws;
+    // TODO (#697) group all following calls in one single send
+    // update self to reflect the new-old uuid
+    this.sendParticipants(sender, Reason.Change, MessageType.Self, [ oldParticipant ]);
+    // tell the others that participant rejoined
+    this.broadcastParticipantToOthers(oldGame, Reason.Change, oldParticipant);
+    // send the game data to the participant
+    this.broadcastOthersToParticipant(oldGame, Reason.Init, oldParticipant);
+    this.sendGame(sender, Reason.Init, oldGame);
+    this.sendCards(sender);
+    this.sendEstimations(sender, oldGame.status === GameStatus.Revealed, oldGame.allEstimations());
   }
   // </editor-fold>
 
@@ -432,7 +435,7 @@ export class GameService implements IGameService {
     this.sendToSocket(socket, message);
   }
 
-  private sendParticipantNotFound(socket: WebSocket, uuid: string): void {
+  private sendParticipantNotFound(socket: WebSocket): void {
     const message: Message = {
       uuid: '',
       type: MessageType.Error,
@@ -470,9 +473,114 @@ export class GameService implements IGameService {
   // </editor-fold>
 
   // <editor-fold desc='Private helpers'>
+  private checkAuthorization(messageType: MessageType, role: Role): ErrorCode {
+    let result = ErrorCode.NoError;
+
+    switch (messageType) {
+      case (MessageType.Estimate): {
+        if (role !== Role.ScrumMaster && role !== Role.Developer) {
+          result = ErrorCode.DeveloperRequired;
+        }
+        break;
+      }
+      case (MessageType.Reveal):
+      case (MessageType.Start): {
+        if (role !== Role.ScrumMaster) {
+          result = ErrorCode.ScrumMasterRequired;
+        }
+        break;
+      }
+    }
+    return result;
+  }
+
   private getGameOfUuid(uuid: string): Game | undefined {
     const gameName = this.participantGameMap.getValue(uuid);
     return gameName ? this.games.getValue(gameName) : undefined;
+  }
+
+  public getParticipantByUuid(uuid: string, websocket: WebSocket) {
+    return this.participants.getValue(uuid) || Participant.dummyParticipant(websocket);
+  }
+
+  private messageTypeRequiresTeam(messageType: MessageType): boolean {
+    const result =
+      messageType === MessageType.Estimate ||
+      messageType === MessageType.Join ||
+      messageType === MessageType.Leave ||
+      messageType === MessageType.Reveal ||
+      messageType === MessageType.Start;
+    return result;
+  }
+
+  private messageTypeRequiresParticipation(messageType: MessageType): boolean {
+    const result =
+      messageType === MessageType.Estimate ||
+      messageType === MessageType.Leave ||
+      messageType === MessageType.Reveal ||
+      messageType === MessageType.Start;
+    return result;
+  }
+
+  private messageTypeForbidsParticipation(messageType: MessageType): boolean {
+    const result =
+      messageType === MessageType.Join ||
+      messageType === MessageType.Switch;
+    return result;
+  }
+
+  private preflight(message: Message, requestTeam: string): ErrorCode {
+    let result = ErrorCode.NoError;
+
+    // the sender must exist
+    if (!this.participants.containsKey(message.uuid)) {
+      console.log(`participant with uuid '${message.uuid}' not found`);
+      result = ErrorCode.ParticipantNotFound;
+    }
+    // general tests on team and team participation
+    else if (this.messageTypeRequiresTeam(message.type)) {
+      if (!this.games.containsKey(requestTeam)) {
+        console.log(`${MessageType[message.type]}: team '${requestTeam}' does not exist.`);
+        result = ErrorCode.TeamDoesNotExist;
+      } else if (this.messageTypeRequiresParticipation(message.type)) {
+        const game = this.getGameOfUuid(message.uuid);
+        if (! game || game.team !== requestTeam) {
+          console.log(`${MessageType[message.type]}: '${message.uuid}' does not belong to team '${requestTeam}'.`);
+          result = ErrorCode.ParticipantNotInTeam;
+        }
+      } else if (this.messageTypeForbidsParticipation(message.type)) {
+        const game = this.getGameOfUuid(message.uuid);
+        if (game) {
+          console.log(`${MessageType[message.type]}: '${message.uuid}' already belongs to team '${requestTeam}'.`);
+          result = ErrorCode.ParticipantAllReadyInTeam;
+        }
+      }
+    }
+    // specific cases
+    if (result !== ErrorCode.NoError) {
+      switch (message.type) {
+        case (MessageType.Create): {
+          if (this.games.containsKey(requestTeam)) {
+            result = ErrorCode.TeamAlreadyExists;
+          }
+          break;
+        }
+        case (MessageType.Switch): {
+          // the old participant must exist
+          if (!this.participants.containsKey(message.data)) {
+            result = ErrorCode.ParticipantNotFound;
+          } else {
+            const oldGame = this.getGameOfUuid(message.data);
+            if (! oldGame || oldGame.team !== requestTeam) {
+              console.log(`${MessageType[message.type]}: '${message.uuid}' does not belong to team '${requestTeam}'.`);
+              result = ErrorCode.ParticipantNotInTeam;
+            }
+          }
+          break;
+        }
+      }
+    }
+    return result;
   }
   // </editor-fold>
 }
