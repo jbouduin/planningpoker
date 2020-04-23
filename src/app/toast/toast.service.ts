@@ -1,25 +1,45 @@
 import { Injectable, Injector, Inject } from '@angular/core';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal, PortalInjector } from '@angular/cdk/portal';
+import { TranslateService } from '@ngx-translate/core';
 
 import { ToastComponent } from './toast.component';
 import { ToastData, TOAST_CONFIG_TOKEN, ToastConfig } from './toast-config';
 import { ToastRef } from './toast-ref';
 
+import { ErrorCode } from '../../../projects/shared-lib/lib';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ToastService {
-  private lastToast?: ToastRef;
 
-  // constructor
+  // <editor-fold desc='Private properties'>
+  private lastToast?: ToastRef;
+  // </editor-fold>
+
+  // <editor-fold desc='Constructor & C°'>
   public constructor(
     private overlay: Overlay,
     private parentInjector: Injector,
+    private translateService: TranslateService,
     @Inject(TOAST_CONFIG_TOKEN) private toastConfig: ToastConfig) { }
+  // </editor-fold>
 
-  // public methods
-  public show(data: ToastData) {
+  // <editor-fold desc='Public methods'>
+  public showError(errorCode: ErrorCode): any {
+    return this.translateService
+      .get(ErrorCode[errorCode])
+      .subscribe( translated => {
+        const toastData: ToastData = {
+          text: translated,
+          type: 'warning'
+        };
+        return this.show(toastData);
+      });
+  }
+
+  public show(data: ToastData): ToastRef {
     const positionStrategy = this.getPositionStrategy();
     const overlayRef = this.overlay.create({ positionStrategy });
 
@@ -34,14 +54,15 @@ export class ToastService {
     return toastRef;
   }
 
-  getPositionStrategy() {
+  // TODO find out import Globalpositionstrategy
+  public getPositionStrategy(): any {
     return this.overlay.position()
       .global()
       .top(this.getPosition())
       .right(this.toastConfig.position.right + 'px');
   }
 
-  getPosition() {
+  public getPosition(): string {
     const lastToastIsVisible = this.lastToast && this.lastToast.isVisible();
     const position = lastToastIsVisible && this.lastToast
       ? this.lastToast.getPosition().bottom
@@ -50,7 +71,7 @@ export class ToastService {
     return position + 'px';
   }
 
-  getInjector(data: ToastData, toastRef: ToastRef, parentInjector: Injector) {
+  public getInjector(data: ToastData, toastRef: ToastRef, parentInjector: Injector): PortalInjector {
     const tokens = new WeakMap();
 
     tokens.set(ToastData, data);
@@ -58,4 +79,6 @@ export class ToastService {
 
     return new PortalInjector(parentInjector, tokens);
   }
+  // </editor-fold>
+
 }

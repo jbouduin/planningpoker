@@ -28,8 +28,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
   // </editor-fold>
 
-  // <editor-fold desc='public methods'>
-
   // <editor-fold desc='Angular interface methods'>
 
   ngOnInit() {
@@ -37,9 +35,6 @@ export class AppComponent implements OnInit, OnDestroy {
     if (environment.production) {
       Logger.enableProductionMode();
     }
-
-    log.debug('init');
-
     // Setup translations
     this.i18nService.init(environment.defaultLanguage, environment.supportedLanguages);
 
@@ -70,7 +65,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.i18nService.destroy();
   }
-  // </editor-fold>
 
   // </editor-fold>
 }

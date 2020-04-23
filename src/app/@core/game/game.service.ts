@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 import * as Collections from 'typescript-collections';
 
 import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '../../../../projects/shared-lib/lib';
@@ -44,6 +44,7 @@ export class GameService {
 
   // <editor-fold desc='constructor & C°'>
   public constructor(
+    private translateService: TranslateService,
     private router: Router,
     private toastService: ToastService,
     private websocketService: WebsocketService) {
@@ -185,10 +186,13 @@ export class GameService {
           socket.next(message);
           this.reset();
         },
-        err => this.toastService.show({
-          text: `Error code: ${err}`,
-          type: 'warning'
-        })
+        err => {
+          console.log(err);
+          this.toastService.show({
+            text: this.translateService.instant('Socket error'),
+            type: 'warning'
+          });
+        }
       );
     }
   }
@@ -255,10 +259,7 @@ export class GameService {
         }
         case MessageType.Error: {
           this.logErrorMessage(msg);
-          this.toastService.show({
-            text: `Error code: ${msg.data.code}`,
-            type: 'warning'
-          });
+          this.toastService.showError(msg.data.code);
 
           if (msg.data.code === ErrorCode.TeamAlreadyExists ||
             msg.data.code === ErrorCode.TeamDoesNotExist ||
@@ -269,7 +270,6 @@ export class GameService {
         }
         case MessageType.Estimation: {
           this.logEstimationMessage(msg);
-          console.log('upserting estimation');
           this.game.handleEstimations(msg.data, this.participants, this.self);
           break;
         }
@@ -309,14 +309,14 @@ export class GameService {
             if (participant.status === ParticipantStatus.Left)
             {
               this.toastService.show({
-                text: `'${participant.nick}' has left.`,
+                text: this.translateService.instant('ParticipantHasLeft'),
                 type: 'info'
               });
               this.participants.remove(participant.uuid);
             } else {
               if (msg.reason !== Reason.Init && !this.participants.getValue(participant.uuid)) {
                 this.toastService.show({
-                  text: `'${participant.nick}' joined.`,
+                  text: this.translateService.instant('ParticipantHasJoined'),
                   type: 'info'
                 });
               }
@@ -332,20 +332,23 @@ export class GameService {
         default: {
           console.log(`MessageType ?: ${msg}`);
           this.toastService.show({
-            text: `Received unknown message type from server: '${msg.type}'.`,
+            text: this.translateService.instant('UnknownMessageType'),
             type: 'info'
           });
         }
       }
     },
-    err => this.toastService.show({
-      text: `Error code: ${err}`,
-      type: 'warning'
-    }),
+    err => {
+      console.log(err);
+      this.toastService.show({
+        text: this.translateService.instant('Socket error'),
+        type: 'warning'
+      });
+    },
     () => {
       if (this.currentRoute === '/game') {
         this.toastService.show({
-          text: 'You have been disconnected',
+          text: this.translateService.instant('You have been disconnected'),
           type: 'warning'
         });
       }

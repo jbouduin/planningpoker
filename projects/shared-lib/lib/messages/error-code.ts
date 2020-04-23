@@ -5,7 +5,7 @@ export enum ErrorCode {
   ParticipantNotInTeam = 201,
   ScrumMasterRequired = 301,
   DeveloperRequired = 302,
-  Error = 500,
+  ServerError = 500,
   NotImplemented = 501,
   UnknownVerb = 502
 }
