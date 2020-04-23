@@ -1,4 +1,5 @@
 import { DtoParticipant, ParticipantStatus, Role } from '../../../../shared-lib/lib';
+import { WebSocket } from '../websocket';
 
 export class Participant implements DtoParticipant {
 
@@ -8,8 +9,7 @@ export class Participant implements DtoParticipant {
     public nick: string,
     public uuid: string,
     public role: Role,
-    public socket: any) {
-    // TODO: (#691) Socket
+    public socket: WebSocket) {
     this.status = ParticipantStatus.Connected;
   }
 }

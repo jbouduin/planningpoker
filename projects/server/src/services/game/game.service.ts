@@ -16,8 +16,9 @@ import {
   Role,
   Verb
 } from '../../../../shared-lib/lib';
-import { ICardService } from '../card';
 
+import { ICardService } from '../card';
+import { ReadyState, WebSocket } from '../websocket';
 import { Estimation } from './estimation';
 import { Game } from './game';
 import { Participant } from './participant';
@@ -418,12 +419,12 @@ export class GameService implements IGameService {
   // </editor-fold>
 
   // <editor-fold desc='Private send to socket methods'>
-  private sendException(socket: any, error: string): void {
+  private sendException(socket: WebSocket, error: string): void {
     const message: Message = {
       uuid: '',
       type: MessageType.Error,
       data: {
-        code: ErrorCode.Error,
+        code: ErrorCode.ServerError,
         error
       },
       reason: Reason.Error
@@ -431,7 +432,7 @@ export class GameService implements IGameService {
     this.sendToSocket(socket, message);
   }
 
-  private sendParticipantNotFound(socket: any, uuid: string): void {
+  private sendParticipantNotFound(socket: WebSocket, uuid: string): void {
     const message: Message = {
       uuid: '',
       type: MessageType.Error,
@@ -450,17 +451,20 @@ export class GameService implements IGameService {
     this.send(to.socket, message);
   }
 
-  private sendToSocket(socket: any, message: Message) {
+  private sendToSocket(socket: WebSocket, message: Message) {
     console.log(`${new Date().toISOString()}: => to socket: ${MessageType[message.type]} - ${JSON.stringify(message)}`);
     this.send(socket, message);
   }
 
-  private send(socket: any, message: Message) {
-    // TODO: (#691) check ws status after definition of Socket as class or interface
-    try {
-      socket.send(JSON.stringify(message));
-    } catch (err) {
-      console.log(`${new Date().toISOString()}: => error sending: ${err}`);
+  private send(socket: WebSocket, message: Message) {
+    if (socket.readyState === ReadyState.OPEN) {
+      try {
+        socket.send(JSON.stringify(message));
+      } catch (err) {
+        console.log(`${new Date().toISOString()}: => error sending: ${err}`);
+      }
+    } else {
+      console.log(`Can not send, Readystate is ${ReadyState[socket.readyState]} ${socket.readyState}`);
     }
   }
   // </editor-fold>

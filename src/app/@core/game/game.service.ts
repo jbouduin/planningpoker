@@ -181,6 +181,8 @@ export class GameService {
     } else {
       console.log(`creating a connection to leave ${this.team}`);
       const socket = this.createSocket(this.team);
+      // at least one consumer has to subscribe to the created subject
+      // otherwise "nexted" values will be just buffered and not sent, since no connection was established!
       socket.subscribe(
         msg => {
           socket.next(message);
