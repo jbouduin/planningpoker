@@ -7,7 +7,32 @@ import { Estimation } from './estimation';
 import { Participant } from './participant';
 
 // TODO (694) create an interface
-export class Game {
+export interface Game {
+  readonly status: GameStatus;
+  team: string
+  reveal(): void;
+  startEstimating(): void;
+  allEstimations(): Array<Estimation>;
+  deleteEstimation(uuid: string): void;
+  upsertEstimation(estimation: Estimation): void;
+  allParticipants(): Array<Participant>;
+  deleteParticipant(uuid: string): void;
+  upsertParticipant(participant: Participant): void;
+  getParticipant(uuid: string): Participant | undefined;
+  filterParticipants(filter: (participant: Participant) => boolean): Array<Participant>;
+}
+
+export class GameFactory {
+  public static dummyGame(): Game {
+    return new GameImplementation('dummy');
+  }
+
+  public static Game(team: string) {
+    return new GameImplementation(team);
+  }
+}
+
+class GameImplementation implements Game {
 
   // <editor-fold desc='Private properties'>
   private participants: Collections.Dictionary<string, Participant>;
@@ -16,9 +41,6 @@ export class Game {
   // </editor-fold>
 
   // <editor-fold desc='Constructor & C°'>
-  public static dummyGame(): Game {
-    return new Game('dummy');
-  }
 
   public constructor(public team: string) {
     this.team = team;
@@ -49,11 +71,11 @@ export class Game {
     return this.estimations.values();
   }
 
-  public deleteEstimation(estimation: Estimation) {
-    this.estimations.remove(estimation.uuid);
+  public deleteEstimation(uuid: string): void {
+    this.estimations.remove(uuid);
   }
 
-  public upsertEstimation(estimation: Estimation) {
+  public upsertEstimation(estimation: Estimation): void {
     this.estimations.setValue(estimation.uuid, estimation);
   }
   // </editor-fold>
@@ -64,7 +86,7 @@ export class Game {
   }
 
   // insert a new participant or update an existing one
-  public upsertParticipant(participant: Participant) {
+  public upsertParticipant(participant: Participant): void {
     this.participants.setValue(participant.uuid, participant);
   }
 

@@ -19,7 +19,7 @@ import {
 import { ICardService } from '../card';
 import { ReadyState, WebSocket } from '../websocket';
 import { Estimation } from './estimation';
-import { Game } from './game';
+import { Game, GameFactory } from './game';
 import { Participant } from './participant';
 
 import SERVICETYPES from '../service.types';
@@ -108,7 +108,7 @@ export class GameService implements IGameService {
               const auth = this.checkAuthorization(message.type, sender.role);
               if (preflight === ErrorCode.NoError && auth === ErrorCode.NoError) {
                 // make sure we always have a game, although preflight has checked this
-                const game = this.games.getValue(req.params.team) || Game.dummyGame();
+                const game = this.games.getValue(req.params.team) || GameFactory.dummyGame();
                 switch (message.type) {
                   case (MessageType.Create): {
                     this.handleCreate(sender, message, req.params.team);
@@ -189,7 +189,7 @@ export class GameService implements IGameService {
   // <editor-fold desc='Private message handling methods'>
   private handleCreate(sender: Participant, message: Message, requestTeam: string): void {
     console.log(`Create: '${sender.nick}' is creating '${message.data}'`);
-    const newGame = new Game(message.data);
+    const newGame = GameFactory.Game(message.data);
     sender.role = Role.ScrumMaster;
     newGame.upsertParticipant(sender);
     this.games.setValue(requestTeam, newGame);
@@ -206,7 +206,7 @@ export class GameService implements IGameService {
       game.upsertEstimation(estimation);
     }
     else {
-      game.deleteEstimation(estimation);
+      game.deleteEstimation(estimation.uuid);
     }
     this.broadCastEstimation(game, estimation);
   }
@@ -277,7 +277,7 @@ export class GameService implements IGameService {
   private handleSwitch(sender: Participant, message: Message, ws: any): void {
     console.log(`Switch: '${message.uuid}' => '${message.data}' `);
     const oldParticipant = this.getParticipantByUuid(message.data, sender.socket);
-    const oldGame = this.getGameOfUuid(message.data) || Game.dummyGame();
+    const oldGame = this.getGameOfUuid(message.data) || GameFactory.dummyGame();
 
     this.participants.remove(sender.uuid);
     oldParticipant.status = ParticipantStatus.Connected;
