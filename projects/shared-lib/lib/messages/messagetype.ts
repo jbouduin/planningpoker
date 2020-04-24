@@ -8,6 +8,7 @@ export enum MessageType {
   Participant,
   Ping,
   Self,
+  State,
   // the message types from client to server
   Create,
   Estimate,

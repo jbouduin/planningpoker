@@ -122,8 +122,8 @@
         "signature": "e929212e976c8b509c2a8407ac08047c824881ad88f3f675209fdc138c133dd3"
       },
       "./lib/messages/messagetype.ts": {
-        "version": "a5dc090881ff09a47b4211c811c46ce60f0c7af395651bf80075f7edb5296b2f",
-        "signature": "9e8bdf1e7eac75f0743ba6976e12a304b860179eda51817fab8dea7637502da2"
+        "version": "0dc5f7ce5d0008ac1566dfaac888a359822c2bacc65ef59c654947ccf12b7091",
+        "signature": "6af8af8fe0a546cf8a3cab30e618defdfeaffb1e01bdee6ad5f50da2c7fad8fa"
       },
       "./lib/messages/verb.d.ts": {
         "version": "cbce865596bc4bc36b78aa77ae84e76460732fd52d774a7d8558baa8b1904907",
@@ -177,9 +177,9 @@
         "version": "5e731580467575625a7ce219af0b26562ac23449103098299e86a9829b45136e",
         "signature": "5a46097a462ae9e817c725f1201ab56737f445021d0b0ae65ecea43100e88b49"
       },
-      "./lib/extensions/object.extensions.ts": {
-        "version": "56a6a274b01ee31b02ba172e5a5e6d026503c55bdec6d0c3e790e49b8ef71f88",
-        "signature": "98020f85cb831ccf6036e92ab8f9b52264f1d323ae2b3b010d14f9a3c031c52a"
+      "./lib/game/dto-state.ts": {
+        "version": "f183988e07d72a7db4e7587d9748eccbdb95ceda4554f5486648090c3d72a3a0",
+        "signature": "2e4d427521ba1cb9a9b0a65155eb1325143f51b97c0f40da3af17ed8404aa4a1"
       },
       "../../node_modules/reflect-metadata/index.d.ts": {
         "version": "8d6d51a5118d000ed3bfe6e1dd1335bebfff3fef23cd2af2f84a24d30f90cc90",
@@ -681,7 +681,11 @@
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "./lib/extensions/object.extensions.ts": [
+      "./lib/game/dto-state.ts": [
+        "./lib/game/dto-card.ts",
+        "./lib/game/dto-estimation.ts",
+        "./lib/game/dto-game.ts",
+        "./lib/game/dto-participant.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/util.d.ts",
@@ -1229,6 +1233,12 @@
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "./lib/messages/verb.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "./lib/messages/message.ts": [
         "./lib/messages/reason.ts",
         "./lib/messages/messagetype.ts"
@@ -1263,6 +1273,12 @@
       "./lib/index.ts": [
         "./lib/game/index.ts",
         "./lib/messages/index.ts"
+      ],
+      "./lib/game/dto-state.ts": [
+        "./lib/game/dto-card.ts",
+        "./lib/game/dto-estimation.ts",
+        "./lib/game/dto-game.ts",
+        "./lib/game/dto-participant.ts"
       ],
       "../../node_modules/reflect-metadata/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
@@ -1635,25 +1651,47 @@
         "./node_modules/@types/node/ts3.2/globals.d.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/util.d.ts"
-      ],
-      "./lib/messages/verb.d.ts": [
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
+      "./node_modules/typescript/lib/lib.es5.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.d.ts",
+      "./node_modules/typescript/lib/lib.es2016.d.ts",
+      "./node_modules/typescript/lib/lib.es2017.d.ts",
+      "./node_modules/typescript/lib/lib.es2018.d.ts",
+      "./node_modules/typescript/lib/lib.dom.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.core.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.collection.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.generator.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.promise.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.proxy.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.reflect.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.symbol.d.ts",
+      "./node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+      "./node_modules/typescript/lib/lib.es2016.array.include.d.ts",
+      "./node_modules/typescript/lib/lib.es2017.object.d.ts",
+      "./node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts",
+      "./node_modules/typescript/lib/lib.es2017.string.d.ts",
+      "./node_modules/typescript/lib/lib.es2017.intl.d.ts",
+      "./node_modules/typescript/lib/lib.es2017.typedarrays.d.ts",
+      "./node_modules/typescript/lib/lib.es2018.asyncgenerator.d.ts",
+      "./node_modules/typescript/lib/lib.es2018.asynciterable.d.ts",
+      "./node_modules/typescript/lib/lib.es2018.intl.d.ts",
+      "./node_modules/typescript/lib/lib.es2018.promise.d.ts",
+      "./node_modules/typescript/lib/lib.es2018.regexp.d.ts",
+      "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
+      "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
+      "./lib/game/dto-card.ts",
       "./lib/messages/error-code.ts",
       "./lib/messages/messagetype.ts",
-      "./lib/messages/message.ts",
       "./lib/messages/verb.d.ts",
-      "./lib/game/game-status.ts",
-      "./lib/extensions/object.extensions.ts",
-      "./lib/game/dto-card.ts",
       "./lib/messages/reason.ts",
+      "./lib/messages/message.ts",
+      "./lib/messages/index.ts",
       "./lib/game/dto-error.ts",
       "./lib/game/dto-estimation.ts",
+      "./lib/game/game-status.ts",
       "./lib/game/dto-game.ts",
       "./lib/game/participant-status.ts",
       "./lib/game/role.ts",
@@ -1707,35 +1745,7 @@
       "./node_modules/@types/node/ts3.2/util.d.ts",
       "./node_modules/@types/node/ts3.2/globals.d.ts",
       "./node_modules/@types/node/ts3.2/index.d.ts",
-      "./node_modules/typescript/lib/lib.es5.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.d.ts",
-      "./node_modules/typescript/lib/lib.es2016.d.ts",
-      "./node_modules/typescript/lib/lib.es2017.d.ts",
-      "./node_modules/typescript/lib/lib.es2018.d.ts",
-      "./node_modules/typescript/lib/lib.dom.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.core.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.collection.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.generator.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.iterable.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.promise.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.proxy.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.reflect.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.symbol.d.ts",
-      "./node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
-      "./node_modules/typescript/lib/lib.es2016.array.include.d.ts",
-      "./node_modules/typescript/lib/lib.es2017.object.d.ts",
-      "./node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts",
-      "./node_modules/typescript/lib/lib.es2017.string.d.ts",
-      "./node_modules/typescript/lib/lib.es2017.intl.d.ts",
-      "./node_modules/typescript/lib/lib.es2017.typedarrays.d.ts",
-      "./node_modules/typescript/lib/lib.es2018.asyncgenerator.d.ts",
-      "./node_modules/typescript/lib/lib.es2018.asynciterable.d.ts",
-      "./node_modules/typescript/lib/lib.es2018.intl.d.ts",
-      "./node_modules/typescript/lib/lib.es2018.promise.d.ts",
-      "./node_modules/typescript/lib/lib.es2018.regexp.d.ts",
-      "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
-      "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
-      "./lib/messages/index.ts"
+      "./lib/game/dto-state.ts"
     ]
   },
   "version": "3.8.3"

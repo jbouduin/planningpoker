@@ -27,18 +27,6 @@ export class ToastService {
   // </editor-fold>
 
   // <editor-fold desc='Public methods'>
-  public showError(errorCode: ErrorCode): any {
-    return this.translateService
-      .get(ErrorCode[errorCode])
-      .subscribe( translated => {
-        const toastData: ToastData = {
-          text: translated,
-          type: 'warning'
-        };
-        return this.show(toastData);
-      });
-  }
-
   public show(data: ToastData): ToastRef {
     const positionStrategy = this.getPositionStrategy();
     const overlayRef = this.overlay.create({ positionStrategy });

@@ -6,16 +6,17 @@ import { GameStatus, Role } from '../../../../shared-lib/lib';
 import { Estimation } from './estimation';
 import { Participant } from './participant';
 
-// TODO (694) create an interface
 export interface Game {
+  readonly allEstimations: Array<Estimation>;
+  readonly allParticipants: Array<Participant>;
   readonly status: GameStatus;
   team: string
   reveal(): void;
   startEstimating(): void;
-  allEstimations(): Array<Estimation>;
+
   deleteEstimation(uuid: string): void;
   upsertEstimation(estimation: Estimation): void;
-  allParticipants(): Array<Participant>;
+
   deleteParticipant(uuid: string): void;
   upsertParticipant(participant: Participant): void;
   getParticipant(uuid: string): Participant | undefined;
@@ -40,8 +41,21 @@ class GameImplementation implements Game {
   private gameStatus: GameStatus;
   // </editor-fold>
 
-  // <editor-fold desc='Constructor & C°'>
+  // <editor-fold desc='Public getter methods'>
+  public get allParticipants(): Array<Participant> {
+    return this.participants.values();
+  }
 
+  public get allEstimations(): Array<Estimation> {
+    return this.estimations.values();
+  }
+
+  public get status(): GameStatus {
+    return this.gameStatus;
+  }
+  // </editor-fold>
+
+  // <editor-fold desc='Constructor & C°'>
   public constructor(public team: string) {
     this.team = team;
     this.gameStatus = GameStatus.Stopped;
@@ -51,10 +65,6 @@ class GameImplementation implements Game {
   // </editor-fold>
 
   // <editor-fold desc='Public GameStatus related methods'>
-  public get status(): GameStatus {
-    return this.gameStatus;
-  }
-
   public reveal(): void {
     this.gameStatus = GameStatus.Revealed;
   }
@@ -63,14 +73,9 @@ class GameImplementation implements Game {
     this.estimations = new Collections.Dictionary<string, Estimation>();
     this.gameStatus = GameStatus.Started;
   }
-
   // </editor-fold>
 
   // <editor-fold desc='Public estimation related methods'>
-  public allEstimations(): Array<Estimation> {
-    return this.estimations.values();
-  }
-
   public deleteEstimation(uuid: string): void {
     this.estimations.remove(uuid);
   }
@@ -81,10 +86,6 @@ class GameImplementation implements Game {
   // </editor-fold>
 
   // <editor-fold desc='Public participant related methods'>
-  public allParticipants(): Array<Participant> {
-    return this.participants.values();
-  }
-
   // insert a new participant or update an existing one
   public upsertParticipant(participant: Participant): void {
     this.participants.setValue(participant.uuid, participant);
@@ -95,11 +96,6 @@ class GameImplementation implements Game {
     this.participants.remove(uuid);
   }
 
-  // the number of participants
-  public size(): number {
-    return this.participants.size();
-  }
-
   public getParticipant(uuid: string): Participant | undefined {
     return this.participants.getValue(uuid);
   }
@@ -108,6 +104,5 @@ class GameImplementation implements Game {
     return this.participants.values().filter(filter);
   }
   // </editor-fold>
-
 
 }

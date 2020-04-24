@@ -17,9 +17,9 @@ export class HomeComponent implements AfterViewInit, OnInit {
 
   // <editor-fold desc='Angular interface members'>
   public ngAfterViewInit() {
-    if (this.gameService.canReconnect) {
+    if (this.gameService.game.canReconnect) {
       this.translateService
-        .get(`Do you want to rejoin the game '${this.gameService.team}' as '${this.gameService.myNick}'?`)
+        .get(`Do you want to rejoin the game '${this.gameService.game.team}' as '${this.gameService.game.myNick}'?`)
         .subscribe( translated => {
           const tryReenter = confirm(translated);
           if (tryReenter === true) {

@@ -2,7 +2,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { GameStatus, ParticipantStatus, Role } from '../../../projects/shared-lib/lib';
-import { Card, Estimation, GameService } from '../@core';
+import { Card, Game, Estimation, GameService } from '../@core';
 
 @Component({
   selector: 'app-game',
@@ -17,45 +17,40 @@ export class GameComponent implements OnInit {
 
   // <editor-fold desc='Public Getter methods'>
   public get availableCards(): Array<Card> {
-    return this.gameService.cards;
+    return this.gameService.game.availableCards;
   }
 
   public get status(): string {
-    return GameStatus[this.gameService.status];
+    return GameStatus[this.gameService.game.status];
   }
 
   public get canEstimate(): boolean {
-    return this.gameService.status === GameStatus.Started;
+    return this.gameService.game.canEstimate;
   }
 
   public get canReveal(): boolean {
-
-    return this.gameService.status === GameStatus.Started &&
-      this.gameService.myRole === Role.ScrumMaster &&
-      this.gameService.estimations.length === this.gameService.developers.length + 1;
+    return this.gameService.game.canReveal;
   }
 
   public get canStart(): boolean {
-    return (this.gameService.status === GameStatus.Revealed || this.gameService.status === GameStatus.Stopped) &&
-      this.gameService.myRole === Role.ScrumMaster;
+    return this.gameService.game.canStart;
   }
 
   public get team(): string {
-    return this.gameService.team;
+    return this.gameService.game.team;
   }
 
   public get developers(): Array<string> {
-    return this.gameService.developers
+    return this.gameService.game.developers
       .map(participant => `${ParticipantStatus[participant.status]}: ${participant.nick}${participant.me ? ' (me)' : ''} `);
   }
 
   public get estimations(): Array<Estimation> {
-    console.log(this.gameService.estimations);
-    return this.gameService.estimations;
+    return this.gameService.game.estimations;
   }
 
   public get scrumMaster(): string {
-    const scrumMaster = this.gameService.scrumMaster;
+    const scrumMaster = this.gameService.game.scrumMaster;
     if (scrumMaster) {
       return `${ParticipantStatus[scrumMaster.status]}: ${scrumMaster.nick}${scrumMaster.me ? ' (me)' : ''}`;
     }

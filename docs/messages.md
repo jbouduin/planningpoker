@@ -10,7 +10,7 @@
 | Change    | Self        | Send after change to self (role) |
 | Change    | Participant | Send after any change in participant |
 | Change    | Game        |
-| Refresh   | *all*       | Send after a client asked to refresh |
+| Refresh   | State       | Send after a participant asked to refresh, (re-)joined |
 | *all*     | Ping        | Just keeping the sockets busy |
 
 **Other combinations should not occur.**

@@ -8,6 +8,9 @@ import * as ws from 'ws';
 
 import {
   ErrorCode,
+  DtoEstimation,
+  DtoGame,
+  DtoParticipant,
   GameStatus,
   Message,
   MessageType,
@@ -194,10 +197,8 @@ export class GameService implements IGameService {
     newGame.upsertParticipant(sender);
     this.games.setValue(requestTeam, newGame);
     this.participantGameMap.setValue(message.uuid, requestTeam);
-    // send the creator himself to tell him that he is now Scrum Master
-    this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
-    this.sendGame(sender, Reason.Init, newGame);
-    this.sendCards(sender);
+    // provide the sender with the curren game state
+    this.sendGameState(sender, newGame);
   }
 
   private handleEstimate(sender: Participant, message: Message, game: Game): void {
@@ -216,19 +217,10 @@ export class GameService implements IGameService {
     sender.role = Role.Developer;
     game.upsertParticipant(sender);
     this.participantGameMap.setValue(message.uuid, requestTeam);
-    // TODO (#697) group all following calls in one single send
-    // send the joinee himself to tell him that he is now developer
-    this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
+    // provide the sender with the curren game state
+    this.sendGameState(sender, game);
     // tell the others someone joined
     this.broadcastParticipantToOthers(game, Reason.Change, sender);
-    // send the new participant all other participants
-    this.broadcastOthersToParticipant(game, Reason.Init, sender);
-    // send the new participant the game
-    this.sendGame(sender, Reason.Init, game);
-    // send the new participant the cards
-    this.sendCards(sender);
-    // send the new participant the dtoEstimations
-    this.sendEstimations(sender, game.status === GameStatus.Revealed, game.allEstimations());
   }
 
   private handleLeave(sender: Participant, message: Message, game: Game): void {
@@ -282,16 +274,10 @@ export class GameService implements IGameService {
     this.participants.remove(sender.uuid);
     oldParticipant.status = ParticipantStatus.Connected;
     oldParticipant.socket = ws;
-    // TODO (#697) group all following calls in one single send
-    // update self to reflect the new-old uuid
-    this.sendParticipants(sender, Reason.Change, MessageType.Self, [ oldParticipant ]);
+    // provide the sender with the curren game state
+    this.sendGameState(sender, oldGame);
     // tell the others that participant rejoined
     this.broadcastParticipantToOthers(oldGame, Reason.Change, oldParticipant);
-    // send the game data to the participant
-    this.broadcastOthersToParticipant(oldGame, Reason.Init, oldParticipant);
-    this.sendGame(sender, Reason.Init, oldGame);
-    this.sendCards(sender);
-    this.sendEstimations(sender, oldGame.status === GameStatus.Revealed, oldGame.allEstimations());
   }
   // </editor-fold>
 
@@ -299,7 +285,7 @@ export class GameService implements IGameService {
   private broadCastAllEstimations(game: Game) {
     game
       .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
-      .forEach(participant => this.sendEstimations(participant, game.status === GameStatus.Revealed, game.allEstimations()));
+      .forEach(participant => this.sendEstimations(participant, game.status === GameStatus.Revealed, game.allEstimations));
   }
 
   private broadCastClearEstimations(game: Game) {
@@ -326,13 +312,37 @@ export class GameService implements IGameService {
       .forEach(other => this.sendParticipants(other, reason, MessageType.Participant, [ participant ]) );
   }
 
-  private broadcastOthersToParticipant(game: Game, reason: Reason, participant: Participant): void {
-    this.sendParticipants(
-      participant,
-      reason,
-      MessageType.Participant,
-      game
-        .filterParticipants(other => other.uuid !== participant.uuid));
+  // </editor-fold>
+
+  // <editor-fold desc='Private prepare message data methods'>
+  private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<DtoEstimation> {
+    return estimations.map( estimation => {
+      return {
+        card: estimation.card < 0 ?
+          estimation.card :
+          revealed || estimation.uuid === to.uuid ? estimation.card : 0,
+        revealed: revealed || estimation.uuid === to.uuid,
+        uuid: estimation.uuid
+      };
+    });
+  }
+
+  private prepareGameData(game: Game): DtoGame {
+    return {
+      team: game.team,
+      status: game.status
+    };
+  }
+
+  private prepareParticipantsData(participants: Array<Participant>): Array<DtoParticipant> {
+    return participants.map( participant => {
+      return {
+        status: participant.status,
+        nick: participant.nick,
+        uuid: participant.uuid,
+        role: participant.role
+      };
+    });
   }
   // </editor-fold>
 
@@ -341,16 +351,6 @@ export class GameService implements IGameService {
     const message: Message = {
       type: MessageType.ClearEstimations,
       data: '',
-      uuid: '',
-      reason: Reason.Change
-    }
-    this.sendToParticipant(to, message);
-  }
-
-  private sendCards(to: Participant): void {
-    const message: Message = {
-      type: MessageType.Cards,
-      data: this.cardService.generateCardSet(),
       uuid: '',
       reason: Reason.Change
     }
@@ -371,17 +371,9 @@ export class GameService implements IGameService {
   }
 
   private sendEstimations(to: Participant, revealed: boolean, estimations: Array<Estimation>): void {
-    const data = estimations.map( estimation => {
-      return {
-        card: revealed || estimation.uuid === to.uuid ? estimation.card : 0,
-        revealed: revealed || estimation.uuid === to.uuid,
-        uuid: estimation.uuid
-      };
-    });
-
     const message: Message = {
       type: MessageType.Estimation,
-      data,
+      data: this.prepareEstimationsData(to, revealed, estimations),
       uuid: '',
       reason: Reason.Change
     };
@@ -391,29 +383,33 @@ export class GameService implements IGameService {
   private sendGame(to: Participant, reason: Reason, game: Game): void {
     const message: Message = {
       type: MessageType.Game,
-      data: {
-        team: game.team,
-        status: game.status
-      },
+      data: this.prepareGameData(game),
       uuid: '',
       reason
     };
     this.sendToParticipant(to, message);
   }
 
-  private sendParticipants(to: Participant, reason: Reason, type: MessageType, participants: Array<Participant>): void {
-    const data = participants.map( participant => {
-      return {
-        status: participant.status,
-        nick: participant.nick,
-        uuid: participant.uuid,
-        role: participant.role
-      };
-    });
+  private sendGameState(to: Participant, game: Game): void {
+    const message: Message = {
+      uuid: '',
+      type: MessageType.State,
+      data: {
+        cards: this.cardService.generateCardSet(),
+        estimations: this.prepareEstimationsData(to, game.status === GameStatus.Revealed, game.allEstimations),
+        game: this.prepareGameData(game),
+        others: this.prepareParticipantsData(game.filterParticipants(other => other.uuid !== to.uuid)),
+        self: this.prepareParticipantsData([ to ])
+      },
+      reason: Reason.Refresh
+    };
+    this.sendToParticipant(to, message);
+  }
 
+  private sendParticipants(to: Participant, reason: Reason, type: MessageType, participants: Array<Participant>): void {
     const message: Message = {
       type: type,
-      data,
+      data: this.prepareParticipantsData(participants),
       uuid: '',
       reason
     };
