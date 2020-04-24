@@ -11,24 +11,27 @@ export interface Game {
 
   // <editor-fold desc='Public Readonly properties'>
   readonly availableCards: Array<Card>;
-  readonly canEstimate: boolean;
   readonly canReconnect: boolean;
-  readonly canReveal: boolean;
-  readonly canStart: boolean;
   readonly developers: Array<Participant>;
+  readonly enabled: boolean;
   readonly estimations: Array<Estimation>;
   readonly myNick: string;
   readonly myRole: Role;
   readonly myUuid: string;
   readonly scrumMaster: Participant | undefined;
+  readonly showEstimate: boolean;
+  readonly showReveal: boolean;
+  readonly showStart: boolean;
   readonly status: GameStatus;
   readonly team: string;
   // </editor-fold>
 
   clearEstimations(): void;
+  handleDisconnect(): void;
   handleErrorMessage(code: ErrorCode): boolean;
   handleEstimations(dtoEstimations: Array<DtoEstimation>): void;
   handleSelf(participant: DtoParticipant): void;
+  handleSocketError(error: any): void;
   handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void
   reset(): void;
   setCards(cards: Array<DtoCard>): void;

@@ -25,7 +25,7 @@
             <div class="list-group-item" *ngFor="let estimation of estimations" >
               <div *ngIf="estimation.mine; then myEstimation else otherEstimation"></div>
                 <ng-template #myEstimation>
-                  <button mat-stroked-button color="secondary" (click)="withdraw()" [disabled]="!canEstimate">
+                  <button mat-stroked-button color="secondary" (click)="withdraw()" [disabled]="!showEstimate && !enabled">
                     <p>{{estimation.label}}</p>
                     <p>{{estimation.nick}}</p>
                   </button>
@@ -48,7 +48,7 @@
         <mat-card-actions>
           <div fxLayout="row wrap">
             <div class="list-group-item" *ngFor="let card of availableCards">
-              <button mat-stroked-button color="primary" (click)="estimate(card.index)" [disabled]="!canEstimate">
+              <button mat-stroked-button color="primary" (click)="estimate(card.index)" [disabled]="!showEstimate && !enabled">
                 {{card.label}}
               </button>
             </div>
@@ -58,13 +58,13 @@
       <mat-card>
         <mat-card-actions>
           <div fxLayout="row">
-            <div *ngIf="canStart">
-              <button mat-stroked-button color="primary" (click)="start()">Start</button>
+            <div *ngIf="showStart">
+              <button mat-stroked-button color="primary" (click)="start()" [disabled]="!enabled">Start</button>
             </div>
-            <div *ngIf="canReveal">
-              <button mat-stroked-button color="primary" (click)="reveal()">Reveal</button>
+            <div *ngIf="showReveal">
+              <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">Reveal</button>
             </div>
-            <button mat-stroked-button color="primary" (click)="leave()">Leave</button>
+            <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">Leave</button>
           </div>
         </mat-card-actions>
       </mat-card>

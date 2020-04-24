@@ -34,23 +34,16 @@ export class GameInstance implements Game {
     return this.cardCollection.values();
   }
 
-  public get canEstimate(): boolean {
-    return this.gameStatus === GameStatus.Started;
-  }
-
   public get canReconnect(): boolean {
       return this.status === GameStatus.Disconnected;
   }
 
-  public get canReveal(): boolean {
-    return this.gameStatus === GameStatus.Started &&
-      this.myRole === Role.ScrumMaster &&
-      this.estimations.length === this.developers.length + 1;
+  public get enabled(): boolean {
+    return this.gameStatus !== GameStatus.Disconnected;
   }
 
-  public get canStart(): boolean {
-    return (this.gameStatus === GameStatus.Revealed || this.gameStatus === GameStatus.Stopped) &&
-      this.myRole === Role.ScrumMaster;
+  public get estimations(): Array<Estimation> {
+    return this.estimationCollection.values();
   }
 
   public get developers(): Array<Participant> {
@@ -61,10 +54,6 @@ export class GameInstance implements Game {
     return result.concat(
       this.participants.values().filter(participant => participant.role === Role.Developer)
     );
-  }
-
-  public get estimations(): Array<Estimation> {
-    return this.estimationCollection.values();
   }
 
   public get myNick(): string {
@@ -90,6 +79,21 @@ export class GameInstance implements Game {
     const result = this.participants.values()
       .filter(participant => participant.role === Role.ScrumMaster)[0];
     return result ? result : undefined;
+  }
+
+  public get showEstimate(): boolean {
+    return this.gameStatus === GameStatus.Started;
+  }
+
+  public get showReveal(): boolean {
+    return this.gameStatus === GameStatus.Started &&
+      this.myRole === Role.ScrumMaster &&
+      this.estimations.length === this.developers.length + 1;
+  }
+
+  public get showStart(): boolean {
+    return (this.gameStatus === GameStatus.Revealed || this.gameStatus === GameStatus.Stopped) &&
+      this.myRole === Role.ScrumMaster;
   }
 
   public get status(): GameStatus {
@@ -118,6 +122,11 @@ export class GameInstance implements Game {
   public clearEstimations(): void {
     console.log('Clearing estimations');
     this.estimationCollection.clear();
+  }
+
+  public handleDisconnect(): void {
+    this.showError('Disconnect');
+    this.gameStatus = GameStatus.Disconnected;
   }
 
   public handleErrorMessage(code: ErrorCode): boolean {
@@ -149,6 +158,14 @@ export class GameInstance implements Game {
     this.dumpSelf();
     localStorage.setItem(this.localStorageNickKey, this.self.nick);
     localStorage.setItem(this.localStorageUuidKey, this.self.uuid);
+  }
+
+  public handleSocketError(error: any): void {
+    if (error.target && error.target.readyState && error.target.readyState === 3) {
+      this.handleDisconnect();
+    } else {
+      this.showError('CommunicationError');
+    }
   }
 
   public handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void {

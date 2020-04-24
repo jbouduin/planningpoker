@@ -20,29 +20,13 @@ export class GameComponent implements OnInit {
     return this.gameService.game.availableCards;
   }
 
-  public get status(): string {
-    return GameStatus[this.gameService.game.status];
-  }
-
-  public get canEstimate(): boolean {
-    return this.gameService.game.canEstimate;
-  }
-
-  public get canReveal(): boolean {
-    return this.gameService.game.canReveal;
-  }
-
-  public get canStart(): boolean {
-    return this.gameService.game.canStart;
-  }
-
-  public get team(): string {
-    return this.gameService.game.team;
-  }
-
   public get developers(): Array<string> {
     return this.gameService.game.developers
       .map(participant => `${ParticipantStatus[participant.status]}: ${participant.nick}${participant.me ? ' (me)' : ''} `);
+  }
+
+  public get enabled(): boolean {
+    return this.gameService.game.enabled;
   }
 
   public get estimations(): Array<Estimation> {
@@ -55,6 +39,26 @@ export class GameComponent implements OnInit {
       return `${ParticipantStatus[scrumMaster.status]}: ${scrumMaster.nick}${scrumMaster.me ? ' (me)' : ''}`;
     }
     return '';
+  }
+
+  public get showEstimate(): boolean {
+    return this.gameService.game.showEstimate;
+  }
+
+  public get showReveal(): boolean {
+    return this.gameService.game.showReveal;
+  }
+
+  public get showStart(): boolean {
+    return this.gameService.game.showStart;
+  }
+
+  public get status(): string {
+    return GameStatus[this.gameService.game.status];
+  }
+
+  public get team(): string {
+    return this.gameService.game.team;
   }
   // </editor-fold>
 

@@ -128,12 +128,9 @@ export class GameService {
           socket.next(message);
           this.reset();
         },
-        err => {
-          console.log(err);
-          this.toastService.show({
-            text: this.translateService.instant('Socket error'),
-            type: 'warning'
-          });
+        error => {
+          console.log(error);
+          this.game.handleSocketError(error);
         }
       );
     }
@@ -261,19 +258,13 @@ export class GameService {
         }
       }
     },
-    err => {
-      console.log(err);
-      this.toastService.show({
-        text: this.translateService.instant('Socket error'),
-        type: 'warning'
-      });
+    error => {
+      console.log(error);
+      this.game.handleSocketError(error);
     },
     () => {
       if (this.currentRoute === '/game') {
-        this.toastService.show({
-          text: this.translateService.instant('You have been disconnected'),
-          type: 'warning'
-        });
+        this.game.handleDisconnect();
       }
     });
   }

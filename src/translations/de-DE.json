@@ -14,13 +14,13 @@
 	"ParticipantNotInTeam": "Sie sind keinem Team zugeordnet",
 	"ScrumMasterRequired": "Diese Aktion ist nur dem Scrum Master erlaubt",
 	"ServerError": "Es ist ein Fehler passiert auf dem Server",
-	"Socket error": "Kommunikationsfehler",
+	"CommunicationError": "Kommunikationsfehler",
 	"Start a new game": "Neues Team starten",
 	"TeamAlreadyExists": "Das Team existiert schon",
 	"TeamDoesNotExist": "Das Team existiert nicht",
 	"UnknownMessageType": "Der Server hat einen unbekannten Nachrichtentyp geschickt: '${msg.type}'.",
 	"UnknownVerb": "Der Server hat Ihre Anfrage nicht verstanden",
 	"Version": "Version",
-	"You have been disconnected": "Die Verbindung wurde abgebrochen",
+	"Disconnect": "Die Verbindung wurde abgebrochen",
 	"You must enter a value": "Geben Sie einen Wert ein"
 }
