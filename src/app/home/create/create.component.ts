@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { GameService } from '../../@core';
 
-// TODO create and join component are almost the same
+// TODO (#702) create and join component are almost the same
 @Component({
   selector: 'app-create',
   templateUrl: './create.component.html',

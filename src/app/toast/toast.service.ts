@@ -42,7 +42,7 @@ export class ToastService {
     return toastRef;
   }
 
-  // TODO find out import Globalpositionstrategy
+  // TODO (#703) find out import Globalpositionstrategy
   public getPositionStrategy(): any {
     return this.overlay.position()
       .global()
