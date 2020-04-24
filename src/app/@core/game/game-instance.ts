@@ -161,11 +161,7 @@ export class GameInstance implements Game {
   }
 
   public handleSocketError(error: any): void {
-    if (error.target && error.target.readyState && error.target.readyState === 3) {
-      this.handleDisconnect();
-    } else {
-      this.showError('CommunicationError');
-    }
+    this.showError('CommunicationError');
   }
 
   public handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void {

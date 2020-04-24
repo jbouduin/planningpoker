@@ -2,6 +2,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { GameStatus, ParticipantStatus, Role } from '../../../projects/shared-lib/lib';
+import { environment } from '../../environments/environment';
 import { Card, Game, Estimation, GameService } from '../@core';
 
 @Component({
@@ -11,54 +12,68 @@ import { Card, Game, Estimation, GameService } from '../@core';
 })
 export class GameComponent implements OnInit {
 
+  // <editor-fold desc='Private Properties'>
+  private game: Game;
+  // </editor-fold>
+
   // <editor-fold desc='Constructor & C°'>
-  public constructor(private gameService: GameService) { }
+  public constructor(private gameService: GameService) {
+    this.game = gameService.game;
+  }
   // </editor-fold>
 
   // <editor-fold desc='Public Getter methods'>
   public get availableCards(): Array<Card> {
-    return this.gameService.game.availableCards;
+    return this.game.availableCards;
   }
 
   public get developers(): Array<string> {
-    return this.gameService.game.developers
+    return this.game.developers
       .map(participant => `${ParticipantStatus[participant.status]}: ${participant.nick}${participant.me ? ' (me)' : ''} `);
   }
 
   public get enabled(): boolean {
-    return this.gameService.game.enabled;
+    return this.game.enabled;
   }
 
   public get estimations(): Array<Estimation> {
-    return this.gameService.game.estimations;
+    return this.game.estimations;
+  }
+
+  public get reconnectIn(): number {
+    return this.gameService.reconnectIn;
   }
 
   public get scrumMaster(): string {
-    const scrumMaster = this.gameService.game.scrumMaster;
+    const scrumMaster = this.game.scrumMaster;
     if (scrumMaster) {
       return `${ParticipantStatus[scrumMaster.status]}: ${scrumMaster.nick}${scrumMaster.me ? ' (me)' : ''}`;
     }
     return '';
   }
 
+  public get showDisconnect(): boolean {
+    return !environment.production && this.game.status !== GameStatus.Disconnected;
+  }
+
   public get showEstimate(): boolean {
-    return this.gameService.game.showEstimate;
+    return this.game.showEstimate;
   }
 
   public get showReveal(): boolean {
-    return this.gameService.game.showReveal;
+    return this.game.showReveal;
   }
 
   public get showStart(): boolean {
-    return this.gameService.game.showStart;
+    return this.game.showStart;
   }
 
   public get status(): string {
-    return GameStatus[this.gameService.game.status];
+    return GameStatus[this.game.status];
   }
 
   public get team(): string {
-    return this.gameService.game.team;
+    return this.game.team;
   }
   // </editor-fold>
 
@@ -68,6 +83,10 @@ export class GameComponent implements OnInit {
   // </editor-fold>
 
   // <editor-fold desc='Public UI Trigger methods'>
+  public disconnect(): void {
+    this.gameService.disconnect();
+  }
+
   public leave(): void {
     this.gameService.leave();
   }

@@ -17,7 +17,7 @@ export class WebsocketService {
 
   // <editor-fold desc='Public methods'>
 	public connect(url: string): Subject<MessageEvent> {
-		if (!this.subject) {
+		if (!this.subject || this.webSocket?.readyState !== WebSocket.OPEN) {
 			this.subject = this.create(url);
       console.log(`Successfully connected to ${url}`);
 		}

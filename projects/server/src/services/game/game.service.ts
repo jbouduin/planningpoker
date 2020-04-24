@@ -125,6 +125,10 @@ export class GameService implements IGameService {
                     this.handleJoin(sender, message, game, req.params.team);
                     break;
                   }
+                  case (MessageType.KillMe): {
+                    this.handleKillMe(sender);
+                    break;
+                  }
                   case (MessageType.Leave): {
                     this.handleLeave(sender, message, game);
                     break;
@@ -221,6 +225,11 @@ export class GameService implements IGameService {
     this.sendGameState(sender, game);
     // tell the others someone joined
     this.broadcastParticipantToOthers(game, Reason.Change, sender);
+  }
+
+  private handleKillMe(sender: Participant): void {
+    console.log(`Kill: '${sender.nick}' asked to be disconnected`);
+    sender.socket.close();
   }
 
   private handleLeave(sender: Participant, message: Message, game: Game): void {
@@ -552,11 +561,13 @@ export class GameService implements IGameService {
         }
       }
     }
+
     // specific cases
-    if (result !== ErrorCode.NoError) {
+    if (result === ErrorCode.NoError) {
       switch (message.type) {
         case (MessageType.Create): {
-          if (this.games.containsKey(requestTeam)) {
+          if (this.games.containsKey
+            (requestTeam)) {
             result = ErrorCode.TeamAlreadyExists;
           }
           break;

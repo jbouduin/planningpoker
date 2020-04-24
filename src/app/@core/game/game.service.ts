@@ -33,7 +33,10 @@ export class GameService {
   // </editor-fold>
 
   // <editor-fold desc='private properties'>
+  // private currentConnectingStatus: ConnectingStatus
+  private currentReconnectIn: number;
   private currentRoute: string;
+  private reconnectTimer: number;
   private socket?: Subject<Message>;
   // </editor-fold>
 
@@ -45,8 +48,11 @@ export class GameService {
     private websocketService: WebsocketService,
     factoryService: GameFactoryService) {
     console.log('in Gameservice constructor');
+    // this.currentConnectingStatus = ConnectingStatus.Finished;
+    this.currentReconnectIn = 0;
     this.currentRoute = '/';
     this.theGame = factoryService.Game();
+    this.reconnectTimer = 0;
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd))
       .subscribe(event => this.currentRoute = event.urlAfterRedirect );
@@ -57,6 +63,14 @@ export class GameService {
   public get game(): Game {
     return this.theGame;
   }
+
+  public get reconnectIn(): number {
+    return this.currentReconnectIn;
+  }
+
+  // public get connectingStatus(): ConnectingStatus {
+  //   return this.currentConnectingStatus;
+  // }
   // </editor-fold>
 
   // <editor-fold desc='public connection related methods'>
@@ -176,6 +190,21 @@ export class GameService {
   }
   // </editor-fold>
 
+  // <editor-fold desc='Public method to disconnect: Development only!!!'>
+  public disconnect() {
+    console.log(`asking the server to kill my connection`);
+    if (this.socket) {
+      const message: Message = {
+        type: MessageType.KillMe,
+        uuid: this.game.myUuid,
+        data: '',
+        reason: Reason.Refresh
+      };
+      this.socket.next(message);
+    }
+  }
+  // </editor-fold>
+
   // <editor-fold desc='private connection related methods'>
   private createConnection(
     team: string,
@@ -185,7 +214,6 @@ export class GameService {
     this.socket = this.createSocket(team);
 
     this.socket.subscribe(msg => {
-
       switch(msg.type) {
         case MessageType.Cards: {
           this.game.setCards(msg.data);
@@ -259,17 +287,32 @@ export class GameService {
       }
     },
     error => {
+      // we pass here if the connection drops or if the socket connection fails
+      console.log('in error handle');
       console.log(error);
-      this.game.handleSocketError(error);
+      //
+      if (error.target && error.target.readyState && error.target.readyState === 3) {
+        this.game.handleDisconnect();
+        this.handleDisconnect();
+      } else {
+        this.game.handleSocketError(error);
+      }
     },
     () => {
-      if (this.currentRoute === '/game') {
+      // this happens when the client or the server close the socket
+      // normally that happens only after 'leave'
+      // so we normally do not have to do anything here
+      // we have this special case in development, where we asked the server to kill me
+      console.log('gracefull disconnect');
+      if (this.socket) {
         this.game.handleDisconnect();
+        this.handleDisconnect();
       }
     });
   }
 
   private createSocket(team: string): Subject<Message> {
+
     console.log(`in createsocket: ${team}`);
     return this.websocketService
 			.connect(`ws://localhost:3001/game/${encodeURI(team)}`)
@@ -283,6 +326,7 @@ export class GameService {
   private reset() {
     if (this.socket) {
       this.socket.unsubscribe();
+      this.socket = undefined;
     }
     this.websocketService.disconnect();
     this.game.reset();
@@ -349,7 +393,7 @@ export class GameService {
   }
   // </editor-fold>
 
-  // <editor-fold desc='private logger methods for incoming messages'>
+  // <editor-fold desc='Private logger methods for incoming messages'>
 
   private logPingMessage(message: Message) {
     console.log({
@@ -357,6 +401,22 @@ export class GameService {
       type: MessageType[message.type],
       data: message.data
     });
+  }
+  // </editor-fold>
+
+  // <editor-fold desc='Private disconnection handling methods'>
+  private handleDisconnect() {
+    this.currentReconnectIn = 30;
+    this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000);
+  }
+
+  private reconnectTick() {
+    this.currentReconnectIn--;
+    console.log(this.currentReconnectIn);
+    if (this.currentReconnectIn === 0) {
+      window.clearInterval(this.reconnectTimer);
+      this.rejoin();
+    }
   }
   // </editor-fold>
 }

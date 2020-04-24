@@ -1,0 +1,16 @@
+<div [hidden]="!isVisible">
+  <mat-card>
+    <mat-card-title translate>Connection</mat-card-title>
+    <mat-card-content>
+      <span class="message">{{ message }}</span>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-stroked-button color="primary" [hidden]="hideTryNow" (click)="tryNow()">
+        <span translate>Try now</span>
+      </button>
+      <button mat-stroked-button color="primary" (click)="cancel()">
+        <span translate>Cancel</span>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

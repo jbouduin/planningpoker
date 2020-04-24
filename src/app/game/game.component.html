@@ -19,7 +19,14 @@
   </div>
     <div fxLayout="column">
       <mat-card>
-        <mat-card-title>{{team}} ({{status}})</mat-card-title>
+        <mat-card-title>
+          <span>{{team}} ({{status}})</span>
+          <span *ngIf="reconnectIn > 0">
+            <span translate>Reconnecting in </span>
+            <span>{{ reconnectIn }}</span>
+            <span translate> seconds</span>
+          </span>
+        </mat-card-title>
         <mat-card-content>
           <div fxLayout="row wrap">
             <div class="list-group-item" *ngFor="let estimation of estimations" >
@@ -65,6 +72,9 @@
               <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">Reveal</button>
             </div>
             <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">Leave</button>
+            <div *ngIf="showDisconnect">
+              <button mat-stroked-button color="primary" (click)="disconnect()" [disabled]="!enabled">Disconnect</button>
+            </div>
           </div>
         </mat-card-actions>
       </mat-card>

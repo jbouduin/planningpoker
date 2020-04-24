@@ -13,6 +13,8 @@ export enum MessageType {
   Create,
   Estimate,
   Join,
+  // only to be used in development
+  KillMe,
   Leave,
   Nick,
   Reveal,
