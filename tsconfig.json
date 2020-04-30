@@ -21,6 +21,9 @@
     ],
     "baseUrl": "./",
     "paths": {
+      "@shared-lib": ["projects/shared-lib/lib"],
+      "@shared-lib/*": ["projects/shared-lib/lib/*"],
+      "@core": ["src/app/@core"],
       "@app/*": ["src/app/*"],
       "@core": ["src/app/@core"],
       "@core/*": ["src/app/@core/*"],

@@ -1,5 +1,5 @@
 import * as Collections from 'typescript-collections';
-import { DtoEstimation, DtoCard } from '../../../../projects/shared-lib/lib';
+import { DtoEstimation, DtoCard } from '@shared-lib';
 
 import { Card } from './card';
 import { Participant } from './participant';

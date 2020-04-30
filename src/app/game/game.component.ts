@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { GameStatus, ParticipantStatus, Role } from '../../../projects/shared-lib/lib';
+import { GameStatus, ParticipantStatus, Role } from '@shared-lib';
 import { environment } from '../../environments/environment';
 import { Card, Game, Estimation, GameService } from '../@core';
 

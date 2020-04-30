@@ -1,4 +1,4 @@
-import { DtoParticipant, ParticipantStatus, Role } from '../../../../projects/shared-lib/lib';
+import { DtoParticipant, ParticipantStatus, Role } from '@shared-lib';
 
 export class Participant {
 

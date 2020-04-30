@@ -1,7 +1,7 @@
 import * as Collections from 'typescript-collections';
 
-import { DtoCard, DtoEstimation, DtoGame, DtoParticipant } from '../../../../projects/shared-lib/lib';
-import { ErrorCode, GameStatus, ParticipantStatus, Reason, Role } from '../../../../projects/shared-lib/lib';
+import { DtoCard, DtoEstimation, DtoGame, DtoParticipant } from '@shared-lib';
+import { ErrorCode, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
 
 import { Card } from './card';
 import { Estimation } from './estimation';

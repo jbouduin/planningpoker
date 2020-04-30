@@ -5,8 +5,8 @@ import { filter, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import * as Collections from 'typescript-collections';
 
-import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '../../../../projects/shared-lib/lib';
-import { ErrorCode, Message, MessageType } from '../../../../projects/shared-lib/lib';
+import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
+import { ErrorCode, Message, MessageType } from '@shared-lib';
 import { ToastService } from '../../toast';
 import { WebsocketService } from '../websocket.service';
 

@@ -7,7 +7,7 @@ import { ToastComponent } from './toast.component';
 import { ToastData, TOAST_CONFIG_TOKEN, ToastConfig } from './toast-config';
 import { ToastRef } from './toast-ref';
 
-import { ErrorCode } from '../../../projects/shared-lib/lib';
+import { ErrorCode } from '@shared-lib';
 
 @Injectable({
   providedIn: 'root'

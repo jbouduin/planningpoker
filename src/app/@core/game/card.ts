@@ -1,4 +1,4 @@
-import { DtoCard } from '../../../../projects/shared-lib/lib';
+import { DtoCard } from '@shared-lib';
 
 export class Card {
   // <editor-fold desc='Public get methods'>
