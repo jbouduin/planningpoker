@@ -11,9 +11,6 @@ import { SnackbarType } from './snackbar-type';
 })
 export class SnackbarService {
 
-  // XXX:
-  private cnt = 0;
-
   // <editor-fold desc='Private properties'>
   private current?: MatSnackBarRef<any>;
   private queue: Array<SnackbarParams>;
@@ -42,8 +39,6 @@ export class SnackbarService {
 
   // <editor-fold desc='Private methods'>
   private show(type: SnackbarType, message: string): void {
-    // XXX:
-    message = `${message} (${++this.cnt})`;
     if (this.current) {
       this.queue.push(new SnackbarParams(type, message));
     } else {

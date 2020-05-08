@@ -8,7 +8,6 @@ import { Card, Game, Estimation, GameService } from '../@core';
 import { environment } from '../../environments/environment';
 
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
-// XXX:
 import { SnackbarService } from '@shared';
 
 @Component({
@@ -98,17 +97,6 @@ export class GameComponent implements OnInit {
   // <editor-fold desc='Public UI Trigger methods'>
   public disconnect(): void {
     this.gameService.disconnect();
-  }
-
-  // XXX: remove this
-  public snackInfo(): void {
-    this.snackbarService.showInfo('this is an info snackbar');
-  }
-  public snackWarning(): void {
-    this.snackbarService.showWarning('this is a warning snackbar');
-  }
-  public snackError(): void {
-    this.snackbarService.showError('this is an error snackbar');
   }
 
   public leave(): void {
