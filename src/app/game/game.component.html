@@ -71,7 +71,7 @@
             <div *ngIf="showReveal">
               <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">Reveal</button>
             </div>
-            <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">Leave</button>
+            <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">{{leaveLabel}}</button>
             <div *ngIf="showDisconnect">
               <button mat-stroked-button color="primary" (click)="disconnect()" [disabled]="!enabled">Disconnect</button>
             </div>

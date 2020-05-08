@@ -1,9 +1,13 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
 import { GameStatus, ParticipantStatus, Role } from '@shared-lib';
-import { environment } from '../../environments/environment';
 import { Card, Game, Estimation, GameService } from '../@core';
+
+import { environment } from '../../environments/environment';
+
+import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
 
 @Component({
   selector: 'app-game',
@@ -14,12 +18,6 @@ export class GameComponent implements OnInit {
 
   // <editor-fold desc='Private Properties'>
   private game: Game;
-  // </editor-fold>
-
-  // <editor-fold desc='Constructor & C°'>
-  public constructor(private gameService: GameService) {
-    this.game = gameService.game;
-  }
   // </editor-fold>
 
   // <editor-fold desc='Public Getter methods'>
@@ -38,6 +36,10 @@ export class GameComponent implements OnInit {
 
   public get estimations(): Array<Estimation> {
     return this.game.estimations;
+  }
+
+  public get leaveLabel(): string {
+    return this.game.scrumMaster && this.game.scrumMaster.me ? 'End game' : 'Leave';
   }
 
   public get reconnectIn(): number {
@@ -77,6 +79,14 @@ export class GameComponent implements OnInit {
   }
   // </editor-fold>
 
+  // <editor-fold desc='Constructor & C°'>
+  public constructor(
+    private dialog: MatDialog,
+    private gameService: GameService) {
+    this.game = gameService.game;
+  }
+  // </editor-fold>
+
   // <editor-fold desc='Public Angular interface methods'>
   public ngOnInit(): void {
   }
@@ -88,7 +98,26 @@ export class GameComponent implements OnInit {
   }
 
   public leave(): void {
-    this.gameService.leave();
+    if (this.game.scrumMaster && this.game.scrumMaster.me) {
+      const params = new ConfirmationDialogParams();
+      params.cancelButtonLabel = 'No';
+      params.okButtonLabel = 'Yes';
+      params.title = 'End the game';
+      params.text = 'Are you sure you want to end the game?';
+
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        width: '250px',
+        data: params
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.gameService.leave();
+        }
+      });
+    } else {
+      this.gameService.leave();
+    }
   }
 
   public estimate(cardIndex: number): void {
