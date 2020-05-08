@@ -6,6 +6,7 @@ import { MaterialModule } from '@app/material.module';
 
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 import { LoaderComponent } from './loader/loader.component';
+import { SnackbarComponent } from './snackbar/snackbar.component';
 
 @NgModule({
   imports: [
@@ -14,10 +15,12 @@ import { LoaderComponent } from './loader/loader.component';
     CommonModule],
   declarations: [
     ConfirmationDialogComponent,
-    LoaderComponent],
+    LoaderComponent,
+    SnackbarComponent],
   exports: [],
   entryComponents: [
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    SnackbarComponent
   ]
 })
 export class SharedModule {}

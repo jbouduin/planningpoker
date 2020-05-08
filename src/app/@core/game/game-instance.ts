@@ -4,8 +4,7 @@ import * as Collections from 'typescript-collections';
 import { DtoCard, DtoEstimation, DtoGame, DtoParticipant } from '@shared-lib';
 import { ErrorCode, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
 
-import { ToastService } from '../../toast'
-import { ToastType } from '../../toast/toast-config';
+import { SnackbarService } from '@shared';
 
 import { Card } from './card';
 import { Estimation } from './estimation';
@@ -108,7 +107,7 @@ export class GameInstance implements Game {
   // <editor-fold desc='Constructor & C°'>
   public constructor(
     private readonly translateService: TranslateService,
-    private readonly toastService: ToastService) {
+    private readonly snackbarService: SnackbarService) {
     this.cardCollection = new Collections.Dictionary<number, Card>();
     this.estimationCollection = new Collections.Dictionary<string, Estimation>();
     this.participants = new Collections.Dictionary<string, Participant>();
@@ -170,17 +169,11 @@ export class GameInstance implements Game {
       this.dumpParticipant(participant);
       if (participant.status === ParticipantStatus.Left)
       {
-        this.toastService.show({
-          text: this.translateService.instant('ParticipantHasLeft'),
-          type: 'info'
-        });
+        this.snackbarService.showInfo(this.translateService.instant('ParticipantHasLeft'));
         this.participants.remove(participant.uuid);
       } else {
         if (reason !== Reason.Refresh && !this.participants.containsKey(participant.uuid)) {
-          this.toastService.show({
-            text: this.translateService.instant('ParticipantHasJoined'),
-            type: 'info'
-          });
+          this.snackbarService.showInfo(this.translateService.instant('ParticipantHasJoined'));
         }
         this.participants.setValue(participant.uuid, participant);
       }
@@ -209,19 +202,15 @@ export class GameInstance implements Game {
   }
 
   public showError(messageKey: string): void {
-    this.showToast(messageKey, 'warning');
+    this.snackbarService.showError(this.translateService.instant(messageKey));
   }
 
   public showInfo(messageKey: string): void {
-    this.showToast(messageKey, 'info');
-  }
-
-  public showSuccess(messageKey: string): void {
-    this.showToast(messageKey, 'success');
+    this.snackbarService.showInfo(this.translateService.instant(messageKey));
   }
 
   public showWarning(messageKey: string): void {
-    this.showToast(messageKey, 'warning');
+    this.snackbarService.showWarning(this.translateService.instant(messageKey));
   }
 
   public update(dtoGame: DtoGame): void {
@@ -277,14 +266,6 @@ export class GameInstance implements Game {
     } else {
       console.log('Self is not set yet');
     }
-
-  }
-
-  private showToast(messageKey: string, type: ToastType) {
-    this.toastService.show({
-      text: this.translateService.instant(messageKey),
-      type: type
-    });
   }
   // </editor-fold>
 }

@@ -75,6 +75,12 @@
             <div *ngIf="showDisconnect">
               <button mat-stroked-button color="primary" (click)="disconnect()" [disabled]="!enabled">Disconnect</button>
             </div>
+            <div *ngIf="showDisconnect">
+              <!-- XXX: remove this -->
+              <button mat-stroked-button color="primary" (click)="snackInfo()" [disabled]="!enabled">Info</button>
+              <button mat-stroked-button color="primary" (click)="snackWarning()" [disabled]="!enabled">Warning</button>
+              <button mat-stroked-button color="primary" (click)="snackError()" [disabled]="!enabled">Error</button>
+            </div>
           </div>
         </mat-card-actions>
       </mat-card>

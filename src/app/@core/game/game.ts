@@ -37,7 +37,6 @@ export interface Game {
   setCards(cards: Array<DtoCard>): void;
   showError(messageKey: string): void
   showInfo(messageKey: string): void;
-  showSuccess(messageKey: string): void;
   showWarning(messageKey: string): void;
   update(dtoGame: DtoGame): void;
 }

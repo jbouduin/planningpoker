@@ -10,8 +10,8 @@ import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '@sh
 import { ErrorCode, Message, MessageType } from '@shared-lib';
 
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
+import { SnackbarService } from '@shared';
 
-import { ToastService } from '../../toast';
 import { WebsocketService } from '../websocket.service';
 
 import { Card } from './card';
@@ -49,7 +49,7 @@ export class GameService {
     private dialog: MatDialog,
     private translateService: TranslateService,
     private router: Router,
-    private toastService: ToastService,
+    private snackbarService: SnackbarService,
     private websocketService: WebsocketService,
     factoryService: GameFactoryService) {
     console.log('in Gameservice constructor');
@@ -288,10 +288,7 @@ export class GameService {
         }
         default: {
           console.log(`MessageType ?: ${msg}`);
-          this.toastService.show({
-            text: this.translateService.instant('UnknownMessageType'),
-            type: 'info'
-          });
+          this.snackbarService.showWarning(this.translateService.instant('UnknownMessageType'));
         }
       }
     },

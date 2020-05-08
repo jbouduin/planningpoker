@@ -1,0 +1,12 @@
+<div fxLayoutAlign="start center">
+  <mat-icon *ngIf="isInfo" color="primary">info</mat-icon>
+  <mat-icon *ngIf="isWarning" color="accent">warning</mat-icon>
+  <mat-icon *ngIf="isError" color="warn">error</mat-icon>
+  <span class="span-message">
+    {{params.message}}
+  </span>
+  <span fxFlex></span>
+  <button class="close-button" (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>

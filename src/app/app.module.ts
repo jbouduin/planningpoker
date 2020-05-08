@@ -13,7 +13,6 @@ import { SharedModule } from '@shared';
 
 import { HomeModule } from './home/home.module';
 import { ShellModule } from './shell/shell.module';
-import { ToastModule } from './toast';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
@@ -25,7 +24,6 @@ import { AppRoutingModule } from './app-routing.module';
     HttpClientModule,
     TranslateModule.forRoot(),
     BrowserAnimationsModule,
-    ToastModule.forRoot(),
     MaterialModule,
     CoreModule,
     SharedModule,
