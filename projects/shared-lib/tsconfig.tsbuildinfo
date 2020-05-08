@@ -122,8 +122,8 @@
         "signature": "e929212e976c8b509c2a8407ac08047c824881ad88f3f675209fdc138c133dd3"
       },
       "./lib/messages/messagetype.ts": {
-        "version": "cfc05067d9ce4e2d2b429852393a45d63b1781dd9de71871c82dca9600d5d750",
-        "signature": "a36bb11a742db6fbbe62c1fe25407bc42fcb8ffd8536618f95626a0d86697ea9"
+        "version": "7b079007633f4c2309aebb7b18e68e60824d478d22e824ed63071509ed04e282",
+        "signature": "b58caeaed17d35e2ffbd53e087be1ea5deb2c5ccee83df32ef4ae867ecef887e"
       },
       "./lib/messages/verb.d.ts": {
         "version": "cbce865596bc4bc36b78aa77ae84e76460732fd52d774a7d8558baa8b1904907",

@@ -233,14 +233,20 @@ export class GameService implements IGameService {
   }
 
   private handleLeave(sender: Participant, message: Message, game: Game): void {
-    console.log(`Leave: '${sender.nick}' is leaving '${game.team}'`);
-    // remove participant from game and dictionaries
-    game.deleteParticipant(sender.uuid);
-    this.participantGameMap.remove(sender.uuid);
-    this.participants.remove(sender.uuid);
-    // tell the others someone left
-    sender.status = ParticipantStatus.Left;
-    this.broadcastParticipantToOthers(game, Reason.Change, sender);
+    if (sender.role === Role.ScrumMaster) {
+      console.log(`End game: '${sender.nick}' is ending '${game.team}'`);
+      this.broadcastEndOfGameToOthers(game, sender);
+      this.games.remove(game.team);
+    } else {
+      console.log(`Leave: '${sender.nick}' is leaving '${game.team}'`);
+      // remove participant from game and dictionaries
+      game.deleteParticipant(sender.uuid);
+      this.participantGameMap.remove(sender.uuid);
+      this.participants.remove(sender.uuid);
+      // tell the others someone left
+      sender.status = ParticipantStatus.Left;
+      this.broadcastParticipantToOthers(game, Reason.Change, sender);
+    }
   }
 
   private handleNick(sender: Participant, message: Message, game?: Game): void {
@@ -321,6 +327,11 @@ export class GameService implements IGameService {
       .forEach(other => this.sendParticipants(other, reason, MessageType.Participant, [ participant ]) );
   }
 
+  private broadcastEndOfGameToOthers(game: Game, participant: Participant): void {
+    game
+      .filterParticipants(other => other.uuid !== participant.uuid && other.status === ParticipantStatus.Connected)
+      .forEach(other => this.sendEndOfGame(other));
+  }
   // </editor-fold>
 
   // <editor-fold desc='Private prepare message data methods'>
@@ -359,6 +370,16 @@ export class GameService implements IGameService {
   private sendClearEstimations(to: Participant): void {
     const message: Message = {
       type: MessageType.ClearEstimations,
+      data: '',
+      uuid: '',
+      reason: Reason.Change
+    }
+    this.sendToParticipant(to, message);
+  }
+
+  private sendEndOfGame(to: Participant): void {
+    const message: Message = {
+      type: MessageType.EndOfGame,
       data: '',
       uuid: '',
       reason: Reason.Change

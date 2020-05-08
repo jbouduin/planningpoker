@@ -2,6 +2,7 @@ export enum MessageType {
   // the message types from server to client
   Cards,
   ClearEstimations,
+  EndOfGame,
   Error,
   Estimation,
   Game,

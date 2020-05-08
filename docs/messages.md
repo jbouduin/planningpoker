@@ -11,6 +11,7 @@
 | Change    | Participant | Send after any change in participant |
 | Change    | Game        |
 | Refresh   | State       | Send after a participant asked to refresh, (re-)joined |
+|           | EndOfGame   | Signals the fact that the scrum master has ended the game |
 | *all*     | Ping        | Just keeping the sockets busy |
 
 **Other combinations should not occur.**

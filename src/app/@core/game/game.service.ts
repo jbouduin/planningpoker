@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable, Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,6 +8,9 @@ import * as Collections from 'typescript-collections';
 
 import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
 import { ErrorCode, Message, MessageType } from '@shared-lib';
+
+import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
+
 import { ToastService } from '../../toast';
 import { WebsocketService } from '../websocket.service';
 
@@ -42,13 +46,14 @@ export class GameService {
 
   // <editor-fold desc='constructor & C°'>
   public constructor(
+    private dialog: MatDialog,
     private translateService: TranslateService,
     private router: Router,
     private toastService: ToastService,
     private websocketService: WebsocketService,
     factoryService: GameFactoryService) {
     console.log('in Gameservice constructor');
-    // this.currentConnectingStatus = ConnectingStatus.Finished;
+
     this.currentReconnectIn = 0;
     this.currentRoute = '/';
     this.theGame = factoryService.Game();
@@ -221,6 +226,10 @@ export class GameService {
         }
         case MessageType.ClearEstimations: {
           this.game.clearEstimations();
+          break;
+        }
+        case MessageType.EndOfGame: {
+          this.handleEndOfGame();
           break;
         }
         case MessageType.Error: {
@@ -417,6 +426,23 @@ export class GameService {
       window.clearInterval(this.reconnectTimer);
       this.rejoin();
     }
+  }
+  // </editor-fold>
+
+  // <editor-fold desc='Other private methods'>
+  private handleEndOfGame(): void {
+    const params = new ConfirmationDialogParams();
+    params.showCancelButton = false;
+    params.okButtonLabel = 'OK';
+    params.title = 'End of game';
+    params.text = 'The scrum master has ended the game.';
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '250px',
+      data: params
+    });
+
+    dialogRef.afterClosed().subscribe(result => this.reset() );
   }
   // </editor-fold>
 }
