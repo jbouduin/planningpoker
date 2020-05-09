@@ -16,9 +16,6 @@
     "translations:extract:us": "ngx-translate-extract -i './src' --output './src/translations/en-US.json' -f=json --clean -s --marker extract",
     "translations:extract:de": "ngx-translate-extract -i './src' --output './src/translations/de-DE.json' -f=json --clean -s --marker extract",
     "env": "ngx-scripts env npm_package_version",
-    "prettier": "prettier --write \"./{src,e2e}/**/*.{ts,js,html,scss}\"",
-    "prettier:check": "prettier --list-different \"./{src,e2e}/**/*.{ts,js,html,scss}\"",
-    "postinstall": "npm run prettier -s",
     "generate": "ng generate"
   },
   "dependencies": {
@@ -66,8 +63,6 @@
     "karma-jasmine": "^2.0.1",
     "karma-jasmine-html-reporter": "^1.5.3",
     "karma-junit-reporter": "^2.0.1",
-    "prettier": "^2.0.2",
-    "pretty-quick": "^2.0.1",
     "protractor": "~5.4.3",
     "stylelint": "~13.2.1",
     "stylelint-config-prettier": "^8.0.1",
@@ -76,7 +71,6 @@
     "stylelint-scss": "~3.16.0",
     "ts-node": "^8.8.1",
     "tslint": "~5.20.1",
-    "tslint-config-prettier": "^1.14.0",
     "typescript": "~3.8.3"
   },
   "prettier": {

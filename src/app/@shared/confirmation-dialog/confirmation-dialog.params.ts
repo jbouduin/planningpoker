@@ -2,15 +2,15 @@ import { TranslateService } from '@ngx-translate/core';
 
 export class ConfirmationDialogParams {
 
+  // <editor-fold desc='Public properties'>
+  public showCancelButton: boolean;
+  // </editor-fold>
+
   // <editor-fold desc='Private properties'>
   private _translatedCancelButtonLabel!: string;
   private _translatedOkButtonLabel!: string;
   private _translatedText!: string;
   private _translatedTitle!: string;
-  // </editor-fold>
-
-  // <editor-fold desc='Public properties'>
-  public showCancelButton: boolean;
   // </editor-fold>
 
   // <editor-fold desc='Public get/set properties'>

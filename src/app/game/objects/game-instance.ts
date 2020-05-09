@@ -142,7 +142,11 @@ export class GameInstance implements Game {
   public handleEstimations(dtoEstimations: Array<DtoEstimation>): void {
     dtoEstimations.forEach(dtoEstimation => {
       if (dtoEstimation.card >= 0) {
-        const estimation = Estimation.createEstimation(dtoEstimation, this.participants, this.cardCollection.values(), this.self);
+        const estimation = Estimation.createEstimation(
+          dtoEstimation,
+          this.participants,
+          this.cardCollection.values(),
+          this.self);
         if (estimation) {
           this.estimationCollection.setValue(dtoEstimation.uuid, estimation);
           this.dumpEstimation(estimation);

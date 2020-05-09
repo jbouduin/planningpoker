@@ -8,16 +8,15 @@ import { ConnectionStatus } from './connection-status';
 })
 export class ConnectionService {
 
+  // <editor-fold desc='Public properties'>
+  public connectionStatus: ConnectionStatus;
+  // </editor-fold>
+
   // <editor-fold desc='private properties'>
   private currentReconnectIn: number;
   private reconnectTimer: number;
   private subject?: Subject<MessageEvent>;
   private webSocket?: WebSocket;
-
-  // </editor-fold>
-
-  // <editor-fold desc='Public properties'>
-  public connectionStatus: ConnectionStatus;
   // </editor-fold>
 
   // <editor-fold desc='Public getter methods'>

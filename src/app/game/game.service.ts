@@ -179,7 +179,7 @@ export class GameService {
 
   // <editor-fold desc='Public method to disconnect: Development only!!!'>
   public disconnect() {
-    console.log(`asking the server to kill my connection`);
+    console.log('asking the server to kill my connection');
     if (this.socket) {
       const message: Message = {
         type: MessageType.KillMe,
