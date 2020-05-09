@@ -283,14 +283,18 @@ export class GameService implements IGameService {
 
   private handleSwitch(sender: Participant, message: Message, ws: any): void {
     console.log(`Switch: '${message.uuid}' => '${message.data}' `);
+    // find the original participant and the game he was in
     const oldParticipant = this.getParticipantByUuid(message.data, sender.socket);
     const oldGame = this.getGameOfUuid(message.data) || GameFactory.dummyGame();
 
+    // remove the sender
     this.participants.remove(sender.uuid);
+    // update the original participant
+    oldParticipant.uuid = sender.uuid;
     oldParticipant.status = ParticipantStatus.Connected;
     oldParticipant.socket = ws;
     // provide the sender with the curren game state
-    this.sendGameState(sender, oldGame);
+    this.sendGameState(oldParticipant, oldGame);
     // tell the others that participant rejoined
     this.broadcastParticipantToOthers(oldGame, Reason.Change, oldParticipant);
   }
