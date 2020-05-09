@@ -38,6 +38,7 @@ export class ConnectionService {
 	public connect(url: string): Subject<MessageEvent> {
 		if (!this.subject || this.webSocket?.readyState !== WebSocket.OPEN) {
 			this.subject = this.create(url);
+      this.connectionStatus = ConnectionStatus.Connected;
       console.log(`Successfully connected to ${url}`);
 		}
 		return this.subject;
@@ -48,10 +49,12 @@ export class ConnectionService {
     if (this.webSocket) {
       this.webSocket.close();
     }
+    this.connectionStatus = ConnectionStatus.Disconnected;
   }
 
   public handleDisconnect(callback: () => void): void {
     this.currentReconnectIn = 30;
+    this.connectionStatus = ConnectionStatus.Countdown;
     this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000, callback);
   }
   // </editor-fold>
@@ -82,10 +85,9 @@ export class ConnectionService {
 
   private reconnectTick(callback: () => void) {
     this.currentReconnectIn--;
-    console.log(this.currentReconnectIn);
     if (this.currentReconnectIn === 0) {
       window.clearInterval(this.reconnectTimer);
-      callback;
+      callback();
     }
   }
 

@@ -1,5 +1,5 @@
 export enum ConnectionStatus {
-  Disconnected,
+  Disconnected, // outside of a game
   Connected,
   Connecting,
   Countdown
