@@ -293,7 +293,7 @@ export class GameService implements IGameService {
     oldParticipant.uuid = sender.uuid;
     oldParticipant.status = ParticipantStatus.Connected;
     oldParticipant.socket = ws;
-    // provide the sender with the curren game state
+    // provide the rejoining participant with the curren game state
     this.sendGameState(oldParticipant, oldGame);
     // tell the others that participant rejoined
     this.broadcastParticipantToOthers(oldGame, Reason.Change, oldParticipant);

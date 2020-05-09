@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { I18nService } from './i18n.service';
+import { I18nService } from '@core';
 
 @Component({
   selector: 'app-language-selector',

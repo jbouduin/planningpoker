@@ -4,11 +4,11 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
-import { I18nModule } from '@app/i18n';
 import { MaterialModule } from '@app/material.module';
 
 import { ConnectionComponent } from './connection/connection.component';
 import { HeaderComponent } from './header/header.component';
+import { LanguageSelectorComponent } from './language-selector/language-selector.component';
 import { MainComponent } from './main/main.component';
 
 
@@ -18,12 +18,13 @@ import { MainComponent } from './main/main.component';
     TranslateModule,
     FlexLayoutModule,
     MaterialModule,
-    I18nModule,
     RouterModule
   ],
   declarations: [
     ConnectionComponent,
-    HeaderComponent,MainComponent
+    HeaderComponent,
+    LanguageSelectorComponent,
+    MainComponent
   ]
 })
 export class ShellModule {}
