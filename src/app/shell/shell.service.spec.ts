@@ -1,12 +1,12 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { ShellComponent } from './shell.component';
+import { MainComponent } from './main/main.component';
 import { Shell } from './shell.service';
 
 describe('Shell', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ShellComponent]
+      declarations: [MainComponent]
     });
   });
 
@@ -21,7 +21,7 @@ describe('Shell', () => {
       // Assert
       expect(result.path).toBe('');
       expect(result.children).toBe(testRoutes);
-      expect(result.component).toBe(ShellComponent);
+      expect(result.component).toBe(MainComponent);
     });
   });
 });

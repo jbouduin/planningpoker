@@ -8,12 +8,12 @@ import { MaterialModule } from '@app/material.module';
 import { CoreModule } from '@core';
 
 import { I18nModule } from '@app/i18n';
-import { ShellComponent } from './shell.component';
+import { MainComponent } from './main.component';
 import { HeaderComponent } from './header/header.component';
 
-describe('ShellComponent', () => {
-  let component: ShellComponent;
-  let fixture: ComponentFixture<ShellComponent>;
+describe('MainComponent', () => {
+  let component: MainComponent;
+  let fixture: ComponentFixture<MainComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -26,12 +26,12 @@ describe('ShellComponent', () => {
         MaterialModule,
         CoreModule
       ],
-      declarations: [HeaderComponent, ShellComponent]
+      declarations: [HeaderComponent, MainComponent]
     }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ShellComponent);
+    fixture = TestBed.createComponent(MainComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

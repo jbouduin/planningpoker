@@ -1,6 +1,6 @@
 import { Routes, Route } from '@angular/router';
 
-import { ShellComponent } from './shell.component';
+import { MainComponent } from './main/main.component';
 
 /**
  * Provides helper methods to create routes.
@@ -14,9 +14,9 @@ export class Shell {
   static childRoutes(routes: Routes): Route {
     return {
       path: '',
-      component: ShellComponent,
+      component: MainComponent,
       children: routes,
-      // Reuse ShellComponent instance when navigating between child views
+      // Reuse MainComponent instance when navigating between child views
       data: { reuse: true }
     };
   }

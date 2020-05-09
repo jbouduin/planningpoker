@@ -6,11 +6,11 @@ import { filter } from 'rxjs/operators';
 import { untilDestroyed } from '@core';
 
 @Component({
-  selector: 'app-shell',
-  templateUrl: './shell.component.html',
-  styleUrls: ['./shell.component.scss']
+  selector: 'app-main',
+  templateUrl: './main.component.html',
+  styleUrls: ['./main.component.scss']
 })
-export class ShellComponent implements OnInit, OnDestroy {
+export class MainComponent implements OnInit, OnDestroy {
   @ViewChild('sidenav', { static: false }) sidenav!: MatSidenav;
 
   constructor(private media: MediaObserver) {}
