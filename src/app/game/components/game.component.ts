@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 import { GameStatus, ParticipantStatus, Role } from '@shared-lib';
 
@@ -33,6 +34,10 @@ export class GameComponent implements OnInit {
       .map(participant => `${ParticipantStatus[participant.status]}: ${participant.nick}${participant.me ? ' (me)' : ''} `);
   }
 
+  public get developersHeaderLabel(): string {
+    return this.translateService.instant('Game.Component.Header.Developers');
+  }
+
   public get enabled(): boolean {
     return this.game.enabled;
   }
@@ -42,7 +47,13 @@ export class GameComponent implements OnInit {
   }
 
   public get leaveLabel(): string {
-    return this.game.scrumMaster && this.game.scrumMaster.me ? 'End game' : 'Leave';
+    return this.game.scrumMaster && this.game.scrumMaster.me ?
+    this.translateService.instant('Game.Component.ButtonLabel.End_game') :
+    this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
+  }
+
+  public get revealButtonLabel(): string {
+    return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
   }
 
   public get scrumMaster(): string {
@@ -51,6 +62,10 @@ export class GameComponent implements OnInit {
       return `${ParticipantStatus[scrumMaster.status]}: ${scrumMaster.nick}${scrumMaster.me ? ' (me)' : ''}`;
     }
     return '';
+  }
+
+  public get scrumMasterHeaderLabel(): string {
+    return this.translateService.instant('Game.Component.Header.ScrumMaster');
   }
 
   public get showDisconnect(): boolean {
@@ -69,6 +84,10 @@ export class GameComponent implements OnInit {
     return this.game.showStart;
   }
 
+  public get startButtonLabel(): string {
+    return this.translateService.instant('Game.Component.ButtonLabel.Start');
+  }
+
   public get status(): string {
     return GameStatus[this.game.status];
   }
@@ -81,6 +100,7 @@ export class GameComponent implements OnInit {
   // <editor-fold desc='Constructor & C°'>
   public constructor(
     private dialog: MatDialog,
+    private translateService: TranslateService,
     private snackbarService: SnackbarService,
     private gameService: GameService) {
     this.game = gameService.game;
@@ -100,10 +120,10 @@ export class GameComponent implements OnInit {
   public leave(): void {
     if (this.game.scrumMaster && this.game.scrumMaster.me) {
       const params = new ConfirmationDialogParams();
-      params.cancelButtonLabel = 'No';
-      params.okButtonLabel = 'Yes';
-      params.title = 'End the game';
-      params.text = 'Are you sure you want to end the game?';
+      params.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.No');
+      params.okButtonLabel = this.translateService.instant('Dialog.ButtonLabel.Yes');
+      params.text = this.translateService.instant('Dialog.Confirm.Text.End_the_game');
+      params.title = this.translateService.instant('Dialog.Confirm.Title.End_the_game');
 
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
         width: '250px',

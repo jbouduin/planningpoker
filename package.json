@@ -13,7 +13,7 @@
     "test:ci": "npm run env -s && npm run lint -s && ng test --configuration=ci",
     "e2e": "npm run env -s && ng e2e",
     "translations:extract": "ngx-translate-extract -i './src' --output './src/translations/template.json' -f=json --clean -s --marker extract",
-    "translations:extract:en": "ngx-translate-extract -i './src' --output './src/translations/en-US.json' -f=json --clean -s --marker extract",
+    "translations:extract:us": "ngx-translate-extract -i './src' --output './src/translations/en-US.json' -f=json --clean -s --marker extract",
     "translations:extract:de": "ngx-translate-extract -i './src' --output './src/translations/de-DE.json' -f=json --clean -s --marker extract",
     "env": "ngx-scripts env npm_package_version",
     "prettier": "prettier --write \"./{src,e2e}/**/*.{ts,js,html,scss}\"",

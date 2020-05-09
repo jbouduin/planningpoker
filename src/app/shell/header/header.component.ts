@@ -1,6 +1,6 @@
-import { Title } from '@angular/platform-browser';
 import { Component, OnInit, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+
 import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
@@ -9,13 +9,28 @@ import { MatSidenav } from '@angular/material/sidenav';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
+
+  // <editor-fold desc='@Input'>
   @Input() sidenav!: MatSidenav;
+  // </editor-fold>
 
-  constructor(private titleService: Title) {}
-
-  ngOnInit() {}
-
-  get title(): string {
-    return this.titleService.getTitle();
+  // <editor-fold desc='Public getter methods'>
+  public get routeLabelHome(): string {
+    return this.translateService.instant('Navigation.RouteLabel.Home');
   }
+
+  public get routeLabelAbout(): string {
+    return this.translateService.instant('Navigation.RouteLabel.About');
+  }
+  // </editor-fold>
+
+  // <editor-fold desc='Constructor and C°'>
+  constructor(private translateService: TranslateService) { }
+  // </editor-fold>
+
+  // <editor-fold desc='Angular interface methods'>
+  ngOnInit() {}
+  // </editor-fold>
+
+
 }

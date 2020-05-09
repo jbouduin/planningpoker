@@ -5,14 +5,14 @@
     </button>
   </div>
   <div fxHide.lt-md>
-    <!-- <a class="brand" href="#" translate>APP_NAME</a> -->
+    <!-- <a class="brand" href="#" >APP_NAME</a> -->
     <button mat-button routerLink="/home" routerLinkActive="active">
       <mat-icon>home</mat-icon>
-      <span translate>Home</span>
+      <span>{{routeLabelHome}}</span>
     </button>
     <button mat-button routerLink="/about" routerLinkActive="active">
       <mat-icon>info</mat-icon>
-      <span translate>About</span>
+      <span>{{routeLabelAbout}}</span>
     </button>
   </div>
   <span fxFlex></span>

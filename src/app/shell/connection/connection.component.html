@@ -2,6 +2,6 @@
   <mat-icon>{{connectionIcon}}</mat-icon>
   <div class="span-reconnecting" *ngIf='showReconnecting'>
     <span>{{reconnectingText}}</span>
-    <button class="button-reconnect" mat-stroked-button (click)="reconnect()">Reconnect now</button>
+    <button class="button-reconnect" mat-stroked-button (click)="reconnect()">{{reconnectNowButtonLabel}}</button>
   <div>
 </div>

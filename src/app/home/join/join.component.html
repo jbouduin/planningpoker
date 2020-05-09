@@ -1,27 +1,27 @@
 <mat-card [formGroup]="joinData">
-  <mat-card-title translate>
-    Join a game
+  <mat-card-title>
+    {{joinGameHeader}}
   </mat-card-title>
   <mat-card-content>
     <div>
       <mat-form-field>
-        <mat-label>Team name</mat-label>
-        <input matInput placeholder="enter a team name" formControlName="team" required />
+        <mat-label>{{teamNameLabel}}</mat-label>
+        <input matInput placeholder="{{teamNamePlaceHolder}}" formControlName="team" required />
         <mat-error>{{ getErrorMessage('team') }}</mat-error>
       </mat-form-field>
     </div>
 
     <div>
       <mat-form-field>
-        <mat-label>My name</mat-label>
-        <input matInput placeholder="enter your name" formControlName="nick" required />
+        <mat-label>{{nickNameLabel}}</mat-label>
+        <input matInput placeholder="{{nickNamePlaceHolder}}" formControlName="nick" required />
         <mat-error>{{ getErrorMessage('nick') }}</mat-error>
       </mat-form-field>
     </div>
   </mat-card-content>
   <mat-card-actions>
     <button mat-stroked-button color="primary" [disabled]="joinData.invalid" (click)="join()">
-      <span translate>Join</span>
+      <span>{{joinButtonLabel}}</span>
   </button>
   </mat-card-actions>
 </mat-card>

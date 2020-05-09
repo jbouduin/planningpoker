@@ -124,12 +124,14 @@ export class GameInstance implements Game {
   }
 
   public handleDisconnect(): void {
-    this.showError('Disconnect');
+    this.snackbarService.showError(
+      this.translateService.instant('Game.Snackbar.Disconnected')
+    );
     this.gameStatus = GameStatus.Disconnected;
   }
 
   public handleErrorMessage(code: ErrorCode): boolean {
-    this.showError(ErrorCode[code]);
+    this.showError(code);
     const result =
       code === ErrorCode.TeamAlreadyExists ||
       code === ErrorCode.TeamDoesNotExist ||
@@ -160,7 +162,9 @@ export class GameInstance implements Game {
   }
 
   public handleSocketError(error: any): void {
-    this.showError('CommunicationError');
+    this.snackbarService.showError(
+      this.translateService.instant('Game.Snackbar.CommunicationError')
+    );
   }
 
   public handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void {
@@ -169,11 +173,21 @@ export class GameInstance implements Game {
       this.dumpParticipant(participant);
       if (participant.status === ParticipantStatus.Left)
       {
-        this.snackbarService.showInfo(this.translateService.instant('ParticipantHasLeft'));
+        this.snackbarService.showInfo(
+          this.translateService.instant(
+            'Game.Snackbar.$participant_has_left',
+            { participant: participant.nick }
+          )
+        );
         this.participants.remove(participant.uuid);
       } else {
         if (reason !== Reason.Refresh && !this.participants.containsKey(participant.uuid)) {
-          this.snackbarService.showInfo(this.translateService.instant('ParticipantHasJoined'));
+          this.snackbarService.showInfo(
+            this.translateService.instant(
+              'Game.Snackbar.$participant_has_joined',
+              { participant: participant.nick }
+            )
+          );
         }
         this.participants.setValue(participant.uuid, participant);
       }
@@ -201,16 +215,22 @@ export class GameInstance implements Game {
       });
   }
 
-  public showError(messageKey: string): void {
-    this.snackbarService.showError(this.translateService.instant(messageKey));
+  public showError(errorCode: ErrorCode): void {
+    this.snackbarService.showError(
+      this.translateService.instant(`ErrorCode.${ErrorCode[errorCode]}`)
+    );
   }
 
-  public showInfo(messageKey: string): void {
-    this.snackbarService.showInfo(this.translateService.instant(messageKey));
+  public showInfo(errorCode: ErrorCode): void {
+    this.snackbarService.showInfo(
+      this.translateService.instant(`ErrorCode.${ErrorCode[errorCode]}`)
+    );
   }
 
-  public showWarning(messageKey: string): void {
-    this.snackbarService.showWarning(this.translateService.instant(messageKey));
+  public showWarning(errorCode: ErrorCode): void {
+    this.snackbarService.showWarning(
+      this.translateService.instant(`ErrorCode.${ErrorCode[errorCode]}`)
+    );
   }
 
   public update(dtoGame: DtoGame): void {

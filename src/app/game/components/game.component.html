@@ -2,11 +2,11 @@
   <div fxLayout="column">
     <div fxLayout="column">
       <mat-card>
-        <mat-card-title>Scrum Master</mat-card-title>
+        <mat-card-title>{{scrumMasterHeaderLabel}}</mat-card-title>
         <mat-card-content>{{scrumMaster}}</mat-card-content>
       </mat-card>
       <mat-card>
-        <mat-card-title translate>Developers</mat-card-title>
+        <mat-card-title>{{developersHeaderLabel}}</mat-card-title>
         <mat-card-content>
           <ul>
             <li class="list-group-item" *ngFor="let developer of developers">
@@ -61,14 +61,20 @@
         <mat-card-actions>
           <div fxLayout="row">
             <div *ngIf="showStart">
-              <button mat-stroked-button color="primary" (click)="start()" [disabled]="!enabled">Start</button>
+              <button mat-stroked-button color="primary" (click)="start()" [disabled]="!enabled">
+                {{startButtonLabel}}
+              </button>
             </div>
             <div *ngIf="showReveal">
-              <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">Reveal</button>
+              <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">
+                {{revealButtonLabel}}
+              </button>
             </div>
-            <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">{{leaveLabel}}</button>
+            <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">
+              {{leaveLabel}}
+            </button>
             <div *ngIf="showDisconnect">
-              <button mat-stroked-button color="primary" (click)="disconnect()" [disabled]="!enabled">Disconnect</button>
+              <button mat-stroked-button color="warning" (click)="disconnect()" [disabled]="!enabled">Disconnect</button>
             </div>
           </div>
         </mat-card-actions>

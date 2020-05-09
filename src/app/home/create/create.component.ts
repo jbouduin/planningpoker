@@ -15,6 +15,40 @@ export class CreateComponent implements OnInit {
   public createData: FormGroup;
   // </editor-fold>
 
+  // <editor-fold desc='Public getter methods'>
+  public get joinButtonLabel(): string {
+    return this.translateService.instant('Home.Component.ButtonLabel.Join');
+  }
+
+  public get nickNameLabel(): string {
+    return this.translateService.instant('Home.Component.InputLabel.NickName');
+  }
+
+  public get nickNamePlaceHolder(): string {
+    return this.translateService.instant('Home.Component.InputPlaceholder.NickName');
+  }
+
+  public get startButtonLabel(): string {
+    return this.translateService.instant('Home.Component.ButtonLabel.Start');
+  }
+
+  public get startGameHeader(): string {
+    return this.translateService.instant('Home.Component.Header.Start_a_game');
+  }
+
+  public get joinGameHeader(): string {
+    return this.translateService.instant('Home.Component.Header.Join_a_game');
+  }
+
+  public get teamNameLabel(): string {
+    return this.translateService.instant('Home.Component.InputLabel.TeamName.Label');
+  }
+
+  public get teamNamePlaceHolder(): string {
+    return this.translateService.instant('Home.Component.InputPlaceholder.TeamName');
+  }
+  // </editor-fold>
+
   // <editor-fold desc='Constructor&C°'>
   public constructor(
     private translateService: TranslateService,
@@ -31,15 +65,15 @@ export class CreateComponent implements OnInit {
   public ngOnInit(): void {}
   // </editor-fold>
 
-  // <editor-fold desc='Public methods'>
-  create(): void {
+  // <editor-fold desc='UI triggered methods'>
+  public create(): void {
     this.gameService.create(this.createData.get('team')?.value, this.createData.get('nick')?.value);
   }
 
-  getErrorMessage(name: string): string | undefined {
+  public getErrorMessage(name: string): string | undefined {
     const formControl = this.createData.get(name);
     if (formControl?.hasError('required')) {
-      return this.translateService.instant('You must enter a value');
+      return this.translateService.instant('Input.Error.Mandatory');
     }
     return undefined;
   }

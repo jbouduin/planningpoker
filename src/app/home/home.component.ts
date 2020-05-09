@@ -19,7 +19,12 @@ export class HomeComponent implements AfterViewInit, OnInit {
   public ngAfterViewInit() {
     if (this.gameService.game.canReconnect) {
       this.translateService
-        .get(`Do you want to rejoin the game '${this.gameService.game.team}' as '${this.gameService.game.myNick}'?`)
+        .get(
+          'Home.Component.Question.Rejoin_$team_as_$nick',
+          {
+            team: this.gameService.game.team,
+            nick: this.gameService.game.myNick
+          })
         .subscribe( translated => {
           const tryReenter = confirm(translated);
           if (tryReenter === true) {

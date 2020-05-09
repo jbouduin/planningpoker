@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 import { ConnectionStatus, ConnectionService } from '@core';
 import { GameService } from '../../game/game.service';
@@ -27,7 +28,18 @@ export class ConnectionComponent implements OnInit {
   }
 
   public get reconnectingText(): string {
-    return `Reconnecting in ${this.connectionService.reconnectIn} seconds`;
+    if (this.connectionService.reconnectIn > 1) {
+      return this.translateService.instant(
+        'Connection.Component.Text.Reconnect_in_$seconds_seconds',
+        { seconds: this.connectionService.reconnectIn });
+
+    } else {
+      return this.translateService.instant('Connection.Component.Text.Reconnect_in_1_second');
+    }
+  }
+
+  public get reconnectNowButtonLabel(): string {
+    return this.translateService.instant('Connection.Component.ButtonLabel.Reconnect_now');
   }
 
   public get showConnection(): boolean {
@@ -42,6 +54,7 @@ export class ConnectionComponent implements OnInit {
 
   // <editor-fold desc='Constructor & C°'>
   public constructor(
+    private translateService: TranslateService,
     private connectionService: ConnectionService,
     private gameService: GameService) { }
   // </editor-fold>

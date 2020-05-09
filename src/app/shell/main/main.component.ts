@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { MatSidenav } from '@angular/material/sidenav';
+import { TranslateService } from '@ngx-translate/core';
 import { filter } from 'rxjs/operators';
 
 import { untilDestroyed } from '@core';
@@ -11,11 +12,28 @@ import { untilDestroyed } from '@core';
   styleUrls: ['./main.component.scss']
 })
 export class MainComponent implements OnInit, OnDestroy {
+  // <editor-fold desc='@ViewChild'>
   @ViewChild('sidenav', { static: false }) sidenav!: MatSidenav;
+  // </editor-fold>
 
-  constructor(private media: MediaObserver) {}
+  // <editor-fold desc='Public getter methods'>
+  public get routeLabelHome(): string {
+    return this.translateService.instant('Navigation.RouteLabel.Home');
+  }
 
-  ngOnInit() {
+  public get routeLabelAbout(): string {
+    return this.translateService.instant('Navigation.RouteLabel.About');
+  }
+  // </editor-fold>
+
+  // <editor-fold desc='Constructor and C°'>
+  constructor(
+    private translateService: TranslateService,
+    private media: MediaObserver) { }
+  // </editor-fold>
+
+  // <editor-fold desc='Angular interface methods'>
+  public ngOnInit() {
     // Automatically close side menu on screens > sm breakpoint
     this.media
       .asObservable()
@@ -28,7 +46,8 @@ export class MainComponent implements OnInit, OnDestroy {
       .subscribe(() => this.sidenav.close());
   }
 
-  ngOnDestroy() {
+  public ngOnDestroy() {
     // Needed for automatic unsubscribe with untilDestroyed
   }
+  // </editor-fold>
 }

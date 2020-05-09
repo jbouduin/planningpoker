@@ -270,7 +270,9 @@ export class GameService {
         }
         default: {
           console.log(`MessageType ?: ${msg}`);
-          this.snackbarService.showWarning(this.translateService.instant('UnknownMessageType'));
+          this.snackbarService.showWarning(
+            this.translateService.instant('Error.UnknownMessageType_$type', { type: msg.type })
+          );
         }
       }
     },
@@ -400,9 +402,8 @@ export class GameService {
   private handleEndOfGame(): void {
     const params = new ConfirmationDialogParams();
     params.showCancelButton = false;
-    params.okButtonLabel = 'OK';
-    params.title = 'End of game';
-    params.text = 'The scrum master has ended the game.';
+    params.title = this.translateService.instant('Dialog.Title.Game_Ended');
+    params.text = this.translateService.instant('Dialog.Text.The_scrummaster_has_ended_the_game.');
 
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '250px',

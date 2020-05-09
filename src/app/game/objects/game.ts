@@ -35,8 +35,8 @@ export interface Game {
   handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void
   reset(): void;
   setCards(cards: Array<DtoCard>): void;
-  showError(messageKey: string): void
-  showInfo(messageKey: string): void;
-  showWarning(messageKey: string): void;
+  showError(errorCode: ErrorCode): void
+  showInfo(errorCode: ErrorCode): void;
+  showWarning(errorCode: ErrorCode): void;
   update(dtoGame: DtoGame): void;
 }
