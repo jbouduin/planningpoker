@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { extract } from '@app/i18n';
-import { GameComponent } from './game.component';
+import { GameComponent } from './components/game.component';
 
 const routes: Routes = [
   // Module is lazy loaded, see app-routing.module.ts

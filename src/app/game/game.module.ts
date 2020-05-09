@@ -5,7 +5,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MaterialModule } from '@app/material.module';
 import { GameRoutingModule } from './game-routing.module';
-import { GameComponent } from './game.component';
+import { GameComponent } from './components/game.component';
 
 @NgModule({
   imports: [CommonModule, TranslateModule, FlexLayoutModule, MaterialModule, GameRoutingModule],

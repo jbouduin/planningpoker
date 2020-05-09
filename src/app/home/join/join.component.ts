@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
-import { GameService } from '../../@core';
+import { GameService } from '../../game/game.service';
 
 @Component({
   selector: 'app-join',

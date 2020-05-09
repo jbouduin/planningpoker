@@ -3,12 +3,14 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
 import { GameStatus, ParticipantStatus, Role } from '@shared-lib';
-import { Card, Game, Estimation, GameService } from '../@core';
-
-import { environment } from '../../environments/environment';
 
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
 import { SnackbarService } from '@shared';
+
+import { environment } from '../../../environments/environment';
+
+import { Card, Game, Estimation } from '../objects';
+import { GameService } from '../game.service';
 
 @Component({
   selector: 'app-game',

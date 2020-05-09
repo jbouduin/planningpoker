@@ -9,16 +9,11 @@ import * as Collections from 'typescript-collections';
 import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
 import { ErrorCode, Message, MessageType } from '@shared-lib';
 
-import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
-import { SnackbarService } from '@shared';
+import { WebsocketService } from '@core';
+import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService } from '@shared';
 
-import { WebsocketService } from '../websocket.service';
-
-import { Card } from './card';
-import { Game } from './game';
-import { GameFactoryService } from './game-factory.service';
-import { Estimation } from './estimation';
-import { Participant } from './participant';
+import { Card, Estimation, Game, Participant } from './objects';
+import { GameFactoryService } from './objects';
 
 interface CallBackParameter {
   uuid: string,

@@ -2,7 +2,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
-import { GameService } from '../@core';
+import { GameService } from '../game/game.service';
 
 @Component({
   selector: 'app-home',
