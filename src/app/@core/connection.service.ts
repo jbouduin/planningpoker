@@ -1,18 +1,37 @@
 import { Injectable } from '@angular/core';
 import { Observable, Observer, Subject } from 'rxjs';
 
+import { ConnectionStatus } from './connection-status';
+
 @Injectable({
   providedIn: 'root'
 })
-export class WebsocketService {
+export class ConnectionService {
 
   // <editor-fold desc='private properties'>
+  private currentReconnectIn: number;
+  private reconnectTimer: number;
   private subject?: Subject<MessageEvent>;
   private webSocket?: WebSocket;
+
+  // </editor-fold>
+
+  // <editor-fold desc='Public properties'>
+  public connectionStatus: ConnectionStatus;
+  // </editor-fold>
+
+  // <editor-fold desc='Public getter methods'>
+  public get reconnectIn(): number {
+    return this.currentReconnectIn;
+  }
   // </editor-fold>
 
   // <editor-fold desc='Constructor & C°'>
-  constructor() { }
+  constructor() {
+    this.connectionStatus = ConnectionStatus.Disconnected;
+    this.currentReconnectIn = 0;
+    this.reconnectTimer = 0;
+  }
   // </editor-fold>
 
   // <editor-fold desc='Public methods'>
@@ -29,6 +48,11 @@ export class WebsocketService {
     if (this.webSocket) {
       this.webSocket.close();
     }
+  }
+
+  public handleDisconnect(callback: () => void): void {
+    this.currentReconnectIn = 30;
+    this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000, callback);
   }
   // </editor-fold>
 
@@ -55,5 +79,15 @@ export class WebsocketService {
     // TODO: (#695) lint says to use new Subject
 		return Subject.create(observer, observable);
 	}
+
+  private reconnectTick(callback: () => void) {
+    this.currentReconnectIn--;
+    console.log(this.currentReconnectIn);
+    if (this.currentReconnectIn === 0) {
+      window.clearInterval(this.reconnectTimer);
+      callback;
+    }
+  }
+
   // </editor-fold>
 }

@@ -45,10 +45,6 @@ export class GameComponent implements OnInit {
     return this.game.scrumMaster && this.game.scrumMaster.me ? 'End game' : 'Leave';
   }
 
-  public get reconnectIn(): number {
-    return this.gameService.reconnectIn;
-  }
-
   public get scrumMaster(): string {
     const scrumMaster = this.game.scrumMaster;
     if (scrumMaster) {

@@ -21,11 +21,6 @@
       <mat-card>
         <mat-card-title>
           <span>{{team}} ({{status}})</span>
-          <span *ngIf="reconnectIn > 0">
-            <span translate>Reconnecting in </span>
-            <span>{{ reconnectIn }}</span>
-            <span translate> seconds</span>
-          </span>
         </mat-card-title>
         <mat-card-content>
           <div fxLayout="row wrap">

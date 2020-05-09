@@ -9,7 +9,7 @@ import * as Collections from 'typescript-collections';
 import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
 import { ErrorCode, Message, MessageType } from '@shared-lib';
 
-import { WebsocketService } from '@core';
+import { ConnectionService } from '@core';
 import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService } from '@shared';
 
 import { Card, Estimation, Game, Participant } from './objects';
@@ -32,10 +32,7 @@ export class GameService {
   // </editor-fold>
 
   // <editor-fold desc='private properties'>
-  // private currentConnectingStatus: ConnectingStatus
-  private currentReconnectIn: number;
   private currentRoute: string;
-  private reconnectTimer: number;
   private socket?: Subject<Message>;
   // </editor-fold>
 
@@ -45,14 +42,12 @@ export class GameService {
     private translateService: TranslateService,
     private router: Router,
     private snackbarService: SnackbarService,
-    private websocketService: WebsocketService,
+    private connectionService: ConnectionService,
     factoryService: GameFactoryService) {
     console.log('in Gameservice constructor');
 
-    this.currentReconnectIn = 0;
     this.currentRoute = '/';
     this.theGame = factoryService.Game();
-    this.reconnectTimer = 0;
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd))
       .subscribe(event => this.currentRoute = event.urlAfterRedirect );
@@ -63,14 +58,6 @@ export class GameService {
   public get game(): Game {
     return this.theGame;
   }
-
-  public get reconnectIn(): number {
-    return this.currentReconnectIn;
-  }
-
-  // public get connectingStatus(): ConnectingStatus {
-  //   return this.currentConnectingStatus;
-  // }
   // </editor-fold>
 
   // <editor-fold desc='public connection related methods'>
@@ -315,7 +302,7 @@ export class GameService {
   private createSocket(team: string): Subject<Message> {
 
     console.log(`in createsocket: ${team}`);
-    return this.websocketService
+    return this.connectionService
 			.connect(`ws://localhost:3001/game/${encodeURI(team)}`)
 			.pipe(map((response: MessageEvent): Message => {
         console.log(response.data);
@@ -329,7 +316,7 @@ export class GameService {
       this.socket.unsubscribe();
       this.socket = undefined;
     }
-    this.websocketService.disconnect();
+    this.connectionService.disconnect();
     this.game.reset();
     if (this.currentRoute !== '/home') {
       console.log('navigating to home');
@@ -405,23 +392,11 @@ export class GameService {
   }
   // </editor-fold>
 
-  // <editor-fold desc='Private disconnection handling methods'>
+  // <editor-fold desc='Private methods'>
   private handleDisconnect() {
-    this.currentReconnectIn = 30;
-    this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000);
+    this.connectionService.handleDisconnect(this.rejoin.bind(this));
   }
 
-  private reconnectTick() {
-    this.currentReconnectIn--;
-    console.log(this.currentReconnectIn);
-    if (this.currentReconnectIn === 0) {
-      window.clearInterval(this.reconnectTimer);
-      this.rejoin();
-    }
-  }
-  // </editor-fold>
-
-  // <editor-fold desc='Other private methods'>
   private handleEndOfGame(): void {
     const params = new ConfirmationDialogParams();
     params.showCancelButton = false;
