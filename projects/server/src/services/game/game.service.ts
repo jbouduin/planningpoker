@@ -256,7 +256,7 @@ export class GameService implements IGameService {
     this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
     // check if this user is in a game:
     // depending on the client implementation, it can be that the sender changes his nick before entering a game
-    if (game) {
+    if (game && this.participantGameMap.containsKey(sender.uuid)) {
       this.broadcastParticipantToOthers(game, Reason.Change, sender);
     }
   }
