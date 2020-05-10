@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -11,13 +11,19 @@ import { GameService } from '../../game/game.service';
 })
 export class JoinComponent implements OnInit {
 
+  // <editor-fold desc='@Input'>
+  @Input() public isCreate!: boolean;
+
+  // </editor-fold>
   // <editor-fold desc='Public properties'>
-  public joinData: FormGroup;
+  public formData: FormGroup;
   // </editor-fold>
 
   // <editor-fold desc='Public getter methods'>
-  public get joinButtonLabel(): string {
-    return this.translateService.instant('Home.Component.ButtonLabel.Join');
+  public get gameHeader(): string {
+    return this.isCreate ?
+      this.translateService.instant('Home.Component.Header.Start_a_game') :
+      this.translateService.instant('Home.Component.Header.Join_a_game');
   }
 
   public get nickNameLabel(): string {
@@ -28,16 +34,10 @@ export class JoinComponent implements OnInit {
     return this.translateService.instant('Home.Component.InputPlaceholder.NickName');
   }
 
-  public get startButtonLabel(): string {
-    return this.translateService.instant('Home.Component.ButtonLabel.Start');
-  }
-
-  public get startGameHeader(): string {
-    return this.translateService.instant('Home.Component.Header.Start_a_game');
-  }
-
-  public get joinGameHeader(): string {
-    return this.translateService.instant('Home.Component.Header.Join_a_game');
+  public get submitButtonLabel(): string {
+    return this.isCreate ?
+      this.translateService.instant('Home.Component.ButtonLabel.Start') :
+      this.translateService.instant('Home.Component.ButtonLabel.Join');
   }
 
   public get teamNameLabel(): string {
@@ -54,7 +54,7 @@ export class JoinComponent implements OnInit {
     private translateService: TranslateService,
     private formBuilder: FormBuilder,
     private gameService: GameService) {
-    this.joinData = this.formBuilder.group({
+    this.formData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
       nick: new FormControl('', [Validators.required])
     });
@@ -66,17 +66,23 @@ export class JoinComponent implements OnInit {
   // </editor-fold>
 
   // <editor-fold desc='Public methods'>
-  public join(): void {
-    this.gameService.join(this.joinData.get('team')?.value, this.joinData.get('nick')?.value);
-  }
-
   public getErrorMessage(name: string): string | undefined {
-    const formControl = this.joinData.get(name);
+    const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
       return this.translateService.instant('Input.Error.Mandatory');
     }
     return undefined;
   }
+
+  public submit(): void {
+    if (this.isCreate) {
+      this.gameService.create(this.formData.get('team')?.value, this.formData.get('nick')?.value);
+    } else {
+      this.gameService.join(this.formData.get('team')?.value, this.formData.get('nick')?.value);
+    }
+
+  }
+
   // </editor-fold>
 
 }

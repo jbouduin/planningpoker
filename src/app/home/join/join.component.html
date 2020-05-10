@@ -1,6 +1,6 @@
-<mat-card [formGroup]="joinData">
+<mat-card [formGroup]="formData">
   <mat-card-title>
-    {{joinGameHeader}}
+    {{gameHeader}}
   </mat-card-title>
   <mat-card-content>
     <div>
@@ -20,8 +20,8 @@
     </div>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-stroked-button color="primary" [disabled]="joinData.invalid" (click)="join()">
-      <span>{{joinButtonLabel}}</span>
+    <button mat-stroked-button color="primary" [disabled]="formData.invalid" (click)="submit()">
+      <span>{{submitButtonLabel}}</span>
   </button>
   </mat-card-actions>
 </mat-card>

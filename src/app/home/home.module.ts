@@ -9,7 +9,6 @@ import { MaterialModule } from '@app/material.module';
 import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './home.component';
 import { JoinComponent } from './join/join.component';
-import { CreateComponent } from './create/create.component';
 
 @NgModule({
   imports: [
@@ -22,7 +21,9 @@ import { CreateComponent } from './create/create.component';
     MaterialModule,
     HomeRoutingModule
   ],
-  declarations: [HomeComponent, JoinComponent, CreateComponent],
+  declarations: [
+    HomeComponent,
+    JoinComponent],
   providers: []
 })
 export class HomeModule {}
