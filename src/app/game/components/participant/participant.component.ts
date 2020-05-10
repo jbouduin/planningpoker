@@ -16,7 +16,11 @@ export class ParticipantComponent implements OnInit {
 
   // <editor-fold desc='Public getter methods'>
   public get connectionStatusIcon(): string {
-    return this.participant.status === ParticipantStatus.Connected ? 'cloud' : 'cloud_off';
+    return this.participant?.status === ParticipantStatus.Connected ? 'cloud' : 'cloud_off';
+  }
+
+  public get nick(): string {
+    return this.participant?.nick || '';
   }
   // </editor-fold>
 

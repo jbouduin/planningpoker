@@ -41,8 +41,12 @@ export class GameComponent implements OnInit {
     return this.game.enabled;
   }
 
+  public get myEstimation(): Estimation | undefined {
+    return this.game.estimations.find(estimation => estimation.participant.me);
+  }
+
   public get estimations(): Array<Estimation> {
-    return this.game.estimations;
+    return this.game.estimations.filter(estimation => !estimation.participant.me);
   }
 
   public get leaveLabel(): string {

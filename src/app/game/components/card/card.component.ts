@@ -9,13 +9,23 @@ import { Card } from '../../objects';
 })
 export class CardComponent implements OnInit {
 
-  // <editor-fold desc='@Input() / @Output'>
+  // <editor-fold desc='@Input() / @Output()'>
   @Input() public card!: Card;
+  @Input() public enabled: boolean;
+  @Input() public revealed: boolean;
   @Output() public cardClicked: EventEmitter<number>;
   // </editor-fold>
 
+  // <editor-fold desc='public getter methods'>
+  public get label(): string {
+    return this.card ? this.card.label : ''
+  }
+  // </editor-fold>
+
   // <editor-fold desc='Constructor & C°'>
-  constructor() {
+  public constructor() {
+    this.enabled = false;
+    this.revealed = false;
     this.cardClicked = new EventEmitter<number>()
   }
   // </editor-fold>

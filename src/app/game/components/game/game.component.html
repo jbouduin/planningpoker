@@ -26,33 +26,21 @@
       </mat-card-title>
       <mat-card-content>
         <div fxLayout="row wrap">
-          <div class="list-group-item" *ngFor="let estimation of estimations" >
-            <div *ngIf="estimation.mine; then myEstimation else otherEstimation"></div>
-              <ng-template #myEstimation>
-                <button mat-stroked-button color="secondary" (click)="withdraw()" [disabled]="!showEstimate && !enabled">
-                  <p>{{estimation.label}}</p>
-                  <p>{{estimation.nick}}</p>
-                </button>
-              </ng-template>
-              <ng-template #otherEstimation>
-                <button mat-stroked-button color="primary" [disabled]="true">
-                  <p *ngIf="estimation.revealed; then revealed else unrevealed"></p>
-                  <ng-template #revealed>
-                    {{estimation.label}}
-                  </ng-template>
-                  <ng-template #unrevealed>
-                    X
-                  </ng-template>
-                  <p>{{estimation.nick}}</p>
-                </button>
-              </ng-template>
-          </div>
+          <game-estimation
+            *ngIf="myEstimation"
+            [estimation]="myEstimation"
+            [enabled]="showEstimate && enabled"
+            (click)="withdraw()">
+          </game-estimation>
+          <ng-container *ngFor="let estimation of estimations">
+            <game-estimation [estimation]="estimation" [enabled]="false"></game-estimation>
+          </ng-container>
         </div>
       </mat-card-content>
       <mat-card-actions>
         <div fxLayout="row wrap">
           <div class="list-group-item" *ngFor="let card of availableCards">
-            <game-card [card]="card" (cardClicked)="estimate($event)"></game-card>
+            <game-card [card]="card" [revealed]="true" [enabled]="showEstimate && enabled" (cardClicked)="estimate($event)"></game-card>
           </div>
         </div>
       </mat-card-actions>

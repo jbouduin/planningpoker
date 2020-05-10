@@ -5,12 +5,24 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MaterialModule } from '@app/material.module';
 import { GameRoutingModule } from './game-routing.module';
+import { CardComponent } from './components/card/card.component';
+import { EstimationComponent } from './components/estimation/estimation.component';
 import { GameComponent } from './components/game/game.component';
 import { ParticipantComponent } from './components/participant/participant.component';
-import { CardComponent } from './components/card/card.component';
+
 
 @NgModule({
-  imports: [CommonModule, TranslateModule, FlexLayoutModule, MaterialModule, GameRoutingModule],
-  declarations: [GameComponent, ParticipantComponent, CardComponent]
+  imports: [
+    CommonModule,
+    TranslateModule,
+    FlexLayoutModule,
+    MaterialModule,
+    GameRoutingModule],
+  declarations: [
+    CardComponent,
+    EstimationComponent,
+    GameComponent,
+    ParticipantComponent
+  ]
 })
 export class GameModule { }

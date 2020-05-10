@@ -28,7 +28,7 @@ interface CallBackParameter {
 export class GameService {
 
   // <editor-fold desc='private readonly properties'>
-  private readonly theGame: Game;
+  private readonly _game: Game;
   // </editor-fold>
 
   // <editor-fold desc='private properties'>
@@ -36,7 +36,7 @@ export class GameService {
   private socket?: Subject<Message>;
   // </editor-fold>
 
-  // <editor-fold desc='constructor & C°'>
+  // <editor-fold desc='Constructor & C°'>
   public constructor(
     private dialog: MatDialog,
     private translateService: TranslateService,
@@ -47,7 +47,7 @@ export class GameService {
     console.log('in Gameservice constructor');
 
     this.currentRoute = '/';
-    this.theGame = factoryService.Game();
+    this._game = factoryService.Game();
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd))
       .subscribe(event => this.currentRoute = event.urlAfterRedirect );
@@ -56,7 +56,7 @@ export class GameService {
 
   // <editor-fold desc='getter methods'>
   public get game(): Game {
-    return this.theGame;
+    return this._game;
   }
   // </editor-fold>
 

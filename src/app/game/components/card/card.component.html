@@ -1,13 +1,16 @@
-<button class="card-button" (click)="click()">
-  <div class="value-wrapper" fxLayout="column" fxLayoutAlign="start stretch">
+<button class="card-button" (click)="click()" [disabled]="!enabled">
+  <div *ngIf="revealed" class="value-wrapper" fxLayout="column" fxLayoutAlign="start stretch">
     <div fxLayoutAlign="start center" fxFlex="10">
-      <span>{{card.label}}</span>
+      <span>{{label}}</span>
     </div>
     <div fxLayoutAlign="center center" fxFlex>
-      <span>{{card.label}}</span>
+      <span>{{label}}</span>
     </div>
     <div fxLayoutAlign="end center" fxFlex="10">
-      <span>{{card.label}}</span>
+      <span>{{label}}</span>
     </div>
+  </div>
+  <div *ngIf="!revealed">
+    <img class="card-back" src="assets/logo_text_bottom_40x40.png"/>
   </div>
 </button>

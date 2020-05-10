@@ -261,9 +261,8 @@ export class GameInstance implements Game {
 
   private dumpEstimation(estimation: Estimation): void {
     console.log({
-      mine: estimation.mine,
-      nick: estimation.nick,
-      label: estimation.label,
+      card: estimation.card,
+      participant: estimation.participant,
       revealed: estimation.revealed
     });
   }

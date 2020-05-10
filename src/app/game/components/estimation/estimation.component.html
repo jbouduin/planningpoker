@@ -1,0 +1,11 @@
+<div fxLayout="column">
+  <game-card
+    [card]="card"
+    [revealed]="revealed"
+    [enabled]="enabled"
+    (cardClicked)="withdraw()">
+  </game-card>
+  <div fxLayoutAlign="center center">
+    <span>{{nick}}</span>
+  </div>
+<div>
