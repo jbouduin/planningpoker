@@ -7,6 +7,7 @@ export class ConfirmationDialogParams {
   // </editor-fold>
 
   // <editor-fold desc='Private properties'>
+  private _translateService!: TranslateService;
   private _translatedCancelButtonLabel!: string;
   private _translatedOkButtonLabel!: string;
   private _translatedText!: string;
@@ -55,21 +56,22 @@ export class ConfirmationDialogParams {
 
   // <editor-fold desc='Public methods'>
   public translateDefaults(translateService: TranslateService) {
-
+    // we have to use a class property, otherwise nxg-translate-extract doesn't extract the keys
+    this._translateService = translateService;
     if (!this._translatedCancelButtonLabel) {
-      this.cancelButtonLabel = translateService.instant('Dialog.ButtonLabel.Cancel');
+      this.cancelButtonLabel = this._translateService.instant('Dialog.ButtonLabel.Cancel');
     }
 
     if (!this._translatedOkButtonLabel) {
-      this.okButtonLabel = translateService.instant('Dialog.ButtonLabel.OK');
+      this.okButtonLabel = this._translateService.instant('Dialog.ButtonLabel.OK');
     }
 
     if (!this._translatedText) {
-      this.text = translateService.instant('Dialog.Text.Confirm.Are_you_sure');
+      this.text = this._translateService.instant('Dialog.Text.Confirm.Are_you_sure');
     }
 
     if (!this._translatedText) {
-      this.text = translateService.instant('Dialog.Text.Title.Confirm.Confirm');
+      this.text = this._translateService.instant('Dialog.Text.Title.Confirm.Confirm');
     }
   }
   // </editor-fold>
