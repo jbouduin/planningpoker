@@ -1,7 +1,13 @@
-<div class="container">
-  <p>
+<div class="container" fxLayout="column">
+  <div>
     <img class="logo" src="assets/logo_text_bottom_512x512.png" alt="logo" />
-  </p>
-  <app-join [isCreate]="true"></app-join>
-  <app-join [isCreate]="false"></app-join>
+  </div>
+  <div fxLayout="row wrap" fxLayoutAlign="center">
+    <div class="card-wrapper">
+      <app-join [isCreate]="true"></app-join>
+    </div>
+    <div class="card-wrapper">
+      <app-join [isCreate]="false"></app-join>
+    </div>
+  </div>
 </div>

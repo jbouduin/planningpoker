@@ -4,11 +4,12 @@
 }
 
 .logo {
-  width: 150px;
+  width: 25%;
+  min-width: 130px;
   margin: 0 auto;
 }
 
-q {
-  font-style: italic;
-  quotes: "« " " »";
+.card-wrapper {
+  width: 450px;
+  margin: 10px;
 }
