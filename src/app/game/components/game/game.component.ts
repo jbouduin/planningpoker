@@ -8,13 +8,13 @@ import { GameStatus, ParticipantStatus, Role } from '@shared-lib';
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
 import { SnackbarService } from '@shared';
 
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 
-import { Card, Game, Estimation } from '../objects';
-import { GameService } from '../game.service';
+import { Card, Game, Estimation, Participant } from '../../objects';
+import { GameService } from '../../game.service';
 
 @Component({
-  selector: 'app-game',
+  selector: 'game-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
@@ -29,9 +29,8 @@ export class GameComponent implements OnInit {
     return this.game.availableCards;
   }
 
-  public get developers(): Array<string> {
-    return this.game.developers
-      .map(participant => `${ParticipantStatus[participant.status]}: ${participant.nick}${participant.me ? ' (me)' : ''} `);
+  public get developers(): Array<Participant> {
+    return this.game.developers;
   }
 
   public get developersHeaderLabel(): string {
@@ -56,12 +55,8 @@ export class GameComponent implements OnInit {
     return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
   }
 
-  public get scrumMaster(): string {
-    const scrumMaster = this.game.scrumMaster;
-    if (scrumMaster) {
-      return `${ParticipantStatus[scrumMaster.status]}: ${scrumMaster.nick}${scrumMaster.me ? ' (me)' : ''}`;
-    }
-    return '';
+  public get scrumMaster(): Participant | undefined {
+    return this.game.scrumMaster;
   }
 
   public get scrumMasterHeaderLabel(): string {
