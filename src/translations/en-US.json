@@ -37,6 +37,7 @@
 	"Game.Snackbar.Disconnected": "You have been disconnected",
 	"Home.Component.ButtonLabel.Join": "Join",
 	"Home.Component.ButtonLabel.Start": "Start",
+	"Home.Component.CheckboxLabel.Observer": "I will not participate in estimating",
 	"Home.Component.Header.Join_a_game": "Join an existing team",
 	"Home.Component.Header.Start_a_game": "Create a new team",
 	"Home.Component.InputLabel.NickName": "Name",

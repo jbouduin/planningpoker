@@ -279,6 +279,7 @@ export class GameInstance implements Game {
       status: ParticipantStatus[participant.status],
       nick: participant.nick,
       uuid: participant.uuid,
+      observer: participant.observer,
       role: Role[participant.role]
     });
   }

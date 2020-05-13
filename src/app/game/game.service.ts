@@ -17,7 +17,7 @@ import { Card, Estimation, Game, Participant } from './objects';
 import { GameFactoryService } from './objects';
 
 class CallBackParameter {
-  public observer: boolean;
+  public observer: boolean | undefined;
   public team: string | undefined;
   public nick: string | undefined;
   public oldUuid: string | undefined;
@@ -66,21 +66,23 @@ export class GameService {
   // </editor-fold>
 
   // <editor-fold desc='public connection related methods'>
-  public create(team: string, nick: string): void {
+  public create(team: string, nick: string, observer: boolean): void {
     console.log(`creating: ${nick}@${team}`);
     this.createConnection(
       team,
       nick,
+      observer,
       undefined,
       [ this.setNick.bind(this),  this.createTeam.bind(this) ]
     );
   }
 
-  public join(team: string, nick: string): void {
+  public join(team: string, nick: string, observer: boolean): void {
     console.log(`joining: ${nick}@${team}`);
     this.createConnection(
       team,
       nick,
+      observer,
       undefined,
       [ this.setNick.bind(this), this.joinTeam.bind(this) ]
     );
@@ -90,6 +92,7 @@ export class GameService {
     console.log(`rejoining: ${this.game.myNick}@${this.game.team}`);
     this.createConnection(
       this.game.team,
+      undefined,
       undefined,
       this.game.myUuid,
       [ this.switchUuid.bind(this) ]
@@ -201,6 +204,7 @@ export class GameService {
   private createConnection(
     team: string,
     nick: string | undefined,
+    observer: boolean | undefined,
     oldUuid: string | undefined,
     callbacks: Array<(params: CallBackParameter) => void>) {
     this.socket = this.createSocket(team);
@@ -245,6 +249,7 @@ export class GameService {
             const callBackParams = new CallBackParameter(msg.data[0].uuid);
             callBackParams.team = team;
             callBackParams.nick = nick;
+            callBackParams.observer = observer;
             callBackParams.oldUuid = oldUuid;
             callbacks.forEach(callback => callback(callBackParams));
           }
@@ -333,11 +338,11 @@ export class GameService {
   // <editor-fold desc='Private Init-Callback methods'>
 
   private createTeam(params: CallBackParameter) {
-    console.log(`call createTeam: ${params}`);
+    console.log('call createTeam:', params);
 
     const createData: DtoCreate = {
       team: params.team || '',
-      observer: params.observer
+      observer: params.observer || false
     };
 
     if (this.socket) {
@@ -352,11 +357,11 @@ export class GameService {
   }
 
   private joinTeam(params: CallBackParameter) {
-    console.log(`call joinTeam: ${params}`);
+    console.log('call joinTeam:', params);
 
     const joinData: DtoCreate = {
       team: params.team || '',
-      observer: params.observer
+      observer: params.observer || false
     };
 
     if (this.socket) {
@@ -371,7 +376,7 @@ export class GameService {
   }
 
   private switchUuid (params: CallBackParameter) {
-    console.log(`call switchUuid: ${params}`);
+    console.log('call switchUuid:', params);
     if (this.socket) {
       const message: Message = {
         type: MessageType.Switch,
@@ -384,7 +389,7 @@ export class GameService {
   }
 
   private setNick(params: CallBackParameter) {
-    console.log(`call setNick: ${params}`);
+    console.log('call setNick:', params);
     if (this.socket) {
       const message: Message = {
         type: MessageType.Nick,

@@ -37,6 +37,7 @@
 	"Game.Snackbar.Disconnected": "Sie wurden vom Server getrennt",
 	"Home.Component.ButtonLabel.Join": "Beitreten",
 	"Home.Component.ButtonLabel.Start": "Starten",
+	"Home.Component.CheckboxLabel.Observer": "Ich werde keine Schätzungen abgeben",
 	"Home.Component.Header.Join_a_game": "Einem bestehenden Team beitreten",
 	"Home.Component.Header.Start_a_game": "Ein neues Team starten",
 	"Home.Component.InputLabel.NickName": "Name",

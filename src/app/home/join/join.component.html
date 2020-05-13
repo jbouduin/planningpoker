@@ -10,7 +10,6 @@
         <mat-error>{{ getErrorMessage('team') }}</mat-error>
       </mat-form-field>
     </div>
-
     <div>
       <mat-form-field>
         <mat-label>{{nickNameLabel}}</mat-label>
@@ -18,6 +17,12 @@
         <mat-error>{{ getErrorMessage('nick') }}</mat-error>
       </mat-form-field>
     </div>
+    <div>
+      <mat-checkbox [(ngModel)]="observer" [ngModelOptions]="{standalone: true}">
+        {{observerLabel}}
+      </mat-checkbox>
+    </div>
+
   </mat-card-content>
   <mat-card-actions>
     <button mat-stroked-button color="primary" [disabled]="formData.invalid" (click)="submit()">

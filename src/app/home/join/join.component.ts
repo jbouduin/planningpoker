@@ -17,6 +17,7 @@ export class JoinComponent implements OnInit {
   // </editor-fold>
   // <editor-fold desc='Public properties'>
   public formData: FormGroup;
+  public observer: boolean;
   // </editor-fold>
 
   // <editor-fold desc='Public getter methods'>
@@ -32,6 +33,10 @@ export class JoinComponent implements OnInit {
 
   public get nickNamePlaceHolder(): string {
     return this.translateService.instant('Home.Component.InputPlaceholder.NickName');
+  }
+
+  public get observerLabel(): string {
+    return this.translateService.instant('Home.Component.CheckboxLabel.Observer');
   }
 
   public get submitButtonLabel(): string {
@@ -58,11 +63,12 @@ export class JoinComponent implements OnInit {
       team: new FormControl('', [Validators.required]),
       nick: new FormControl('', [Validators.required])
     });
+    this.observer = false;
   }
   // </editor-fold>
 
   // <editor-fold desc='Public Angular interface methods'>
-  public ngOnInit(): void {}
+  public ngOnInit(): void { }
   // </editor-fold>
 
   // <editor-fold desc='Public methods'>
@@ -76,9 +82,15 @@ export class JoinComponent implements OnInit {
 
   public submit(): void {
     if (this.isCreate) {
-      this.gameService.create(this.formData.get('team')?.value, this.formData.get('nick')?.value);
+      this.gameService.create(
+        this.formData.get('team')?.value,
+        this.formData.get('nick')?.value,
+        this.observer);
     } else {
-      this.gameService.join(this.formData.get('team')?.value, this.formData.get('nick')?.value);
+      this.gameService.join(
+        this.formData.get('team')?.value,
+        this.formData.get('nick')?.value,
+        this.observer);
     }
 
   }
