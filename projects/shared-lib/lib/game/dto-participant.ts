@@ -6,4 +6,5 @@ export interface DtoParticipant {
   nick: string;
   uuid: string;
   role: Role;
+  observer: boolean;
 }

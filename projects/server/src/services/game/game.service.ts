@@ -19,10 +19,11 @@ import {
   Role
 } from '../../../../shared-lib/lib';
 
+import { IFactoryService } from '../factory.service';
 import { ICardService } from '../card';
 import { ReadyState, WebSocket } from '../websocket';
 import { Estimation } from './estimation';
-import { Game, GameFactory } from './game';
+import { IGame } from './game';
 import { Participant } from './participant';
 
 import SERVICETYPES from '../service.types';
@@ -36,7 +37,7 @@ export class GameService implements IGameService {
 
   // <editor-fold desc='Private properties'>
   private cnt: number;
-  private games: Collections.Dictionary<string, Game>;
+  private games: Collections.Dictionary<string, IGame>;
   private participants: Collections.Dictionary<string, Participant>;
   private participantGameMap: Collections.Dictionary<string, string>;
   private pingInterval: number;
@@ -44,10 +45,11 @@ export class GameService implements IGameService {
 
   // <editor-fold desc='Constructor & C°'>
   public constructor(
+    @inject(SERVICETYPES.FactoryService) private factoryService: IFactoryService,
     @inject(SERVICETYPES.CardService) private cardService: ICardService) {
     console.log(`${new Date().toISOString()}: gameservice constructor`);
     this.cnt = 0;
-    this.games = new Collections.Dictionary<string, Game>();
+    this.games = new Collections.Dictionary<string, IGame>();
     this.participants = new Collections.Dictionary<string, Participant>();
     this.participantGameMap = new Collections.Dictionary<string, string>();
     this.pingInterval = 0;
@@ -64,7 +66,7 @@ export class GameService implements IGameService {
       // assign it an uuid and send the participant back to the sender
       // TODO: (#693) const param = req['params'] ? req['params'].team : 'not specified';
       const uuid = Uuid();
-      const newParticipant = new Participant(
+      const newParticipant = this.factoryService.newParticipant(
         `participant ${++this.cnt}`,
         uuid,
         Role.Unknown,
@@ -111,7 +113,7 @@ export class GameService implements IGameService {
               const auth = this.checkAuthorization(message.type, sender.role);
               if (preflight === ErrorCode.NoError && auth === ErrorCode.NoError) {
                 // make sure we always have a game, although preflight has checked this
-                const game = this.games.getValue(req.params.team) || GameFactory.dummyGame();
+                const game = this.games.getValue(req.params.team) || this.factoryService.dummyGame();
                 switch (message.type) {
                   case (MessageType.Create): {
                     this.handleCreate(sender, message, req.params.team);
@@ -195,17 +197,18 @@ export class GameService implements IGameService {
 
   // <editor-fold desc='Private message handling methods'>
   private handleCreate(sender: Participant, message: Message, requestTeam: string): void {
-    console.log(`Create: '${sender.nick}' is creating '${message.data}'`);
-    const newGame = GameFactory.Game(message.data);
+    console.log(`Create: '${sender.nick}' is creating '${message.data.team}'`);
+    const newGame = this.factoryService.newGame(message.data.team);
+    sender.observer = message.data.observer;
     sender.role = Role.ScrumMaster;
     newGame.upsertParticipant(sender);
     this.games.setValue(requestTeam, newGame);
     this.participantGameMap.setValue(message.uuid, requestTeam);
-    // provide the sender with the curren game state
+    // provide the sender with the current game state
     this.sendGameState(sender, newGame);
   }
 
-  private handleEstimate(sender: Participant, message: Message, game: Game): void {
+  private handleEstimate(sender: Participant, message: Message, game: IGame): void {
     const estimation = new Estimation(sender.uuid, message.data);
     if (estimation.card >= 0) {
       game.upsertEstimation(estimation);
@@ -216,9 +219,10 @@ export class GameService implements IGameService {
     this.broadCastEstimation(game, estimation);
   }
 
-  private handleJoin(sender: Participant, message: Message, game: Game, requestTeam: string): void {
+  private handleJoin(sender: Participant, message: Message, game: IGame, requestTeam: string): void {
     console.log(`Join: '${sender.nick}' is joining '${game.team}'`);
     sender.role = Role.Developer;
+    sender.observer = message.data.observer;
     game.upsertParticipant(sender);
     this.participantGameMap.setValue(message.uuid, requestTeam);
     // provide the sender with the curren game state
@@ -232,10 +236,13 @@ export class GameService implements IGameService {
     sender.socket.close();
   }
 
-  private handleLeave(sender: Participant, message: Message, game: Game): void {
+  private handleLeave(sender: Participant, message: Message, game: IGame): void {
     if (sender.role === Role.ScrumMaster) {
       console.log(`End game: '${sender.nick}' is ending '${game.team}'`);
       this.broadcastEndOfGameToOthers(game, sender);
+      game
+        .filterParticipants(participant => true)
+        .forEach(participant => this.participantGameMap.remove(participant.uuid));
       this.games.remove(game.team);
     } else {
       console.log(`Leave: '${sender.nick}' is leaving '${game.team}'`);
@@ -249,7 +256,7 @@ export class GameService implements IGameService {
     }
   }
 
-  private handleNick(sender: Participant, message: Message, game?: Game): void {
+  private handleNick(sender: Participant, message: Message, game?: IGame): void {
     console.log(`Nick: '${sender.nick}' => '${message.data}'`);
     sender.nick = message.data;
     // send the data back as aknowledgment
@@ -261,7 +268,7 @@ export class GameService implements IGameService {
     }
   }
 
-  private handleReveal(sender: Participant, message: Message, game: Game): void {
+  private handleReveal(sender: Participant, message: Message, game: IGame): void {
     if (sender.role !== Role.ScrumMaster) {
       this.sendErrorMessage(sender, ErrorCode.ScrumMasterRequired);
     } else {
@@ -271,7 +278,7 @@ export class GameService implements IGameService {
     }
   }
 
-  private handleStart(sender: Participant, message: Message, game: Game): void {
+  private handleStart(sender: Participant, message: Message, game: IGame): void {
     if (sender.role !== Role.ScrumMaster) {
       this.sendErrorMessage(sender, ErrorCode.ScrumMasterRequired);
     } else {
@@ -285,7 +292,7 @@ export class GameService implements IGameService {
     console.log(`Switch: '${message.uuid}' => '${message.data}' `);
     // find the original participant and the game he was in
     const oldParticipant = this.getParticipantByUuid(message.data, sender.socket);
-    const oldGame = this.getGameOfUuid(message.data) || GameFactory.dummyGame();
+    const oldGame = this.getGameOfUuid(message.data) || this.factoryService.dummyGame();
 
     // remove the sender
     this.participants.remove(sender.uuid);
@@ -301,37 +308,37 @@ export class GameService implements IGameService {
   // </editor-fold>
 
   // <editor-fold desc='Private broadcast methods'>
-  private broadCastAllEstimations(game: Game) {
+  private broadCastAllEstimations(game: IGame) {
     game
       .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
       .forEach(participant => this.sendEstimations(participant, game.status === GameStatus.Revealed, game.allEstimations));
   }
 
-  private broadCastClearEstimations(game: Game) {
+  private broadCastClearEstimations(game: IGame) {
     game
       .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
       .forEach(participant => this.sendClearEstimations(participant));
   }
 
-  private broadCastEstimation(game: Game, estimation: Estimation) {
+  private broadCastEstimation(game: IGame, estimation: Estimation) {
     game
       .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
       .forEach(participant => this.sendEstimations(participant, game.status === GameStatus.Revealed, [ estimation ]));
   }
 
-  private broadCastGame(game: Game) {
+  private broadCastGame(game: IGame) {
     game
       .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
       .forEach(participant => this.sendGame(participant, Reason.Change, game));
   }
 
-  private broadcastParticipantToOthers(game: Game, reason: Reason, participant: Participant): void {
+  private broadcastParticipantToOthers(game: IGame, reason: Reason, participant: Participant): void {
     game
       .filterParticipants(other => other.uuid !== participant.uuid && other.status === ParticipantStatus.Connected)
       .forEach(other => this.sendParticipants(other, reason, MessageType.Participant, [ participant ]) );
   }
 
-  private broadcastEndOfGameToOthers(game: Game, participant: Participant): void {
+  private broadcastEndOfGameToOthers(game: IGame, participant: Participant): void {
     game
       .filterParticipants(other => other.uuid !== participant.uuid && other.status === ParticipantStatus.Connected)
       .forEach(other => this.sendEndOfGame(other));
@@ -351,7 +358,7 @@ export class GameService implements IGameService {
     });
   }
 
-  private prepareGameData(game: Game): DtoGame {
+  private prepareGameData(game: IGame): DtoGame {
     return {
       team: game.team,
       status: game.status
@@ -364,7 +371,8 @@ export class GameService implements IGameService {
         status: participant.status,
         nick: participant.nick,
         uuid: participant.uuid,
-        role: participant.role
+        role: participant.role,
+        observer: participant.observer
       };
     });
   }
@@ -414,7 +422,7 @@ export class GameService implements IGameService {
     this.sendToParticipant(to, message);
   }
 
-  private sendGame(to: Participant, reason: Reason, game: Game): void {
+  private sendGame(to: Participant, reason: Reason, game: IGame): void {
     const message: Message = {
       type: MessageType.Game,
       data: this.prepareGameData(game),
@@ -424,7 +432,7 @@ export class GameService implements IGameService {
     this.sendToParticipant(to, message);
   }
 
-  private sendGameState(to: Participant, game: Game): void {
+  private sendGameState(to: Participant, game: IGame): void {
     const message: Message = {
       uuid: '',
       type: MessageType.State,
@@ -524,13 +532,13 @@ export class GameService implements IGameService {
     return result;
   }
 
-  private getGameOfUuid(uuid: string): Game | undefined {
+  private getGameOfUuid(uuid: string): IGame | undefined {
     const gameName = this.participantGameMap.getValue(uuid);
     return gameName ? this.games.getValue(gameName) : undefined;
   }
 
   public getParticipantByUuid(uuid: string, websocket: WebSocket) {
-    return this.participants.getValue(uuid) || Participant.dummyParticipant(websocket);
+    return this.participants.getValue(uuid) || this.factoryService.dummyParticipant(websocket);
   }
 
   private messageTypeRequiresTeam(messageType: MessageType): boolean {

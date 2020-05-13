@@ -6,7 +6,7 @@ import { GameStatus, Role } from '../../../../shared-lib/lib';
 import { Estimation } from './estimation';
 import { Participant } from './participant';
 
-export interface Game {
+export interface IGame {
   readonly allEstimations: Array<Estimation>;
   readonly allParticipants: Array<Participant>;
   readonly status: GameStatus;
@@ -23,17 +23,7 @@ export interface Game {
   filterParticipants(filter: (participant: Participant) => boolean): Array<Participant>;
 }
 
-export class GameFactory {
-  public static dummyGame(): Game {
-    return new GameImplementation('dummy');
-  }
-
-  public static Game(team: string) {
-    return new GameImplementation(team);
-  }
-}
-
-class GameImplementation implements Game {
+export class Game implements IGame {
 
   // <editor-fold desc='Private properties'>
   private participants: Collections.Dictionary<string, Participant>;

@@ -8,6 +8,7 @@ export class Participant {
   public uuid: string;
   public role: Role;
   public me: boolean;
+  public observer: boolean;
   // </editor-fold>
 
   // <editor-fold desc='Constructor & C°'>
@@ -20,7 +21,9 @@ export class Participant {
     this.nick = dtoParticipant.nick;
     this.uuid = dtoParticipant.uuid;
     this.role = dtoParticipant.role;
+    this.observer = dtoParticipant.observer;
     this.me = me;
+
   }
   // </editor-fold>
 }

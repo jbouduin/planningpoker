@@ -6,7 +6,8 @@ import { filter, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import * as Collections from 'typescript-collections';
 
-import { DtoParticipant, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
+import { DtoCreate, DtoJoin } from '@shared-lib';
+import { GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
 import { ErrorCode, Message, MessageType } from '@shared-lib';
 
 import { ConnectionService } from '@core';
@@ -15,11 +16,15 @@ import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService 
 import { Card, Estimation, Game, Participant } from './objects';
 import { GameFactoryService } from './objects';
 
-interface CallBackParameter {
-  uuid: string,
-  team?: string,
-  nick?: string,
-  oldUuid?: string
+class CallBackParameter {
+  public observer: boolean;
+  public team: string | undefined;
+  public nick: string | undefined;
+  public oldUuid: string | undefined;
+
+  public constructor(public uuid: string) {
+    this.observer = false;
+  }
 }
 
 @Injectable({
@@ -237,12 +242,10 @@ export class GameService {
           // if this is the very first response from the server, execute the callbacks
           // this will occur only once
           if (msg.reason === Reason.Init) {
-            const callBackParams: CallBackParameter = {
-              uuid: msg.data[0].uuid,
-              team,
-              nick,
-              oldUuid
-            }
+            const callBackParams = new CallBackParameter(msg.data[0].uuid);
+            callBackParams.team = team;
+            callBackParams.nick = nick;
+            callBackParams.oldUuid = oldUuid;
             callbacks.forEach(callback => callback(callBackParams));
           }
           this.game.handleSelf(msg.data[0]);
@@ -332,11 +335,16 @@ export class GameService {
   private createTeam(params: CallBackParameter) {
     console.log(`call createTeam: ${params}`);
 
+    const createData: DtoCreate = {
+      team: params.team || '',
+      observer: params.observer
+    };
+
     if (this.socket) {
       const message: Message = {
         type: MessageType.Create,
         uuid: params.uuid,
-        data: params.team,
+        data: createData,
         reason: Reason.Refresh
       };
       this.socket.next(message);
@@ -345,11 +353,17 @@ export class GameService {
 
   private joinTeam(params: CallBackParameter) {
     console.log(`call joinTeam: ${params}`);
+
+    const joinData: DtoCreate = {
+      team: params.team || '',
+      observer: params.observer
+    };
+
     if (this.socket) {
       const message: Message = {
         type: MessageType.Join,
         uuid: params.uuid,
-        data: params.team,
+        data: joinData,
         reason: Reason.Refresh
       };
       this.socket.next(message);
