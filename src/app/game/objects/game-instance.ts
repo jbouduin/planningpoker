@@ -47,11 +47,13 @@ export class GameInstance implements Game {
 
   public get developers(): Array<Participant> {
     const result = new Array<Participant>();
-    if (this.self?.role === Role.Developer) {
+    if (this.self?.role === Role.Developer && this.self?.observer === false) {
       result.push(this.self);
     }
     return result.concat(
-      this.participants.values().filter(participant => participant.role === Role.Developer)
+      this.participants
+        .values()
+        .filter(participant => participant.role === Role.Developer && !participant.observer)
     );
   }
 
@@ -69,6 +71,18 @@ export class GameInstance implements Game {
     return this.self ?
       this.self.uuid :
       localStorage.getItem(this.localStorageUuidKey) || '';
+  }
+
+  public get observers(): Array<Participant> {
+    const result = new Array<Participant>();
+    if (this.self?.role === Role.Developer && this.self?.observer === true) {
+      result.push(this.self);
+    }
+    return result.concat(
+      this.participants
+        .values()
+        .filter(participant => participant.role === Role.Developer && participant.observer)
+    );
   }
 
   public get scrumMaster(): Participant | undefined {

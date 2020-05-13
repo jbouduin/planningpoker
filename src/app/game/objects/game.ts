@@ -18,6 +18,7 @@ export interface Game {
   readonly myNick: string;
   readonly myRole: Role;
   readonly myUuid: string;
+  readonly observers: Array<Participant>;
   readonly scrumMaster: Participant | undefined;
   readonly showEstimate: boolean;
   readonly showReveal: boolean;

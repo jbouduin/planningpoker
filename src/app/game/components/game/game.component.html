@@ -17,6 +17,16 @@
           </div>
         </mat-card-content>
       </mat-card>
+      <mat-card>
+        <mat-card-title>{{observersHeaderLabel}}</mat-card-title>
+        <mat-card-content>
+          <div fxLayout="column">
+            <div *ngFor="let observer of observers">
+              <game-participant [participant]="observer"></game-participant>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
   </div>
   <div fxLayout="column">

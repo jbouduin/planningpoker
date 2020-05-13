@@ -55,6 +55,14 @@ export class GameComponent implements OnInit {
     this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
   }
 
+  public get observers(): Array<Participant> {
+    return this.game.observers;
+  }
+
+  public get observersHeaderLabel(): string {
+    return this.translateService.instant('Game.Component.Header.Observers');
+  }
+
   public get revealButtonLabel(): string {
     return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
   }

@@ -30,6 +30,7 @@
 	"Game.Component.ButtonLabel.Reveal": "Reveal",
 	"Game.Component.ButtonLabel.Start": "Start",
 	"Game.Component.Header.Developers": "Developers",
+	"Game.Component.Header.Observers": "Observers",
 	"Game.Component.Header.ScrumMaster": "Scrum Master",
 	"Game.Snackbar.$participant_has_joined": "'{{participant}}' has joined the game",
 	"Game.Snackbar.$participant_has_left": "'{{participant}}' has left the game",
