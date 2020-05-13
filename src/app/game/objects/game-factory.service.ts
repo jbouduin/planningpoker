@@ -3,8 +3,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { SnackbarService } from '@shared';
 
+import { IGame } from './game.interface';
 import { Game } from './game';
-import { GameInstance } from './game-instance';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +18,8 @@ export class GameFactoryService {
   // </editor-fold>
 
   // <editor-fold desc='Public factory methods'>
-  public Game(): Game {
-    return new GameInstance(this.translateService, this.snackbarService);
+  public Game(): IGame {
+    return new Game(this.translateService, this.snackbarService);
   }
   // </editor-fold>
 }

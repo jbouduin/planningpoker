@@ -10,7 +10,7 @@ import { SnackbarService } from '@shared';
 
 import { environment } from '@env/environment';
 
-import { Card, Game, Estimation, Participant } from '../../objects';
+import { Card, IGame, Estimation, Participant } from '../../objects';
 import { GameService } from '../../game.service';
 
 @Component({
@@ -21,7 +21,7 @@ import { GameService } from '../../game.service';
 export class GameComponent implements OnInit {
 
   // <editor-fold desc='Private Properties'>
-  private game: Game;
+  private game: IGame;
   // </editor-fold>
 
   // <editor-fold desc='Public Getter methods'>

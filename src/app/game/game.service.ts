@@ -13,7 +13,7 @@ import { ErrorCode, Message, MessageType } from '@shared-lib';
 import { ConnectionService } from '@core';
 import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService } from '@shared';
 
-import { Card, Estimation, Game, Participant } from './objects';
+import { Card, Estimation, IGame, Participant } from './objects';
 import { GameFactoryService } from './objects';
 
 class CallBackParameter {
@@ -33,7 +33,7 @@ class CallBackParameter {
 export class GameService {
 
   // <editor-fold desc='private readonly properties'>
-  private readonly _game: Game;
+  private readonly _game: IGame;
   // </editor-fold>
 
   // <editor-fold desc='private properties'>
@@ -60,7 +60,7 @@ export class GameService {
   // </editor-fold>
 
   // <editor-fold desc='getter methods'>
-  public get game(): Game {
+  public get game(): IGame {
     return this._game;
   }
   // </editor-fold>
