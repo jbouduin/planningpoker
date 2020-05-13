@@ -33,6 +33,10 @@ export class GameInstance implements Game {
     return this.cardCollection.values();
   }
 
+  public get canEstimate(): boolean {
+    return this.gameStatus === GameStatus.Started && !this.self?.observer;
+  }
+
   public get canReconnect(): boolean {
       return this.status === GameStatus.Disconnected;
   }
@@ -92,10 +96,6 @@ export class GameInstance implements Game {
     const result = this.participants.values()
       .filter(participant => participant.role === Role.ScrumMaster)[0];
     return result ? result : undefined;
-  }
-
-  public get showEstimate(): boolean {
-    return this.gameStatus === GameStatus.Started;
   }
 
   public get showReveal(): boolean {

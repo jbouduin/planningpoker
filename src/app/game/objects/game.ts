@@ -12,6 +12,7 @@ export interface Game {
   // <editor-fold desc='Public Readonly properties'>
   readonly availableCards: Array<Card>;
   readonly canReconnect: boolean;
+  readonly canEstimate: boolean;
   readonly developers: Array<Participant>;
   readonly enabled: boolean;
   readonly estimations: Array<Estimation>;
@@ -20,7 +21,6 @@ export interface Game {
   readonly myUuid: string;
   readonly observers: Array<Participant>;
   readonly scrumMaster: Participant | undefined;
-  readonly showEstimate: boolean;
   readonly showReveal: boolean;
   readonly showStart: boolean;
   readonly status: GameStatus;

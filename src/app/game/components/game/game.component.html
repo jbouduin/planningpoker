@@ -39,7 +39,7 @@
           <game-estimation
             *ngIf="myEstimation"
             [estimation]="myEstimation"
-            [enabled]="showEstimate && enabled"
+            [enabled]="canEstimate && enabled"
             (click)="withdraw()">
           </game-estimation>
           <ng-container *ngFor="let estimation of estimations">
@@ -50,7 +50,7 @@
       <mat-card-actions>
         <div fxLayout="row wrap">
           <div class="list-group-item" *ngFor="let card of availableCards">
-            <game-card [card]="card" [revealed]="true" [enabled]="showEstimate && enabled" (cardClicked)="estimate($event)"></game-card>
+            <game-card [card]="card" [revealed]="true" [enabled]="canEstimate && enabled" (cardClicked)="estimate($event)"></game-card>
           </div>
         </div>
       </mat-card-actions>

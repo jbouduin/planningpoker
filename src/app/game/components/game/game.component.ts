@@ -29,6 +29,10 @@ export class GameComponent implements OnInit {
     return this.game.availableCards;
   }
 
+  public get canEstimate(): boolean {
+    return this.game.canEstimate;
+  }
+
   public get developers(): Array<Participant> {
     return this.game.developers;
   }
@@ -77,10 +81,6 @@ export class GameComponent implements OnInit {
 
   public get showDisconnect(): boolean {
     return !environment.production && this.game.status !== GameStatus.Disconnected;
-  }
-
-  public get showEstimate(): boolean {
-    return this.game.showEstimate;
   }
 
   public get showReveal(): boolean {
