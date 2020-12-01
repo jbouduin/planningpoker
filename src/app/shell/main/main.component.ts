@@ -12,11 +12,11 @@ import { untilDestroyed } from '@core';
   styleUrls: ['./main.component.scss']
 })
 export class MainComponent implements OnInit, OnDestroy {
-  // <editor-fold desc='@ViewChild'>
+  //#region  @ViewChild
   @ViewChild('sidenav', { static: false }) sidenav!: MatSidenav;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public getter methods'>
+  //#region  Public getter methods
   public get routeLabelHome(): string {
     return this.translateService.instant('Navigation.RouteLabel.Home');
   }
@@ -24,15 +24,15 @@ export class MainComponent implements OnInit, OnDestroy {
   public get routeLabelAbout(): string {
     return this.translateService.instant('Navigation.RouteLabel.About');
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor and C°'>
+  //#region  Constructor and C°
   constructor(
     private translateService: TranslateService,
     private media: MediaObserver) { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Angular interface methods'>
+  //#region  Angular interface methods
   public ngOnInit() {
     // Automatically close side menu on screens > sm breakpoint
     this.media
@@ -49,5 +49,5 @@ export class MainComponent implements OnInit, OnDestroy {
   public ngOnDestroy() {
     // Needed for automatic unsubscribe with untilDestroyed
   }
-  // </editor-fold>
+  //#endregion
 }

@@ -11,11 +11,11 @@ import { GameService } from '../game/game.service';
 })
 export class HomeComponent implements AfterViewInit, OnInit {
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor(private translateService: TranslateService, private gameService: GameService) { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Angular interface members'>
+  //#region  Angular interface members
   public ngAfterViewInit() {
     if (this.gameService.game.canReconnect) {
       this.translateService
@@ -38,6 +38,6 @@ export class HomeComponent implements AfterViewInit, OnInit {
   }
 
   public ngOnInit() {}
-  // </editor-fold>//
+  //#endregion//
 
 }

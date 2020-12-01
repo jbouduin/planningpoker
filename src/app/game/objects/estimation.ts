@@ -6,11 +6,11 @@ import { Participant } from './participant';
 
 export class Estimation {
 
-  // <editor-fold desc='Private properties'>
+  //#region  Private properties
   public readonly revealed: boolean;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public static createEstimation(
     dtoEstimation: DtoEstimation,
     participants: Collections.Dictionary<string, Participant>,
@@ -30,5 +30,5 @@ export class Estimation {
   public constructor(public participant: Participant, public card: Card, revealed: boolean) {
     this.revealed = revealed;
   }
-  // </editor-fold>
+  //#endregion
 }

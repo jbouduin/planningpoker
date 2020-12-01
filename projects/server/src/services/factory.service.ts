@@ -17,11 +17,11 @@ export interface IFactoryService {
 @injectable()
 export class FactoryService implements IFactoryService {
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor() { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Interface IFactoryService methods'>
+  //#region  Interface IFactoryService methods
   public dummyGame(): IGame {
     return new Game('dummy');
   }
@@ -40,5 +40,5 @@ export class FactoryService implements IFactoryService {
     return new Participant(nick, uuid, role, socket);
   }
 
-  // </editor-fold>
+  //#endregion
 }

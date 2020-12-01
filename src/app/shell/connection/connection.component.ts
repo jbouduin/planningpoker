@@ -11,7 +11,7 @@ import { GameService } from '../../game/game.service';
 })
 export class ConnectionComponent implements OnInit {
 
-  // <editor-fold desc='Public getter methods'>
+  //#region  Public getter methods
   public get connectionIcon():string {
 
     switch (this.connectionService.connectionStatus) {
@@ -50,22 +50,22 @@ export class ConnectionComponent implements OnInit {
     return this.connectionService.connectionStatus === ConnectionStatus.Countdown;
   }
 
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor(
     private translateService: TranslateService,
     private connectionService: ConnectionService,
     private gameService: GameService) { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Angular interface metods'>
+  //#region  Angular interface metods
   public ngOnInit(): void { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='UI triggered methods'>
+  //#region  UI triggered methods
   public reconnect(): void {
     this.gameService.rejoin();
   }
-  // </editor-fold>
+  //#endregion
 }

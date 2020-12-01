@@ -9,7 +9,7 @@ import { Participant } from './participant';
 
 export interface IGame {
 
-  // <editor-fold desc='Public Readonly properties'>
+  //#region  Public Readonly properties
   readonly availableCards: Array<Card>;
   readonly canReconnect: boolean;
   readonly canEstimate: boolean;
@@ -25,7 +25,7 @@ export interface IGame {
   readonly showStart: boolean;
   readonly status: GameStatus;
   readonly team: string;
-  // </editor-fold>
+  //#endregion
 
   clearEstimations(): void;
   handleDisconnect(): void;

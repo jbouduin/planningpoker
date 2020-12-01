@@ -10,11 +10,11 @@ import { Participant } from '../../objects/participant';
 })
 export class ParticipantComponent implements OnInit {
 
-  // <editor-fold desc='@Input()'>
+  //#region  @Input()
   @Input() public participant!: Participant;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public getter methods'>
+  //#region  Public getter methods
   public get connectionStatusIcon(): string {
     return this.participant?.status === ParticipantStatus.Connected ? 'cloud' : 'cloud_off';
   }
@@ -22,15 +22,15 @@ export class ParticipantComponent implements OnInit {
   public get nick(): string {
     return this.participant?.nick || '';
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor() { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Angular interface methods'>
+  //#region  Angular interface methods
   public ngOnInit(): void { }
-  // </editor-fold>
+  //#endregion
 
 
 }

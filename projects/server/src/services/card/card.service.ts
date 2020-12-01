@@ -10,11 +10,11 @@ export interface ICardService {
 export class CardService implements ICardService {
 
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor() { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Interface members'>
+  //#region  Interface members
   public generateCardSet(): Array<DtoCard> {
     const result = new Array<DtoCard>();
     result.push({ index: 0, label: '0' });
@@ -32,5 +32,5 @@ export class CardService implements ICardService {
 
     return result;
   }
-  // </editor-fold>
+  //#endregion
 }

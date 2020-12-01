@@ -3,12 +3,12 @@ import { WebSocket } from '../websocket';
 
 export class Participant implements DtoParticipant {
 
-  // <editor-fold desc='Public properties'>
+  //#region  Public properties
   public status: ParticipantStatus;
   public observer: boolean;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
 
   public constructor(
     public nick: string,
@@ -18,5 +18,5 @@ export class Participant implements DtoParticipant {
     this.status = ParticipantStatus.Connected;
     this.observer = true;
   }
-  // </editor-fold>
+  //#endregion
 }

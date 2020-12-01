@@ -11,19 +11,19 @@ import { SnackbarType } from './snackbar-type';
 })
 export class SnackbarService {
 
-  // <editor-fold desc='Private properties'>
+  //#region  Private properties
   private current?: MatSnackBarRef<any>;
   private queue: Array<SnackbarParams>;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor(private snackbar: MatSnackBar) {
     this.current = undefined;
     this.queue = new Array<SnackbarParams>();
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public methods'>
+  //#region  Public methods
   public showError(message: string): void {
     this.show(SnackbarType.Error, message);
   }
@@ -35,9 +35,9 @@ export class SnackbarService {
   public showWarning(message: string): void {
     this.show(SnackbarType.Warning, message);
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private methods'>
+  //#region  Private methods
   private show(type: SnackbarType, message: string): void {
     if (this.current) {
       this.queue.push(new SnackbarParams(type, message));
@@ -67,5 +67,5 @@ export class SnackbarService {
   private onDismissed(): void {
 
   }
-  // </editor-fold>
+  //#endregion
 }

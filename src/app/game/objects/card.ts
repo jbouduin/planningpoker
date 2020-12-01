@@ -1,7 +1,7 @@
 import { DtoCard } from '@shared-lib';
 
 export class Card {
-  // <editor-fold desc='Public get methods'>
+  //#region  Public get methods
   public get index(): number {
     return this.cardIndex;
   }
@@ -9,13 +9,13 @@ export class Card {
   public get label(): string {
     return this.cardLabel;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public static createCard(dtoCard: DtoCard): Card {
     return new Card(dtoCard.index, dtoCard.label);
   }
 
   private constructor(private cardIndex: number, private cardLabel: string) { }
-  // </editor-fold>
+  //#endregion
 }

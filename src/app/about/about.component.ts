@@ -10,7 +10,7 @@ import { environment } from '@env/environment';
 })
 export class AboutComponent implements OnInit {
 
-  // <editor-fold desc='Public getter properties'>
+  //#region  Public getter properties
   public get version(): string | null {
     return environment.version;
   }
@@ -22,14 +22,14 @@ export class AboutComponent implements OnInit {
   public get versionLabel(): string {
     return this.translateService.instant('About.Component.Label.Version');
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor &C°'>
+  //#region  Constructor &C°
   constructor(private translateService: TranslateService) { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Angular interface methods'>
+  //#region  Angular interface methods
   ngOnInit() { }
-  // </editor-fold>
+  //#endregion
 
 }

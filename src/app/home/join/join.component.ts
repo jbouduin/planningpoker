@@ -11,16 +11,16 @@ import { GameService } from '../../game/game.service';
 })
 export class JoinComponent implements OnInit {
 
-  // <editor-fold desc='@Input'>
+  //#region  @Input
   @Input() public isCreate!: boolean;
 
-  // </editor-fold>
-  // <editor-fold desc='Public properties'>
+  //#endregion
+  //#region  Public properties
   public formData: FormGroup;
   public observer: boolean;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public getter methods'>
+  //#region  Public getter methods
   public get gameHeader(): string {
     return this.isCreate ?
       this.translateService.instant('Home.Component.Header.Start_a_game') :
@@ -52,9 +52,9 @@ export class JoinComponent implements OnInit {
   public get teamNamePlaceHolder(): string {
     return this.translateService.instant('Home.Component.InputPlaceholder.TeamName');
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor&C°'>
+  //#region  Constructor&C°
   public constructor(
     private translateService: TranslateService,
     private formBuilder: FormBuilder,
@@ -65,13 +65,13 @@ export class JoinComponent implements OnInit {
     });
     this.observer = false;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public Angular interface methods'>
+  //#region  Public Angular interface methods
   public ngOnInit(): void { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public methods'>
+  //#region  Public methods
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
@@ -95,6 +95,6 @@ export class JoinComponent implements OnInit {
 
   }
 
-  // </editor-fold>
+  //#endregion
 
 }

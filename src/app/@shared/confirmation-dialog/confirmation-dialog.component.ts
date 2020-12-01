@@ -11,22 +11,22 @@ import { ConfirmationDialogParams } from './confirmation-dialog.params';
 })
 export class ConfirmationDialogComponent implements OnInit {
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   constructor(
     private translateService: TranslateService,
     private dialogRef: MatDialogRef<ConfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public params: ConfirmationDialogParams) { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Angular interface methods'>
+  //#region  Angular interface methods
   ngOnInit(): void {
     this.params.translateDefaults(this.translateService);
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='UI triggered methods'>
+  //#region  UI triggered methods
   public cancel(): void {
     this.dialogRef.close();
   }
-  // </editor-fold>
+  //#endregion
 }

@@ -2,16 +2,16 @@ import { DtoParticipant, ParticipantStatus, Role } from '@shared-lib';
 
 export class Participant {
 
-  // <editor-fold desc='Public properties'>
+  //#region  Public properties
   public status: ParticipantStatus;
   public nick: string;
   public uuid: string;
   public role: Role;
   public me: boolean;
   public observer: boolean;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public static createParticipant(dtoParticipant: DtoParticipant, me: boolean): Participant {
     return new Participant(dtoParticipant, me);
   }
@@ -25,5 +25,5 @@ export class Participant {
     this.me = me;
 
   }
-  // </editor-fold>
+  //#endregion
 }

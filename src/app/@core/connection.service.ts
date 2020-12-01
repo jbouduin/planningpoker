@@ -8,32 +8,32 @@ import { ConnectionStatus } from './connection-status';
 })
 export class ConnectionService {
 
-  // <editor-fold desc='Public properties'>
+  //#region  Public properties
   public connectionStatus: ConnectionStatus;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='private properties'>
+  //#region  private properties
   private currentReconnectIn: number;
   private reconnectTimer: number;
   private subject?: Subject<MessageEvent>;
   private webSocket?: WebSocket;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public getter methods'>
+  //#region  Public getter methods
   public get reconnectIn(): number {
     return this.currentReconnectIn;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   constructor() {
     this.connectionStatus = ConnectionStatus.Disconnected;
     this.currentReconnectIn = 0;
     this.reconnectTimer = 0;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public methods'>
+  //#region  Public methods
 	public connect(url: string): Subject<MessageEvent> {
 		if (!this.subject || this.webSocket?.readyState !== WebSocket.OPEN) {
 			this.subject = this.create(url);
@@ -56,9 +56,9 @@ export class ConnectionService {
     this.connectionStatus = ConnectionStatus.Countdown;
     this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000, callback);
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private methods'>
+  //#region  Private methods
   private create(url: string): Subject<MessageEvent> {
 		const ws = new WebSocket(url);
 		const observable = new Observable(
@@ -90,5 +90,5 @@ export class ConnectionService {
     }
   }
 
-  // </editor-fold>
+  //#endregion
 }

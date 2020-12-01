@@ -20,11 +20,11 @@ import { GameService } from '../../game.service';
 })
 export class GameComponent implements OnInit {
 
-  // <editor-fold desc='Private Properties'>
+  //#region  Private Properties
   private game: IGame;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public Getter methods'>
+  //#region  Public Getter methods
   public get availableCards(): Array<Card> {
     return this.game.availableCards;
   }
@@ -102,9 +102,9 @@ export class GameComponent implements OnInit {
   public get team(): string {
     return this.game.team;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor(
     private dialog: MatDialog,
     private translateService: TranslateService,
@@ -112,14 +112,14 @@ export class GameComponent implements OnInit {
     private gameService: GameService) {
     this.game = gameService.game;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public Angular interface methods'>
+  //#region  Public Angular interface methods
   public ngOnInit(): void {
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public UI Trigger methods'>
+  //#region  Public UI Trigger methods
   public disconnect(): void {
     this.gameService.disconnect();
   }
@@ -162,6 +162,6 @@ export class GameComponent implements OnInit {
   public withdraw(): void {
     this.gameService.withdraw();
   }
-  // </editor-fold>
+  //#endregion
 
 }

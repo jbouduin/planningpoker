@@ -25,13 +25,13 @@ export interface IGame {
 
 export class Game implements IGame {
 
-  // <editor-fold desc='Private properties'>
+  //#region  Private properties
   private participants: Collections.Dictionary<string, Participant>;
   private estimations: Collections.Dictionary<string, Estimation>;
   private gameStatus: GameStatus;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public getter methods'>
+  //#region  Public getter methods
   public get allParticipants(): Array<Participant> {
     return this.participants.values();
   }
@@ -43,18 +43,18 @@ export class Game implements IGame {
   public get status(): GameStatus {
     return this.gameStatus;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor(public team: string) {
     this.team = team;
     this.gameStatus = GameStatus.Stopped;
     this.participants = new Collections.Dictionary<string, Participant>();
     this.estimations = new Collections.Dictionary<string, Estimation>();
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public GameStatus related methods'>
+  //#region  Public GameStatus related methods
   public reveal(): void {
     this.gameStatus = GameStatus.Revealed;
   }
@@ -63,9 +63,9 @@ export class Game implements IGame {
     this.estimations = new Collections.Dictionary<string, Estimation>();
     this.gameStatus = GameStatus.Started;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public estimation related methods'>
+  //#region  Public estimation related methods
   public deleteEstimation(uuid: string): void {
     this.estimations.remove(uuid);
   }
@@ -73,9 +73,9 @@ export class Game implements IGame {
   public upsertEstimation(estimation: Estimation): void {
     this.estimations.setValue(estimation.uuid, estimation);
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public participant related methods'>
+  //#region  Public participant related methods
   // insert a new participant or update an existing one
   public upsertParticipant(participant: Participant): void {
     this.participants.setValue(participant.uuid, participant);
@@ -93,6 +93,6 @@ export class Game implements IGame {
   public filterParticipants(filter: (participant: Participant) => boolean): Array<Participant> {
     return this.participants.values().filter(filter);
   }
-  // </editor-fold>
+  //#endregion
 
 }

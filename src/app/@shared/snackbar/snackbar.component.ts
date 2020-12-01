@@ -11,7 +11,7 @@ import { SnackbarParams } from './snackbar.params';
 })
 export class SnackbarComponent implements OnInit {
 
-  // <editor-fold desc='Public getter methods'>
+  //#region  Public getter methods
   public get isInfo(): boolean {
     return this.params.type === SnackbarType.Info;
   }
@@ -23,22 +23,22 @@ export class SnackbarComponent implements OnInit {
   public get isError(): boolean {
     return this.params.type === SnackbarType.Error;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor(
     private matSnackbarRef: MatSnackBarRef<SnackbarComponent>,
     @Inject(MAT_SNACK_BAR_DATA) public params: SnackbarParams) { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Angular Interface methods'>
-  // </editor-fold>
+  //#region  Angular Interface methods
+  //#endregion
   public ngOnInit(): void {
   }
 
-  // <editor-fold desc='UI triggered methods'>
+  //#region  UI triggered methods
   public close(): void {
     this.matSnackbarRef.dismiss();
   }
-  // </editor-fold>
+  //#endregion
 }

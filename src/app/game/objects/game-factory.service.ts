@@ -11,15 +11,15 @@ import { Game } from './game';
 })
 export class GameFactoryService {
 
-  // <editor-fold desc='Constructor and C°'>
+  //#region  Constructor and C°
   constructor(
     private translateService: TranslateService,
     private snackbarService: SnackbarService) { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public factory methods'>
+  //#region  Public factory methods
   public Game(): IGame {
     return new Game(this.translateService, this.snackbarService);
   }
-  // </editor-fold>
+  //#endregion
 }

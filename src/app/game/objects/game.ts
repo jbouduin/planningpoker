@@ -13,22 +13,22 @@ import { IGame } from './game.interface';
 
 export class Game implements IGame {
 
-  // <editor-fold desc='Private readonly properties'>
+  //#region  Private readonly properties
   private readonly estimationCollection: Collections.Dictionary<string, Estimation>;
   private readonly localStorageNickKey: string = 'current_nick';
   private readonly localStorageUuidKey: string = 'current_uuid';
   private readonly localStorageTeamKey: string = 'current_team';
   private readonly participants: Collections.Dictionary<string, Participant>;
   private readonly cardCollection: Collections.Dictionary<number, Card>;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private properties'>
+  //#region  Private properties
   private gameStatus: GameStatus
   private name: string;
   private self?: Participant;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public getter methods '>
+  //#region  Public getter methods
   public get availableCards(): Array<Card> {
     return this.cardCollection.values();
   }
@@ -116,9 +116,9 @@ export class Game implements IGame {
   public get team(): string {
     return this.name;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor(
     private readonly translateService: TranslateService,
     private readonly snackbarService: SnackbarService) {
@@ -129,9 +129,9 @@ export class Game implements IGame {
     this.gameStatus = localStorage.getItem(this.localStorageTeamKey) && localStorage.getItem(this.localStorageUuidKey) ?
         GameStatus.Disconnected : GameStatus.NoGame
   }
-  // </editor-fold>//
+  //#endregion//
 
-  // <editor-fold desc='Public methods'>
+  //#region  Public methods
   public clearEstimations(): void {
     console.log('Clearing estimations');
     this.estimationCollection.clear();
@@ -257,9 +257,9 @@ export class Game implements IGame {
     this.dumpGame();
     localStorage.setItem(this.localStorageTeamKey, dtoGame.team);
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private methods'>
+  //#region  Private methods
   private dumpCard(card: Card) {
     console.log({
       index: card.index,
@@ -305,5 +305,5 @@ export class Game implements IGame {
       console.log('Self is not set yet');
     }
   }
-  // </editor-fold>
+  //#endregion
 }

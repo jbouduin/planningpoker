@@ -10,15 +10,15 @@ import { MatSidenav } from '@angular/material/sidenav';
 })
 export class HeaderComponent implements OnInit {
 
-  // <editor-fold desc='@Input'>
+  //#region  @Input
   @Input() sidenav!: MatSidenav;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private properties'>
+  //#region  Private properties
   private _headerLogoStyle: object;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public getter methods'>
+  //#region  Public getter methods
   public get headerLogoStyle(): object {
     return this._headerLogoStyle;
   }
@@ -29,9 +29,9 @@ export class HeaderComponent implements OnInit {
   public get routeLabelAbout(): string {
     return this.translateService.instant('Navigation.RouteLabel.About');
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor and C°'>
+  //#region  Constructor and C°
   constructor(private translateService: TranslateService) {
     this._headerLogoStyle = {
       'background-image': `url('assets/logo_40x40.png)`,
@@ -41,11 +41,11 @@ export class HeaderComponent implements OnInit {
       // 'margin-left': '-5px'
     };
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Angular interface methods'>
+  //#region  Angular interface methods
   ngOnInit() { }
-  // </editor-fold>
+  //#endregion
 
 
 }

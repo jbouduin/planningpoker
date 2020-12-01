@@ -2,19 +2,19 @@ import { TranslateService } from '@ngx-translate/core';
 
 export class ConfirmationDialogParams {
 
-  // <editor-fold desc='Public properties'>
+  //#region  Public properties
   public showCancelButton: boolean;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private properties'>
+  //#region  Private properties
   private _translateService!: TranslateService;
   private _translatedCancelButtonLabel!: string;
   private _translatedOkButtonLabel!: string;
   private _translatedText!: string;
   private _translatedTitle!: string;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public get/set properties'>
+  //#region  Public get/set properties
   public set cancelButtonLabel(value: string) {
     this._translatedCancelButtonLabel = value;
   }
@@ -46,15 +46,15 @@ export class ConfirmationDialogParams {
   public get title(): string {
     return this._translatedTitle;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor() {
     this.showCancelButton = true;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public methods'>
+  //#region  Public methods
   public translateDefaults(translateService: TranslateService) {
     // we have to use a class property, otherwise nxg-translate-extract doesn't extract the keys
     this._translateService = translateService;
@@ -74,5 +74,5 @@ export class ConfirmationDialogParams {
       this.text = this._translateService.instant('Dialog.Text.Title.Confirm.Confirm');
     }
   }
-  // </editor-fold>
+  //#endregion
 }

@@ -32,16 +32,16 @@ class CallBackParameter {
 })
 export class GameService {
 
-  // <editor-fold desc='private readonly properties'>
+  //#region  private readonly properties
   private readonly _game: IGame;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='private properties'>
+  //#region  private properties
   private currentRoute: string;
   private socket?: Subject<Message>;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor(
     private dialog: MatDialog,
     private translateService: TranslateService,
@@ -57,15 +57,15 @@ export class GameService {
       .pipe(filter((event: any) => event instanceof NavigationEnd))
       .subscribe(event => this.currentRoute = event.urlAfterRedirect );
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='getter methods'>
+  //#region  getter methods
   public get game(): IGame {
     return this._game;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='public connection related methods'>
+  //#region  public connection related methods
   public create(team: string, nick: string, observer: boolean): void {
     console.log(`creating: ${nick}@${team}`);
     this.createConnection(
@@ -98,9 +98,9 @@ export class GameService {
       [ this.switchUuid.bind(this) ]
     );
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public MessageType-related methods'>
+  //#region  Public MessageType-related methods
   public estimate(index: number): void {
     console.log(`estimated ${index}`);
     if (this.socket) {
@@ -183,9 +183,9 @@ export class GameService {
       this.socket.next(message);
     }
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public method to disconnect: Development only!!!'>
+  //#region  Public method to disconnect: Development only!!!
   public disconnect() {
     console.log('asking the server to kill my connection');
     if (this.socket) {
@@ -198,9 +198,9 @@ export class GameService {
       this.socket.next(message);
     }
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='private connection related methods'>
+  //#region  private connection related methods
   private createConnection(
     team: string,
     nick: string | undefined,
@@ -333,9 +333,9 @@ export class GameService {
       this.router.navigate(['home']);
     }
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private Init-Callback methods'>
+  //#region  Private Init-Callback methods
 
   private createTeam(params: CallBackParameter) {
     console.log('call createTeam:', params);
@@ -400,9 +400,9 @@ export class GameService {
       this.socket.next(message);
     }
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private logger methods for incoming messages'>
+  //#region  Private logger methods for incoming messages
 
   private logPingMessage(message: Message) {
     console.log({
@@ -411,9 +411,9 @@ export class GameService {
       data: message.data
     });
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private methods'>
+  //#region  Private methods
   private handleDisconnect() {
     this.connectionService.handleDisconnect(this.rejoin.bind(this));
   }
@@ -431,5 +431,5 @@ export class GameService {
 
     dialogRef.afterClosed().subscribe(result => this.reset() );
   }
-  // </editor-fold>
+  //#endregion
 }

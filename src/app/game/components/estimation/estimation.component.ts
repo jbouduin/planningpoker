@@ -9,13 +9,13 @@ import { Card, Estimation } from '../../objects';
 })
 export class EstimationComponent implements OnInit {
 
-  // <editor-fold desc='@Input() / @Output()'>
+  //#region  @Input() / @Output()
   @Input() public estimation!: Estimation;
   @Input() public enabled!: boolean;
   @Output() public estimationClicked: EventEmitter<number>;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public getter methods'>
+  //#region  Public getter methods
   public get card(): Card {
     return this.estimation.card;
   }
@@ -27,22 +27,22 @@ export class EstimationComponent implements OnInit {
   public get revealed(): boolean {
     return this.estimation.revealed;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Public constructor & C°'>
+  //#region  Public constructor & C°
   constructor() {
     this.enabled = false;
     this.estimationClicked = new EventEmitter<number>();
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Angular interface methods'>
+  //#region  Angular interface methods
   public ngOnInit(): void { }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='UI triggered methods'>
+  //#region  UI triggered methods
   public withdraw(): void {
     this.estimationClicked.emit(0);
   }
-  // </editor-fold>
+  //#endregion
 }

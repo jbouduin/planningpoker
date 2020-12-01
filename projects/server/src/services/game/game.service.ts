@@ -35,15 +35,15 @@ export interface IGameService {
 @injectable()
 export class GameService implements IGameService {
 
-  // <editor-fold desc='Private properties'>
+  //#region  Private properties
   private cnt: number;
   private games: Collections.Dictionary<string, IGame>;
   private participants: Collections.Dictionary<string, Participant>;
   private participantGameMap: Collections.Dictionary<string, string>;
   private pingInterval: number;
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Constructor & C°'>
+  //#region  Constructor & C°
   public constructor(
     @inject(SERVICETYPES.FactoryService) private factoryService: IFactoryService,
     @inject(SERVICETYPES.CardService) private cardService: ICardService) {
@@ -54,9 +54,9 @@ export class GameService implements IGameService {
     this.participantGameMap = new Collections.Dictionary<string, string>();
     this.pingInterval = 0;
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Interface members'>
+  //#region  Interface members
   public initializeGame(expressWs: expressWs.Instance): void {
     const router = Router() as expressWs.Router;
     const wss = expressWs.getWss();
@@ -193,9 +193,9 @@ export class GameService implements IGameService {
 
     expressWs.app.use('/game', router);
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private message handling methods'>
+  //#region  Private message handling methods
   private handleCreate(sender: Participant, message: Message, requestTeam: string): void {
     console.log(`Create: '${sender.nick}' is creating '${message.data.team}'`);
     const newGame = this.factoryService.newGame(message.data.team);
@@ -305,9 +305,9 @@ export class GameService implements IGameService {
     // tell the others that participant rejoined
     this.broadcastParticipantToOthers(oldGame, Reason.Change, oldParticipant);
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private broadcast methods'>
+  //#region  Private broadcast methods
   private broadCastAllEstimations(game: IGame) {
     game
       .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
@@ -343,9 +343,9 @@ export class GameService implements IGameService {
       .filterParticipants(other => other.uuid !== participant.uuid && other.status === ParticipantStatus.Connected)
       .forEach(other => this.sendEndOfGame(other));
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private prepare message data methods'>
+  //#region  Private prepare message data methods
   private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<DtoEstimation> {
     return estimations.map( estimation => {
       return {
@@ -376,9 +376,9 @@ export class GameService implements IGameService {
       };
     });
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private send to participant proxy methods'>
+  //#region  Private send to participant proxy methods
   private sendClearEstimations(to: Participant): void {
     const message: Message = {
       type: MessageType.ClearEstimations,
@@ -457,9 +457,9 @@ export class GameService implements IGameService {
     };
     this.sendToParticipant(to, message);
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private send to socket methods'>
+  //#region  Private send to socket methods
   private sendException(socket: WebSocket, error: string): void {
     const message: Message = {
       uuid: '',
@@ -484,9 +484,9 @@ export class GameService implements IGameService {
     };
     this.sendToSocket(socket, message);
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private send methods'>
+  //#region  Private send methods
   private sendToParticipant(to: Participant, message: Message) {
     console.log(`${new Date().toISOString()}: => to '${to.nick}': ${MessageType[message.type]} - ${JSON.stringify(message)}`);
     this.send(to.socket, message);
@@ -508,9 +508,9 @@ export class GameService implements IGameService {
       console.log(`Can not send, Readystate is ${ReadyState[socket.readyState]} ${socket.readyState}`);
     }
   }
-  // </editor-fold>
+  //#endregion
 
-  // <editor-fold desc='Private helpers'>
+  //#region  Private helpers
   private checkAuthorization(messageType: MessageType, role: Role): ErrorCode {
     let result = ErrorCode.NoError;
 
@@ -622,5 +622,5 @@ export class GameService implements IGameService {
     }
     return result;
   }
-  // </editor-fold>
+  //#endregion
 }
