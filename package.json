@@ -71,21 +71,5 @@
     "ts-node": "^8.10.2",
     "tslint": "~5.20.1",
     "typescript": "~3.8.3"
-  },
-  "prettier": {
-    "singleQuote": true,
-    "overrides": [
-      {
-        "files": "*.scss",
-        "options": {
-          "singleQuote": false
-        }
-      }
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged"
-    }
   }
 }
