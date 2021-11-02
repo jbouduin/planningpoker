@@ -1,4 +1,3 @@
-import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as express from 'express';
 import * as expressWs from 'express-ws';
@@ -21,7 +20,6 @@ class App {
 
   private config(app: express.Application): void {
 
-    app.options('*', cors({ origin: '*' }));
     app.use(cors({ origin: '*' }));
     app.use(function (req, res, next) {
       // Website you wish to allow to connect
@@ -38,9 +36,9 @@ class App {
     });
 
     // support application/json type post data
-    app.use(bodyParser.json());
+    app.use(express.json());
     // support application/x-www-form-urlencoded post data
-    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(express.urlencoded({ extended: false }));
   }
 
 }

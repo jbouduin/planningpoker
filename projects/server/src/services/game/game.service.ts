@@ -167,7 +167,12 @@ export class GameService implements IGameService {
           } catch (err) {
             console.log(`${new Date().toISOString()}: <= ${msg}`);
             console.log(err);
-            this.sendException(ws, err.message);
+            if (err instanceof Error)
+            {
+              this.sendException(ws, err.message);
+            } else {
+              this.sendException(ws, JSON.stringify(err));
+            }
           }
       });
     });
