@@ -33,6 +33,9 @@
             "styles": [
               "src/main.scss"
             ],
+            "allowedCommonJsDependencies": [
+              "typescript-collections"
+            ],
             "scripts": []
           },
           "configurations": {
@@ -40,7 +43,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
