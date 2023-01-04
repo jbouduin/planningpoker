@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable, Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';

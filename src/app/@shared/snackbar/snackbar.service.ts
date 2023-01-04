@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarRef as MatSnackBarRef } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 
 import { SnackbarComponent } from './snackbar.component';
 import { SnackbarParams } from './snackbar.params';
