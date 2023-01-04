@@ -9,18 +9,16 @@ import { LoaderComponent } from './loader/loader.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 
 @NgModule({
-  imports: [
-    FlexLayoutModule,
-    MaterialModule,
-    CommonModule],
-  declarations: [
-    ConfirmationDialogComponent,
-    LoaderComponent,
-    SnackbarComponent],
-  exports: [],
-  entryComponents: [
-    ConfirmationDialogComponent,
-    SnackbarComponent
-  ]
+    imports: [
+        FlexLayoutModule,
+        MaterialModule,
+        CommonModule
+    ],
+    declarations: [
+        ConfirmationDialogComponent,
+        LoaderComponent,
+        SnackbarComponent
+    ],
+    exports: []
 })
 export class SharedModule {}
