@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { GameService } from '../../game/game.service';
@@ -16,7 +16,7 @@ export class JoinComponent implements OnInit {
 
   //#endregion
   //#region  Public properties
-  public formData: FormGroup;
+  public formData: UntypedFormGroup;
   public observer: boolean;
   //#endregion
 
@@ -57,11 +57,11 @@ export class JoinComponent implements OnInit {
   //#region  Constructor&C°
   public constructor(
     private translateService: TranslateService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private gameService: GameService) {
     this.formData = this.formBuilder.group({
-      team: new FormControl('', [Validators.required]),
-      nick: new FormControl('', [Validators.required])
+      team: new UntypedFormControl('', [Validators.required]),
+      nick: new UntypedFormControl('', [Validators.required])
     });
     this.observer = false;
   }
