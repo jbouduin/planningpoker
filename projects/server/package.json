@@ -14,9 +14,9 @@
   "repository": "secret",
   "dependencies": {
     "@types/cors": "^2.8.12",
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.1",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "express-ws": "^5.0.2",
     "inversify": "^6.0.1",
     "reflect-metadata": "^0.1.13",
