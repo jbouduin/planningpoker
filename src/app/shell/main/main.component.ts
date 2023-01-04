@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { MatSidenav } from '@angular/material/sidenav';
 import { TranslateService } from '@ngx-translate/core';
 import { filter } from 'rxjs/operators';
@@ -28,22 +27,24 @@ export class MainComponent implements OnInit, OnDestroy {
 
   //#region  Constructor and C°
   constructor(
-    private translateService: TranslateService,
-    private media: MediaObserver) { }
+    private translateService: TranslateService
+    // ,
+    // private media: MediaObserver
+  ) { }
   //#endregion
 
   //#region  Angular interface methods
   public ngOnInit() {
     // Automatically close side menu on screens > sm breakpoint
-    this.media
-      .asObservable()
-      .pipe(
-        filter((changes: Array<MediaChange>) =>
-          changes.some( change => change.mqAlias !== 'xs' && change.mqAlias !== 'sm')
-        ),
-        untilDestroyed(this)
-      )
-      .subscribe(() => this.sidenav.close());
+    // this.media
+    //   .asObservable()
+    //   .pipe(
+    //     filter((changes: Array<MediaChange>) =>
+    //       changes.some( change => change.mqAlias !== 'xs' && change.mqAlias !== 'sm')
+    //     ),
+    //     untilDestroyed(this)
+    //   )
+    //   .subscribe(() => this.sidenav.close());
   }
 
   public ngOnDestroy() {

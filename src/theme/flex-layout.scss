@@ -1,0 +1,13 @@
+/*
+ * these style definitions are a fix (hopefully temporary) for removing flex-layout
+ */
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}

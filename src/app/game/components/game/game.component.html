@@ -1,6 +1,6 @@
-<div fxLayout="row">
-  <div fxLayout="column">
-    <div fxLayout="column">
+<div class="flex-row">
+  <div class="flex-column">
+    <div class="flex-column">
       <mat-card>
         <mat-card-title>{{scrumMasterHeaderLabel}}</mat-card-title>
         <mat-card-content>
@@ -10,7 +10,7 @@
       <mat-card>
         <mat-card-title>{{developersHeaderLabel}}</mat-card-title>
         <mat-card-content>
-          <div fxLayout="column">
+          <div class="flex-column">
             <div *ngFor="let developer of developers">
               <game-participant [participant]="developer"></game-participant>
             </div>
@@ -20,7 +20,7 @@
       <mat-card>
         <mat-card-title>{{observersHeaderLabel}}</mat-card-title>
         <mat-card-content>
-          <div fxLayout="column">
+          <div class="flex-column">
             <div *ngFor="let observer of observers">
               <game-participant [participant]="observer"></game-participant>
             </div>
@@ -29,7 +29,7 @@
       </mat-card>
     </div>
   </div>
-  <div fxLayout="column">
+  <div class="flex-column">
     <mat-card>
       <mat-card-title>
         <span>{{team}} ({{status}})</span>
@@ -57,7 +57,7 @@
     </mat-card>
     <mat-card>
       <mat-card-actions>
-        <div fxLayout="row">
+        <div class="flex-row">
           <div *ngIf="showStart">
             <button mat-stroked-button color="primary" (click)="start()" [disabled]="!enabled">
               {{startButtonLabel}}
