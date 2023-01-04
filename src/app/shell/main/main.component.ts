@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { TranslateService } from '@ngx-translate/core';
-import { filter } from 'rxjs/operators';
+// import { filter } from 'rxjs/operators';
 
-import { untilDestroyed } from '@core';
+// import { untilDestroyed } from '@core';
 
 @Component({
   selector: 'app-main',
