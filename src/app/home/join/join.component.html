@@ -2,6 +2,7 @@
   <mat-card-title>
     {{gameHeader}}
   </mat-card-title>
+
   <mat-card-content>
     <div>
       <mat-form-field>
@@ -22,11 +23,11 @@
         {{observerLabel}}
       </mat-checkbox>
     </div>
-
   </mat-card-content>
-  <mat-card-actions>
+
+  <mat-card-actions class="flex-center">
     <button mat-stroked-button color="primary" [disabled]="formData.invalid" (click)="submit()">
       <span>{{submitButtonLabel}}</span>
-  </button>
+    </button>
   </mat-card-actions>
 </mat-card>

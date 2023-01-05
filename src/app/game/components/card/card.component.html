@@ -1,16 +1,16 @@
 <button class="card-button" (click)="click()" [disabled]="!enabled">
-  <div *ngIf="revealed" class="value-wrapper" class="flex-column" fxLayoutAlign="start stretch">
-    <div fxLayoutAlign="start center" fxFlex="10">
+  <div *ngIf="revealed" class="value-wrapper flex-column" fxLayoutAlign="start stretch">
+    <div class="flex-10 flex-center" fxLayoutAlign="start center">
       <span>{{label}}</span>
     </div>
-    <div fxLayoutAlign="center center" fxFlex>
+    <div class="flex-100 flex-center" fxLayoutAlign="center">
       <span>{{label}}</span>
     </div>
-    <div fxLayoutAlign="end center" fxFlex="10">
+    <div class="flex-10 flex-center" fxLayoutAlign="end center" >
       <span>{{label}}</span>
     </div>
   </div>
   <div *ngIf="!revealed">
-    <img class="card-back" src="assets/logo_text_bottom_40x40.png"/>
+    <img class="card-back" src="assets/logo_40x40.png"/>
   </div>
 </button>

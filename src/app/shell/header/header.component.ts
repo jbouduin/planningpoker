@@ -34,7 +34,7 @@ export class HeaderComponent implements OnInit {
   //#region  Constructor and C°
   constructor(private translateService: TranslateService) {
     this._headerLogoStyle = {
-      'background-image': `url('assets/logo_40x40.png)`,
+      'background-image': `url('assets/logo_40x40.png')`,
       'background-position': 'center center',
       'background-size': '40px 40px',
       'background-repeat': 'no-repeat'

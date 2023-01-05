@@ -35,7 +35,7 @@
         <span>{{team}} ({{status}})</span>
       </mat-card-title>
       <mat-card-content>
-        <div fxLayout="row wrap">
+        <div class="flex-row flex-wrap">
           <game-estimation
             *ngIf="myEstimation"
             [estimation]="myEstimation"
@@ -48,7 +48,7 @@
         </div>
       </mat-card-content>
       <mat-card-actions>
-        <div fxLayout="row wrap">
+        <div class="flex-row flex-wrap">
           <div class="list-group-item" *ngFor="let card of availableCards">
             <game-card [card]="card" [revealed]="true" [enabled]="canEstimate && enabled" (cardClicked)="estimate($event)"></game-card>
           </div>
