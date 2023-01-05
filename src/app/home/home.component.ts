@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { finalize } from 'rxjs/operators';
+// import { finalize } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { GameService } from '../game/game.service';
@@ -25,7 +25,7 @@ export class HomeComponent implements AfterViewInit, OnInit {
             team: this.gameService.game.team,
             nick: this.gameService.game.myNick
           })
-        .subscribe( translated => {
+        .subscribe( (translated: any) => {
           const tryReenter = confirm(translated);
           if (tryReenter === true) {
             this.gameService.rejoin();

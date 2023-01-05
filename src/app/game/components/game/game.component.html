@@ -1,26 +1,26 @@
-<div fxLayout="row">
-  <div fxLayout="column">
-    <div fxLayout="column">
-      <mat-card>
+<div class="flex-row">
+  <div class="flex-column">
+    <div class="flex-column">
+      <mat-card appearance="outlined">
         <mat-card-title>{{scrumMasterHeaderLabel}}</mat-card-title>
         <mat-card-content>
           <game-participant [participant]="scrumMaster"></game-participant>
         </mat-card-content>
       </mat-card>
-      <mat-card>
+      <mat-card appearance="outlined">
         <mat-card-title>{{developersHeaderLabel}}</mat-card-title>
         <mat-card-content>
-          <div fxLayout="column">
+          <div class="flex-column">
             <div *ngFor="let developer of developers">
               <game-participant [participant]="developer"></game-participant>
             </div>
           </div>
         </mat-card-content>
       </mat-card>
-      <mat-card>
+      <mat-card appearance="outlined">
         <mat-card-title>{{observersHeaderLabel}}</mat-card-title>
         <mat-card-content>
-          <div fxLayout="column">
+          <div class="flex-column">
             <div *ngFor="let observer of observers">
               <game-participant [participant]="observer"></game-participant>
             </div>
@@ -29,13 +29,13 @@
       </mat-card>
     </div>
   </div>
-  <div fxLayout="column">
-    <mat-card>
+  <div class="flex-column">
+    <mat-card appearance="outlined">
       <mat-card-title>
         <span>{{team}} ({{status}})</span>
       </mat-card-title>
       <mat-card-content>
-        <div fxLayout="row wrap">
+        <div class="flex-row flex-wrap">
           <game-estimation
             *ngIf="myEstimation"
             [estimation]="myEstimation"
@@ -48,16 +48,16 @@
         </div>
       </mat-card-content>
       <mat-card-actions>
-        <div fxLayout="row wrap">
+        <div class="flex-row flex-wrap">
           <div class="list-group-item" *ngFor="let card of availableCards">
             <game-card [card]="card" [revealed]="true" [enabled]="canEstimate && enabled" (cardClicked)="estimate($event)"></game-card>
           </div>
         </div>
       </mat-card-actions>
     </mat-card>
-    <mat-card>
+    <mat-card appearance="outlined">
       <mat-card-actions>
-        <div fxLayout="row">
+        <div class="flex-row">
           <div *ngIf="showStart">
             <button mat-stroked-button color="primary" (click)="start()" [disabled]="!enabled">
               {{startButtonLabel}}

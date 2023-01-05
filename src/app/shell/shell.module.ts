@@ -1,9 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
-import { FlexLayoutModule } from '@angular/flex-layout';
-
 import { MaterialModule } from '@app/material.module';
 
 import { ConnectionComponent } from './connection/connection.component';
@@ -15,8 +12,6 @@ import { MainComponent } from './main/main.component';
 @NgModule({
   imports: [
     CommonModule,
-    TranslateModule,
-    FlexLayoutModule,
     MaterialModule,
     RouterModule
   ],
