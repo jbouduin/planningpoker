@@ -67,7 +67,7 @@ export class I18nService {
    * @param language The IETF language code to set.
    */
   set language(language: string) {
-    language = language || localStorage.getItem(languageKey) || this.translateService.getBrowserCultureLang();
+    language = language || localStorage.getItem(languageKey) || this.translateService.getBrowserCultureLang() || '';
     let isSupportedLanguage = this.supportedLanguages.includes(language);
 
     // If no exact match is found, search without the region

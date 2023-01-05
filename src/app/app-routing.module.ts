@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
 import { Shell } from '@app/shell/shell.service';
 
+// TODO from the migration guide:
+// You can no longer specify lazy - loaded routes by setting a string value to loadChildren.Make sure you move to dynamic ESM import statements.
 const routes: Routes = [
   Shell.childRoutes([{
     path: 'about',

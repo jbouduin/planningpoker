@@ -1,12 +1,12 @@
 <!-- for smaller devices  -->
 <mat-toolbar fxHide.gt-sm class="mat-elevation-z6 navbar" color="primary">
-  <div [ngStyle]="headerLogoStyle" fxFlex>
+  <div [ngStyle]="headerLogoStyle" class="flex-100">
     <div fxLayoutAlign="start center">
       <button class="menu-button" mat-icon-button (click)="sidenav.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
     </div>
-    <span fxFlex></span>
+    <span class="flex-100"></span>
     <app-connection></app-connection>
     <app-language-selector icon="true"></app-language-selector>
     </div>
@@ -27,7 +27,7 @@
       <span>{{routeLabelAbout}}</span>
     </button>
   </div>
-  <span fxFlex></span>
+  <span class="flex-100"></span>
   <app-connection></app-connection>
   <app-language-selector icon="true"></app-language-selector>
 </mat-toolbar>

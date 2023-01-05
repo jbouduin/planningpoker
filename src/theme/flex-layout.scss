@@ -1,0 +1,33 @@
+/*
+ * these style definitions are a fix (hopefully temporary) for removing flex-layout
+ */
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+}
+
+.flex-10 {
+  display: flex;
+  flex: 1 1 10%;
+}
+
+.flex-100 {
+  display: flex;
+    flex: 1 1 100%;
+}

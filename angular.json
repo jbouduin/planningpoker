@@ -40,7 +40,7 @@
           },
           "configurations": {
             "production": {
-              "optimization": true,
+              "optimization": false,
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
@@ -76,8 +76,7 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "browserTarget": "planningpoker:build",
-            "hmr": true,
-            "hmrWarning": false
+            "hmr": false
           },
           "configurations": {
             "production": {
@@ -85,7 +84,6 @@
               "hmr": false
             },
             "ci": {
-              "progress": false
             }
           }
         },
@@ -121,19 +119,6 @@
             }
           }
         },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "tsconfig.app.json",
-              "tsconfig.spec.json",
-              "e2e/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
@@ -148,6 +133,5 @@
         }
       }
     }
-  },
-  "defaultProject": "planningpoker"
+  }
 }
