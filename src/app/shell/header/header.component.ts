@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { MatSidenav } from '@angular/material/sidenav';
@@ -8,7 +8,7 @@ import { MatSidenav } from '@angular/material/sidenav';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent {
 
   //#region  @Input
   @Input() sidenav!: MatSidenav;
@@ -44,7 +44,7 @@ export class HeaderComponent implements OnInit {
   //#endregion
 
   //#region  Angular interface methods
-  ngOnInit() { }
+  // ngOnInit() { }
   //#endregion
 
 

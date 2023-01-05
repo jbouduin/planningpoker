@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -9,7 +9,7 @@ import { GameService } from '../../game/game.service';
   templateUrl: './join.component.html',
   styleUrls: ['./join.component.scss']
 })
-export class JoinComponent implements OnInit {
+export class JoinComponent {
 
   //#region  @Input
   @Input() public isCreate!: boolean;
@@ -68,7 +68,7 @@ export class JoinComponent implements OnInit {
   //#endregion
 
   //#region  Public Angular interface methods
-  public ngOnInit(): void { }
+  // public ngOnInit(): void { }
   //#endregion
 
   //#region  Public methods

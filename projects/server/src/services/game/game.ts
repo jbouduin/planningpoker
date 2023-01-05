@@ -1,7 +1,5 @@
 import * as Collections from 'typescript-collections';
-import { v4 as Uuid } from 'uuid';
-
-import { GameStatus, Role } from '../../../../shared-lib/lib';
+import { GameStatus } from '../../../../shared-lib/lib';
 
 import { Estimation } from './estimation';
 import { Participant } from './participant';

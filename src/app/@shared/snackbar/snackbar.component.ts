@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 
 import { SnackbarType } from './snackbar-type';
@@ -9,7 +9,7 @@ import { SnackbarParams } from './snackbar.params';
   templateUrl: './snackbar.component.html',
   styleUrls: ['./snackbar.component.scss']
 })
-export class SnackbarComponent implements OnInit {
+export class SnackbarComponent {
 
   //#region  Public getter methods
   public get isInfo(): boolean {
@@ -33,8 +33,7 @@ export class SnackbarComponent implements OnInit {
 
   //#region  Angular Interface methods
   //#endregion
-  public ngOnInit(): void {
-  }
+  // public ngOnInit(): void {  }
 
   //#region  UI triggered methods
   public close(): void {

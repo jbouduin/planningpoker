@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '@env/environment';
@@ -8,7 +8,7 @@ import { environment } from '@env/environment';
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss']
 })
-export class AboutComponent implements OnInit {
+export class AboutComponent {
 
   //#region  Public getter properties
   public get version(): string | null {
@@ -29,7 +29,7 @@ export class AboutComponent implements OnInit {
   //#endregion
 
   //#region  Angular interface methods
-  ngOnInit() { }
+  // ngOnInit() { }
   //#endregion
 
 }

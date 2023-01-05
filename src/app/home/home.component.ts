@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 // import { finalize } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -9,7 +9,7 @@ import { GameService } from '../game/game.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements AfterViewInit, OnInit {
+export class HomeComponent implements AfterViewInit {
 
   //#region  Constructor & C°
   public constructor(private translateService: TranslateService, private gameService: GameService) { }
@@ -25,7 +25,7 @@ export class HomeComponent implements AfterViewInit, OnInit {
             team: this.gameService.game.team,
             nick: this.gameService.game.myNick
           })
-        .subscribe( (translated: any) => {
+        .subscribe((translated: any) => { // eslint-disable-line
           const tryReenter = confirm(translated);
           if (tryReenter === true) {
             this.gameService.rejoin();
@@ -36,8 +36,6 @@ export class HomeComponent implements AfterViewInit, OnInit {
         });
     }
   }
-
-  public ngOnInit() {}
-  //#endregion//
+  //#endregion
 
 }

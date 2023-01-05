@@ -4,14 +4,15 @@
  */
 
 // Theme variables, must be included before the libraries to allow overriding defaults
-@import "theme/theme-variables";
-
-// 3rd party libraries
-// import "~material-design-icons-iconfont/src/material-design-icons";
+@import url("theme/theme-variables");
 
 // Angular Material custom theme
 // The mixins below must be included once so we separated them from the variables
-@import "@angular/material/theming";
+@import url("@angular/material/theming");
+
+// Theme customization
+@import url("theme/theme");
+@import url("theme/flex-layout");
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
@@ -23,7 +24,3 @@
 // that you are using.
 @include angular-material-theme($app-theme);
 
-// Theme customization
-@import "theme/theme";
-
-@import "theme/flex-layout.scss";

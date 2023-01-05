@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Observable, Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
-import * as Collections from 'typescript-collections';
 
-import { DtoCreate, DtoJoin } from '@shared-lib';
-import { GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
-import { ErrorCode, Message, MessageType } from '@shared-lib';
+import { DtoCreate } from '@shared-lib';
+import { Reason } from '@shared-lib';
+import { Message, MessageType } from '@shared-lib';
 
 import { ConnectionService } from '@core';
 import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService } from '@shared';
 
-import { Card, Estimation, IGame, Participant } from './objects';
+import { IGame } from './objects';
 import { GameFactoryService } from './objects';
 
 class CallBackParameter {
@@ -54,8 +53,8 @@ export class GameService {
     this.currentRoute = '/';
     this._game = factoryService.Game();
     this.router.events
-      .pipe(filter((event: any) => event instanceof NavigationEnd))
-      .subscribe(event => this.currentRoute = event.urlAfterRedirect );
+      .pipe(filter((event: any) => event instanceof NavigationEnd)) // eslint-disable-line
+      .subscribe(event => this.currentRoute = event.urlAfterRedirect);
   }
   //#endregion
 
@@ -73,7 +72,7 @@ export class GameService {
       nick,
       observer,
       undefined,
-      [ this.setNick.bind(this),  this.createTeam.bind(this) ]
+      [this.setNick.bind(this), this.createTeam.bind(this)]
     );
   }
 
@@ -84,7 +83,7 @@ export class GameService {
       nick,
       observer,
       undefined,
-      [ this.setNick.bind(this), this.joinTeam.bind(this) ]
+      [this.setNick.bind(this), this.joinTeam.bind(this)]
     );
   }
 
@@ -95,7 +94,7 @@ export class GameService {
       undefined,
       undefined,
       this.game.myUuid,
-      [ this.switchUuid.bind(this) ]
+      [this.switchUuid.bind(this)]
     );
   }
   //#endregion
@@ -133,7 +132,7 @@ export class GameService {
       // at least one consumer has to subscribe to the created subject
       // otherwise "nexted" values will be just buffered and not sent, since no connection was established!
       socket.subscribe(
-        msg => {
+        _msg => {
           socket.next(message);
           this.reset();
         },
@@ -210,7 +209,7 @@ export class GameService {
     this.socket = this.createSocket(team);
 
     this.socket.subscribe(msg => {
-      switch(msg.type) {
+      switch (msg.type) {
         case MessageType.Cards: {
           this.game.setCards(msg.data);
           break;
@@ -284,41 +283,41 @@ export class GameService {
         }
       }
     },
-    error => {
-      // we pass here if the connection drops or if the socket connection fails
-      console.log('in error handle');
-      console.log(error);
-      //
-      if (error.target && error.target.readyState && error.target.readyState === 3) {
-        this.game.handleDisconnect();
-        this.handleDisconnect();
-      } else {
-        this.game.handleSocketError(error);
-      }
-    },
-    () => {
-      // this happens when the client or the server close the socket
-      // normally that happens only after 'leave'
-      // so we normally do not have to do anything here
-      // we have this special case in development, where we asked the server to kill me
-      console.log('gracefull disconnect');
-      if (this.socket) {
-        this.game.handleDisconnect();
-        this.handleDisconnect();
-      }
-    });
+      error => {
+        // we pass here if the connection drops or if the socket connection fails
+        console.log('in error handle');
+        console.log(error);
+        //
+        if (error.target && error.target.readyState && error.target.readyState === 3) {
+          this.game.handleDisconnect();
+          this.handleDisconnect();
+        } else {
+          this.game.handleSocketError(error);
+        }
+      },
+      () => {
+        // this happens when the client or the server close the socket
+        // normally that happens only after 'leave'
+        // so we normally do not have to do anything here
+        // we have this special case in development, where we asked the server to kill me
+        console.log('gracefull disconnect');
+        if (this.socket) {
+          this.game.handleDisconnect();
+          this.handleDisconnect();
+        }
+      });
   }
 
   private createSocket(team: string): Subject<Message> {
 
     console.log(`in createsocket: ${team}`);
     return this.connectionService
-			.connect(`ws://localhost:3001/game/${encodeURI(team)}`)
-			.pipe(map((response: MessageEvent): Message => {
+      .connect(`ws://localhost:3001/game/${encodeURI(team)}`)
+      .pipe(map((response: MessageEvent): Message => {
         console.log(response.data);
-				const message: Message = JSON.parse(response.data);
+        const message: Message = JSON.parse(response.data);
         return message;
-			})) as Subject<Message>;
+      })) as Subject<Message>;
   }
 
   private reset() {
@@ -375,7 +374,7 @@ export class GameService {
     }
   }
 
-  private switchUuid (params: CallBackParameter) {
+  private switchUuid(params: CallBackParameter) {
     console.log('call switchUuid:', params);
     if (this.socket) {
       const message: Message = {
@@ -429,7 +428,7 @@ export class GameService {
       data: params
     });
 
-    dialogRef.afterClosed().subscribe(result => this.reset() );
+    dialogRef.afterClosed().subscribe(_result => this.reset());
   }
   //#endregion
 }

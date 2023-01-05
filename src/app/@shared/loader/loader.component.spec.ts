@@ -5,7 +5,7 @@ import { MaterialModule } from '@app/material.module';
 import { LoaderComponent } from './loader.component';
 
 describe('LoaderComponent', () => {
-  let component: LoaderComponent;
+  let component: LoaderComponent; // eslint-disable-line
   let fixture: ComponentFixture<LoaderComponent>;
 
   beforeEach(async(() => {

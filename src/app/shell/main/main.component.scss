@@ -1,4 +1,4 @@
-@import "src/theme/theme-variables";
+@import url("src/theme/theme-variables");
 
 :host {
   display: flex;
@@ -11,18 +11,18 @@
 }
 
 .has-border {
-  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  border-right: 1px solid rgba(0  0 0 / 12%);
 }
 
 .mat-mdc-list {
-  padding-top: 0px;
+  padding-top: 0;
 }
 
 .mat-mdc-list-item {
   text-decoration: none;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0 0 0 / 5%);
   }
 }
 

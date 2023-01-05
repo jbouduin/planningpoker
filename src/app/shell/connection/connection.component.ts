@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ConnectionStatus, ConnectionService } from '@core';
@@ -9,7 +9,7 @@ import { GameService } from '../../game/game.service';
   templateUrl: './connection.component.html',
   styleUrls: ['./connection.component.scss']
 })
-export class ConnectionComponent implements OnInit {
+export class ConnectionComponent  {
 
   //#region  Public getter methods
   public get connectionIcon():string {
@@ -60,7 +60,7 @@ export class ConnectionComponent implements OnInit {
   //#endregion
 
   //#region  Angular interface metods
-  public ngOnInit(): void { }
+  // public ngOnInit(): void { }
   //#endregion
 
   //#region  UI triggered methods

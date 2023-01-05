@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { Card, Estimation } from '../../objects';
 
@@ -7,7 +7,7 @@ import { Card, Estimation } from '../../objects';
   templateUrl: './estimation.component.html',
   styleUrls: ['./estimation.component.scss']
 })
-export class EstimationComponent implements OnInit {
+export class EstimationComponent {
 
   //#region  @Input() / @Output()
   @Input() public estimation!: Estimation;
@@ -37,7 +37,7 @@ export class EstimationComponent implements OnInit {
   //#endregion
 
   //#region  Angular interface methods
-  public ngOnInit(): void { }
+  // public ngOnInit(): void { }
   //#endregion
 
   //#region  UI triggered methods

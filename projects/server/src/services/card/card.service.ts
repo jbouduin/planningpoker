@@ -1,4 +1,4 @@
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
 
 import { DtoCard } from '../../../../shared-lib/lib';
 
@@ -11,7 +11,7 @@ export class CardService implements ICardService {
 
 
   //#region  Constructor & C°
-  public constructor() { }
+  // public constructor() { }
   //#endregion
 
   //#region  Interface members
