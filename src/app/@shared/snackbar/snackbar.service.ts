@@ -12,7 +12,7 @@ import { SnackbarType } from './snackbar-type';
 export class SnackbarService {
 
   //#region  Private properties
-  private current?: MatSnackBarRef<any>;
+  private current?: MatSnackBarRef<any>; // eslint-disable-line
   private queue: Array<SnackbarParams>;
   //#endregion
 
@@ -64,8 +64,8 @@ export class SnackbarService {
     });
   }
 
-  private onDismissed(): void {
+  // private onDismissed(): void {
 
-  }
+  // }
   //#endregion
 }

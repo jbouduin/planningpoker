@@ -9,7 +9,7 @@ import { environment } from '@env/environment';
 import { Logger, untilDestroyed } from '@core';
 import { I18nService } from '@core';
 
-const log = new Logger('App');
+// const log = new Logger('App');
 
 @Component({
   selector: 'app-root',

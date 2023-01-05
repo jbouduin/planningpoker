@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { ParticipantStatus } from '@shared-lib';
 import { Participant } from '../../objects/participant';
@@ -8,7 +8,7 @@ import { Participant } from '../../objects/participant';
   templateUrl: './participant.component.html',
   styleUrls: ['./participant.component.scss']
 })
-export class ParticipantComponent implements OnInit {
+export class ParticipantComponent {
 
   //#region  @Input()
   @Input() public participant!: Participant;
@@ -25,11 +25,11 @@ export class ParticipantComponent implements OnInit {
   //#endregion
 
   //#region  Constructor & C°
-  public constructor() { }
+  // public constructor() { }
   //#endregion
 
   //#region  Angular interface methods
-  public ngOnInit(): void { }
+
   //#endregion
 
 

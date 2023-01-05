@@ -27,8 +27,14 @@
           "error",
           {
             "type": "element",
-            "prefix": "app",
+            "prefix": ["game", "app"],
             "style": "kebab-case"
+          }
+        ],
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_"
           }
         ]
       }

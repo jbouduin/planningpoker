@@ -34,6 +34,7 @@ export class MainComponent implements OnInit, OnDestroy {
   //#endregion
 
   //#region  Angular interface methods
+  /* eslint-disable */
   public ngOnInit() {
     // Automatically close side menu on screens > sm breakpoint
     // this.media
@@ -50,5 +51,6 @@ export class MainComponent implements OnInit, OnDestroy {
   public ngOnDestroy() {
     // Needed for automatic unsubscribe with untilDestroyed
   }
+  /* eslint-enable */
   //#endregion
 }

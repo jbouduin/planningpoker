@@ -1,9 +1,9 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { MatDialog, } from '@angular/material/dialog';
+
 import { TranslateService } from '@ngx-translate/core';
 
-import { GameStatus, ParticipantStatus, Role } from '@shared-lib';
+import { GameStatus } from '@shared-lib';
 
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
 import { SnackbarService } from '@shared';
@@ -18,7 +18,7 @@ import { GameService } from '../../game.service';
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
-export class GameComponent implements OnInit {
+export class GameComponent  {
 
   //#region  Private Properties
   private game: IGame;
@@ -55,8 +55,8 @@ export class GameComponent implements OnInit {
 
   public get leaveLabel(): string {
     return this.game.scrumMaster && this.game.scrumMaster.me ?
-    this.translateService.instant('Game.Component.ButtonLabel.End_game') :
-    this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
+      this.translateService.instant('Game.Component.ButtonLabel.End_game') :
+      this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
   }
 
   public get observers(): Array<Participant> {
@@ -115,8 +115,7 @@ export class GameComponent implements OnInit {
   //#endregion
 
   //#region  Public Angular interface methods
-  public ngOnInit(): void {
-  }
+
   //#endregion
 
   //#region  Public UI Trigger methods

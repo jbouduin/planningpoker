@@ -1,7 +1,5 @@
-import * as Collections from 'typescript-collections';
-
 import { DtoCard, DtoEstimation, DtoGame, DtoParticipant } from '@shared-lib';
-import { ErrorCode, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
+import { ErrorCode, GameStatus, Reason, Role } from '@shared-lib';
 
 import { Card } from './card';
 import { Estimation } from './estimation';
@@ -32,7 +30,7 @@ export interface IGame {
   handleErrorMessage(code: ErrorCode): boolean;
   handleEstimations(dtoEstimations: Array<DtoEstimation>): void;
   handleSelf(participant: DtoParticipant): void;
-  handleSocketError(error: any): void;
+  handleSocketError(error: any): void; // eslint-disable-line
   handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void
   reset(): void;
   setCards(cards: Array<DtoCard>): void;

@@ -179,7 +179,7 @@ export class Game implements IGame {
     localStorage.setItem(this.localStorageUuidKey, this.self.uuid);
   }
 
-  public handleSocketError(error: any): void {
+  public handleSocketError(_error: any): void { // eslint-disable-line
     this.snackbarService.showError(
       this.translateService.instant('Game.Snackbar.CommunicationError')
     );
