@@ -1,8 +1,7 @@
-import { Application, Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import * as expressWs from 'express-ws';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
-import * as ws from 'ws';
 
 import CONTROLLERTYPES from '../controllers/controller.types';
 

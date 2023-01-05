@@ -16,7 +16,7 @@ class App {
     container.get<IRouteService>(SERVICETYPES.RouteService).setRoutes(this.expressWS);
 
     this.config(this.expressWS.app);
-  };
+  }
 
   private config(app: express.Application): void {
 

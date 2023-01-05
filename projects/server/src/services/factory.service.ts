@@ -1,7 +1,7 @@
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
 import 'reflect-metadata';
 
-import { DtoParticipant, ParticipantStatus, Role } from '../../../shared-lib/lib';
+import { ParticipantStatus, Role } from '../../../shared-lib/lib';
 
 import { Game, IGame } from './game/game';
 import { Participant } from './game/participant';
@@ -18,7 +18,7 @@ export interface IFactoryService {
 export class FactoryService implements IFactoryService {
 
   //#region  Constructor & C°
-  public constructor() { }
+  // public constructor() { }
   //#endregion
 
   //#region  Interface IFactoryService methods

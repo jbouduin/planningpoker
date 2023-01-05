@@ -1,10 +1,9 @@
-import { Application, Request, Response, Router } from 'express';
+import { Router } from 'express';
 import * as expressWs from 'express-ws';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 import * as Collections from 'typescript-collections';
 import { v4 as Uuid } from 'uuid';
-import * as ws from 'ws';
 
 import {
   ErrorCode,
@@ -58,7 +57,7 @@ export class GameService implements IGameService {
 
   //#region  Interface members
   public initializeGame(expressWs: expressWs.Instance): void {
-    const router = Router() as expressWs.Router;
+    const router = Router(); // as expressWs.Router;
     const wss = expressWs.getWss();
     wss.on('connection', (ws, req) => {
       // new connection:
@@ -72,14 +71,14 @@ export class GameService implements IGameService {
         Role.Unknown,
         ws);
       this.participants.setValue(uuid, newParticipant);
-      console.log(`${new Date().toISOString()}: connection from client '${req.headers['sec-websocket-key']}' entered as '${newParticipant.nick}' in '{TODO (#693) param}'`);
+      console.log(`${new Date().toISOString()}: connection from client '${req.headers['sec-websocket-key'] || 'unknown'}' entered as '${newParticipant.nick}' in '{TODO (#693) param}'`);
       // send the participant himself back, so he knows his assigned uuid
       this.sendParticipants(newParticipant, Reason.Init, MessageType.Self, [ newParticipant ]);
 
       // if an existing connection closes
       // set the connection status to disconnected
       // if the user was in a game: send other participants an update
-      ws.on('close', (number, reason) => {
+      ws.on('close', (_number, _reason) => {
         const closed = this.participants.values().filter(participant => participant.socket == ws)[0];
         if (closed) {
           console.log(`${new Date().toISOString()}: '${closed.nick}'' has been disconnected`);
@@ -97,7 +96,7 @@ export class GameService implements IGameService {
 
     router.ws(
       '/:team',
-      (ws, req, next) => {
+      (ws, req, _next) => {
         ws.on('message', (msg: string) => {
           try {
             // parse the message
@@ -202,8 +201,8 @@ export class GameService implements IGameService {
 
   //#region  Private message handling methods
   private handleCreate(sender: Participant, message: Message, requestTeam: string): void {
-    console.log(`Create: '${sender.nick}' is creating '${message.data.team}'`);
-    const newGame = this.factoryService.newGame(message.data.team);
+    console.log(`Create: '${sender.nick}' is creating '${(<DtoGame>message.data).team}'`);
+    const newGame = this.factoryService.newGame((<DtoGame>message.data).team);
     sender.observer = message.data.observer;
     sender.role = Role.ScrumMaster;
     newGame.upsertParticipant(sender);
@@ -214,7 +213,7 @@ export class GameService implements IGameService {
   }
 
   private handleEstimate(sender: Participant, message: Message, game: IGame): void {
-    const estimation = new Estimation(sender.uuid, message.data);
+    const estimation = new Estimation(sender.uuid, <number>(message.data));
     if (estimation.card >= 0) {
       game.upsertEstimation(estimation);
     }
@@ -246,7 +245,7 @@ export class GameService implements IGameService {
       console.log(`End game: '${sender.nick}' is ending '${game.team}'`);
       this.broadcastEndOfGameToOthers(game, sender);
       game
-        .filterParticipants(participant => true)
+        .filterParticipants(_participant => true)
         .forEach(participant => this.participantGameMap.remove(participant.uuid));
       this.games.remove(game.team);
     } else {
@@ -262,8 +261,8 @@ export class GameService implements IGameService {
   }
 
   private handleNick(sender: Participant, message: Message, game?: IGame): void {
-    console.log(`Nick: '${sender.nick}' => '${message.data}'`);
-    sender.nick = message.data;
+    console.log(`Nick: '${sender.nick}' => '${(<string>message.data)}'`);
+    sender.nick = <string>message.data;
     // send the data back as aknowledgment
     this.sendParticipants(sender, Reason.Change, MessageType.Self, [ sender ]);
     // check if this user is in a game:
@@ -294,10 +293,10 @@ export class GameService implements IGameService {
   }
 
   private handleSwitch(sender: Participant, message: Message, ws: any): void {
-    console.log(`Switch: '${message.uuid}' => '${message.data}' `);
+    console.log(`Switch: '${message.uuid}' => '${(<string>message.data)}' `);
     // find the original participant and the game he was in
-    const oldParticipant = this.getParticipantByUuid(message.data, sender.socket);
-    const oldGame = this.getGameOfUuid(message.data) || this.factoryService.dummyGame();
+    const oldParticipant = this.getParticipantByUuid(<string>message.data, sender.socket);
+    const oldGame = this.getGameOfUuid(<string>message.data) || this.factoryService.dummyGame();
 
     // remove the sender
     this.participants.remove(sender.uuid);
@@ -506,8 +505,8 @@ export class GameService implements IGameService {
     if (socket.readyState === ReadyState.OPEN) {
       try {
         socket.send(JSON.stringify(message));
-      } catch (err) {
-        console.log(`${new Date().toISOString()}: => error sending: ${err}`);
+      } catch (err: unknown) {
+        console.log(`${new Date().toISOString()}: => error sending: ${err}`); // eslint-disable-line
       }
     } else {
       console.log(`Can not send, Readystate is ${ReadyState[socket.readyState]} ${socket.readyState}`);
@@ -604,18 +603,17 @@ export class GameService implements IGameService {
     if (result === ErrorCode.NoError) {
       switch (message.type) {
         case (MessageType.Create): {
-          if (this.games.containsKey
-            (requestTeam)) {
+          if (this.games.containsKey(requestTeam)) {
             result = ErrorCode.TeamAlreadyExists;
           }
           break;
         }
         case (MessageType.Switch): {
           // the old participant must exist
-          if (!this.participants.containsKey(message.data)) {
+          if (!this.participants.containsKey(<string>message.data)) {
             result = ErrorCode.ParticipantNotFound;
           } else {
-            const oldGame = this.getGameOfUuid(message.data);
+            const oldGame = this.getGameOfUuid(<string>message.data);
             if (! oldGame || oldGame.team !== requestTeam) {
               console.log(`${MessageType[message.type]}: '${message.uuid}' does not belong to team '${requestTeam}'.`);
               result = ErrorCode.ParticipantNotInTeam;
