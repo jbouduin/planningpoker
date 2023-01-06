@@ -1,21 +1,23 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { MatSidenav } from '@angular/material/sidenav';
+import { Component, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslateService } from '@ngx-translate/core';
-// import { filter } from 'rxjs/operators';
-
-// import { untilDestroyed } from '@core';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss']
 })
-export class MainComponent implements OnInit, OnDestroy {
-  //#region  @ViewChild
-  @ViewChild('sidenav', { static: false }) sidenav!: MatSidenav;
+export class MainComponent implements OnDestroy {
+  //#region private properties ------------------------------------------------
+  private _mobileQueryListener: (event: MediaQueryListEvent) => void;
+  private translateService: TranslateService
   //#endregion
 
-  //#region  Public getter methods
+  //#region public properties -------------------------------------------------
+  public mobileQuery: MediaQueryList;
+  //#endregion
+
+  //#region Public getter methods ---------------------------------------------
   public get routeLabelHome(): string {
     return this.translateService.instant('Navigation.RouteLabel.Home');
   }
@@ -25,32 +27,22 @@ export class MainComponent implements OnInit, OnDestroy {
   }
   //#endregion
 
-  //#region  Constructor and C°
+  //#region Constructor and C° ------------------------------------------------
   constructor(
-    private translateService: TranslateService
-    // ,
-    // private media: MediaObserver
-  ) { }
+    translateService: TranslateService,
+    changeDetectorRef: ChangeDetectorRef,
+    media: MediaMatcher
+  ) {
+    this.translateService = translateService;
+    this.mobileQuery = media.matchMedia('(max-width: 600px)');
+    this._mobileQueryListener = (_event: MediaQueryListEvent) => changeDetectorRef.detectChanges();
+    this.mobileQuery.addEventListener('change', this._mobileQueryListener);
+  }
   //#endregion
 
-  //#region  Angular interface methods
-  /* eslint-disable */
-  public ngOnInit() {
-    // Automatically close side menu on screens > sm breakpoint
-    // this.media
-    //   .asObservable()
-    //   .pipe(
-    //     filter((changes: Array<MediaChange>) =>
-    //       changes.some( change => change.mqAlias !== 'xs' && change.mqAlias !== 'sm')
-    //     ),
-    //     untilDestroyed(this)
-    //   )
-    //   .subscribe(() => this.sidenav.close());
-  }
-
+  //#region Angular interface methods -----------------------------------------
   public ngOnDestroy() {
-    // Needed for automatic unsubscribe with untilDestroyed
+    this.mobileQuery.removeEventListener('change', this._mobileQueryListener);
   }
-  /* eslint-enable */
   //#endregion
 }
