@@ -15,7 +15,10 @@
     "test": "ng test",
     "test:ci": "npm run lint -s && ng test --configuration=ci",
     "e2e": "ng e2e",
-    "generate": "ng generate"
+    "generate": "ng generate",
+    "translations:extract": "ngx-translate-extract -i './src' --output './src/translations/template.json' -f=json --clean -s --marker extract",
+    "translations:extract:us": "ngx-translate-extract -i './src' --output './src/translations/en-US.json' -f=json --clean -s --marker extract",
+    "translations:extract:de": "ngx-translate-extract -i './src' --output './src/translations/de-DE.json' -f=json --clean -s --marker extract"
   },
   "dependencies": {
     "@angular/animations": "^15.0.4",
@@ -48,6 +51,7 @@
     "@angular/compiler-cli": "^15.0.4",
     "@angular/language-service": "^15.0.4",
     "@angularclass/hmr": "^3.0.0",
+    "@bartholomej/ngx-translate-extract": "^8.0.2",
     "@types/jasmine": "^4.3.1",
     "@types/jasminewd2": "^2.0.10",
     "@types/node": "^18.11.18",
