@@ -1,4 +1,4 @@
-@import url("src/theme/theme-variables");
+// @import url("src/theme/theme-variables");
 
 :host {
   display: flex;
@@ -43,10 +43,10 @@
   position: absolute;
 }
 
-@media ($mat-xsmall) {
-  .mat-sidenav,
-  .mat-drawer-content,
-  :host ::ng-deep .mat-drawer-backdrop {
-    top: 56px;
-  }
-}
+// @media ($mat-xsmall) {
+//   .mat-sidenav,
+//   .mat-drawer-content,
+//   :host ::ng-deep .mat-drawer-backdrop {
+//     top: 56px;
+//   }
+// }
