@@ -7,7 +7,7 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss"
+          "style": "sass"
         }
       },
       "root": "",
@@ -17,21 +17,21 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist",
+            "outputPath": "dist/planningpoker",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
-            "aot": true,
             "assets": [
               "src/favicon.ico",
-              "src/apple-touch-icon.png",
               "src/robots.txt",
               "src/manifest.json",
               "src/assets"
             ],
             "styles": [
-              "src/main.scss"
+              "src/styles.sass"
             ],
             "allowedCommonJsDependencies": [
               "typescript-collections"
@@ -67,15 +67,23 @@
                 }
               ]
             },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            },
             "ci": {
               "progress": false
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "planningpoker:build",
             "hmr": false
           },
           "configurations": {
@@ -83,8 +91,13 @@
               "browserTarget": "planningpoker:build:production",
               "hmr": false
             },
+            "development": {
+              "browserTarget": "planningpoker:build:development",
+              "hmr": false
+            },
             "ci": {}
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -96,16 +109,18 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "scripts": [],
             "styles": [
-              "src/main.scss"
+              "src/main.sass"
             ],
             "assets": [
               "src/favicon.ico",
-              "src/apple-touch-icon.png",
               "src/robots.txt",
               "src/manifest.json",
               "src/assets"
@@ -144,7 +159,6 @@
   },
   "cli": {
     "schematicCollections": [
-      "@angular-eslint/schematics",
       "@angular-eslint/schematics"
     ]
   }

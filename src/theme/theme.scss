@@ -2,16 +2,24 @@
  * Global application theme.
  * Framework overrides and customization goes here.
  */
+@use '@angular/material' as mat;
 
-// stylelint-disable-next-line selector-max-universal
-* {
-  box-sizing: border-box;
-}
+@include mat.core();
 
-html,
-body {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  height: 100%;
-}
+$app-primary: mat.define-palette($mat-blue);
+$app-accent: mat.define-palette($mat-pink, A200, A100, A400);
+$app-warn: mat.define-palette($mat-red);
+
+$app-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $my-primary,
+      accent: $my-accent,
+      warn: $my-warn,
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  )
+);
+
+@include mat.all-component-themes($app-theme);
