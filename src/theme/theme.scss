@@ -2,12 +2,12 @@
  * Global application theme.
  * Framework overrides and customization goes here.
  */
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 
 @include mat.core();
 
 $app-primary: mat.define-palette($mat-blue);
-$app-accent: mat.define-palette($mat-pink, A200, A100, A400);
+$app-accent: mat.define-palette($mat-pink, a200, a100, a400);
 $app-warn: mat.define-palette($mat-red);
 
 $app-theme: mat.define-light-theme(
