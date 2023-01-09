@@ -1,11 +1,7 @@
 import { TranslateService } from '@ngx-translate/core';
-import * as Collections from 'typescript-collections';
-
 import { DtoCard, DtoEstimation, DtoGame, DtoParticipant } from '@shared-lib';
 import { ErrorCode, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
-
 import { SnackbarService } from '@shared';
-
 import { Card } from './card';
 import { Estimation } from './estimation';
 import { Participant } from './participant';
@@ -13,24 +9,26 @@ import { IGame } from './game.interface';
 
 export class Game implements IGame {
 
-  //#region  Private readonly properties
-  private readonly estimationCollection: Collections.Dictionary<string, Estimation>;
+  //#region Private readonly properties ---------------------------------------
+  private readonly translateService: TranslateService;
+  private readonly snackbarService: SnackbarService;
+  private readonly estimationCollection: Map<string, Estimation>;
   private readonly localStorageNickKey: string = 'current_nick';
   private readonly localStorageUuidKey: string = 'current_uuid';
   private readonly localStorageTeamKey: string = 'current_team';
-  private readonly participants: Collections.Dictionary<string, Participant>;
-  private readonly cardCollection: Collections.Dictionary<number, Card>;
+  private readonly participants: Map<string, Participant>;
+  private readonly cardCollection: Map<number, Card>;
   //#endregion
 
-  //#region  Private properties
+  //#region Private properties ------------------------------------------------
   private gameStatus: GameStatus
   private name: string;
   private self?: Participant;
   //#endregion
 
-  //#region  Public getter methods
+  //#region Public Getters ----------------------------------------------------
   public get availableCards(): Array<Card> {
-    return this.cardCollection.values();
+    return Array.from(this.cardCollection.values());
   }
 
   public get canEstimate(): boolean {
@@ -38,7 +36,7 @@ export class Game implements IGame {
   }
 
   public get canReconnect(): boolean {
-      return this.status === GameStatus.Disconnected;
+    return this.status === GameStatus.Disconnected;
   }
 
   public get enabled(): boolean {
@@ -46,7 +44,7 @@ export class Game implements IGame {
   }
 
   public get estimations(): Array<Estimation> {
-    return this.estimationCollection.values();
+    return Array.from(this.estimationCollection.values());
   }
 
   public get developers(): Array<Participant> {
@@ -54,11 +52,12 @@ export class Game implements IGame {
     if (this.self?.role === Role.Developer && this.self?.observer === false) {
       result.push(this.self);
     }
-    return result.concat(
-      this.participants
-        .values()
-        .filter(participant => participant.role === Role.Developer && !participant.observer)
-    );
+    for (let participant of this.participants.values()) {
+      if (participant.role === Role.Developer && !participant.observer) {
+        result.push(participant);
+      }
+    }
+    return result;
   }
 
   public get myNick(): string {
@@ -82,20 +81,24 @@ export class Game implements IGame {
     if (this.self?.role === Role.Developer && this.self?.observer === true) {
       result.push(this.self);
     }
-    return result.concat(
-      this.participants
-        .values()
-        .filter(participant => participant.role === Role.Developer && participant.observer)
-    );
+    for (let participant of this.participants.values()) {
+      if (participant.role === Role.Developer && participant.observer) {
+        result.push(participant);
+      }
+    }
+    return result;
   }
 
   public get scrumMaster(): Participant | undefined {
     if (this.self?.role === Role.ScrumMaster) {
       return this.self;
     }
-    const result = this.participants.values()
-      .filter(participant => participant.role === Role.ScrumMaster)[0];
-    return result ? result : undefined;
+    for (let participant of this.participants.values()) {
+      if (participant.role === Role.ScrumMaster) {
+        return participant;
+      }
+    }
+    return undefined;
   }
 
   public get showReveal(): boolean {
@@ -118,20 +121,22 @@ export class Game implements IGame {
   }
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   public constructor(
-    private readonly translateService: TranslateService,
-    private readonly snackbarService: SnackbarService) {
-    this.cardCollection = new Collections.Dictionary<number, Card>();
-    this.estimationCollection = new Collections.Dictionary<string, Estimation>();
-    this.participants = new Collections.Dictionary<string, Participant>();
+    translateService: TranslateService,
+    snackbarService: SnackbarService) {
+    this.translateService = translateService;
+    this.snackbarService = snackbarService;
+    this.cardCollection = new Map<number, Card>();
+    this.estimationCollection = new Map<string, Estimation>();
+    this.participants = new Map<string, Participant>();
     this.name = localStorage.getItem(this.localStorageTeamKey) || '';
     this.gameStatus = localStorage.getItem(this.localStorageTeamKey) && localStorage.getItem(this.localStorageUuidKey) ?
-        GameStatus.Disconnected : GameStatus.NoGame
+      GameStatus.Disconnected : GameStatus.NoGame
   }
-  //#endregion//
+  //#endregion
 
-  //#region  Public methods
+  //#region Public methods ----------------------------------------------------
   public clearEstimations(): void {
     console.log('Clearing estimations');
     this.estimationCollection.clear();
@@ -159,15 +164,15 @@ export class Game implements IGame {
         const estimation = Estimation.createEstimation(
           dtoEstimation,
           this.participants,
-          this.cardCollection.values(),
+          Array.from(this.cardCollection.values()),
           this.self);
         if (estimation) {
-          this.estimationCollection.setValue(dtoEstimation.uuid, estimation);
+          this.estimationCollection.set(dtoEstimation.uuid, estimation);
           this.dumpEstimation(estimation);
         }
       } else {
         console.log(`Removing estimation '${dtoEstimation.uuid}'`);
-        this.estimationCollection.remove(dtoEstimation.uuid);
+        this.estimationCollection.delete(dtoEstimation.uuid);
       }
     });
   }
@@ -186,20 +191,19 @@ export class Game implements IGame {
   }
 
   public handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void {
-    participants.forEach( dtoParticipant => {
+    participants.forEach(dtoParticipant => {
       const participant: Participant = Participant.createParticipant(dtoParticipant, false);
       this.dumpParticipant(participant);
-      if (participant.status === ParticipantStatus.Left)
-      {
+      if (participant.status === ParticipantStatus.Left) {
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$participant_has_left',
             { participant: participant.nick }
           )
         );
-        this.participants.remove(participant.uuid);
+        this.participants.delete(participant.uuid);
       } else {
-        if (reason !== Reason.Refresh && !this.participants.containsKey(participant.uuid)) {
+        if (reason !== Reason.Refresh && !this.participants.has(participant.uuid)) {
           this.snackbarService.showInfo(
             this.translateService.instant(
               'Game.Snackbar.$participant_has_joined',
@@ -207,7 +211,7 @@ export class Game implements IGame {
             )
           );
         }
-        this.participants.setValue(participant.uuid, participant);
+        this.participants.set(participant.uuid, participant);
       }
     });
   }
@@ -229,7 +233,7 @@ export class Game implements IGame {
       .map(card => Card.createCard(card))
       .forEach(card => {
         this.dumpCard(card);
-        this.cardCollection.setValue(card.index, card);
+        this.cardCollection.set(card.index, card);
       });
   }
 
@@ -259,7 +263,7 @@ export class Game implements IGame {
   }
   //#endregion
 
-  //#region  Private methods
+  //#region Private methods ---------------------------------------------------
   private dumpCard(card: Card) {
     console.log({
       index: card.index,
@@ -267,11 +271,11 @@ export class Game implements IGame {
     });
   }
 
-  private dumpError(code: ErrorCode) {
-    console.log({
-      code: ErrorCode[code]
-    });
-  }
+  // private dumpError(code: ErrorCode) {
+  //   console.log({
+  //     code: ErrorCode[code]
+  //   });
+  // }
 
   private dumpEstimation(estimation: Estimation): void {
     console.log({
