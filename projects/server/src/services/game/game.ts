@@ -1,4 +1,3 @@
-import * as Collections from 'typescript-collections';
 import { GameStatus } from '../../../../shared-lib/lib';
 
 import { Estimation } from './estimation';
@@ -23,19 +22,19 @@ export interface IGame {
 
 export class Game implements IGame {
 
-  //#region  Private properties
-  private participants: Collections.Dictionary<string, Participant>;
-  private estimations: Collections.Dictionary<string, Estimation>;
+  //#region Private properties ------------------------------------------------
+  private participants: Map<string, Participant>;
+  private estimations: Map<string, Estimation>;
   private gameStatus: GameStatus;
   //#endregion
 
-  //#region  Public getter methods
+  //#region Public getters ----------------------------------------------------
   public get allParticipants(): Array<Participant> {
-    return this.participants.values();
+    return Array.from(this.participants.values());
   }
 
   public get allEstimations(): Array<Estimation> {
-    return this.estimations.values();
+    return Array.from(this.estimations.values());
   }
 
   public get status(): GameStatus {
@@ -43,53 +42,59 @@ export class Game implements IGame {
   }
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   public constructor(public team: string) {
     this.team = team;
     this.gameStatus = GameStatus.Stopped;
-    this.participants = new Collections.Dictionary<string, Participant>();
-    this.estimations = new Collections.Dictionary<string, Estimation>();
+    this.participants = new Map<string, Participant>();
+    this.estimations = new Map<string, Estimation>();
   }
   //#endregion
 
-  //#region  Public GameStatus related methods
+  //#region Public GameStatus related methods ---------------------------------
   public reveal(): void {
     this.gameStatus = GameStatus.Revealed;
   }
 
   public startEstimating(): void {
-    this.estimations = new Collections.Dictionary<string, Estimation>();
+    this.estimations = new Map<string, Estimation>();
     this.gameStatus = GameStatus.Started;
   }
   //#endregion
 
-  //#region  Public estimation related methods
+  //#region Public estimation related methods ---------------------------------
   public deleteEstimation(uuid: string): void {
-    this.estimations.remove(uuid);
+    this.estimations.delete(uuid);
   }
 
   public upsertEstimation(estimation: Estimation): void {
-    this.estimations.setValue(estimation.uuid, estimation);
+    this.estimations.set(estimation.uuid, estimation);
   }
   //#endregion
 
-  //#region  Public participant related methods
+  //#region Public participant related methods --------------------------------
   // insert a new participant or update an existing one
   public upsertParticipant(participant: Participant): void {
-    this.participants.setValue(participant.uuid, participant);
+    this.participants.set(participant.uuid, participant);
   }
 
   // remove a participant from the game
   public deleteParticipant(uuid: string): void {
-    this.participants.remove(uuid);
+    this.participants.delete(uuid);
   }
 
   public getParticipant(uuid: string): Participant | undefined {
-    return this.participants.getValue(uuid);
+    return this.participants.get(uuid);
   }
 
   public filterParticipants(filter: (participant: Participant) => boolean): Array<Participant> {
-    return this.participants.values().filter(filter);
+    const result = new Array<Participant>();
+    for (let participant of this.participants.values()) {
+      if (filter(participant) === true) {
+        result.push(participant);
+      }
+    }
+    return result;
   }
   //#endregion
 
