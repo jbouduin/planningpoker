@@ -1,15 +1,13 @@
 import { Router } from 'express';
 import * as expressWs from 'express-ws';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { v4 as Uuid } from 'uuid';
 
 import {
-  ErrorCode,
   DtoEstimation,
   DtoGame,
-  DtoParticipant,
-  GameStatus,
+  DtoParticipant, ErrorCode, GameStatus,
   Message,
   MessageType,
   ParticipantStatus,
@@ -17,15 +15,14 @@ import {
   Role
 } from '../../../../shared-lib/lib';
 
-import { IFactoryService } from '../factory.service';
 import { ICardService } from '../card';
+import { IFactoryService } from '../factory.service';
 import { ReadyState, WebSocket } from '../websocket';
 import { Estimation } from './estimation';
 import { IGame } from './game';
 import { Participant } from './participant';
 
 import SERVICETYPES from '../service.types';
-import { timeStamp } from 'console';
 
 export interface IGameService {
   initializeGame(expressWS: expressWs.Instance): void;
@@ -83,7 +80,7 @@ export class GameService implements IGameService {
       // set the connection status to disconnected
       // if the user was in a game: send other participants an update
       ws.on('close', (_number, _reason) => {
-        const closed = this.filterParticipants((participant: Participant) => participant.socket == ws)![0];
+        const closed = this.filterParticipants((participant: Participant) => participant.socket == ws)[0];
         if (closed) {
           console.log(`${new Date().toISOString()}: '${closed.nick}'' has been disconnected`);
           closed.status = ParticipantStatus.Disconnected;
@@ -202,7 +199,7 @@ export class GameService implements IGameService {
   }
   //#endregion
 
-  //#region  Private message handling methods
+  //#region Private message handling methods ----------------------------------
   private handleCreate(sender: Participant, message: Message, requestTeam: string): void {
     console.log(`Create: '${sender.nick}' is creating '${(<DtoGame>message.data).team}'`);
     const newGame = this.factoryService.newGame((<DtoGame>message.data).team);
@@ -314,7 +311,7 @@ export class GameService implements IGameService {
   }
   //#endregion
 
-  //#region  Private broadcast methods
+  //#region Private broadcast methods -----------------------------------------
   private broadCastAllEstimations(game: IGame) {
     game
       .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
@@ -352,7 +349,7 @@ export class GameService implements IGameService {
   }
   //#endregion
 
-  //#region  Private prepare message data methods
+  //#region Private prepare message data methods ------------------------------
   private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<DtoEstimation> {
     return estimations.map(estimation => {
       return {
@@ -385,7 +382,7 @@ export class GameService implements IGameService {
   }
   //#endregion
 
-  //#region  Private send to participant proxy methods
+  //#region Private send to participant proxy methods -------------------------
   private sendClearEstimations(to: Participant): void {
     const message: Message = {
       type: MessageType.ClearEstimations,
@@ -466,7 +463,7 @@ export class GameService implements IGameService {
   }
   //#endregion
 
-  //#region  Private send to socket methods
+  //#region Private send to socket methods ------------------------------------
   private sendException(socket: WebSocket, error: string): void {
     const message: Message = {
       uuid: '',
@@ -493,7 +490,7 @@ export class GameService implements IGameService {
   }
   //#endregion
 
-  //#region  Private send methods
+  //#region Private send methods ----------------------------------------------
   private sendToParticipant(to: Participant, message: Message) {
     console.log(`${new Date().toISOString()}: => to '${to.nick}': ${MessageType[message.type]} - ${JSON.stringify(message)}`);
     this.send(to.socket, message);
@@ -517,7 +514,7 @@ export class GameService implements IGameService {
   }
   //#endregion
 
-  //#region  Private helpers
+  //#region Private helpers ---------------------------------------------------
   private checkAuthorization(messageType: MessageType, role: Role): ErrorCode {
     let result = ErrorCode.NoError;
 
@@ -628,15 +625,15 @@ export class GameService implements IGameService {
     }
     return result;
   }
-  //#endregion
 
   public filterParticipants(filter: (participant: Participant) => boolean): Array<Participant> {
     const result = new Array<Participant>();
-    for (let participant of this.participants.values()) {
+    for (const participant of this.participants.values()) {
       if (filter(participant) === true) {
         result.push(participant);
       }
     }
     return result;
   }
+  //#endregion
 }

@@ -89,7 +89,7 @@ export class Game implements IGame {
 
   public filterParticipants(filter: (participant: Participant) => boolean): Array<Participant> {
     const result = new Array<Participant>();
-    for (let participant of this.participants.values()) {
+    for (const participant of this.participants.values()) {
       if (filter(participant) === true) {
         result.push(participant);
       }

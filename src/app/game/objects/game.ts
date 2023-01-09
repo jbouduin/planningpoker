@@ -1,11 +1,10 @@
 import { TranslateService } from '@ngx-translate/core';
-import { DtoCard, DtoEstimation, DtoGame, DtoParticipant } from '@shared-lib';
-import { ErrorCode, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
 import { SnackbarService } from '@shared';
+import { DtoCard, DtoEstimation, DtoGame, DtoParticipant, ErrorCode, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
 import { Card } from './card';
 import { Estimation } from './estimation';
-import { Participant } from './participant';
 import { IGame } from './game.interface';
+import { Participant } from './participant';
 
 export class Game implements IGame {
 
@@ -52,7 +51,7 @@ export class Game implements IGame {
     if (this.self?.role === Role.Developer && this.self?.observer === false) {
       result.push(this.self);
     }
-    for (let participant of this.participants.values()) {
+    for (const participant of this.participants.values()) {
       if (participant.role === Role.Developer && !participant.observer) {
         result.push(participant);
       }
@@ -81,7 +80,7 @@ export class Game implements IGame {
     if (this.self?.role === Role.Developer && this.self?.observer === true) {
       result.push(this.self);
     }
-    for (let participant of this.participants.values()) {
+    for (const participant of this.participants.values()) {
       if (participant.role === Role.Developer && participant.observer) {
         result.push(participant);
       }
@@ -93,7 +92,7 @@ export class Game implements IGame {
     if (this.self?.role === Role.ScrumMaster) {
       return this.self;
     }
-    for (let participant of this.participants.values()) {
+    for (const participant of this.participants.values()) {
       if (participant.role === Role.ScrumMaster) {
         return participant;
       }
