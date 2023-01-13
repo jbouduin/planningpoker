@@ -2,14 +2,9 @@ import { Component } from '@angular/core';
 import { MatDialog, } from '@angular/material/dialog';
 
 import { TranslateService } from '@ngx-translate/core';
-
 import { GameStatus } from '@shared-lib';
-
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
-import { SnackbarService } from '@shared';
-
 import { environment } from '@env/environment';
-
 import { Card, IGame, Estimation, Participant } from '../../objects';
 import { GameService } from '../../game.service';
 
@@ -20,11 +15,14 @@ import { GameService } from '../../game.service';
 })
 export class GameComponent  {
 
-  //#region  Private Properties
+  //#region Private Properties ------------------------------------------------
   private game: IGame;
+  private dialog: MatDialog;
+  private translateService: TranslateService;
+  private gameService: GameService;
   //#endregion
 
-  //#region  Public Getter methods
+  //#region Public Getter methods ---------------------------------------------
   public get availableCards(): Array<Card> {
     return this.game.availableCards;
   }
@@ -104,21 +102,19 @@ export class GameComponent  {
   }
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   public constructor(
-    private dialog: MatDialog,
-    private translateService: TranslateService,
-    private snackbarService: SnackbarService,
-    private gameService: GameService) {
+    dialog: MatDialog,
+    translateService: TranslateService,
+    gameService: GameService) {
     this.game = gameService.game;
+    this.dialog = dialog;
+    this.translateService = translateService;
+    this.gameService = gameService;
   }
   //#endregion
 
-  //#region  Public Angular interface methods
-
-  //#endregion
-
-  //#region  Public UI Trigger methods
+  //#region Public UI Trigger methods -----------------------------------------
   public disconnect(): void {
     this.gameService.disconnect();
   }
