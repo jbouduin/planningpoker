@@ -5,7 +5,8 @@ import 'reflect-metadata';
 
 import CONTROLLERTYPES from '../controllers/controller.types';
 
-import { IHomeController } from 'controllers';
+import { ISystemController } from 'controllers';
+import { env } from 'process';
 
 export interface IRouteService {
   setRoutes(expressWS: expressWs.Instance): void;
@@ -14,18 +15,36 @@ export interface IRouteService {
 @injectable()
 export class RouteService implements IRouteService {
 
-  // constructor
-  public constructor(
-    @inject(CONTROLLERTYPES.HomeController) private homeController: IHomeController) {
-  }
+  //#region private properties ------------------------------------------------
+  private systemController: ISystemController;
+  //#endregion
 
+  //#region private getters ---------------------------------------------------
+  private get systemPath(): string {
+    return `/${env.SYSTEMPATH || "82b52f20-24e6-44c0-a87d-701c150858a0"}`;
+  }
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(@inject(CONTROLLERTYPES.SystemController) systemController: ISystemController) {
+    this.systemController = systemController;
+  }
+  //#endregion
+
+  //#region IRouteService methods ---------------------------------------------
   public setRoutes(expressWs: expressWs.Instance): void {
     const router = Router();
 
-    router.all(
-      '/hello',
+    router.delete(
+      this.systemPath,
       (_request: Request, response: Response) => {
-        this.homeController.HelloWorld(_request, response);
+        this.systemController.Delete(response);
+      });
+
+    router.get(
+      this.systemPath,
+      (_request: Request, response: Response) => {
+        this.systemController.Get(response);
       });
 
     router.all(
@@ -36,4 +55,5 @@ export class RouteService implements IRouteService {
 
     expressWs.app.use('/', router);
   }
+  //#endregion
 }

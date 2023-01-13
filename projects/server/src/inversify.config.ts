@@ -3,7 +3,7 @@ import { Container } from 'inversify';
 import CONTROLLERTYPES from './controllers/controller.types';
 import SERVICETYPES from './services/service.types';
 
-import { IHomeController, HomeController } from './controllers';
+import { ISystemController, SystemController } from './controllers';
 import { IFactoryService, FactoryService } from './services';
 import { ICardService, CardService } from './services';
 import { IGameService, GameService } from './services';
@@ -12,7 +12,7 @@ import { IRouteService, RouteService } from './services';
 const container = new Container();
 
 // controllers
-container.bind<IHomeController>(CONTROLLERTYPES.HomeController).to(HomeController);
+container.bind<ISystemController>(CONTROLLERTYPES.SystemController).to(SystemController);
 
 // services
 container.bind<IFactoryService>(SERVICETYPES.FactoryService).to(FactoryService);
