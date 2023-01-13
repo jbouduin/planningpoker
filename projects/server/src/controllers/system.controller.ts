@@ -24,11 +24,18 @@ export class SystemController implements ISystemController {
 
   //#region ISystemController methods -----------------------------------------
   Delete(response: Response): void {
-    response.status(500).send();
+    try {
+      this.gameService.reset();
+      response.sendStatus(200);
+    } catch (error) {
+      response.status(500).send();
+    }
   }
 
   Get(response: Response): void {
-    response.status(500).send();
+    response
+      .type('application/json')
+      .send(this.gameService.serialize());
   }
   //#endregion
 }
