@@ -219,6 +219,7 @@ export class Game implements IGame {
     console.log('Resetting game');
     this.cardCollection.clear();
     this.estimationCollection.clear();
+    this.participants.clear();
     this.gameStatus = GameStatus.NoGame;
     this.name = '';
     this.self = undefined;

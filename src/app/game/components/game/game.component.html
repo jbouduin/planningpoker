@@ -51,14 +51,28 @@
         <!-- Played cards -->
         <mat-card>
           <div class="flex-row flex-wrap estimations mat-card-inner-container">
-            <!-- Own estimation -->
-            <game-estimation *ngIf="myEstimation" [estimation]="myEstimation" [enabled]="canEstimate && enabled"
-              (click)="withdraw()">
-            </game-estimation>
-            <!-- Other estimations -->
             <ng-container *ngFor="let estimation of estimations">
-              <game-estimation [estimation]="estimation" [enabled]="false"></game-estimation>
+              <div class="flex-column">
+                <game-card [card]="estimation.card" [revealed]="estimation.revealed" [enabled]="estimation.participant.me"
+                  [mine]="estimation.participant.me" (cardClicked)="withdraw()">
+                </game-card>
+                <div class="flex-align-center" [class.mine]="estimation.participant.me">
+                  <span>{{estimation.participant.nick}}</span>
+                </div>
+              </div>
             </ng-container>
+            <!-- Missing estimations -->
+            <ng-container *ngFor="let participant of participantsWithoutEstimation">
+              <div class="flex-column">
+                <game-card [enabled]="false" (cardClicked)="withdraw()">
+                </game-card>
+                <div class="flex-align-center">
+                  <span>{{participant.nick}}</span>
+                </div>
+                <!-- <game-estimation [estimation]="estimation" [enabled]="false"></game-estimation> -->
+              </div>
+            </ng-container>
+
           </div>
         </mat-card>
         <!-- Available cards -->

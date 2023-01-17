@@ -3,8 +3,22 @@
   height: 132px;
   width: 93px;
   background: white;
+  margin: 2px;
+}
+
+.mine {
+  border-color: blue;
 }
 
 .value-wrapper {
   height: 100%;
+}
+
+.greyed {
+  -webkit-filter: grayscale(100%);
+  -moz-filter: grayscale(100%);
+  -o-filter: grayscale(100%);
+  -ms-filter: grayscale(100%);
+  filter: grayscale(100%);
+  opacity: 0.4;
 }

@@ -9,34 +9,34 @@ import { Card } from '../../objects';
 })
 export class CardComponent {
 
-  //#region  @Input() / @Output()
-  @Input() public card!: Card;
+  //#region @Input() / @Output() ----------------------------------------------
+  @Input() public card: Card | undefined;
   @Input() public enabled: boolean;
   @Input() public revealed: boolean;
+  @Input() public mine: boolean;
   @Output() public cardClicked: EventEmitter<number>;
   //#endregion
 
-  //#region  public getter methods
+  //#region public getter methods ---------------------------------------------
   public get label(): string {
     return this.card ? this.card.label : ''
   }
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   public constructor() {
     this.enabled = false;
     this.revealed = false;
+    this.mine = false;
     this.cardClicked = new EventEmitter<number>()
   }
   //#endregion
 
-  //#region  Angular interface methods
-  // ngOnInit(): void { }
-  //#endregion
-
-  //#region  UI Triggered methods
+  //#region UI Triggered methods ----------------------------------------------
   public click(): void {
-    this.cardClicked.emit(this.card.index);
+    if (this.card) {
+      this.cardClicked.emit(this.card.index);
+    }
   }
   //#endregion
 }
