@@ -64,10 +64,10 @@ button:not(.isAvailableCard) {
 
 // Grey out the logo
 .greyed {
-  -webkit-filter: grayscale(100%);
-  -moz-filter: grayscale(100%);
-  -o-filter: grayscale(100%);
-  -ms-filter: grayscale(100%);
+  // -webkit-filter: grayscale(100%);
+  // -moz-filter: grayscale(100%);
+  // -o-filter: grayscale(100%);
+  // -ms-filter: grayscale(100%);
   filter: grayscale(100%);
   opacity: 0.4;
 }

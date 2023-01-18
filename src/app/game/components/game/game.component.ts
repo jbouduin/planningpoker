@@ -45,6 +45,7 @@ export class GameComponent {
 
   public get estimations(): Array<Estimation> {
     let result: Array<Estimation>;
+    let myEstimation: Estimation | undefined;
     switch (this.game.status) {
       case GameStatus.Revealed:
         result = new Array<Estimation>(...this.game.estimations);
@@ -53,7 +54,7 @@ export class GameComponent {
       case GameStatus.Started:
         result = this.game.estimations.filter((e: Estimation) => !e.participant.me);
         result.sort((a: Estimation, b: Estimation) => a.participant.nick.localeCompare(b.participant.nick));
-        const myEstimation = this.game.estimations.find(estimation => estimation.participant.me);
+        myEstimation = this.game.estimations.find(estimation => estimation.participant.me);
         if (myEstimation) {
           result.splice(0, 0, myEstimation);
         }
