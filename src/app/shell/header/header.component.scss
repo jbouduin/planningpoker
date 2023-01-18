@@ -3,3 +3,9 @@
   flex-direction: row;
   align-items: center;
 }
+
+.header-right {
+  flex: 1 1 100%;
+  display: flex;
+  justify-content: flex-end;
+}

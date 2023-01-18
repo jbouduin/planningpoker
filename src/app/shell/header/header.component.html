@@ -2,17 +2,15 @@
   <div>
     <button mat-button routerLink="/home" routerLinkActive="active">
       <mat-icon>home</mat-icon>
-      <span>{{routeLabelHome}}</span>
+      {{routeLabelHome}}
     </button>
     <button mat-button routerLink="/about" routerLinkActive="active">
       <mat-icon>info</mat-icon>
-      <span>{{routeLabelAbout}}</span>
+      {{routeLabelAbout}}
     </button>
   </div>
-  <div class="flex-expand"></div>
-  <div class="header-container">
+  <div class="header-right">
     <app-connection></app-connection>
     <app-language-selector icon="true"></app-language-selector>
   </div>
-
 </div>
