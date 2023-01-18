@@ -11,7 +11,7 @@ import { Participant } from '../../objects/participant';
 export class ParticipantComponent {
 
   //#region @Input() ----------------------------------------------------------
-  @Input() public participant!: Participant;
+  @Input() public participant: Participant | undefined;
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
