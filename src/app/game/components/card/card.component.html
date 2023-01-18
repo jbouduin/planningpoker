@@ -1,25 +1,28 @@
-<button class="card-button" [class.mine]="mine" [class.estimated]="card" [class.disabled]="!enabled" (click)="click()" [disabled]="!enabled">
+<button class="card-button" [class.mine]="mine" [class.disabled]="!enabled" [class.isAvailableCard]="isAvailableCard"
+  [class.hasNoEstimation]="!card" (click)="click()" [disabled]="!enabled">
   <!-- if card is set (available cards and estimations) -->
-  <div *ngIf="card">
-    <!-- if the estimation has been revealed display the value -->
-    <div *ngIf="revealed" class="value-wrapper flex-column" fxLayoutAlign="start stretch">
-      <div class="flex-10 flex-center" [class.estimated]="card" fxLayoutAlign="start center">
+  <div *ngIf="card; else nocard" class="value-wrapper">
+    <div *ngIf="showFaceUp; else showFaceDown" class="value-wrapper">
+      <div class="top-value">
         <span>{{label}}</span>
       </div>
-      <div class="flex-100 flex-center" [class.estimated]="card" fxLayoutAlign="center">
+      <div class="center-value">
         <span>{{label}}</span>
       </div>
-      <div class="flex-10 flex-center" [class.estimated]="card" fxLayoutAlign="end center">
+      <div class="bottom-value">
         <span>{{label}}</span>
       </div>
     </div>
-    <!-- if the estimation has not been revealed display the logo -->
-    <div *ngIf="!revealed">
-      <img src="assets/logo_40x40.png" />
-    </div>
+    <ng-template #showFaceDown>
+      <div>
+        <img src="assets/logo_40x40.png" />
+      </div>
+    </ng-template>
   </div>
   <!-- If card is not set (placeholders): display a greyed out logo -->
-  <div *ngIf="!card">
-    <img class="greyed" src="assets/logo_40x40.png" />
-  </div>
+  <ng-template #nocard>
+    <div>
+      <img class="greyed" src="assets/logo_40x40.png" />
+    </div>
+  </ng-template>
 </button>

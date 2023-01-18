@@ -10,16 +10,22 @@ import { Card } from '../../objects';
 export class CardComponent {
 
   //#region @Input() / @Output() ----------------------------------------------
+  /** If undefined the card is a placeholder for someone who did not estimate */
   @Input() public card: Card | undefined;
   @Input() public enabled: boolean;
   @Input() public revealed: boolean;
   @Input() public mine: boolean;
+  @Input() public isAvailableCard: boolean;
   @Output() public cardClicked: EventEmitter<number>;
   //#endregion
 
   //#region public getter methods ---------------------------------------------
   public get label(): string {
     return this.card ? this.card.label : ''
+  }
+
+  public get showFaceUp(): boolean {
+    return this.revealed || this.isAvailableCard;
   }
   //#endregion
 
@@ -28,6 +34,7 @@ export class CardComponent {
     this.enabled = false;
     this.revealed = false;
     this.mine = false;
+    this.isAvailableCard = false;
     this.cardClicked = new EventEmitter<number>()
   }
   //#endregion

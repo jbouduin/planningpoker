@@ -81,7 +81,7 @@
         <mat-card>
           <div class="flex-row flex-wrap mat-card-inner-container">
             <div class="list-group-item" *ngFor="let card of availableCards">
-              <game-card [card]="card" [revealed]="true" [enabled]="canEstimate && enabled"
+              <game-card [card]="card" [enabled]="canEstimate && enabled" [isAvailableCard]="true"
                 (cardClicked)="estimate($event)"></game-card>
             </div>
           </div>
