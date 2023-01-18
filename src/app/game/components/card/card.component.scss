@@ -6,8 +6,17 @@
   margin: 2px;
 }
 
+button .estimated {
+  border-color: black;
+  color: black;
+}
+
 .mine {
   border-color: blue;
+}
+
+span .estimated {
+  color: black;
 }
 
 .value-wrapper {

@@ -1,20 +1,24 @@
-<button class="card-button" [class.mine]="mine" (click)="click()" [disabled]="!enabled">
+<button class="card-button" [class.mine]="mine" [class.estimated]="card" [class.disabled]="!enabled" (click)="click()" [disabled]="!enabled">
+  <!-- if card is set (available cards and estimations) -->
   <div *ngIf="card">
+    <!-- if the estimation has been revealed display the value -->
     <div *ngIf="revealed" class="value-wrapper flex-column" fxLayoutAlign="start stretch">
-      <div class="flex-10 flex-center" fxLayoutAlign="start center">
+      <div class="flex-10 flex-center" [class.estimated]="card" fxLayoutAlign="start center">
         <span>{{label}}</span>
       </div>
-      <div class="flex-100 flex-center" fxLayoutAlign="center">
+      <div class="flex-100 flex-center" [class.estimated]="card" fxLayoutAlign="center">
         <span>{{label}}</span>
       </div>
-      <div class="flex-10 flex-center" fxLayoutAlign="end center">
+      <div class="flex-10 flex-center" [class.estimated]="card" fxLayoutAlign="end center">
         <span>{{label}}</span>
       </div>
     </div>
+    <!-- if the estimation has not been revealed display the logo -->
     <div *ngIf="!revealed">
       <img src="assets/logo_40x40.png" />
     </div>
   </div>
+  <!-- If card is not set (placeholders): display a greyed out logo -->
   <div *ngIf="!card">
     <img class="greyed" src="assets/logo_40x40.png" />
   </div>

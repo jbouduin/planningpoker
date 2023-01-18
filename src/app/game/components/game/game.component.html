@@ -53,26 +53,28 @@
           <div class="flex-row flex-wrap estimations mat-card-inner-container">
             <ng-container *ngFor="let estimation of estimations">
               <div class="flex-column">
-                <game-card [card]="estimation.card" [revealed]="estimation.revealed" [enabled]="estimation.participant.me"
-                  [mine]="estimation.participant.me" (cardClicked)="withdraw()">
+                <game-card [card]="estimation.card" [revealed]="estimation.revealed"
+                  [enabled]="estimation.participant.me" [mine]="estimation.participant.me" (cardClicked)="withdraw()">
                 </game-card>
-                <div class="flex-align-center" [class.mine]="estimation.participant.me">
-                  <span>{{estimation.participant.nick}}</span>
+                <div class="flex-center" [class.mine]="estimation.participant.me">
+                  <div class="nick">
+                    <span>{{estimation.participant.me ? 'me' : estimation.participant.nick}}</span>
+                  </div>
                 </div>
               </div>
             </ng-container>
             <!-- Missing estimations -->
             <ng-container *ngFor="let participant of participantsWithoutEstimation">
               <div class="flex-column">
-                <game-card [enabled]="false" (cardClicked)="withdraw()">
+                <game-card [enabled]="false" [mine]="participant.me" (cardClicked)="withdraw()">
                 </game-card>
-                <div class="flex-align-center">
-                  <span>{{participant.nick}}</span>
+                <div class="flex-center" [class.mine]="participant.me">
+                  <div class="nick not-estimated">
+                    <span>{{participant.me ? 'me' : participant.nick}}</span>
+                  </div>
                 </div>
-                <!-- <game-estimation [estimation]="estimation" [enabled]="false"></game-estimation> -->
               </div>
             </ng-container>
-
           </div>
         </mat-card>
         <!-- Available cards -->

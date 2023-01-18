@@ -1,3 +1,4 @@
+// Toggling the side-nav
 .toggle-container {
   width: fit-content;
   height: 100%;
@@ -19,13 +20,13 @@
   transform-origin: 5px center;
 }
 
-mat-card {
-  margin-bottom: 10px;
-}
-
 .game-container {
   margin-left: 15px;
   margin-right: 15px;
+}
+
+mat-card {
+  margin-bottom: 10px;
 }
 
 .mat-card-inner-container {
@@ -44,3 +45,15 @@ mat-card {
   color: blue;
   font-weight: bold;
 }
+
+.nick {
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.not-estimated {
+  color: lightgray;
+}
+
