@@ -50,7 +50,7 @@
             <ng-container *ngFor="let estimation of estimations">
               <div class="flex-column">
                 <game-card [card]="estimation.card" [revealed]="estimation.revealed"
-                  [enabled]="estimation.participant.me" [mine]="estimation.participant.me" (cardClicked)="withdraw()">
+                  [enabled]="estimation.participant.me && canEstimate" [mine]="estimation.participant.me" (cardClicked)="withdraw()">
                 </game-card>
                 <div class="flex-center" [class.mine]="estimation.participant.me">
                   <div class="nick">
