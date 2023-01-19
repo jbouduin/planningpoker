@@ -1,81 +1,112 @@
-<div class="flex-row">
-  <div class="flex-column">
-    <div class="flex-column">
-      <mat-card appearance="outlined">
+<mat-sidenav-container>
+  <mat-sidenav #sidenav opened="true" mode="side">
+    <!-- Participants panel -->
+    <div class="side-nav-container">
+      <!-- Scrum-master -->
+      <div class="participants">
         <mat-card-title>{{scrumMasterHeaderLabel}}</mat-card-title>
-        <mat-card-content>
+        <mat-card-content class="participant-list">
           <game-participant [participant]="scrumMaster"></game-participant>
         </mat-card-content>
-      </mat-card>
-      <mat-card appearance="outlined">
+      </div>
+      <!-- Developers -->
+      <div class="participants">
         <mat-card-title>{{developersHeaderLabel}}</mat-card-title>
-        <mat-card-content>
-          <div class="flex-column">
+        <mat-card-content class="participant-list">
             <div *ngFor="let developer of developers">
               <game-participant [participant]="developer"></game-participant>
             </div>
-          </div>
         </mat-card-content>
-      </mat-card>
-      <mat-card appearance="outlined">
+      </div>
+      <!-- Observers -->
+      <div class="participants">
         <mat-card-title>{{observersHeaderLabel}}</mat-card-title>
-        <mat-card-content>
-          <div class="flex-column">
+        <mat-card-content class="participant-list">
             <div *ngFor="let observer of observers">
               <game-participant [participant]="observer"></game-participant>
-            </div>
           </div>
         </mat-card-content>
-      </mat-card>
+      </div>
     </div>
-  </div>
-  <div class="flex-column">
-    <mat-card appearance="outlined">
-      <mat-card-title>
-        <span>{{team}} ({{status}})</span>
-      </mat-card-title>
-      <mat-card-content>
-        <div class="flex-row flex-wrap">
-          <game-estimation
-            *ngIf="myEstimation"
-            [estimation]="myEstimation"
-            [enabled]="canEstimate && enabled"
-            (click)="withdraw()">
-          </game-estimation>
-          <ng-container *ngFor="let estimation of estimations">
-            <game-estimation [estimation]="estimation" [enabled]="false"></game-estimation>
-          </ng-container>
-        </div>
-      </mat-card-content>
-      <mat-card-actions>
-        <div class="flex-row flex-wrap">
-          <div class="list-group-item" *ngFor="let card of availableCards">
-            <game-card [card]="card" [revealed]="true" [enabled]="canEstimate && enabled" (cardClicked)="estimate($event)"></game-card>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <!-- Game board -->
+    <div>
+      <div class="toggle-container">
+        <button (click)="sidenav.toggle()" class="toggle">T</button>
+      </div>
+      <div class="flex-column game-container">
+        <!-- Title -->
+        <mat-card>
+          <div class="mat-card-inner-container">
+            <mat-card-title>
+              {{team}} ({{status}})
+            </mat-card-title>
           </div>
-        </div>
-      </mat-card-actions>
-    </mat-card>
-    <mat-card appearance="outlined">
-      <mat-card-actions>
-        <div class="flex-row">
-          <div *ngIf="showStart">
-            <button mat-stroked-button color="primary" (click)="start()" [disabled]="!enabled">
-              {{startButtonLabel}}
-            </button>
+        </mat-card>
+        <!-- Played cards -->
+        <mat-card>
+          <div class="flex-row flex-wrap estimations mat-card-inner-container">
+            <ng-container *ngFor="let estimation of estimations">
+              <div class="flex-column">
+                <game-card [card]="estimation.card" [revealed]="estimation.revealed"
+                  [enabled]="estimation.participant.me" [mine]="estimation.participant.me" (cardClicked)="withdraw()">
+                </game-card>
+                <div class="flex-center" [class.mine]="estimation.participant.me">
+                  <div class="nick">
+                    <span>{{estimation.participant.me ? 'me' : estimation.participant.nick}}</span>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+            <!-- Missing estimations -->
+            <ng-container *ngFor="let participant of participantsWithoutEstimation">
+              <div class="flex-column">
+                <game-card [enabled]="false" [mine]="participant.me" (cardClicked)="withdraw()">
+                </game-card>
+                <div class="flex-center" [class.mine]="participant.me">
+                  <div class="nick not-estimated">
+                    <span>{{participant.me ? 'me' : participant.nick}}</span>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
           </div>
-          <div *ngIf="showReveal">
-            <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">
-              {{revealButtonLabel}}
-            </button>
+        </mat-card>
+        <!-- Available cards -->
+        <mat-card>
+          <div class="flex-row flex-wrap mat-card-inner-container">
+            <div class="list-group-item" *ngFor="let card of availableCards">
+              <game-card [card]="card" [enabled]="canEstimate && enabled" [isAvailableCard]="true"
+                (cardClicked)="estimate($event)"></game-card>
+            </div>
           </div>
-          <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">
-            {{leaveLabel}}
-          </button>
-          <div *ngIf="showDisconnect">
-            <button mat-stroked-button color="warning" (click)="disconnect()" [disabled]="!enabled">Disconnect</button>
+        </mat-card>
+        <!-- Buttons -->
+        <mat-card>
+          <div class="flex-row mat-card-inner-container">
+            <div *ngIf="showStart" class="game-button">
+              <button mat-stroked-button color="primary" (click)="start()" [disabled]="!enabled">
+                {{startButtonLabel}}
+              </button>
+            </div>
+            <div *ngIf="showReveal" class="game-button">
+              <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">
+                {{revealButtonLabel}}
+              </button>
+            </div>
+            <div class="game-button">
+              <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">
+                {{leaveLabel}}
+              </button>
+            </div>
+            <div *ngIf="showDisconnect" class="game-button">
+              <button mat-stroked-button color="warning" (click)="disconnect()"
+                [disabled]="!enabled">Disconnect</button>
+            </div>
           </div>
-        </div>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-</div>
+        </mat-card>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

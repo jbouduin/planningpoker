@@ -2,14 +2,9 @@ import { Component } from '@angular/core';
 import { MatDialog, } from '@angular/material/dialog';
 
 import { TranslateService } from '@ngx-translate/core';
-
 import { GameStatus } from '@shared-lib';
-
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
-import { SnackbarService } from '@shared';
-
 import { environment } from '@env/environment';
-
 import { Card, IGame, Estimation, Participant } from '../../objects';
 import { GameService } from '../../game.service';
 
@@ -18,13 +13,16 @@ import { GameService } from '../../game.service';
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
-export class GameComponent  {
+export class GameComponent {
 
-  //#region  Private Properties
+  //#region Private Properties ------------------------------------------------
   private game: IGame;
+  private dialog: MatDialog;
+  private translateService: TranslateService;
+  private gameService: GameService;
   //#endregion
 
-  //#region  Public Getter methods
+  //#region Public Getter methods ---------------------------------------------
   public get availableCards(): Array<Card> {
     return this.game.availableCards;
   }
@@ -45,12 +43,49 @@ export class GameComponent  {
     return this.game.enabled;
   }
 
-  public get myEstimation(): Estimation | undefined {
-    return this.game.estimations.find(estimation => estimation.participant.me);
+  public get estimations(): Array<Estimation> {
+    let result: Array<Estimation>;
+    let myEstimation: Estimation | undefined;
+    switch (this.game.status) {
+      case GameStatus.Revealed:
+        result = new Array<Estimation>(...this.game.estimations);
+        result.sort((a: Estimation, b: Estimation) => a.card.index - b.card.index);
+        break;
+      case GameStatus.Started:
+        result = this.game.estimations.filter((e: Estimation) => !e.participant.me);
+        result.sort((a: Estimation, b: Estimation) => a.participant.nick.localeCompare(b.participant.nick));
+        myEstimation = this.game.estimations.find(estimation => estimation.participant.me);
+        if (myEstimation) {
+          result.splice(0, 0, myEstimation);
+        }
+        break;
+      default:
+        result = new Array<Estimation>();
+    }
+    return result;
   }
 
-  public get estimations(): Array<Estimation> {
-    return this.game.estimations.filter(estimation => !estimation.participant.me);
+  public get participantsWithoutEstimation(): Array<Participant> {
+    let result: Array<Participant>;
+    if (this.game.status === GameStatus.Started) {
+      if (this.game.scrumMaster) {
+        if (this.game.scrumMaster.observer) {
+          result = this.game.developers;
+        }
+        else {
+          result = this.game.developers.concat([this.game.scrumMaster]);
+        }
+      }
+      else {
+        result = this.game.developers;
+      }
+    }
+    else {
+      result = new Array<Participant>();
+    }
+    return result
+      .filter((p: Participant) => this.game.estimations.findIndex((e: Estimation) => e.participant.uuid == p.uuid) < 0)
+      .sort((a: Participant, b: Participant) => a.nick.localeCompare(b.nick));
   }
 
   public get leaveLabel(): string {
@@ -104,21 +139,19 @@ export class GameComponent  {
   }
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   public constructor(
-    private dialog: MatDialog,
-    private translateService: TranslateService,
-    private snackbarService: SnackbarService,
-    private gameService: GameService) {
+    dialog: MatDialog,
+    translateService: TranslateService,
+    gameService: GameService) {
     this.game = gameService.game;
+    this.dialog = dialog;
+    this.translateService = translateService;
+    this.gameService = gameService;
   }
   //#endregion
 
-  //#region  Public Angular interface methods
-
-  //#endregion
-
-  //#region  Public UI Trigger methods
+  //#region Public UI Trigger methods -----------------------------------------
   public disconnect(): void {
     this.gameService.disconnect();
   }

@@ -1,0 +1,27 @@
+.participant {
+  width: auto;
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.participant-icon {
+  overflow: unset;
+}
+
+.participant-nick-container {
+  display: flex;
+  flex: 1 1 100%;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.participant-nick {
+  max-width: 230px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
+}

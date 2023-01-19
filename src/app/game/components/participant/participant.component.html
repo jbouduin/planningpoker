@@ -1,5 +1,7 @@
-<div class="flex-row flex-center" fxLayoutAlign="start center">
-  <mat-icon>person</mat-icon>
-  <span class="flex-100">{{nick}}</span>
-  <mat-icon>{{connectionStatusIcon}}</mat-icon>
+<div class="participant">
+  <mat-icon class="participant-icon">{{person}}</mat-icon>
+  <div class="participant-nick-container">
+    <span class="participant-nick">{{nick}}</span>
+  </div>
+  <mat-icon class="participant-icon">{{connectionStatusIcon}}</mat-icon>
 </div>

@@ -275,6 +275,10 @@ export class GameService {
           this.logPingMessage(msg)
           break;
         }
+        case MessageType.Reset: {
+          this.handleServerReset();
+          break;
+        }
         default: {
           console.log(`MessageType ?: ${msg}`);
           this.snackbarService.showWarning(
@@ -423,6 +427,19 @@ export class GameService {
     params.title = this.translateService.instant('Dialog.Title.Game_Ended');
     params.text = this.translateService.instant('Dialog.Text.The_scrummaster_has_ended_the_game.');
 
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '250px',
+      data: params
+    });
+
+    dialogRef.afterClosed().subscribe(_result => this.reset());
+  }
+
+  private handleServerReset(): void {
+    const params = new ConfirmationDialogParams();
+    params.showCancelButton = false;
+    params.title = this.translateService.instant('Dialog.Title.Server_reset');
+    params.text = this.translateService.instant('Dialog.Text.The_server_has_been_reset.');
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '250px',
       data: params

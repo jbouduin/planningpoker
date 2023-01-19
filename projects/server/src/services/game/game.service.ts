@@ -26,8 +26,27 @@ import SERVICETYPES from '../service.types';
 
 export interface IGameService {
   initializeGame(expressWS: expressWs.Instance): void;
+  reset(): void;
+  serialize(): string;
 }
 
+interface IGameDump {
+  team: string;
+  status: GameStatus;
+  participants: Array<IParticipantDump>;
+}
+
+interface IParticipantDump {
+  name: string;
+  role: Role;
+  status: ParticipantStatus;
+  observer: boolean;
+  uuid: string;
+}
+
+interface IGameServiceDump {
+  games: Array<IGameDump>;
+}
 @injectable()
 export class GameService implements IGameService {
 
@@ -197,6 +216,38 @@ export class GameService implements IGameService {
 
     expressWs.app.use('/game', router);
   }
+
+  public reset(): void {
+    for (const game of this.games.values()) {
+      console.log(`System reaset: Ending game '${game.team}'`);
+      game.allParticipants.forEach((participant: Participant) => this.sendEndOfGame(participant, MessageType.Reset));
+    }
+    this.participantGameMap.clear();
+    this.games.clear();
+  }
+
+  public serialize(): string {
+    const result: IGameServiceDump = {
+      games: new Array<IGameDump>()
+    };
+
+    for (const game of this.games.values()) {
+      const gameDump: IGameDump = {
+        team: game.team,
+        status: game.status,
+        participants: new Array<IParticipantDump>()
+      }
+      game.allParticipants.forEach((participant: Participant) => gameDump.participants.push({
+        name: participant.nick,
+        role: participant.role,
+        status: participant.status,
+        observer: participant.observer,
+        uuid: participant.uuid
+      }));
+      result.games.push(gameDump);
+    }
+    return JSON.stringify(result, null, 2);
+  }
   //#endregion
 
   //#region Private message handling methods ----------------------------------
@@ -345,7 +396,7 @@ export class GameService implements IGameService {
   private broadcastEndOfGameToOthers(game: IGame, participant: Participant): void {
     game
       .filterParticipants(other => other.uuid !== participant.uuid && other.status === ParticipantStatus.Connected)
-      .forEach(other => this.sendEndOfGame(other));
+      .forEach(other => this.sendEndOfGame(other, MessageType.EndOfGame));
   }
   //#endregion
 
@@ -393,9 +444,9 @@ export class GameService implements IGameService {
     this.sendToParticipant(to, message);
   }
 
-  private sendEndOfGame(to: Participant): void {
+  private sendEndOfGame(to: Participant, reason: MessageType): void {
     const message: Message = {
-      type: MessageType.EndOfGame,
+      type: reason,
       data: '',
       uuid: '',
       reason: Reason.Change

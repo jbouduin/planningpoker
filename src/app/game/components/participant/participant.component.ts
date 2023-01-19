@@ -10,11 +10,11 @@ import { Participant } from '../../objects/participant';
 })
 export class ParticipantComponent {
 
-  //#region  @Input()
-  @Input() public participant!: Participant;
+  //#region @Input() ----------------------------------------------------------
+  @Input() public participant: Participant | undefined;
   //#endregion
 
-  //#region  Public getter methods
+  //#region Public getter methods ---------------------------------------------
   public get connectionStatusIcon(): string {
     return this.participant?.status === ParticipantStatus.Connected ? 'cloud' : 'cloud_off';
   }
@@ -22,15 +22,9 @@ export class ParticipantComponent {
   public get nick(): string {
     return this.participant?.nick || '';
   }
+
+  public get person(): string {
+    return this.participant?.observer ? "person_outline" : "person";
+  }
   //#endregion
-
-  //#region  Constructor & C°
-  // public constructor() { }
-  //#endregion
-
-  //#region  Angular interface methods
-
-  //#endregion
-
-
 }
