@@ -10,6 +10,7 @@
 	"Dialog.ButtonLabel.Yes": "Yes",
 	"Dialog.Confirm.Text.End_the_game": "Are you sure you want to end the game?",
 	"Dialog.Confirm.Title.End_the_game": "End the game...",
+	"Dialog.Confirm.Title.Rejoin": "Rejoin existing team?",
 	"Dialog.Text.Confirm.Are_you_sure": "Are you sure?",
 	"Dialog.Text.The_scrummaster_has_ended_the_game.": "The Scrum Master has ended the game",
 	"Dialog.Text.The_server_has_been_reset.": "The server has been reset",
