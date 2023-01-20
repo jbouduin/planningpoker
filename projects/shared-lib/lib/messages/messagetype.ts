@@ -20,6 +20,6 @@ export enum MessageType {
   Leave,
   Nick,
   Reveal,
-  Switch,
+  Rejoin,
   Start
 }

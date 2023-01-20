@@ -111,11 +111,14 @@ export class GameService implements IGameService {
           closed.status = ParticipantStatus.Disconnected;
           const game = this.getGameOfUuid(closed.uuid);
           if (game) {
-            console.log('sending to other participants');
+            console.log('sending disconnection to other participants');
             this.broadcastParticipantToOthers(game, Reason.Change, closed);
           } else {
-            console.log('participant was unknown or not in a valid game');
+            console.log('disconnecting participant was not in a valid game');
           }
+        }
+        else {
+          console.log('disconnecting participant is unknown');
         }
       });
     });
@@ -132,7 +135,10 @@ export class GameService implements IGameService {
             const preflight = this.preflight(message, req.params.team);
             if (preflight === ErrorCode.ParticipantNotFound) {
               this.sendParticipantNotFound(ws);
-            } else {
+            } else if (preflight == ErrorCode.TeamDoesNotExist) {
+              this.sendTeamNotFound(ws);
+             }
+            else {
               // make sure we always have a sender, although preflight has checked this
               const sender = this.getParticipantByUuid(message.uuid, ws);
               const auth = this.checkAuthorization(message.type, sender.role);
@@ -172,8 +178,8 @@ export class GameService implements IGameService {
                     this.handleStart(sender, message, game);
                     break;
                   }
-                  case (MessageType.Switch): {
-                    this.handleSwitch(sender, message, ws);
+                  case (MessageType.Rejoin): {
+                    this.handleRejoin(sender, message, ws);
                     break;
                   }
                   default: {
@@ -349,8 +355,8 @@ export class GameService implements IGameService {
     }
   }
 
-  private handleSwitch(sender: Participant, message: Message, ws: any): void {
-    console.log(`Switch: '${message.uuid}' => '${(<string>message.data)}' `);
+  private handleRejoin(sender: Participant, message: Message, ws: any): void {
+    console.log(`Rejoin: '${message.uuid}' => '${(<string>message.data)}' `);
     // find the original participant and the game he was in
     const oldParticipant = this.getParticipantByUuid(<string>message.data, sender.socket);
     const oldGame = this.getGameOfUuid(<string>message.data) || this.factoryService.dummyGame();
@@ -545,6 +551,18 @@ export class GameService implements IGameService {
     };
     this.sendToSocket(socket, message);
   }
+
+  private sendTeamNotFound(socket: WebSocket): void {
+    const message: Message = {
+      uuid: '',
+      type: MessageType.Error,
+      data: {
+        code: ErrorCode.TeamDoesNotExist
+      },
+      reason: Reason.Error
+    };
+    this.sendToSocket(socket, message);
+  }
   //#endregion
 
   //#region Private send methods ----------------------------------------------
@@ -624,7 +642,7 @@ export class GameService implements IGameService {
   private messageTypeForbidsParticipation(messageType: MessageType): boolean {
     const result =
       messageType === MessageType.Join ||
-      messageType === MessageType.Switch;
+      messageType === MessageType.Rejoin;
     return result;
   }
 
@@ -635,6 +653,10 @@ export class GameService implements IGameService {
     if (!this.participants.has(message.uuid)) {
       console.log(`participant with uuid '${message.uuid}' not found`);
       result = ErrorCode.ParticipantNotFound;
+    }
+    else if (message.type === MessageType.Rejoin && !this.games.has(requestTeam)) {
+      console.log(`${MessageType[message.type]}: team '${requestTeam}' does not exist.`);
+      result = ErrorCode.TeamDoesNotExist;
     }
     // general tests on team and team participation
     else if (this.messageTypeRequiresTeam(message.type)) {
@@ -669,7 +691,7 @@ export class GameService implements IGameService {
           }
           break;
         }
-        case (MessageType.Switch): {
+        case (MessageType.Rejoin): {
           // the old participant must exist
           if (!this.participants.has(<string>message.data)) {
             result = ErrorCode.ParticipantNotFound;

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { Observable, Subject } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { catchError, filter, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { DtoCreate } from '@shared-lib';
@@ -81,6 +81,7 @@ export class GameService {
     return this.http
       .get(`/api/team/${this.game.team}`, { observe: 'response', responseType: 'text' })
       .pipe(
+        catchError((error: HttpResponse<unknown>) => of(error)),
         map((response: HttpResponse<unknown>) => {
           return response.status == 200 ? true : false
         })
@@ -116,7 +117,7 @@ export class GameService {
       undefined,
       undefined,
       this.game.myUuid,
-      [this.switchUuid.bind(this)]
+      [this.rejoinTeam.bind(this)]
     );
   }
   //#endregion
@@ -400,11 +401,11 @@ export class GameService {
     }
   }
 
-  private switchUuid(params: CallBackParameter) {
+  private rejoinTeam(params: CallBackParameter) {
     console.log('call switchUuid:', params);
     if (this.socket) {
       const message: Message = {
-        type: MessageType.Switch,
+        type: MessageType.Rejoin,
         uuid: params.uuid,
         data: params.oldUuid,
         reason: Reason.Refresh
