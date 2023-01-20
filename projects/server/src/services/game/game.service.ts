@@ -28,6 +28,7 @@ export interface IGameService {
   initializeGame(expressWS: expressWs.Instance): void;
   reset(): void;
   serialize(): string;
+  teamExists(uuid: string): boolean;
 }
 
 interface IGameDump {
@@ -47,6 +48,7 @@ interface IParticipantDump {
 interface IGameServiceDump {
   games: Array<IGameDump>;
 }
+
 @injectable()
 export class GameService implements IGameService {
 
@@ -76,6 +78,10 @@ export class GameService implements IGameService {
   //#endregion
 
   //#region Interface members -------------------------------------------------
+  public teamExists(name: string): boolean {
+    return this.games.has(name);
+  }
+
   public initializeGame(expressWs: expressWs.Instance): void {
     const router = Router(); // as expressWs.Router;
     const wss = expressWs.getWss();
@@ -637,7 +643,11 @@ export class GameService implements IGameService {
         result = ErrorCode.TeamDoesNotExist;
       } else if (this.messageTypeRequiresParticipation(message.type)) {
         const game = this.getGameOfUuid(message.uuid);
-        if (!game || game.team !== requestTeam) {
+        if (!game) {
+          console.log(`${MessageType[message.type]}: '${message.uuid}' team '${requestTeam}' does not exist.`);
+          result = ErrorCode.TeamDoesNotExist;
+        }
+        else if (game.team !== requestTeam) {
           console.log(`${MessageType[message.type]}: '${message.uuid}' does not belong to team '${requestTeam}'.`);
           result = ErrorCode.ParticipantNotInTeam;
         }

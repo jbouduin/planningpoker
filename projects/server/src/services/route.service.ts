@@ -39,12 +39,25 @@ export class RouteService implements IRouteService {
       this.systemPath,
       (_request: Request, response: Response) => {
         this.systemController.Delete(response);
-      });
+      }
+    );
 
     router.get(
       this.systemPath,
       (_request: Request, response: Response) => {
         this.systemController.Get(response);
+      }
+    );
+
+    router.get(
+      '/team/:name',
+      (request: Request, response: Response) => {
+        const name = request.params.name;
+        if (name) {
+          this.systemController.CheckTeam(name, response);
+        } else {
+          response.sendStatus(404);
+        }
       });
 
     router.all(

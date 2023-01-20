@@ -5,6 +5,7 @@ import { IGameService } from 'services';
 import SERVICETYPES from '../services/service.types';
 
 export interface ISystemController {
+  CheckTeam(name: string, response: Response): void;
   Delete(response: Response): void;
   Get(response: Response): void;
 }
@@ -23,7 +24,15 @@ export class SystemController implements ISystemController {
   //#endregion
 
   //#region ISystemController methods -----------------------------------------
-  Delete(response: Response): void {
+  public CheckTeam(name: string, response: Response): void {
+    if (this.gameService.teamExists(name)) {
+      response.sendStatus(200);
+    } else {
+      response.sendStatus(404);
+    }
+  }
+
+  public Delete(response: Response): void {
     try {
       this.gameService.reset();
       response.sendStatus(200);
@@ -32,7 +41,7 @@ export class SystemController implements ISystemController {
     }
   }
 
-  Get(response: Response): void {
+  public Get(response: Response): void {
     response
       .type('application/json')
       .send(this.gameService.serialize());
