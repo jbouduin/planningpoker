@@ -1,4 +1,3 @@
-export * from './http/api-prefix.interceptor';
 export * from './http/error-handler.interceptor';
 export * from './connection-status';
 export * from './connection.service';

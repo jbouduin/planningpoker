@@ -131,7 +131,7 @@ export class Game implements IGame {
     this.participants = new Map<string, Participant>();
     this.name = localStorage.getItem(this.localStorageTeamKey) || '';
     this.gameStatus = localStorage.getItem(this.localStorageTeamKey) && localStorage.getItem(this.localStorageUuidKey) ?
-      GameStatus.Disconnected : GameStatus.NoGame
+      GameStatus.Disconnected : GameStatus.NoGame;
   }
   //#endregion
 

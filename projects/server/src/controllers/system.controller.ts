@@ -25,6 +25,7 @@ export class SystemController implements ISystemController {
 
   //#region ISystemController methods -----------------------------------------
   public CheckTeam(name: string, response: Response): void {
+    console.log(`requested existence of ${name}`);
     if (this.gameService.teamExists(name)) {
       response.sendStatus(200);
     } else {

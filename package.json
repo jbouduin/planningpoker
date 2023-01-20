@@ -5,7 +5,7 @@
   "scripts": {
     "ng": "ng",
     "build": "ng build --configuration production",
-    "start:site": "ng serve --proxy-config proxy.conf.js",
+    "start:site": "ng serve --verbose",
     "start:server": "cd projects/server && npm run dev",
     "deploy": "ng deploy",
     "serve:sw": "npx http-server ./dist -p 4200",
@@ -59,7 +59,6 @@
     "@typescript-eslint/parser": "5.44.0",
     "eslint": "^8.28.0",
     "htmlhint": "^1.1.4",
-    "https-proxy-agent": "^5.0.0",
     "jasmine-core": "^4.5.0",
     "jasmine-spec-reporter": "^7.0.0",
     "karma": "^6.4.1",

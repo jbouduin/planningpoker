@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -14,6 +14,7 @@ import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService 
 
 import { IGame } from './objects';
 import { GameFactoryService } from './objects';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 class CallBackParameter {
   public observer: boolean | undefined;
@@ -31,40 +32,61 @@ class CallBackParameter {
 })
 export class GameService {
 
-  //#region  private readonly properties
-  private readonly _game: IGame;
+  //#region private readonly properties ---------------------------------------
+
+  private readonly dialog: MatDialog;
+  private readonly translateService: TranslateService;
+  private readonly router: Router;
+  private readonly snackbarService: SnackbarService;
+  private readonly connectionService: ConnectionService;
+  private readonly http: HttpClient;
   //#endregion
 
-  //#region  private properties
+  //#region private properties ------------------------------------------------
   private currentRoute: string;
   private socket?: Subject<Message>;
   //#endregion
 
-  //#region  Constructor & C°
+  //#region public properties -------------------------------------------------
+  public readonly game: IGame;
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
   public constructor(
-    private dialog: MatDialog,
-    private translateService: TranslateService,
-    private router: Router,
-    private snackbarService: SnackbarService,
-    private connectionService: ConnectionService,
+    dialog: MatDialog,
+    translateService: TranslateService,
+    router: Router,
+    snackbarService: SnackbarService,
+    connectionService: ConnectionService,
+    http: HttpClient,
     factoryService: GameFactoryService) {
     console.log('in Gameservice constructor');
-
+    this.dialog = dialog;
+    this.translateService = translateService;
+    this.router = router;
+    this.snackbarService = snackbarService;
+    this.connectionService = connectionService;
+    this.http = http;
     this.currentRoute = '/';
-    this._game = factoryService.Game();
+    this.game = factoryService.Game();
+
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd)) // eslint-disable-line
       .subscribe(event => this.currentRoute = event.urlAfterRedirect);
   }
   //#endregion
 
-  //#region  getter methods
-  public get game(): IGame {
-    return this._game;
+  //#region public connection related methods ---------------------------------
+  public checkTeamExists(): Observable<boolean> {
+    return this.http
+      .get(`/api/team/${this.game.team}`, { observe: 'response', responseType: 'text' })
+      .pipe(
+        map((response: HttpResponse<unknown>) => {
+          return response.status == 200 ? true : false
+        })
+      );
   }
-  //#endregion
 
-  //#region  public connection related methods
   public create(team: string, nick: string, observer: boolean): void {
     console.log(`creating: ${nick}@${team}`);
     this.createConnection(
@@ -99,7 +121,7 @@ export class GameService {
   }
   //#endregion
 
-  //#region  Public MessageType-related methods
+  //#region Public MessageType-related methods --------------------------------
   public estimate(index: number): void {
     console.log(`estimated ${index}`);
     if (this.socket) {
@@ -184,7 +206,7 @@ export class GameService {
   }
   //#endregion
 
-  //#region  Public method to disconnect: Development only!!!
+  //#region Public method to disconnect: Development only!!! ------------------
   public disconnect() {
     console.log('asking the server to kill my connection');
     if (this.socket) {
@@ -199,7 +221,7 @@ export class GameService {
   }
   //#endregion
 
-  //#region  private connection related methods
+  //#region Private connection related methods --------------------------------
   private createConnection(
     team: string,
     nick: string | undefined,
@@ -324,7 +346,7 @@ export class GameService {
       })) as Subject<Message>;
   }
 
-  private reset() {
+  public reset() {
     if (this.socket) {
       this.socket.unsubscribe();
       this.socket = undefined;
@@ -338,7 +360,7 @@ export class GameService {
   }
   //#endregion
 
-  //#region  Private Init-Callback methods
+  //#region Private Init-Callback methods -------------------------------------
 
   private createTeam(params: CallBackParameter) {
     console.log('call createTeam:', params);
@@ -405,7 +427,7 @@ export class GameService {
   }
   //#endregion
 
-  //#region  Private logger methods for incoming messages
+  //#region Private logger methods for incoming messages ----------------------
 
   private logPingMessage(message: Message) {
     console.log({
@@ -416,7 +438,7 @@ export class GameService {
   }
   //#endregion
 
-  //#region  Private methods
+  //#region Private methods ---------------------------------------------------
   private handleDisconnect() {
     this.connectionService.handleDisconnect(this.rejoin.bind(this));
   }

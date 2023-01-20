@@ -4,9 +4,9 @@
  * This is especially useful during app development to avoid CORS issues while running a local server.
  * For more details and options, see https://angular.io/guide/build#using-corporate-proxy
  */
-const proxyConfig = [
+const PROXY_CONFIG = [
   {
-    context: '/api',
+    context: ['/api'],
     pathRewrite: { '^/api': '' },
     target: 'http://localhost:3001',
     changeOrigin: false,
@@ -14,4 +14,4 @@ const proxyConfig = [
   }
 ];
 
-module.exports = proxyConfig;
+export default PROXY_CONFIG;
