@@ -7,7 +7,9 @@ import SERVICETYPES from '../services/service.types';
 export interface ISystemController {
   CheckTeam(name: string, response: Response): void;
   Delete(response: Response): void;
-  Get(response: Response): void;
+  GetTeam(teamName: string, response: Response): void;
+  GetAllTeams(response: Response): void;
+  GetParticipants(response: Response): void;
 }
 
 @injectable()
@@ -42,10 +44,22 @@ export class SystemController implements ISystemController {
     }
   }
 
-  public Get(response: Response): void {
+  public GetTeam(teamName: string, response: Response): void {
     response
       .type('application/json')
-      .send(this.gameService.serialize());
+      .send(this.gameService.serializeTeam(teamName));
+  }
+
+  public GetAllTeams(response: Response): void {
+    response
+      .type('application/json')
+      .send(this.gameService.serializeAllTeams());
+  }
+
+  public GetParticipants(response: Response): void {
+    response
+      .type('application/json')
+      .send(this.gameService.serializeParticipants());
   }
   //#endregion
 }

@@ -26,14 +26,16 @@ import {
 export interface IGameService {
   initializeTeam(expressWS: expressWs.Instance): void;
   reset(): void;
-  serialize(): string;
+  serializeAllTeams(): string;
+  serializeTeam(teamname: string): string;
+  serializeParticipants(): string;
   teamExists(uuid: string): boolean;
 }
 
 interface ITeamDump {
   team: string;
   status: EGameStatus;
-  participants: Array<IParticipantDump>;
+  members: Array<IParticipantDump>;
 }
 
 interface IParticipantDump {
@@ -231,25 +233,60 @@ export class GameService implements IGameService {
     this.teams.clear();
   }
 
-  public serialize(): string {
+   // TODO 2333 create serializer
+  public serializeAllTeams(): string {
     const result: IGameServiceDump = {
       games: new Array<ITeamDump>()
     };
 
-    for (const game of this.teams.values()) {
+    for (const team of this.teams.values()) {
       const gameDump: ITeamDump = {
-        team: game.teamName,
-        status: game.status,
-        participants: new Array<IParticipantDump>()
+        team: team.teamName,
+        status: team.status,
+        members: new Array<IParticipantDump>()
       }
-      game.allMembers.forEach((participant: Participant) => gameDump.participants.push({
+      team.allMembers.forEach((menber: Participant) => gameDump.members.push({
+        name: menber.nick,
+        role: menber.role,
+        status: menber.status,
+        observer: menber.observer,
+        uuid: menber.uuid
+      }));
+      result.games.push(gameDump);
+    }
+    return JSON.stringify(result, null, 2);
+  }
+
+  public serializeTeam(teamName: string): string {
+    const team = this.teams.get(teamName);
+    if (team) {
+      const gameDump: ITeamDump = {
+        team: team.teamName,
+        status: team.status,
+        members: new Array<IParticipantDump>()
+      }
+      team.allMembers.forEach((member: Participant) => gameDump.members.push({
+        name: member.nick,
+        role: member.role,
+        status: member.status,
+        observer: member.observer,
+        uuid: member.uuid
+      }));
+      return JSON.stringify(gameDump, null, 2);
+    }
+    else return JSON.stringify({ result: `Team '${teamName}' not found` }, null, 2);
+  }
+
+  public serializeParticipants(): string {
+    const result = new Array<IParticipantDump>();
+    for (const participant of this.participants.values()) {
+      result.push({
         name: participant.nick,
         role: participant.role,
         status: participant.status,
         observer: participant.observer,
         uuid: participant.uuid
-      }));
-      result.games.push(gameDump);
+      })
     }
     return JSON.stringify(result, null, 2);
   }

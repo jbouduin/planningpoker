@@ -43,9 +43,29 @@ export class RouteService implements IRouteService {
     );
 
     router.get(
-      this.systemPath,
+      `${this.systemPath}/team`,
       (_request: Request, response: Response) => {
-        this.systemController.Get(response);
+        this.systemController.GetAllTeams(response);
+      }
+    );
+
+    router.get(
+      `${this.systemPath}/team/:name`,
+      (request: Request, response: Response) => {
+        const teamName = request.params['name'];
+        if (teamName) {
+          this.systemController.GetTeam(teamName, response);
+        }
+        else {
+          this.systemController.GetAllTeams(response);
+        }
+      }
+    );
+
+    router.get(
+      `${this.systemPath}/participant`,
+      (_request: Request, response: Response) => {
+        this.systemController.GetParticipants(response);
       }
     );
 
@@ -63,6 +83,7 @@ export class RouteService implements IRouteService {
     router.all(
       '*',
       (_request: Request, response: Response) => {
+        console.log(`404: ${_request.url}`);
         response.sendStatus(404);
       });
 
