@@ -38,7 +38,7 @@ export class RouteService implements IRouteService {
     router.delete(
       this.systemPath,
       (_request: Request, response: Response) => {
-        this.systemController.Delete(response);
+        this.systemController.ResetServer(response);
       }
     );
 
@@ -66,6 +66,13 @@ export class RouteService implements IRouteService {
       `${this.systemPath}/participant`,
       (_request: Request, response: Response) => {
         this.systemController.GetParticipants(response);
+      }
+    );
+
+    router.delete(
+      `${this.systemPath}/participant/:uuid`,
+      (request: Request, response: Response) => {
+        this.systemController.DisconnectParticipant(request.params['uuid'], response);
       }
     );
 

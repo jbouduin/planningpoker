@@ -24,6 +24,7 @@ import {
 } from '../../messages';
 
 export interface IGameService {
+  disconnectParticipant(participantUuid: string): number;
   initializeTeam(expressWS: expressWs.Instance): void;
   reset(): void;
   serializeAllTeams(): string;
@@ -47,7 +48,7 @@ interface IParticipantDump {
 }
 
 interface IGameServiceDump {
-  games: Array<ITeamDump>;
+  teams: Array<ITeamDump>;
 }
 
 @injectable()
@@ -83,6 +84,16 @@ export class GameService implements IGameService {
     return this.teams.has(name);
   }
 
+  public disconnectParticipant(participantUuid: string): number {
+    const participant = this.participants.get(participantUuid)
+    if (participant) {
+      participant.socket.close();
+      return 200;
+    } else {
+      return 404;
+    }
+
+  }
   public initializeTeam(expressWs: expressWs.Instance): void {
     const router = Router(); // as expressWs.Router;
     const wss = expressWs.getWss();
@@ -236,7 +247,7 @@ export class GameService implements IGameService {
    // TODO 2333 create serializer
   public serializeAllTeams(): string {
     const result: IGameServiceDump = {
-      games: new Array<ITeamDump>()
+      teams: new Array<ITeamDump>()
     };
 
     for (const team of this.teams.values()) {
@@ -252,7 +263,7 @@ export class GameService implements IGameService {
         observer: menber.observer,
         uuid: menber.uuid
       }));
-      result.games.push(gameDump);
+      result.teams.push(gameDump);
     }
     return JSON.stringify(result, null, 2);
   }

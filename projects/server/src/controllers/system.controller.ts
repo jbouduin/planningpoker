@@ -6,7 +6,8 @@ import SERVICETYPES from '../services/service.types';
 
 export interface ISystemController {
   CheckTeam(name: string, response: Response): void;
-  Delete(response: Response): void;
+  DisconnectParticipant(uuid: string, response: Response): void;
+  ResetServer(response: Response): void;
   GetTeam(teamName: string, response: Response): void;
   GetAllTeams(response: Response): void;
   GetParticipants(response: Response): void;
@@ -35,7 +36,11 @@ export class SystemController implements ISystemController {
     }
   }
 
-  public Delete(response: Response): void {
+  public DisconnectParticipant(uuid: string, response: Response) {
+    response.sendStatus(this.gameService.disconnectParticipant(uuid));
+  }
+
+  public ResetServer(response: Response): void {
     try {
       this.gameService.reset();
       response.sendStatus(200);
