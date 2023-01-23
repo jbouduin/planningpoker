@@ -1,41 +1,45 @@
-import { DtoCard, DtoEstimation, DtoGame, DtoParticipant } from '@shared-lib';
-import { ErrorCode, GameStatus, Reason, Role } from '@shared-lib';
+import { ICard, IEstimation, IMemberStatusChange, IParticipant } from '@shared-lib';
+import { EErrorCode, EGameStatus, ERole } from '@shared-lib';
 
 import { Card } from './card';
 import { Estimation } from './estimation';
-import { Participant } from './participant';
+import { Member } from './member';
 
 export interface IGame {
 
-  //#region  Public Readonly properties
+  //#region Readonly properties -----------------------------------------------
   readonly availableCards: Array<Card>;
   readonly canReconnect: boolean;
   readonly canEstimate: boolean;
-  readonly developers: Array<Participant>;
+  readonly developers: Array<Member>;
   readonly enabled: boolean;
   readonly estimations: Array<Estimation>;
   readonly myNick: string;
-  readonly myRole: Role;
+  readonly myRole: ERole;
   readonly myUuid: string;
-  readonly observers: Array<Participant>;
-  readonly scrumMaster: Participant | undefined;
+  readonly observers: Array<Member>;
+  readonly scrumMaster: Member | undefined;
   readonly showReveal: boolean;
   readonly showStart: boolean;
-  readonly status: GameStatus;
+  readonly status: EGameStatus;
   readonly team: string;
   //#endregion
 
+  //#region methods -----------------------------------------------------------
   clearEstimations(): void;
   handleDisconnect(): void;
-  handleErrorMessage(code: ErrorCode): boolean;
-  handleEstimations(dtoEstimations: Array<DtoEstimation>): void;
-  handleSelf(participant: DtoParticipant): void;
+  handleErrorMessage(code: EErrorCode): boolean;
+  handleEstimations(dtoEstimations: Array<IEstimation>): void;
+  handleSelf(participant: IParticipant): void;
   handleSocketError(error: any): void; // eslint-disable-line
-  handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void
+  handleMemberChanged(memberChange: IMemberStatusChange): void
+  handleMemberList(memberList: Array<IParticipant>): void;
   reset(): void;
-  setCards(cards: Array<DtoCard>): void;
-  showError(errorCode: ErrorCode): void
-  showInfo(errorCode: ErrorCode): void;
-  showWarning(errorCode: ErrorCode): void;
-  update(dtoGame: DtoGame): void;
+  setCards(cards: Array<ICard>): void;
+  showError(errorCode: EErrorCode): void
+  showInfo(errorCode: EErrorCode): void;
+  showWarning(errorCode: EErrorCode): void;
+  updateGameStatus(gameStatus: EGameStatus): void;
+  updateTeamName(teamName: string): void;
+  //#endregion
 }

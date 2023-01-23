@@ -1,6 +1,6 @@
-import { DtoEstimation } from '../../../../shared-lib/lib';
+import { IEstimation } from '../../../../shared-lib/lib';
 
-export class Estimation implements DtoEstimation {
+export class Estimation implements IEstimation {
 
   //#region  public readonly properties
   public readonly revealed = true;

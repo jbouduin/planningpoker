@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ConnectionStatus, ConnectionService } from '@core';
+import { EConnectionStatus, ConnectionService } from '@core';
 import { GameService } from '../../game/game.service';
 
 @Component({
@@ -21,12 +21,12 @@ export class ConnectionComponent {
   public get connectionIcon(): string {
 
     switch (this.connectionService.connectionStatus) {
-      case ConnectionStatus.Disconnected:
-      case ConnectionStatus.Connecting:
-      case ConnectionStatus.Countdown: {
+      case EConnectionStatus.Disconnected:
+      case EConnectionStatus.Connecting:
+      case EConnectionStatus.Countdown: {
         return 'cloud_off';
       }
-      case ConnectionStatus.Connected: {
+      case EConnectionStatus.Connected: {
         return 'cloud';
       }
     }
@@ -48,11 +48,11 @@ export class ConnectionComponent {
   }
 
   public get showConnection(): boolean {
-    return this.connectionService.connectionStatus !== ConnectionStatus.Disconnected;
+    return this.connectionService.connectionStatus !== EConnectionStatus.Disconnected;
   }
 
   public get showReconnecting(): boolean {
-    return this.connectionService.connectionStatus === ConnectionStatus.Countdown;
+    return this.connectionService.connectionStatus === EConnectionStatus.Countdown;
   }
   //#endregion
 

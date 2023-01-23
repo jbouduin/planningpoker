@@ -4,41 +4,43 @@ import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { SnackbarComponent } from './snackbar.component';
 import { SnackbarParams } from './snackbar.params';
 
-import { SnackbarType } from './snackbar-type';
+import { ESnackbarType } from './snackbar-type.enum';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SnackbarService {
 
-  //#region  Private properties
+  //#region Private properties ------------------------------------------------
+  private readonly snackbar: MatSnackBar;
   private current?: MatSnackBarRef<any>; // eslint-disable-line
   private queue: Array<SnackbarParams>;
   //#endregion
 
-  //#region  Constructor & C°
-  public constructor(private snackbar: MatSnackBar) {
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(snackbar: MatSnackBar) {
+    this.snackbar = snackbar;
     this.current = undefined;
     this.queue = new Array<SnackbarParams>();
   }
   //#endregion
 
-  //#region  Public methods
+  //#region Public methods ----------------------------------------------------
   public showError(message: string): void {
-    this.show(SnackbarType.Error, message);
+    this.show(ESnackbarType.Error, message);
   }
 
   public showInfo(message: string): void {
-    this.show(SnackbarType.Info, message);
+    this.show(ESnackbarType.Info, message);
   }
 
   public showWarning(message: string): void {
-    this.show(SnackbarType.Warning, message);
+    this.show(ESnackbarType.Warning, message);
   }
   //#endregion
 
-  //#region  Private methods
-  private show(type: SnackbarType, message: string): void {
+  //#region Private methods ---------------------------------------------------
+  private show(type: ESnackbarType, message: string): void {
     if (this.current) {
       this.queue.push(new SnackbarParams(type, message));
     } else {
@@ -63,9 +65,5 @@ export class SnackbarService {
       }
     });
   }
-
-  // private onDismissed(): void {
-
-  // }
   //#endregion
 }

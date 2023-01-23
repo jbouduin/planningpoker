@@ -1,43 +1,43 @@
 import { Injectable } from '@angular/core';
 import { Observable, Observer, Subject } from 'rxjs';
 
-import { ConnectionStatus } from './connection-status';
+import { EConnectionStatus } from './connection-status.enum';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConnectionService {
 
-  //#region  Public properties
-  public connectionStatus: ConnectionStatus;
-  //#endregion
-
-  //#region  private properties
+  //#region private properties ------------------------------------------------
   private currentReconnectIn: number;
   private reconnectTimer: number;
   private subject?: Subject<MessageEvent>;
   private webSocket?: WebSocket;
   //#endregion
 
-  //#region  Public getter methods
+  //#region Public properties -------------------------------------------------
+  public connectionStatus: EConnectionStatus;
+  //#endregion
+
+  //#region Public getter methods ---------------------------------------------
   public get reconnectIn(): number {
     return this.currentReconnectIn;
   }
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   constructor() {
-    this.connectionStatus = ConnectionStatus.Disconnected;
+    this.connectionStatus = EConnectionStatus.Disconnected;
     this.currentReconnectIn = 0;
     this.reconnectTimer = 0;
   }
   //#endregion
 
-  //#region  Public methods
+  //#region Public methods ----------------------------------------------------
 	public connect(url: string): Subject<MessageEvent> {
 		if (!this.subject || this.webSocket?.readyState !== WebSocket.OPEN) {
 			this.subject = this.create(url);
-      this.connectionStatus = ConnectionStatus.Connected;
+      this.connectionStatus = EConnectionStatus.Connected;
       console.log(`Successfully connected to ${url}`);
 		}
 		return this.subject;
@@ -48,17 +48,17 @@ export class ConnectionService {
     if (this.webSocket) {
       this.webSocket.close();
     }
-    this.connectionStatus = ConnectionStatus.Disconnected;
+    this.connectionStatus = EConnectionStatus.Disconnected;
   }
 
   public handleDisconnect(callback: () => void): void {
     this.currentReconnectIn = 30;
-    this.connectionStatus = ConnectionStatus.Countdown;
+    this.connectionStatus = EConnectionStatus.Countdown;
     this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000, callback);
   }
   //#endregion
 
-  //#region  Private methods
+  //#region Private methods ---------------------------------------------------
   private create(url: string): Subject<MessageEvent> {
 		const ws = new WebSocket(url);
 		const observable = new Observable(
@@ -89,6 +89,5 @@ export class ConnectionService {
       callback();
     }
   }
-
   //#endregion
 }

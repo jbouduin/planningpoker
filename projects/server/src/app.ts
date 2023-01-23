@@ -12,7 +12,7 @@ class App {
   public constructor() {
     this.expressWS = expressWs(express());
 
-    container.get<IGameService>(SERVICETYPES.GameService).initializeGame(this.expressWS);
+    container.get<IGameService>(SERVICETYPES.GameService).initializeTeam(this.expressWS);
     container.get<IRouteService>(SERVICETYPES.RouteService).setRoutes(this.expressWS);
 
     this.config(this.expressWS.app);

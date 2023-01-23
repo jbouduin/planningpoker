@@ -36,7 +36,7 @@
             "allowedCommonJsDependencies": [
               "typescript-collections"
             ],
-            "scripts": []
+            "scripts": [ ]
           },
           "configurations": {
             "production": {
@@ -93,9 +93,10 @@
             },
             "development": {
               "browserTarget": "planningpoker:build:development",
-              "hmr": false
+              "hmr": true,
+              "proxyConfig": "proxy.conf.mjs"
             },
-            "ci": {}
+            "ci": { }
           },
           "defaultConfiguration": "development"
         },
@@ -115,7 +116,7 @@
             ],
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
-            "scripts": [],
+            "scripts": [ ],
             "styles": [
               "src/main.sass"
             ],
