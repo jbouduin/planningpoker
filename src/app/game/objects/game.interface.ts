@@ -1,4 +1,4 @@
-import { DtoCard, DtoEstimation, DtoTeam, DtoParticipant } from '@shared-lib';
+import { ICard, IEstimation, ITeamInfo, IParticipant } from '@shared-lib';
 import { ErrorCode, GameStatus, Role } from '@shared-lib';
 
 import { Card } from './card';
@@ -28,14 +28,14 @@ export interface IGame {
   clearEstimations(): void;
   handleDisconnect(): void;
   handleErrorMessage(code: ErrorCode): boolean;
-  handleEstimations(dtoEstimations: Array<DtoEstimation>): void;
-  handleSelf(participant: DtoParticipant): void;
+  handleEstimations(dtoEstimations: Array<IEstimation>): void;
+  handleSelf(participant: IParticipant): void;
   handleSocketError(error: any): void; // eslint-disable-line
-  handleParticipants(participants: Array<DtoParticipant>, showJoins: boolean): void
+  handleParticipants(participants: Array<IParticipant>, showJoins: boolean): void
   reset(): void;
-  setCards(cards: Array<DtoCard>): void;
+  setCards(cards: Array<ICard>): void;
   showError(errorCode: ErrorCode): void
   showInfo(errorCode: ErrorCode): void;
   showWarning(errorCode: ErrorCode): void;
-  update(dtoGame: DtoTeam): void;
+  update(dtoGame: ITeamInfo): void;
 }

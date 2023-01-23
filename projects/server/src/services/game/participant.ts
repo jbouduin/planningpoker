@@ -1,7 +1,7 @@
-import { DtoParticipant, ParticipantStatus, Role } from '../../../../shared-lib/lib';
+import { IParticipant, ParticipantStatus, Role } from '../../../../shared-lib/lib';
 import { WebSocket } from '../websocket';
 
-export class Participant implements DtoParticipant {
+export class Participant implements IParticipant {
 
   //#region  Public properties
   public status: ParticipantStatus;

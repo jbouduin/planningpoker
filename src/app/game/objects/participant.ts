@@ -1,4 +1,4 @@
-import { DtoParticipant, ParticipantStatus, Role } from '@shared-lib';
+import { IParticipant, ParticipantStatus, Role } from '@shared-lib';
 
 export class Participant {
 
@@ -12,11 +12,11 @@ export class Participant {
   //#endregion
 
   //#region  Constructor & C°
-  public static createParticipant(dtoParticipant: DtoParticipant, me: boolean): Participant {
+  public static createParticipant(dtoParticipant: IParticipant, me: boolean): Participant {
     return new Participant(dtoParticipant, me);
   }
 
-  private constructor(dtoParticipant: DtoParticipant, me: boolean) {
+  private constructor(dtoParticipant: IParticipant, me: boolean) {
     this.status = dtoParticipant.status;
     this.nick = dtoParticipant.nick;
     this.uuid = dtoParticipant.uuid;

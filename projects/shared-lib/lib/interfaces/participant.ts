@@ -1,7 +1,7 @@
 import { ParticipantStatus } from './participant-status';
 import { Role } from './role';
 
-export interface DtoParticipant {
+export interface IParticipant {
   status: ParticipantStatus;
   nick: string;
   uuid: string;

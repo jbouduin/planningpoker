@@ -1,6 +1,6 @@
 import { GameStatus } from './game-status';
 
-export interface DtoTeam {
+export interface ITeamInfo {
   team: string;
   status: GameStatus;
 }

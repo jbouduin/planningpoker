@@ -5,7 +5,7 @@ import 'reflect-metadata';
 import { v4 as Uuid } from 'uuid';
 
 import {
-  ClientMessage, ClientMessageType, DtoEstimation, DtoParticipant, DtoTeam, ErrorCode, GameStatus,
+  ClientMessage, ClientMessageType, IEstimation, IParticipant, ITeamInfo, ErrorCode, GameStatus,
   ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IRejoinMessage,
   ISetNickMessage, ServerMessageType, ParticipantStatus, Role, ServerMessage
 } from '../../../../shared-lib/lib';
@@ -407,7 +407,7 @@ export class GameService implements IGameService {
   //#endregion
 
   //#region Private prepare message data methods ------------------------------
-  private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<DtoEstimation> {
+  private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<IEstimation> {
     return estimations.map(estimation => {
       return {
         card: estimation.card < 0 ?
@@ -419,14 +419,14 @@ export class GameService implements IGameService {
     });
   }
 
-  private prepareTeamData(team: ITeam): DtoTeam {
+  private prepareTeamData(team: ITeam): ITeamInfo {
     return {
       team: team.teamName,
       status: team.status
     };
   }
 
-  private prepareParticipantsData(participants: Array<Participant>): Array<DtoParticipant> {
+  private prepareParticipantsData(participants: Array<Participant>): Array<IParticipant> {
     return participants.map(participant => {
       return {
         status: participant.status,

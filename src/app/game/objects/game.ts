@@ -1,6 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { SnackbarService } from '@shared';
-import { DtoCard, DtoEstimation, DtoTeam, DtoParticipant, ErrorCode, GameStatus, ParticipantStatus, Role } from '@shared-lib';
+import { ICard, IEstimation, ITeamInfo, IParticipant, ErrorCode, GameStatus, ParticipantStatus, Role } from '@shared-lib';
 import { Card } from './card';
 import { Estimation } from './estimation';
 import { IGame } from './game.interface';
@@ -157,7 +157,7 @@ export class Game implements IGame {
     return result;
   }
 
-  public handleEstimations(dtoEstimations: Array<DtoEstimation>): void {
+  public handleEstimations(dtoEstimations: Array<IEstimation>): void {
     dtoEstimations.forEach(dtoEstimation => {
       if (dtoEstimation.card >= 0) {
         const estimation = Estimation.createEstimation(
@@ -176,7 +176,7 @@ export class Game implements IGame {
     });
   }
 
-  public handleSelf(participant: DtoParticipant): void {
+  public handleSelf(participant: IParticipant): void {
     this.self = Participant.createParticipant(participant, true);
     this.dumpSelf();
     localStorage.setItem(this.localStorageNickKey, this.self.nick);
@@ -189,7 +189,7 @@ export class Game implements IGame {
     );
   }
 
-  public handleParticipants(participants: Array<DtoParticipant>, showJoins: boolean): void {
+  public handleParticipants(participants: Array<IParticipant>, showJoins: boolean): void {
     participants.forEach(dtoParticipant => {
       const participant: Participant = Participant.createParticipant(dtoParticipant, false);
       this.dumpParticipant(participant);
@@ -228,7 +228,7 @@ export class Game implements IGame {
     localStorage.removeItem(this.localStorageTeamKey);
   }
 
-  public setCards(cards: Array<DtoCard>): void {
+  public setCards(cards: Array<ICard>): void {
     cards
       .map(card => Card.createCard(card))
       .forEach(card => {
@@ -255,7 +255,7 @@ export class Game implements IGame {
     );
   }
 
-  public update(dtoGame: DtoTeam): void {
+  public update(dtoGame: ITeamInfo): void {
     this.gameStatus = dtoGame.status;
     this.name = dtoGame.team;
     this.dumpGame();

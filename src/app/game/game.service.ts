@@ -10,7 +10,7 @@ import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService 
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import {
-  ClientMessage, DtoCreate, DtoJoin, ICardSetMessage, IErrorMessage, IEstimationsMessage,
+  ClientMessage, ICreate, IJoin, ICardSetMessage, IErrorMessage, IEstimationsMessage,
   IInitMessage, IParticipantListMessage, ISelfMessage, ITeamMessage, ITeamStatusMessage, ServerMessageType, ServerMessage
 } from '@shared-lib';
 import {
@@ -345,7 +345,7 @@ export class GameService {
   //#region Private Init-Callback methods -------------------------------------
   private createTeam(params: CallBackParameter) {
     console.log('call createTeam:', params);
-    const createData: DtoCreate = {
+    const createData: ICreate = {
       team: params.team,
       observer: params.observer || false
     };
@@ -359,7 +359,7 @@ export class GameService {
   private joinTeam(params: CallBackParameter) {
     console.log('call joinTeam:', params);
 
-    const joinData: DtoJoin = {
+    const joinData: IJoin = {
       team: params.team || '',
       observer: params.observer || false
     };

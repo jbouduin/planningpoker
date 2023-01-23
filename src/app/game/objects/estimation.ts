@@ -1,4 +1,4 @@
-import { DtoEstimation } from '@shared-lib';
+import { IEstimation } from '@shared-lib';
 import { Card } from './card';
 import { Participant } from './participant';
 
@@ -12,7 +12,7 @@ export class Estimation {
 
   //#region Constructor & C° --------------------------------------------------
   public static createEstimation(
-    dtoEstimation: DtoEstimation,
+    dtoEstimation: IEstimation,
     participants: Map<string, Participant>,
     cards: Array<Card>,
     self?: Participant): Estimation | undefined {

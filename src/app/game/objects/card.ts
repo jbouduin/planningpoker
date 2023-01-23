@@ -1,4 +1,4 @@
-import { DtoCard } from '@shared-lib';
+import { ICard } from '@shared-lib';
 
 export class Card {
   //#region  Public get methods
@@ -12,7 +12,7 @@ export class Card {
   //#endregion
 
   //#region  Constructor & C°
-  public static createCard(dtoCard: DtoCard): Card {
+  public static createCard(dtoCard: ICard): Card {
     return new Card(dtoCard.index, dtoCard.label);
   }
 

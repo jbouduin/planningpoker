@@ -1,6 +1,6 @@
 import { ErrorCode } from '../messages';
 
-export interface DtoError {
+export interface IError {
   code: ErrorCode,
   message: string | null
 }

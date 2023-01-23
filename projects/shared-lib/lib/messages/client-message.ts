@@ -1,4 +1,4 @@
-import { DtoCreate, DtoJoin } from '../game';
+import { ICreate, IJoin } from '../interfaces';
 import { ClientMessageType } from './client-message-type';
 
 export interface IClientMessage<T> {
@@ -7,10 +7,10 @@ export interface IClientMessage<T> {
   type: ClientMessageType
 }
 
-export type ICreatemessage = IClientMessage<DtoCreate>;
+export type ICreatemessage = IClientMessage<ICreate>;
 export type IDisconnectMessage = IClientMessage<string>;
 export type IEstimateMessage = IClientMessage<number>;
-export type IJoinMessage = IClientMessage<DtoJoin>;
+export type IJoinMessage = IClientMessage<IJoin>;
 export type ILeaveMessage = IClientMessage<string>;
 export type IRejoinMessage = IClientMessage<string>;
 export type IRevealMessage = IClientMessage<string>;
