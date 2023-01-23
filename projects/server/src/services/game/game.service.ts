@@ -108,7 +108,7 @@ export class GameService implements IGameService {
         if (closed) {
           console.log(`${new Date().toISOString()}: '${closed.nick}'' has been disconnected`);
           closed.status = EParticipantStatus.Disconnected;
-          const team = this.getTeamOfSenderUuid(closed.uuid);
+          const team = this.getTeamByParticipantUuid(closed.uuid);
           if (team) {
             console.log('sending disconnection to other participants');
             this.broadcastMemberChange(team, closed, EMemberStatusChange.Disconnected);
@@ -353,18 +353,22 @@ export class GameService implements IGameService {
     console.log(`Rejoin: '${message.senderUuid}' => '${message.data}' `);
     // find the original participant and the game he was in
     const oldParticipant = this.getParticipantBySenderUuid(message.data, sender.socket);
-    const oldGame = this.getTeamOfSenderUuid(message.data) || this.factoryService.dummyGame();
+    const teamToRejoin = this.getTeamByParticipantUuid(message.data);
 
-    // remove the sender
-    this.participants.delete(sender.uuid);
-    // update the original participant
-    oldParticipant.uuid = sender.uuid;
-    oldParticipant.status = EParticipantStatus.Connected;
-    oldParticipant.socket = ws;
-    // provide the rejoining participant with the curren game state
-    this.sendTeamInfo(oldParticipant, oldGame);
-    // tell the others that participant rejoined
-    this.broadcastMemberChange(oldGame, oldParticipant, EMemberStatusChange.Rejoined);
+    if (teamToRejoin) {
+      // remove the sender
+      this.participants.delete(sender.uuid);
+      // update the original participant
+      oldParticipant.status = EParticipantStatus.Connected;
+      oldParticipant.socket = ws;
+      // update the sender
+      this.sendSelf(oldParticipant);
+      // provide the rejoining participant with the curren game state
+      this.sendTeamInfo(oldParticipant, teamToRejoin);
+      // tell the others that participant rejoined
+      this.broadcastMemberChange(teamToRejoin, oldParticipant, EMemberStatusChange.Rejoined);
+    }
+
   }
   //#endregion
 
@@ -486,10 +490,10 @@ export class GameService implements IGameService {
     this.sendToParticipant(to, message);
   }
 
-  // private sendSelf(to: Participant): void {
-  //   const message: ServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
-  //   this.sendToParticipant(to, message);
-  // }
+  private sendSelf(to: Participant): void {
+    const message: ServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
+    this.sendToParticipant(to, message);
+  }
 
   private sendTeamInfo(to: Participant, game: ITeam): void {
     const message: ServerMessage = new TeamInfoMessage(
@@ -568,7 +572,7 @@ export class GameService implements IGameService {
     return result;
   }
 
-  private getTeamOfSenderUuid(senderUuid: string): ITeam | undefined {
+  private getTeamByParticipantUuid(senderUuid: string): ITeam | undefined {
     const gameName = this.memberTeamMap.get(senderUuid);
     return gameName ? this.teams.get(gameName) : undefined;
   }
@@ -621,7 +625,7 @@ export class GameService implements IGameService {
         console.log(`${EClientMessageType[message.type]}: team '${requestTeam}' does not exist.`);
         result = EErrorCode.TeamDoesNotExist;
       } else if (this.messageTypeRequiresParticipation(message.type)) {
-        const game = this.getTeamOfSenderUuid(message.senderUuid);
+        const game = this.getTeamByParticipantUuid(message.senderUuid);
         if (!game) {
           console.log(`${EClientMessageType[message.type]}: '${message.senderUuid}' team '${requestTeam}' does not exist.`);
           result = EErrorCode.TeamDoesNotExist;
@@ -631,7 +635,7 @@ export class GameService implements IGameService {
           result = EErrorCode.ParticipantNotInTeam;
         }
       } else if (this.messageTypeForbidsParticipation(message.type)) {
-        const game = this.getTeamOfSenderUuid(message.senderUuid);
+        const game = this.getTeamByParticipantUuid(message.senderUuid);
         if (game) {
           console.log(`${EServerMessageType[message.type]}: '${message.senderUuid}' already belongs to team '${requestTeam}'.`);
           result = EErrorCode.ParticipantAllReadyInTeam;
@@ -653,7 +657,7 @@ export class GameService implements IGameService {
           if (!this.participants.has(<string>message.data)) {
             result = EErrorCode.ParticipantNotFound;
           } else {
-            const oldGame = this.getTeamOfSenderUuid(<string>message.data);
+            const oldGame = this.getTeamByParticipantUuid(<string>message.data);
             if (!oldGame || oldGame.teamName !== requestTeam) {
               console.log(`${EServerMessageType[message.type]}: '${message.senderUuid}' does not belong to team '${requestTeam}'.`);
               result = EErrorCode.ParticipantNotInTeam;
