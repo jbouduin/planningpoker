@@ -1,33 +1,16 @@
-<!-- for smaller devices  -->
-<mat-toolbar fxHide.gt-sm class="mat-elevation-z6 navbar" color="primary">
-  <div [ngStyle]="headerLogoStyle" class="flex-100">
-    <div fxLayoutAlign="start center">
-      <button class="menu-button" mat-icon-button (click)="sidenav.toggle()">
-        <mat-icon>menu</mat-icon>
-      </button>
-    </div>
-    <span class="flex-100"></span>
-    <app-connection></app-connection>
-    <app-language-selector icon="true"></app-language-selector>
-    </div>
-</mat-toolbar>
-
-<!-- for large devices -->
-<mat-toolbar fxHide.lt-md class="mat-elevation-z6 navbar" color="primary">
-  <div class="div-logo" fxLayoutAlign="start center">
-     <img src="assets/logo_40x40.png"/>
-  </div>
+<div class="header-container">
   <div>
     <button mat-button routerLink="/home" routerLinkActive="active">
       <mat-icon>home</mat-icon>
-      <span>{{routeLabelHome}}</span>
+      {{routeLabelHome}}
     </button>
     <button mat-button routerLink="/about" routerLinkActive="active">
       <mat-icon>info</mat-icon>
-      <span>{{routeLabelAbout}}</span>
+      {{routeLabelAbout}}
     </button>
   </div>
-  <span class="flex-100"></span>
-  <app-connection></app-connection>
-  <app-language-selector icon="true"></app-language-selector>
-</mat-toolbar>
+  <div class="header-right">
+    <app-connection></app-connection>
+    <app-language-selector [icon]="true"></app-language-selector>
+  </div>
+</div>

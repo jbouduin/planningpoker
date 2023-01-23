@@ -1,9 +1,9 @@
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
 
-import { DtoCard } from '../../../../shared-lib/lib';
+import { ICard } from '../../../../shared-lib/lib';
 
 export interface ICardService {
-  generateCardSet(): Array<DtoCard>;
+  generateCardSet(): Array<ICard>;
 }
 
 @injectable()
@@ -11,12 +11,12 @@ export class CardService implements ICardService {
 
 
   //#region  Constructor & C°
-  public constructor() { }
+  // public constructor() { }
   //#endregion
 
   //#region  Interface members
-  public generateCardSet(): Array<DtoCard> {
-    const result = new Array<DtoCard>();
+  public generateCardSet(): Array<ICard> {
+    const result = new Array<ICard>();
     result.push({ index: 0, label: '0' });
     result.push({ index: 1, label: '0.5' });
     result.push({ index: 2, label: '1' });

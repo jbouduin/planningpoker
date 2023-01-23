@@ -1,18 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-
-import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-about',
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss']
 })
-export class AboutComponent implements OnInit {
+export class AboutComponent {
 
-  //#region  Public getter properties
+  //#region Public getter properties ------------------------------------------
   public get version(): string | null {
-    return environment.version;
+    return "Version";
   }
 
   public get applicationName() {
@@ -24,12 +22,7 @@ export class AboutComponent implements OnInit {
   }
   //#endregion
 
-  //#region  Constructor &C°
+  //#region Constructor &C° ---------------------------------------------------
   constructor(private translateService: TranslateService) { }
   //#endregion
-
-  //#region  Angular interface methods
-  ngOnInit() { }
-  //#endregion
-
 }

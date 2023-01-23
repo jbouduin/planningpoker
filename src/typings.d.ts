@@ -6,7 +6,7 @@
 declare module '*.json';
 
 // SystemJS module definition
-declare var module: NodeModule;
+declare var module: NodeModule; // eslint-disable-line
 interface NodeModule {
   id: string;
 }

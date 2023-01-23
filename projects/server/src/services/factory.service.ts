@@ -1,42 +1,37 @@
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
 import 'reflect-metadata';
 
-import { DtoParticipant, ParticipantStatus, Role } from '../../../shared-lib/lib';
+import { EParticipantStatus, ERole } from '../../../shared-lib/lib';
 
-import { Game, IGame } from './game/game';
+import { Team, ITeam } from './game/team';
 import { Participant } from './game/participant';
 import { WebSocket } from './websocket';
 
 export interface IFactoryService {
-  dummyGame(): IGame;
+  dummyGame(): ITeam;
   dummyParticipant(socket: WebSocket): Participant;
-  newGame(team: string): IGame
-  newParticipant(nick: string, uuid: string, role: Role, socket: WebSocket): Participant;
+  newTeam(team: string): ITeam
+  newParticipant(nick: string, uuid: string, role: ERole, socket: WebSocket): Participant;
 }
 
 @injectable()
 export class FactoryService implements IFactoryService {
-
-  //#region  Constructor & C°
-  public constructor() { }
-  //#endregion
-
-  //#region  Interface IFactoryService methods
-  public dummyGame(): IGame {
-    return new Game('dummy');
+  //#region Interface IFactoryService methods ---------------------------------
+  public dummyGame(): ITeam {
+    return new Team('dummy');
   }
 
   public dummyParticipant(socket: WebSocket): Participant {
-    const result = new Participant('dummy', '', Role.Unknown, socket);
-    result.status = ParticipantStatus.Disconnected;
+    const result = new Participant('dummy', '', ERole.Unknown, socket);
+    result.status = EParticipantStatus.Disconnected;
     return result;
   }
 
-  public newGame(team: string): IGame {
-    return new Game(team);
+  public newTeam(team: string): ITeam {
+    return new Team(team);
   }
 
-  public newParticipant(nick: string, uuid: string, role: Role, socket: WebSocket) {
+  public newParticipant(nick: string, uuid: string, role: ERole, socket: WebSocket) {
     return new Participant(nick, uuid, role, socket);
   }
 

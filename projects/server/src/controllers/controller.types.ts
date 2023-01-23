@@ -1,5 +1,5 @@
 const CONTROLLERTYPES = {
-  HomeController: Symbol('HomeController'),
+  SystemController: Symbol('SystemController'),
 };
 
 export default CONTROLLERTYPES;

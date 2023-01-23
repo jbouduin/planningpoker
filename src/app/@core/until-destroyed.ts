@@ -34,7 +34,7 @@ const untilDestroyedSymbol = Symbol('untilDestroyed');
  * }
  * ```
  */
-export function untilDestroyed(instance: object, destroyMethodName: string = 'ngOnDestroy') {
+export function untilDestroyed(instance: object, destroyMethodName = 'ngOnDestroy') {
   return <T>(source: Observable<T>) => {
     const originalDestroy = instance[destroyMethodName];
     const hasDestroyFunction = typeof originalDestroy === 'function';
@@ -50,7 +50,7 @@ export function untilDestroyed(instance: object, destroyMethodName: string = 'ng
 
       instance[destroyMethodName] = function () {
         if (hasDestroyFunction) {
-          originalDestroy.apply(this, arguments);
+          originalDestroy.apply(this, arguments); // eslint-disable-line
         }
         instance[untilDestroyedSymbol].next();
         instance[untilDestroyedSymbol].complete();

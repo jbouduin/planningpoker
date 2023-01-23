@@ -1,6 +1,5 @@
-export * from './http/api-prefix.interceptor';
 export * from './http/error-handler.interceptor';
-export * from './connection-status';
+export * from './connection-status.enum';
 export * from './connection.service';
 export * from './core.module';
 export * from './i18n.service';

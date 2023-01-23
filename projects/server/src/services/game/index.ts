@@ -1,3 +1,3 @@
 export * from './estimation';
-export * from './game';
+export * from './team';
 export * from './game.service';

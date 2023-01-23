@@ -1,64 +1,62 @@
 import { TranslateService } from '@ngx-translate/core';
-import * as Collections from 'typescript-collections';
-
-import { DtoCard, DtoEstimation, DtoGame, DtoParticipant } from '@shared-lib';
-import { ErrorCode, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
-
 import { SnackbarService } from '@shared';
-
+import { ICard, IEstimation, IParticipant, EErrorCode, EGameStatus, EParticipantStatus, ERole, IMemberStatusChange, EMemberStatusChange } from '@shared-lib';
 import { Card } from './card';
 import { Estimation } from './estimation';
-import { Participant } from './participant';
 import { IGame } from './game.interface';
+import { Member } from './member';
 
 export class Game implements IGame {
 
-  //#region  Private readonly properties
-  private readonly estimationCollection: Collections.Dictionary<string, Estimation>;
+  //#region Private readonly properties ---------------------------------------
+  private readonly translateService: TranslateService;
+  private readonly snackbarService: SnackbarService;
+  private readonly estimationCollection: Map<string, Estimation>;
   private readonly localStorageNickKey: string = 'current_nick';
   private readonly localStorageUuidKey: string = 'current_uuid';
   private readonly localStorageTeamKey: string = 'current_team';
-  private readonly participants: Collections.Dictionary<string, Participant>;
-  private readonly cardCollection: Collections.Dictionary<number, Card>;
+  private readonly participants: Map<string, Member>;
+  private readonly cardCollection: Map<number, Card>;
   //#endregion
 
-  //#region  Private properties
-  private gameStatus: GameStatus
+  //#region Private properties ------------------------------------------------
+  private gameStatus: EGameStatus
   private name: string;
-  private self?: Participant;
+  private self?: Member;
   //#endregion
 
-  //#region  Public getter methods
+  //#region Public Getters ----------------------------------------------------
   public get availableCards(): Array<Card> {
-    return this.cardCollection.values();
+    return Array.from(this.cardCollection.values());
   }
 
   public get canEstimate(): boolean {
-    return this.gameStatus === GameStatus.Started && !this.self?.observer;
+    return this.gameStatus === EGameStatus.Started && !this.self?.observer;
   }
 
   public get canReconnect(): boolean {
-      return this.status === GameStatus.Disconnected;
+    return this.status === EGameStatus.Disconnected;
   }
 
   public get enabled(): boolean {
-    return this.gameStatus !== GameStatus.Disconnected;
+    return this.gameStatus !== EGameStatus.Disconnected;
   }
 
   public get estimations(): Array<Estimation> {
-    return this.estimationCollection.values();
+    return Array.from(this.estimationCollection.values());
   }
 
-  public get developers(): Array<Participant> {
-    const result = new Array<Participant>();
-    if (this.self?.role === Role.Developer && this.self?.observer === false) {
+  public get developers(): Array<Member> {
+    const result = new Array<Member>();
+    if (this.self?.role === ERole.Developer && this.self?.observer === false) {
       result.push(this.self);
     }
-    return result.concat(
-      this.participants
-        .values()
-        .filter(participant => participant.role === Role.Developer && !participant.observer)
-    );
+    for (const participant of this.participants.values()) {
+      if (participant.role === ERole.Developer && !participant.observer) {
+        result.push(participant);
+      }
+    }
+    return result;
   }
 
   public get myNick(): string {
@@ -67,8 +65,8 @@ export class Game implements IGame {
       localStorage.getItem(this.localStorageNickKey) || '';
   }
 
-  public get myRole(): Role {
-    return this.self ? this.self.role : Role.Unknown;
+  public get myRole(): ERole {
+    return this.self ? this.self.role : ERole.Unknown;
   }
 
   public get myUuid(): string {
@@ -77,39 +75,43 @@ export class Game implements IGame {
       localStorage.getItem(this.localStorageUuidKey) || '';
   }
 
-  public get observers(): Array<Participant> {
-    const result = new Array<Participant>();
-    if (this.self?.role === Role.Developer && this.self?.observer === true) {
+  public get observers(): Array<Member> {
+    const result = new Array<Member>();
+    if (this.self?.role === ERole.Developer && this.self?.observer === true) {
       result.push(this.self);
     }
-    return result.concat(
-      this.participants
-        .values()
-        .filter(participant => participant.role === Role.Developer && participant.observer)
-    );
+    for (const participant of this.participants.values()) {
+      if (participant.role === ERole.Developer && participant.observer) {
+        result.push(participant);
+      }
+    }
+    return result;
   }
 
-  public get scrumMaster(): Participant | undefined {
-    if (this.self?.role === Role.ScrumMaster) {
+  public get scrumMaster(): Member | undefined {
+    if (this.self?.role === ERole.ScrumMaster) {
       return this.self;
     }
-    const result = this.participants.values()
-      .filter(participant => participant.role === Role.ScrumMaster)[0];
-    return result ? result : undefined;
+    for (const participant of this.participants.values()) {
+      if (participant.role === ERole.ScrumMaster) {
+        return participant;
+      }
+    }
+    return undefined;
   }
 
   public get showReveal(): boolean {
-    return this.gameStatus === GameStatus.Started &&
-      this.myRole === Role.ScrumMaster &&
+    return this.gameStatus === EGameStatus.Started &&
+      this.myRole === ERole.ScrumMaster &&
       this.estimations.length === this.developers.length + 1;
   }
 
   public get showStart(): boolean {
-    return (this.gameStatus === GameStatus.Revealed || this.gameStatus === GameStatus.Stopped) &&
-      this.myRole === Role.ScrumMaster;
+    return (this.gameStatus === EGameStatus.Revealed || this.gameStatus === EGameStatus.Stopped) &&
+      this.myRole === ERole.ScrumMaster;
   }
 
-  public get status(): GameStatus {
+  public get status(): EGameStatus {
     return this.gameStatus;
   }
 
@@ -118,20 +120,22 @@ export class Game implements IGame {
   }
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   public constructor(
-    private readonly translateService: TranslateService,
-    private readonly snackbarService: SnackbarService) {
-    this.cardCollection = new Collections.Dictionary<number, Card>();
-    this.estimationCollection = new Collections.Dictionary<string, Estimation>();
-    this.participants = new Collections.Dictionary<string, Participant>();
+    translateService: TranslateService,
+    snackbarService: SnackbarService) {
+    this.translateService = translateService;
+    this.snackbarService = snackbarService;
+    this.cardCollection = new Map<number, Card>();
+    this.estimationCollection = new Map<string, Estimation>();
+    this.participants = new Map<string, Member>();
     this.name = localStorage.getItem(this.localStorageTeamKey) || '';
     this.gameStatus = localStorage.getItem(this.localStorageTeamKey) && localStorage.getItem(this.localStorageUuidKey) ?
-        GameStatus.Disconnected : GameStatus.NoGame
+      EGameStatus.Disconnected : EGameStatus.NoGame;
   }
-  //#endregion//
+  //#endregion
 
-  //#region  Public methods
+  //#region Public methods ----------------------------------------------------
   public clearEstimations(): void {
     console.log('Clearing estimations');
     this.estimationCollection.clear();
@@ -141,82 +145,110 @@ export class Game implements IGame {
     this.snackbarService.showError(
       this.translateService.instant('Game.Snackbar.Disconnected')
     );
-    this.gameStatus = GameStatus.Disconnected;
+    this.gameStatus = EGameStatus.Disconnected;
   }
 
-  public handleErrorMessage(code: ErrorCode): boolean {
+  public handleErrorMessage(code: EErrorCode): boolean {
     this.showError(code);
     const result =
-      code === ErrorCode.TeamAlreadyExists ||
-      code === ErrorCode.TeamDoesNotExist ||
-      code === ErrorCode.ParticipantNotFound;
+      code === EErrorCode.TeamAlreadyExists ||
+      code === EErrorCode.TeamDoesNotExist ||
+      code === EErrorCode.ParticipantNotFound;
     return result;
   }
 
-  public handleEstimations(dtoEstimations: Array<DtoEstimation>): void {
+  public handleEstimations(dtoEstimations: Array<IEstimation>): void {
     dtoEstimations.forEach(dtoEstimation => {
       if (dtoEstimation.card >= 0) {
         const estimation = Estimation.createEstimation(
           dtoEstimation,
           this.participants,
-          this.cardCollection.values(),
+          Array.from(this.cardCollection.values()),
           this.self);
         if (estimation) {
-          this.estimationCollection.setValue(dtoEstimation.uuid, estimation);
+          this.estimationCollection.set(dtoEstimation.uuid, estimation);
           this.dumpEstimation(estimation);
         }
       } else {
         console.log(`Removing estimation '${dtoEstimation.uuid}'`);
-        this.estimationCollection.remove(dtoEstimation.uuid);
+        this.estimationCollection.delete(dtoEstimation.uuid);
       }
     });
   }
 
-  public handleSelf(participant: DtoParticipant): void {
-    this.self = Participant.createParticipant(participant, true);
+  public handleSelf(participant: IParticipant): void {
+    this.self = new Member(participant, true);
     this.dumpSelf();
     localStorage.setItem(this.localStorageNickKey, this.self.nick);
     localStorage.setItem(this.localStorageUuidKey, this.self.uuid);
   }
 
-  public handleSocketError(error: any): void {
+  public handleSocketError(_error: any): void { // eslint-disable-line
     this.snackbarService.showError(
       this.translateService.instant('Game.Snackbar.CommunicationError')
     );
   }
 
-  public handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void {
-    participants.forEach( dtoParticipant => {
-      const participant: Participant = Participant.createParticipant(dtoParticipant, false);
-      this.dumpParticipant(participant);
-      if (participant.status === ParticipantStatus.Left)
-      {
-        this.snackbarService.showInfo(
-          this.translateService.instant(
-            'Game.Snackbar.$participant_has_left',
-            { participant: participant.nick }
-          )
+  public handleMemberChanged(memberChange: IMemberStatusChange): void {
+    // TODO  this.dumpParticipant(participant);
+    let message = '';
+    if (memberChange.memberStatusChange != EMemberStatusChange.Left) {
+      this.participants.set(
+        memberChange.member.uuid,
+        new Member(memberChange.member, false)
+      );
+    } else {
+      this.participants.delete(memberChange.member.uuid);
+    }
+
+    switch (memberChange.memberStatusChange) {
+      case EMemberStatusChange.Disconnected:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_was_disconnected',
+          { member: memberChange.member.nick }
         );
-        this.participants.remove(participant.uuid);
-      } else {
-        if (reason !== Reason.Refresh && !this.participants.containsKey(participant.uuid)) {
-          this.snackbarService.showInfo(
-            this.translateService.instant(
-              'Game.Snackbar.$participant_has_joined',
-              { participant: participant.nick }
-            )
-          );
-        }
-        this.participants.setValue(participant.uuid, participant);
-      }
-    });
+        break;
+      case EMemberStatusChange.Joined:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_has_joined',
+          { member: memberChange.member.nick }
+        );
+        break;
+      case EMemberStatusChange.Left:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_has_left',
+          { member: memberChange.member.nick }
+        );
+        break;
+      case EMemberStatusChange.Paused:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_is_having_a_break',
+          { member: memberChange.member.nick }
+        );
+        break;
+      case EMemberStatusChange.Rejoined:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_is_back',
+          { member: memberChange.member.nick }
+        );
+        break;
+      // case EMemberStatusChange.NickChanged:
+      default:
+        return;
+    }
+    this.snackbarService.showInfo(message);
+  }
+
+  public handleMemberList(memberList: Array<IParticipant>): void {
+    memberList.forEach((member: IParticipant) => this.participants.set(member.uuid, new Member(member, false)));
   }
 
   public reset(): void {
     console.log('Resetting game');
     this.cardCollection.clear();
     this.estimationCollection.clear();
-    this.gameStatus = GameStatus.NoGame;
+    this.participants.clear();
+    this.gameStatus = EGameStatus.NoGame;
     this.name = '';
     this.self = undefined;
     localStorage.removeItem(this.localStorageNickKey);
@@ -224,42 +256,47 @@ export class Game implements IGame {
     localStorage.removeItem(this.localStorageTeamKey);
   }
 
-  public setCards(cards: Array<DtoCard>): void {
+  public setCards(cards: Array<ICard>): void {
     cards
       .map(card => Card.createCard(card))
       .forEach(card => {
         this.dumpCard(card);
-        this.cardCollection.setValue(card.index, card);
+        this.cardCollection.set(card.index, card);
       });
   }
 
-  public showError(errorCode: ErrorCode): void {
+  // TODO 2332 move this out
+  public showError(errorCode: EErrorCode): void {
     this.snackbarService.showError(
-      this.translateService.instant(`ErrorCode.${ErrorCode[errorCode]}`)
+      this.translateService.instant(`ErrorCode.${EErrorCode[errorCode]}`)
     );
   }
 
-  public showInfo(errorCode: ErrorCode): void {
+  public showInfo(errorCode: EErrorCode): void {
     this.snackbarService.showInfo(
-      this.translateService.instant(`ErrorCode.${ErrorCode[errorCode]}`)
+      this.translateService.instant(`ErrorCode.${EErrorCode[errorCode]}`)
     );
   }
 
-  public showWarning(errorCode: ErrorCode): void {
+  public showWarning(errorCode: EErrorCode): void {
     this.snackbarService.showWarning(
-      this.translateService.instant(`ErrorCode.${ErrorCode[errorCode]}`)
+      this.translateService.instant(`ErrorCode.${EErrorCode[errorCode]}`)
     );
   }
 
-  public update(dtoGame: DtoGame): void {
-    this.gameStatus = dtoGame.status;
-    this.name = dtoGame.team;
+  public updateGameStatus(gameStatus: EGameStatus): void {
+    this.gameStatus = gameStatus;
     this.dumpGame();
-    localStorage.setItem(this.localStorageTeamKey, dtoGame.team);
+  }
+
+  public updateTeamName(teamName: string): void {
+    this.name = teamName;
+    this.dumpGame();
+    localStorage.setItem(this.localStorageTeamKey, teamName);
   }
   //#endregion
 
-  //#region  Private methods
+  //#region Private methods ---------------------------------------------------
   private dumpCard(card: Card) {
     console.log({
       index: card.index,
@@ -267,16 +304,16 @@ export class Game implements IGame {
     });
   }
 
-  private dumpError(code: ErrorCode) {
-    console.log({
-      code: ErrorCode[code]
-    });
-  }
+  // private dumpError(code: ErrorCode) {
+  //   console.log({
+  //     code: ErrorCode[code]
+  //   });
+  // }
 
   private dumpEstimation(estimation: Estimation): void {
     console.log({
       card: estimation.card,
-      participant: estimation.participant,
+      participant: estimation.member,
       revealed: estimation.revealed
     });
   }
@@ -284,17 +321,17 @@ export class Game implements IGame {
   private dumpGame(): void {
     console.log({
       team: this.team,
-      status: GameStatus[this.status]
+      status: EGameStatus[this.status]
     });
   }
 
-  private dumpParticipant(participant: Participant): void {
+  private dumpParticipant(participant: Member): void {
     console.log({
-      status: ParticipantStatus[participant.status],
+      status: EParticipantStatus[participant.status],
       nick: participant.nick,
       uuid: participant.uuid,
       observer: participant.observer,
-      role: Role[participant.role]
+      role: ERole[participant.role]
     });
   }
 

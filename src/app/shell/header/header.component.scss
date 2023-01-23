@@ -1,23 +1,11 @@
-@import "src/theme/theme-variables";
-
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1;
+.header-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-.brand {
-  color: mat-color($app-primary, "default-contrast");
-  text-decoration: none;
-  padding-right: 1rem;
-}
-
-.menu-button {
-  margin-right: 1rem;
-}
-
-.div-logo {
-  height: 50px;
+.header-right {
+  flex: 1 1 100%;
+  display: flex;
+  justify-content: flex-end;
 }

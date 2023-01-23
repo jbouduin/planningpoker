@@ -1,33 +1,35 @@
-import * as Collections from 'typescript-collections';
-import { DtoEstimation, DtoCard } from '@shared-lib';
-
+import { IEstimation } from '@shared-lib';
 import { Card } from './card';
-import { Participant } from './participant';
+import { Member } from './member';
 
 export class Estimation {
 
-  //#region  Private properties
+  //#region Public properties -------------------------------------------------
+  public readonly card: Card
+  public readonly member: Member;
   public readonly revealed: boolean;
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   public static createEstimation(
-    dtoEstimation: DtoEstimation,
-    participants: Collections.Dictionary<string, Participant>,
+    dtoEstimation: IEstimation,
+    members: Map<string, Member>,
     cards: Array<Card>,
-    self?: Participant): Estimation | undefined {
+    self?: Member): Estimation | undefined {
 
-    let participant: Participant | undefined;
+    let member: Member | undefined;
     if (self?.uuid === dtoEstimation.uuid) {
-      participant = self;
+      member = self;
     } else {
-      participant = participants.getValue(dtoEstimation.uuid);
+      member = members.get(dtoEstimation.uuid);
     }
     const selectedCard = cards.filter(card => card.index === dtoEstimation.card)[0];
-    return participant && selectedCard ? new Estimation(participant, selectedCard, dtoEstimation.revealed) : undefined;
+    return member && selectedCard ? new Estimation(member, selectedCard, dtoEstimation.revealed) : undefined;
   }
 
-  public constructor(public participant: Participant, public card: Card, revealed: boolean) {
+  public constructor(member: Member, card: Card, revealed: boolean) {
+    this.member = member;
+    this.card = card;
     this.revealed = revealed;
   }
   //#endregion

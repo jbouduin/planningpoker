@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ConnectionStatus, ConnectionService } from '@core';
+import { EConnectionStatus, ConnectionService } from '@core';
 import { GameService } from '../../game/game.service';
 
 @Component({
@@ -9,19 +9,24 @@ import { GameService } from '../../game/game.service';
   templateUrl: './connection.component.html',
   styleUrls: ['./connection.component.scss']
 })
-export class ConnectionComponent implements OnInit {
+export class ConnectionComponent {
 
-  //#region  Public getter methods
-  public get connectionIcon():string {
+  //#region private properties ------------------------------------------------
+  private translateService: TranslateService;
+  private connectionService: ConnectionService;
+  private gameService: GameService;
+  //#endregion
+
+  //#region Public getter methods ---------------------------------------------
+  public get connectionIcon(): string {
 
     switch (this.connectionService.connectionStatus) {
-      case ConnectionStatus.Disconnected:
-      case ConnectionStatus.Connecting:
-      case ConnectionStatus.Countdown: {
+      case EConnectionStatus.Disconnected:
+      case EConnectionStatus.Connecting:
+      case EConnectionStatus.Countdown: {
         return 'cloud_off';
-        break;
       }
-      case ConnectionStatus.Connected: {
+      case EConnectionStatus.Connected: {
         return 'cloud';
       }
     }
@@ -43,27 +48,26 @@ export class ConnectionComponent implements OnInit {
   }
 
   public get showConnection(): boolean {
-    return this.connectionService.connectionStatus !== ConnectionStatus.Disconnected;
+    return this.connectionService.connectionStatus !== EConnectionStatus.Disconnected;
   }
 
   public get showReconnecting(): boolean {
-    return this.connectionService.connectionStatus === ConnectionStatus.Countdown;
+    return this.connectionService.connectionStatus === EConnectionStatus.Countdown;
   }
-
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   public constructor(
-    private translateService: TranslateService,
-    private connectionService: ConnectionService,
-    private gameService: GameService) { }
+    translateService: TranslateService,
+    connectionService: ConnectionService,
+    gameService: GameService) {
+    this.translateService = translateService;
+    this.connectionService = connectionService;
+    this.gameService = gameService;
+  }
   //#endregion
 
-  //#region  Angular interface metods
-  public ngOnInit(): void { }
-  //#endregion
-
-  //#region  UI triggered methods
+  //#region UI triggered methods ----------------------------------------------
   public reconnect(): void {
     this.gameService.rejoin();
   }

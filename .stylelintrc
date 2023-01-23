@@ -27,7 +27,7 @@
     "selector-class-pattern": "[a-z-]+",
     "selector-id-pattern": "[a-z-]+",
     "selector-max-id": 0,
-    "selector-no-qualifying-type": true,
+    "selector-no-qualifying-type": null,
     "selector-max-universal": 0,
     "selector-type-no-unknown": [
       true,
@@ -41,7 +41,6 @@
         "ignorePseudoElements": ["ng-deep"]
       }
     ],
-    "unit-whitelist": ["px", "%", "em", "rem", "vw", "vh", "deg", "s"],
     "max-empty-lines": 2,
     "max-line-length": 120
   }

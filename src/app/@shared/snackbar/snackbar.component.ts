@@ -1,7 +1,7 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 
-import { SnackbarType } from './snackbar-type';
+import { ESnackbarType } from './snackbar-type.enum';
 import { SnackbarParams } from './snackbar.params';
 
 @Component({
@@ -9,34 +9,29 @@ import { SnackbarParams } from './snackbar.params';
   templateUrl: './snackbar.component.html',
   styleUrls: ['./snackbar.component.scss']
 })
-export class SnackbarComponent implements OnInit {
+export class SnackbarComponent {
 
-  //#region  Public getter methods
+  //#region Public getter methods ---------------------------------------------
   public get isInfo(): boolean {
-    return this.params.type === SnackbarType.Info;
+    return this.params.type === ESnackbarType.Info;
   }
 
   public get isWarning(): boolean {
-    return this.params.type === SnackbarType.Warning;
+    return this.params.type === ESnackbarType.Warning;
   }
 
   public get isError(): boolean {
-    return this.params.type === SnackbarType.Error;
+    return this.params.type === ESnackbarType.Error;
   }
   //#endregion
 
-  //#region  Constructor & C°
+  //#region Constructor & C° --------------------------------------------------
   public constructor(
     private matSnackbarRef: MatSnackBarRef<SnackbarComponent>,
     @Inject(MAT_SNACK_BAR_DATA) public params: SnackbarParams) { }
   //#endregion
 
-  //#region  Angular Interface methods
-  //#endregion
-  public ngOnInit(): void {
-  }
-
-  //#region  UI triggered methods
+  //#region UI triggered methods ----------------------------------------------
   public close(): void {
     this.matSnackbarRef.dismiss();
   }
