@@ -1,39 +1,45 @@
 import { Injectable } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { NavigationEnd, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable, of, Subject } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
-
-import { DtoCreate } from '@shared-lib';
-import { Reason } from '@shared-lib';
-import { Message, MessageType } from '@shared-lib';
 
 import { ConnectionService } from '@core';
 import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService } from '@shared';
 
-import { IGame } from './objects';
-import { GameFactoryService } from './objects';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import {
+  ClientMessage, DtoCreate, DtoJoin, ICardSetMessage, IErrorMessage, IEstimationsMessage,
+  IInitMessage, IParticipantListMessage, ISelfMessage, ITeamMessage, ITeamStatusMessage, ServerMessageType, ServerMessage
+} from '@shared-lib';
+import {
+  CreateMessage, DisconnectMessage, EstimateMessage, JoinMessage,
+  LeaveMessage, RejoinMessage, RevealMessage, SetNickMessage, StartMessage
+} from './messages';
+import { GameFactoryService, IGame } from './objects';
 
 class CallBackParameter {
   public observer: boolean | undefined;
-  public team: string | undefined;
-  public nick: string | undefined;
-  public oldUuid: string | undefined;
+  public team: string;
+  public nick: string;
+  public oldUuid: string;
 
   public constructor(public uuid: string) {
     this.observer = false;
+    this.team = "";
+    this.nick = "";
+    this.oldUuid = "";
   }
 }
 
+type AMessage = ServerMessage | ClientMessage;
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
 
   //#region private readonly properties ---------------------------------------
-
   private readonly dialog: MatDialog;
   private readonly translateService: TranslateService;
   private readonly router: Router;
@@ -44,7 +50,7 @@ export class GameService {
 
   //#region private properties ------------------------------------------------
   private currentRoute: string;
-  private socket?: Subject<Message>;
+  private socket?: Subject<AMessage>;
   //#endregion
 
   //#region public properties -------------------------------------------------
@@ -114,7 +120,7 @@ export class GameService {
     console.log(`rejoining: ${this.game.myNick}@${this.game.team}`);
     this.createConnection(
       this.game.team,
-      undefined,
+      '',
       undefined,
       this.game.myUuid,
       [this.rejoinTeam.bind(this)]
@@ -126,23 +132,13 @@ export class GameService {
   public estimate(index: number): void {
     console.log(`estimated ${index}`);
     if (this.socket) {
-      const message: Message = {
-        type: MessageType.Estimate,
-        uuid: this.game.myUuid,
-        data: index,
-        reason: Reason.Refresh
-      };
+      const message = new EstimateMessage(this.game.myUuid, index);
       this.socket.next(message);
     }
   }
 
   public leave(): void {
-    const message: Message = {
-      type: MessageType.Leave,
-      uuid: this.game.myUuid,
-      data: '',
-      reason: Reason.Refresh
-    };
+    const message = new LeaveMessage(this.game.myUuid);
     // if we are connected, we are just leaving the game
     // if not we are leaving a game we have been disconnected from before
     if (this.socket) {
@@ -170,12 +166,7 @@ export class GameService {
   public reveal(): void {
     console.log('reveal');
     if (this.socket) {
-      const message: Message = {
-        type: MessageType.Reveal,
-        uuid: this.game.myUuid,
-        data: this.game.team,
-        reason: Reason.Refresh
-      };
+      const message = new RevealMessage(this.game.myUuid, this.game.team);
       this.socket.next(message);
     }
   }
@@ -183,12 +174,7 @@ export class GameService {
   public start(): void {
     console.log('starting');
     if (this.socket) {
-      const message: Message = {
-        type: MessageType.Start,
-        uuid: this.game.myUuid,
-        data: this.game.team,
-        reason: Reason.Refresh
-      };
+      const message = new StartMessage(this.game.myUuid,this.game.team);
       this.socket.next(message);
     }
   }
@@ -196,12 +182,7 @@ export class GameService {
   public withdraw(): void {
     console.log('withdraw estimation');
     if (this.socket) {
-      const message: Message = {
-        type: MessageType.Estimate,
-        uuid: this.game.myUuid,
-        data: -1,
-        reason: Reason.Refresh
-      };
+      const message = new EstimateMessage ( this.game.myUuid, -1);
       this.socket.next(message);
     }
   }
@@ -211,12 +192,7 @@ export class GameService {
   public disconnect() {
     console.log('asking the server to kill my connection');
     if (this.socket) {
-      const message: Message = {
-        type: MessageType.KillMe,
-        uuid: this.game.myUuid,
-        data: '',
-        reason: Reason.Refresh
-      };
+      const message = new DisconnectMessage(this.game.myUuid);
       this.socket.next(message);
     }
   }
@@ -225,38 +201,49 @@ export class GameService {
   //#region Private connection related methods --------------------------------
   private createConnection(
     team: string,
-    nick: string | undefined,
+    nick: string,
     observer: boolean | undefined,
     oldUuid: string | undefined,
     callbacks: Array<(params: CallBackParameter) => void>) {
     this.socket = this.createSocket(team);
 
-    this.socket.subscribe(msg => {
+    this.socket.subscribe((msg: AMessage) => {
       switch (msg.type) {
-        case MessageType.Cards: {
-          this.game.setCards(msg.data);
+        case ServerMessageType.Cards: {
+          this.game.setCards((<ICardSetMessage>msg).data);
           break;
         }
-        case MessageType.ClearEstimations: {
+        case ServerMessageType.ClearEstimations: {
           this.game.clearEstimations();
           break;
         }
-        case MessageType.EndOfGame: {
+        case ServerMessageType.EndOfGame: {
           this.handleEndOfGame();
           break;
         }
-        case MessageType.Error: {
-          if (this.game.handleErrorMessage(msg.data.code)) {
+        case ServerMessageType.Error: {
+          if (this.game.handleErrorMessage((<IErrorMessage>msg).data.code)) {
             this.reset();
           }
           break;
         }
-        case MessageType.Estimation: {
-          this.game.handleEstimations(msg.data);
+        case ServerMessageType.Estimation: {
+          this.game.handleEstimations((<IEstimationsMessage>msg).data);
           break;
         }
-        case MessageType.Game: {
-          this.game.update(msg.data);
+        case ServerMessageType.Init: {
+          const data = (<IInitMessage>msg).data;
+          const callBackParams = new CallBackParameter(data.uuid);
+          callBackParams.team = team;
+          callBackParams.nick = nick;
+          callBackParams.observer = observer;
+          callBackParams.oldUuid = oldUuid || '';
+          callbacks.forEach(callback => callback(callBackParams));
+          this.game.handleSelf(data);
+          break;
+          }
+        case ServerMessageType.Team: {
+          this.game.update((<ITeamMessage>msg).data);
           // if we are not in there yet, this is the moment
           if (this.currentRoute !== '/game') {
             console.log('navigating to game');
@@ -264,41 +251,35 @@ export class GameService {
           }
           break;
         }
-        case MessageType.Self: {
+        case ServerMessageType.Self: {
           // if this is the very first response from the server, execute the callbacks
           // this will occur only once
-          if (msg.reason === Reason.Init) {
-            const callBackParams = new CallBackParameter(msg.data[0].uuid);
-            callBackParams.team = team;
-            callBackParams.nick = nick;
-            callBackParams.observer = observer;
-            callBackParams.oldUuid = oldUuid;
-            callbacks.forEach(callback => callback(callBackParams));
-          }
-          this.game.handleSelf(msg.data[0]);
+        this.game.handleSelf((<ISelfMessage>msg).data);
+
           break;
         }
-        case MessageType.State: {
-          this.game.update(msg.data.game);
-          this.game.setCards(msg.data.cards);
-          this.game.handleSelf(msg.data.self[0]);
-          this.game.handleParticipants(msg.data.others, Reason.Refresh);
-          this.game.handleEstimations(msg.data.estimations);
+        case ServerMessageType.State: {
+          const data = (<ITeamStatusMessage>msg).data;
+          this.game.update(data.game);
+          this.game.setCards(data.cards);
+          this.game.handleSelf(data.self);
+          this.game.handleParticipants(data.others, false);
+          this.game.handleEstimations(data.estimations);
           if (this.currentRoute !== '/game') {
             console.log('navigating to game');
             this.router.navigate(['game']);
           }
           break;
         }
-        case MessageType.Participant: {
-          this.game.handleParticipants(msg.data, msg.reason);
+        case ServerMessageType.Participant: {
+          this.game.handleParticipants((<IParticipantListMessage>msg).data, false);
           break;
         }
-        case MessageType.Ping: {
-          this.logPingMessage(msg)
+        case ServerMessageType.Ping: {
+          this.logServerMessage(msg)
           break;
         }
-        case MessageType.Reset: {
+        case ServerMessageType.Reset: {
           this.handleServerReset();
           break;
         }
@@ -335,16 +316,16 @@ export class GameService {
       });
   }
 
-  private createSocket(team: string): Subject<Message> {
+  private createSocket(team: string): Subject<AMessage> {
 
     console.log(`in createsocket: ${team}`);
     return this.connectionService
       .connect(`ws://localhost:3001/game/${encodeURI(team)}`)
-      .pipe(map((response: MessageEvent): Message => {
+      .pipe(map((response: MessageEvent): AMessage => {
         console.log(response.data);
-        const message: Message = JSON.parse(response.data);
+        const message: AMessage = JSON.parse(response.data);
         return message;
-      })) as Subject<Message>;
+      })) as Subject<AMessage>;
   }
 
   public reset() {
@@ -362,22 +343,15 @@ export class GameService {
   //#endregion
 
   //#region Private Init-Callback methods -------------------------------------
-
   private createTeam(params: CallBackParameter) {
     console.log('call createTeam:', params);
-
     const createData: DtoCreate = {
-      team: params.team || '',
+      team: params.team,
       observer: params.observer || false
     };
 
     if (this.socket) {
-      const message: Message = {
-        type: MessageType.Create,
-        uuid: params.uuid,
-        data: createData,
-        reason: Reason.Refresh
-      };
+      const message = new CreateMessage(params.uuid, createData);
       this.socket.next(message);
     }
   }
@@ -385,18 +359,13 @@ export class GameService {
   private joinTeam(params: CallBackParameter) {
     console.log('call joinTeam:', params);
 
-    const joinData: DtoCreate = {
+    const joinData: DtoJoin = {
       team: params.team || '',
       observer: params.observer || false
     };
 
     if (this.socket) {
-      const message: Message = {
-        type: MessageType.Join,
-        uuid: params.uuid,
-        data: joinData,
-        reason: Reason.Refresh
-      };
+      const message = new JoinMessage(params.uuid, joinData);
       this.socket.next(message);
     }
   }
@@ -404,12 +373,7 @@ export class GameService {
   private rejoinTeam(params: CallBackParameter) {
     console.log('call switchUuid:', params);
     if (this.socket) {
-      const message: Message = {
-        type: MessageType.Rejoin,
-        uuid: params.uuid,
-        data: params.oldUuid,
-        reason: Reason.Refresh
-      };
+      const message = new RejoinMessage(params.uuid, params.oldUuid);
       this.socket.next(message);
     }
   }
@@ -417,12 +381,7 @@ export class GameService {
   private setNick(params: CallBackParameter) {
     console.log('call setNick:', params);
     if (this.socket) {
-      const message: Message = {
-        type: MessageType.Nick,
-        uuid: params.uuid,
-        data: params.nick,
-        reason: Reason.Refresh
-      };
+      const message = new SetNickMessage(params.uuid, params.nick);
       this.socket.next(message);
     }
   }
@@ -430,11 +389,10 @@ export class GameService {
 
   //#region Private logger methods for incoming messages ----------------------
 
-  private logPingMessage(message: Message) {
+  private logServerMessage(message: ServerMessage) {
     console.log({
-      reason: Reason[message.reason],
-      type: MessageType[message.type],
-      data: message.data
+      type: ServerMessageType[message.type],
+      data: JSON.stringify(message.data, null, 2)
     });
   }
   //#endregion

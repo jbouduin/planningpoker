@@ -1,6 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { SnackbarService } from '@shared';
-import { DtoCard, DtoEstimation, DtoGame, DtoParticipant, ErrorCode, GameStatus, ParticipantStatus, Reason, Role } from '@shared-lib';
+import { DtoCard, DtoEstimation, DtoTeam, DtoParticipant, ErrorCode, GameStatus, ParticipantStatus, Role } from '@shared-lib';
 import { Card } from './card';
 import { Estimation } from './estimation';
 import { IGame } from './game.interface';
@@ -189,7 +189,7 @@ export class Game implements IGame {
     );
   }
 
-  public handleParticipants(participants: Array<DtoParticipant>, reason: Reason): void {
+  public handleParticipants(participants: Array<DtoParticipant>, showJoins: boolean): void {
     participants.forEach(dtoParticipant => {
       const participant: Participant = Participant.createParticipant(dtoParticipant, false);
       this.dumpParticipant(participant);
@@ -202,7 +202,7 @@ export class Game implements IGame {
         );
         this.participants.delete(participant.uuid);
       } else {
-        if (reason !== Reason.Refresh && !this.participants.has(participant.uuid)) {
+        if (showJoins && !this.participants.has(participant.uuid)) {
           this.snackbarService.showInfo(
             this.translateService.instant(
               'Game.Snackbar.$participant_has_joined',
@@ -255,7 +255,7 @@ export class Game implements IGame {
     );
   }
 
-  public update(dtoGame: DtoGame): void {
+  public update(dtoGame: DtoTeam): void {
     this.gameStatus = dtoGame.status;
     this.name = dtoGame.team;
     this.dumpGame();

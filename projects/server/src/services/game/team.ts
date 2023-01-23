@@ -3,11 +3,11 @@ import { GameStatus } from '../../../../shared-lib/lib';
 import { Estimation } from './estimation';
 import { Participant } from './participant';
 
-export interface IGame {
+export interface ITeam {
   readonly allEstimations: Array<Estimation>;
   readonly allParticipants: Array<Participant>;
   readonly status: GameStatus;
-  team: string
+  teamName: string
   reveal(): void;
   startEstimating(): void;
 
@@ -20,7 +20,7 @@ export interface IGame {
   filterParticipants(filter: (participant: Participant) => boolean): Array<Participant>;
 }
 
-export class Game implements IGame {
+export class Team implements ITeam {
 
   //#region Private properties ------------------------------------------------
   private participants: Map<string, Participant>;
@@ -43,8 +43,8 @@ export class Game implements IGame {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(public team: string) {
-    this.team = team;
+  public constructor(public teamName: string) {
+    this.teamName = teamName;
     this.gameStatus = GameStatus.Stopped;
     this.participants = new Map<string, Participant>();
     this.estimations = new Map<string, Estimation>();

@@ -1,12 +1,12 @@
 import { DtoCard} from './dto-card';
 import { DtoEstimation } from './dto-estimation';
-import { DtoGame } from './dto-game';
+import { DtoTeam } from './dto-team';
 import { DtoParticipant } from './dto-participant';
 
-export interface DtoState {
+export interface DtoStatus {
   cards: Array<DtoCard>;
   estimations: Array<DtoEstimation>;
-  game: DtoGame;
+  game: DtoTeam;
   others: Array<DtoParticipant>;
   self: DtoParticipant;
 }
