@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-import { ParticipantStatus } from '@shared-lib';
-import { Participant } from '../../objects/participant';
+import { EParticipantStatus } from '@shared-lib';
+import { Member } from '../../objects/member';
 
 @Component({
   selector: 'game-participant',
@@ -11,12 +11,12 @@ import { Participant } from '../../objects/participant';
 export class ParticipantComponent {
 
   //#region @Input() ----------------------------------------------------------
-  @Input() public participant: Participant | undefined;
+  @Input() public participant: Member | undefined;
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
   public get connectionStatusIcon(): string {
-    return this.participant?.status === ParticipantStatus.Connected ? 'cloud' : 'cloud_off';
+    return this.participant?.status === EParticipantStatus.Connected ? 'cloud' : 'cloud_off';
   }
 
   public get nick(): string {

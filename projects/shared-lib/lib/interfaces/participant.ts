@@ -1,10 +1,10 @@
-import { ParticipantStatus } from './participant-status';
-import { Role } from './role';
+import { EParticipantStatus } from './participant-status.enum';
+import { ERole } from './role.enum';
 
 export interface IParticipant {
-  status: ParticipantStatus;
+  status: EParticipantStatus;
   nick: string;
   uuid: string;
-  role: Role;
+  role: ERole;
   observer: boolean;
 }

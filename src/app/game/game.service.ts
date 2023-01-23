@@ -11,7 +11,7 @@ import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import {
   ClientMessage, ICreate, IJoin, ICardSetMessage, IErrorMessage, IEstimationsMessage,
-  IInitMessage, IParticipantListMessage, ISelfMessage, ITeamMessage, ITeamStatusMessage, ServerMessageType, ServerMessage
+  IInitMessage, IMemberListMessage, ISelfMessage, IGameStatusMessage, ITeamInfoMessage, EServerMessageType, ServerMessage
 } from '@shared-lib';
 import {
   CreateMessage, DisconnectMessage, EstimateMessage, JoinMessage,
@@ -174,7 +174,7 @@ export class GameService {
   public start(): void {
     console.log('starting');
     if (this.socket) {
-      const message = new StartMessage(this.game.myUuid,this.game.team);
+      const message = new StartMessage(this.game.myUuid, this.game.team);
       this.socket.next(message);
     }
   }
@@ -182,7 +182,7 @@ export class GameService {
   public withdraw(): void {
     console.log('withdraw estimation');
     if (this.socket) {
-      const message = new EstimateMessage ( this.game.myUuid, -1);
+      const message = new EstimateMessage(this.game.myUuid, -1);
       this.socket.next(message);
     }
   }
@@ -209,29 +209,29 @@ export class GameService {
 
     this.socket.subscribe((msg: AMessage) => {
       switch (msg.type) {
-        case ServerMessageType.Cards: {
+        case EServerMessageType.CardList: {
           this.game.setCards((<ICardSetMessage>msg).data);
           break;
         }
-        case ServerMessageType.ClearEstimations: {
+        case EServerMessageType.ClearEstimations: {
           this.game.clearEstimations();
           break;
         }
-        case ServerMessageType.EndOfGame: {
+        case EServerMessageType.DissolveTeam: {
           this.handleEndOfGame();
           break;
         }
-        case ServerMessageType.Error: {
+        case EServerMessageType.Error: {
           if (this.game.handleErrorMessage((<IErrorMessage>msg).data.code)) {
             this.reset();
           }
           break;
         }
-        case ServerMessageType.Estimation: {
+        case EServerMessageType.EstimationList: {
           this.game.handleEstimations((<IEstimationsMessage>msg).data);
           break;
         }
-        case ServerMessageType.Init: {
+        case EServerMessageType.Init: {
           const data = (<IInitMessage>msg).data;
           const callBackParams = new CallBackParameter(data.uuid);
           callBackParams.team = team;
@@ -241,9 +241,9 @@ export class GameService {
           callbacks.forEach(callback => callback(callBackParams));
           this.game.handleSelf(data);
           break;
-          }
-        case ServerMessageType.Team: {
-          this.game.update((<ITeamMessage>msg).data);
+        }
+        case EServerMessageType.GameStatus: {
+          this.game.updateGameStatus((<IGameStatusMessage>msg).data);
           // if we are not in there yet, this is the moment
           if (this.currentRoute !== '/game') {
             console.log('navigating to game');
@@ -251,19 +251,17 @@ export class GameService {
           }
           break;
         }
-        case ServerMessageType.Self: {
-          // if this is the very first response from the server, execute the callbacks
-          // this will occur only once
-        this.game.handleSelf((<ISelfMessage>msg).data);
-
+        case EServerMessageType.Self: {
+          this.game.handleSelf((<ISelfMessage>msg).data);
           break;
         }
-        case ServerMessageType.State: {
-          const data = (<ITeamStatusMessage>msg).data;
-          this.game.update(data.game);
+        case EServerMessageType.TeamInfo: {
+          const data = (<ITeamInfoMessage>msg).data;
+          this.game.updateTeamName(data.teamName);
+          this.game.updateGameStatus(data.gameStatus);
           this.game.setCards(data.cards);
           this.game.handleSelf(data.self);
-          this.game.handleParticipants(data.others, false);
+          this.game.handleParticipants(data.otherMembers, false);
           this.game.handleEstimations(data.estimations);
           if (this.currentRoute !== '/game') {
             console.log('navigating to game');
@@ -271,15 +269,15 @@ export class GameService {
           }
           break;
         }
-        case ServerMessageType.Participant: {
-          this.game.handleParticipants((<IParticipantListMessage>msg).data, false);
+        case EServerMessageType.MemberList: {
+          this.game.handleParticipants((<IMemberListMessage>msg).data, false);
           break;
         }
-        case ServerMessageType.Ping: {
+        case EServerMessageType.Ping: {
           this.logServerMessage(msg)
           break;
         }
-        case ServerMessageType.Reset: {
+        case EServerMessageType.Reset: {
           this.handleServerReset();
           break;
         }
@@ -391,7 +389,7 @@ export class GameService {
 
   private logServerMessage(message: ServerMessage) {
     console.log({
-      type: ServerMessageType[message.type],
+      type: EServerMessageType[message.type],
       data: JSON.stringify(message.data, null, 2)
     });
   }

@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { MatDialog, } from '@angular/material/dialog';
 
 import { TranslateService } from '@ngx-translate/core';
-import { GameStatus } from '@shared-lib';
+import { EGameStatus } from '@shared-lib';
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
 import { environment } from '@env/environment';
-import { Card, IGame, Estimation, Participant } from '../../objects';
+import { Card, IGame, Estimation, Member } from '../../objects';
 import { GameService } from '../../game.service';
 
 @Component({
@@ -31,7 +31,7 @@ export class GameComponent {
     return this.game.canEstimate;
   }
 
-  public get developers(): Array<Participant> {
+  public get developers(): Array<Member> {
     return this.game.developers;
   }
 
@@ -47,11 +47,11 @@ export class GameComponent {
     let result: Array<Estimation>;
     let myEstimation: Estimation | undefined;
     switch (this.game.status) {
-      case GameStatus.Revealed:
+      case EGameStatus.Revealed:
         result = new Array<Estimation>(...this.game.estimations);
         result.sort((a: Estimation, b: Estimation) => a.card.index - b.card.index);
         break;
-      case GameStatus.Started:
+      case EGameStatus.Started:
         result = this.game.estimations.filter((e: Estimation) => !e.participant.me);
         result.sort((a: Estimation, b: Estimation) => a.participant.nick.localeCompare(b.participant.nick));
         myEstimation = this.game.estimations.find(estimation => estimation.participant.me);
@@ -65,9 +65,9 @@ export class GameComponent {
     return result;
   }
 
-  public get participantsWithoutEstimation(): Array<Participant> {
-    let result: Array<Participant>;
-    if (this.game.status === GameStatus.Started) {
+  public get participantsWithoutEstimation(): Array<Member> {
+    let result: Array<Member>;
+    if (this.game.status === EGameStatus.Started) {
       if (this.game.scrumMaster) {
         if (this.game.scrumMaster.observer) {
           result = this.game.developers;
@@ -81,11 +81,11 @@ export class GameComponent {
       }
     }
     else {
-      result = new Array<Participant>();
+      result = new Array<Member>();
     }
     return result
-      .filter((p: Participant) => this.game.estimations.findIndex((e: Estimation) => e.participant.uuid == p.uuid) < 0)
-      .sort((a: Participant, b: Participant) => a.nick.localeCompare(b.nick));
+      .filter((p: Member) => this.game.estimations.findIndex((e: Estimation) => e.participant.uuid == p.uuid) < 0)
+      .sort((a: Member, b: Member) => a.nick.localeCompare(b.nick));
   }
 
   public get leaveLabel(): string {
@@ -94,7 +94,7 @@ export class GameComponent {
       this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
   }
 
-  public get observers(): Array<Participant> {
+  public get observers(): Array<Member> {
     return this.game.observers;
   }
 
@@ -106,7 +106,7 @@ export class GameComponent {
     return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
   }
 
-  public get scrumMaster(): Participant | undefined {
+  public get scrumMaster(): Member | undefined {
     return this.game.scrumMaster;
   }
 
@@ -115,7 +115,7 @@ export class GameComponent {
   }
 
   public get showDisconnect(): boolean {
-    return !environment.production && this.game.status !== GameStatus.Disconnected;
+    return !environment.production && this.game.status !== EGameStatus.Disconnected;
   }
 
   public get showReveal(): boolean {
@@ -131,7 +131,7 @@ export class GameComponent {
   }
 
   public get status(): string {
-    return GameStatus[this.game.status];
+    return EGameStatus[this.game.status];
   }
 
   public get team(): string {

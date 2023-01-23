@@ -1,10 +1,10 @@
 import { ICreate, IJoin } from '../interfaces';
-import { ClientMessageType } from './client-message-type';
+import { EClientMessageType } from './client-message-type.enum';
 
 export interface IClientMessage<T> {
   senderUuid: string;
   data: T;
-  type: ClientMessageType
+  type: EClientMessageType
 }
 
 export type ICreatemessage = IClientMessage<ICreate>;

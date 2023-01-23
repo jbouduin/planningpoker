@@ -1,23 +1,23 @@
 import { IEstimation } from '@shared-lib';
 import { Card } from './card';
-import { Participant } from './participant';
+import { Member } from './member';
 
 export class Estimation {
 
   //#region Public properties -------------------------------------------------
   public readonly card: Card
-  public readonly participant: Participant;
+  public readonly participant: Member;
   public readonly revealed: boolean;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public static createEstimation(
     dtoEstimation: IEstimation,
-    participants: Map<string, Participant>,
+    participants: Map<string, Member>,
     cards: Array<Card>,
-    self?: Participant): Estimation | undefined {
+    self?: Member): Estimation | undefined {
 
-    let participant: Participant | undefined;
+    let participant: Member | undefined;
     if (self?.uuid === dtoEstimation.uuid) {
       participant = self;
     } else {
@@ -27,7 +27,7 @@ export class Estimation {
     return participant && selectedCard ? new Estimation(participant, selectedCard, dtoEstimation.revealed) : undefined;
   }
 
-  public constructor(participant: Participant, card: Card, revealed: boolean) {
+  public constructor(participant: Member, card: Card, revealed: boolean) {
     this.participant = participant;
     this.card = card;
     this.revealed = revealed;

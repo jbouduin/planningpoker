@@ -1,4 +1,4 @@
-import { GameStatus } from '../../../../shared-lib/lib';
+import { EGameStatus } from '../../../../shared-lib/lib';
 
 import { Estimation } from './estimation';
 import { Participant } from './participant';
@@ -6,7 +6,7 @@ import { Participant } from './participant';
 export interface ITeam {
   readonly allEstimations: Array<Estimation>;
   readonly allParticipants: Array<Participant>;
-  readonly status: GameStatus;
+  readonly status: EGameStatus;
   teamName: string
   reveal(): void;
   startEstimating(): void;
@@ -25,7 +25,7 @@ export class Team implements ITeam {
   //#region Private properties ------------------------------------------------
   private participants: Map<string, Participant>;
   private estimations: Map<string, Estimation>;
-  private gameStatus: GameStatus;
+  private gameStatus: EGameStatus;
   //#endregion
 
   //#region Public getters ----------------------------------------------------
@@ -37,7 +37,7 @@ export class Team implements ITeam {
     return Array.from(this.estimations.values());
   }
 
-  public get status(): GameStatus {
+  public get status(): EGameStatus {
     return this.gameStatus;
   }
   //#endregion
@@ -45,7 +45,7 @@ export class Team implements ITeam {
   //#region Constructor & C° --------------------------------------------------
   public constructor(public teamName: string) {
     this.teamName = teamName;
-    this.gameStatus = GameStatus.Stopped;
+    this.gameStatus = EGameStatus.Stopped;
     this.participants = new Map<string, Participant>();
     this.estimations = new Map<string, Estimation>();
   }
@@ -53,12 +53,12 @@ export class Team implements ITeam {
 
   //#region Public GameStatus related methods ---------------------------------
   public reveal(): void {
-    this.gameStatus = GameStatus.Revealed;
+    this.gameStatus = EGameStatus.Revealed;
   }
 
   public startEstimating(): void {
     this.estimations = new Map<string, Estimation>();
-    this.gameStatus = GameStatus.Started;
+    this.gameStatus = EGameStatus.Started;
   }
   //#endregion
 

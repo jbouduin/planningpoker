@@ -1,4 +1,4 @@
-export enum SnackbarType {
+export enum ESnackbarType {
   Info,
   Warning,
   Error

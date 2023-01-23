@@ -1,21 +1,20 @@
-import { IParticipant, ParticipantStatus, Role } from '../../../../shared-lib/lib';
+import { IParticipant, EParticipantStatus, ERole } from '../../../../shared-lib/lib';
 import { WebSocket } from '../websocket';
 
 export class Participant implements IParticipant {
 
-  //#region  Public properties
-  public status: ParticipantStatus;
+  //#region Public properties -------------------------------------------------
+  public status: EParticipantStatus;
   public observer: boolean;
   //#endregion
 
-  //#region  Constructor & C°
-
+  //#region Constructor & C° --------------------------------------------------
   public constructor(
     public nick: string,
     public uuid: string,
-    public role: Role,
+    public role: ERole,
     public socket: WebSocket) {
-    this.status = ParticipantStatus.Connected;
+    this.status = EParticipantStatus.Connected;
     this.observer = true;
   }
   //#endregion

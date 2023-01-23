@@ -1,5 +1,5 @@
 // TODO distinct between connection status and game
-export enum GameStatus {
+export enum EGameStatus {
   NoGame,
   Disconnected,
   Started,

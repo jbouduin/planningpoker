@@ -5,9 +5,9 @@ import 'reflect-metadata';
 import { v4 as Uuid } from 'uuid';
 
 import {
-  ClientMessage, ClientMessageType, IEstimation, IParticipant, ITeamInfo, ErrorCode, GameStatus,
+  ClientMessage, EClientMessageType, IEstimation, IParticipant, EErrorCode, EGameStatus,
   ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IRejoinMessage,
-  ISetNickMessage, ServerMessageType, ParticipantStatus, Role, ServerMessage
+  ISetNickMessage, EServerMessageType, EParticipantStatus, ERole, ServerMessage
 } from '../../../../shared-lib/lib';
 
 import { ICardService } from '../card';
@@ -19,8 +19,8 @@ import { Participant } from './participant';
 
 import SERVICETYPES from '../service.types';
 import {
-  PingMessage, ClearEstimationsMessage, EndOfGameMessage, ErrorMessage, EstimationsMessage,
-  InitMessage, TeamMessage, ServerResetMessage, SelfMessage, TeamStatusMessage, ParticipantListMessage
+  PingMessage, ClearEstimationsMessage, DissolveTeamMessage, ErrorMessage, EstimationListMessage,
+  InitMessage, GameStatusMessage, ServerResetMessage, SelfMessage, TeamInfoMessage, MemberListMessage
 } from '../../messages';
 
 export interface IGameService {
@@ -32,14 +32,14 @@ export interface IGameService {
 
 interface IGameDump {
   team: string;
-  status: GameStatus;
+  status: EGameStatus;
   participants: Array<IParticipantDump>;
 }
 
 interface IParticipantDump {
   name: string;
-  role: Role;
-  status: ParticipantStatus;
+  role: ERole;
+  status: EParticipantStatus;
   observer: boolean;
   uuid: string;
 }
@@ -93,7 +93,7 @@ export class GameService implements IGameService {
       const newParticipant = this.factoryService.newParticipant(
         `participant ${++this.cnt}`,
         uuid,
-        Role.Unknown,
+        ERole.Unknown,
         ws);
       this.participants.set(uuid, newParticipant);
       console.log(`${new Date().toISOString()}: connection from client '${req.headers['sec-websocket-key'] || 'unknown'}' entered as '${newParticipant.nick}' in '{TODO (#693) param}'`);
@@ -107,7 +107,7 @@ export class GameService implements IGameService {
         const closed = this.filterParticipants((participant: Participant) => participant.socket == ws)[0];
         if (closed) {
           console.log(`${new Date().toISOString()}: '${closed.nick}'' has been disconnected`);
-          closed.status = ParticipantStatus.Disconnected;
+          closed.status = EParticipantStatus.Disconnected;
           const game = this.getTeamOfSenderUuid(closed.uuid);
           if (game) {
             console.log('sending disconnection to other participants');
@@ -129,65 +129,65 @@ export class GameService implements IGameService {
           try {
             // parse the message
             const message: ClientMessage = JSON.parse(msg);
-            console.log(`${new Date().toISOString()}: <= ${ServerMessageType[message.type]}: ${msg}`);
+            console.log(`${new Date().toISOString()}: <= ${EServerMessageType[message.type]}: ${msg}`);
 
             const preflight = this.preflight(message, req.params.team);
-            if (preflight === ErrorCode.ParticipantNotFound) {
+            if (preflight === EErrorCode.ParticipantNotFound) {
               this.sendParticipantNotFound(ws);
-            } else if (preflight == ErrorCode.TeamDoesNotExist) {
+            } else if (preflight == EErrorCode.TeamDoesNotExist) {
               this.sendTeamNotFound(ws);
             }
             else {
               // make sure we always have a sender, although preflight has checked this
               const sender = this.getParticipantBySenderUuid(message.senderUuid, ws);
               const auth = this.checkAuthorization(message.type, sender.role);
-              if (preflight === ErrorCode.NoError && auth === ErrorCode.NoError) {
+              if (preflight === EErrorCode.NoError && auth === EErrorCode.NoError) {
                 // make sure we always have a game, although preflight has checked this
                 const team = this.teams.get(req.params.team) || this.factoryService.dummyGame();
                 switch (message.type) {
-                  case (ClientMessageType.Create): {
+                  case (EClientMessageType.Create): {
                     this.handleCreate(sender, <ICreatemessage>message);
                     break;
                   }
-                  case (ClientMessageType.Estimate): {
+                  case (EClientMessageType.Estimate): {
                     this.handleEstimate(sender, <IEstimateMessage>message, team);
                     break;
                   }
-                  case (ClientMessageType.Join): {
+                  case (EClientMessageType.Join): {
                     this.handleJoin(sender, <IJoinMessage>message, team);
                     break;
                   }
-                  case (ClientMessageType.KillMe): {
+                  case (EClientMessageType.Disconnect): {
                     this.handleKillMe(sender);
                     break;
                   }
-                  case (ClientMessageType.Leave): {
+                  case (EClientMessageType.Leave): {
                     this.handleLeave(sender, <ILeaveMessage>message, team);
                     break;
                   }
-                  case (ClientMessageType.Nick): {
+                  case (EClientMessageType.Nick): {
                     this.handleNick(sender, <ISetNickMessage>message, team);
                     break;
                   }
-                  case (ClientMessageType.Reveal): {
+                  case (EClientMessageType.Reveal): {
                     this.handleReveal(sender, team);
                     break;
                   }
-                  case (ClientMessageType.Start): {
+                  case (EClientMessageType.Start): {
                     this.handleStart(sender, team);
                     break;
                   }
-                  case (ClientMessageType.Rejoin): {
+                  case (EClientMessageType.Rejoin): {
                     this.handleRejoin(sender, <IRejoinMessage>message, ws);
                     break;
                   }
                   default: {
-                    this.sendErrorMessage(sender, ErrorCode.UnknownVerb);
+                    this.sendErrorMessage(sender, EErrorCode.UnknownVerb);
                     console.log('unexpected messagetype');
                   }
                 } // end switch
               } else { // end of preflight = NoError && auth = NoError
-                if (preflight !== ErrorCode.NoError) {
+                if (preflight !== EErrorCode.NoError) {
                   this.sendErrorMessage(sender, preflight);
                 } else {
                   this.sendErrorMessage(sender, auth);
@@ -211,7 +211,7 @@ export class GameService implements IGameService {
         () => {
           console.log(`${new Date().toISOString()}: ping`);
           this
-            .filterParticipants((participant: Participant) => participant.status === ParticipantStatus.Connected)
+            .filterParticipants((participant: Participant) => participant.status === EParticipantStatus.Connected)
             .forEach(participant => {
               const message: ServerMessage = new PingMessage();
               this.sendToParticipant(participant, message);
@@ -261,7 +261,7 @@ export class GameService implements IGameService {
     console.log(`Create: '${sender.nick}' is creating '${message.data.team}'`);
     const newGame = this.factoryService.newTeam(message.data.team);
     sender.observer = message.data.observer;
-    sender.role = Role.ScrumMaster;
+    sender.role = ERole.ScrumMaster;
     newGame.upsertParticipant(sender);
     this.teams.set(message.data.team, newGame);
     this.participantGameMap.set(message.senderUuid, message.data.team);
@@ -282,7 +282,7 @@ export class GameService implements IGameService {
 
   private handleJoin(sender: Participant, message: IJoinMessage, team: ITeam): void {
     console.log(`Join: '${sender.nick}' is joining '${message.data.team}'`);
-    sender.role = Role.Developer;
+    sender.role = ERole.Developer;
     sender.observer = message.data.observer;
     team.upsertParticipant(sender);
     this.participantGameMap.set(message.senderUuid, message.data.team);
@@ -298,7 +298,7 @@ export class GameService implements IGameService {
   }
 
   private handleLeave(sender: Participant, _message: ILeaveMessage, team: ITeam): void {
-    if (sender.role === Role.ScrumMaster) {
+    if (sender.role === ERole.ScrumMaster) {
       console.log(`End game: '${sender.nick}' is ending '${team.teamName}'`);
       this.broadcastEndOfGameToOthers(team, sender);
       team
@@ -312,7 +312,7 @@ export class GameService implements IGameService {
       this.participantGameMap.delete(sender.uuid);
       this.participants.delete(sender.uuid);
       // tell the others someone left
-      sender.status = ParticipantStatus.Left;
+      sender.status = EParticipantStatus.Left;
       this.broadcastParticipantToOthers(team, sender);
     }
   }
@@ -330,8 +330,8 @@ export class GameService implements IGameService {
   }
 
   private handleReveal(sender: Participant, team: ITeam): void {
-    if (sender.role !== Role.ScrumMaster) {
-      this.sendErrorMessage(sender, ErrorCode.ScrumMasterRequired);
+    if (sender.role !== ERole.ScrumMaster) {
+      this.sendErrorMessage(sender, EErrorCode.ScrumMasterRequired);
     } else {
       team.reveal();
       this.broadCastGame(team);
@@ -340,8 +340,8 @@ export class GameService implements IGameService {
   }
 
   private handleStart(sender: Participant, team: ITeam): void {
-    if (sender.role !== Role.ScrumMaster) {
-      this.sendErrorMessage(sender, ErrorCode.ScrumMasterRequired);
+    if (sender.role !== ERole.ScrumMaster) {
+      this.sendErrorMessage(sender, EErrorCode.ScrumMasterRequired);
     } else {
       team.startEstimating();
       this.broadCastClearEstimations(team);
@@ -359,7 +359,7 @@ export class GameService implements IGameService {
     this.participants.delete(sender.uuid);
     // update the original participant
     oldParticipant.uuid = sender.uuid;
-    oldParticipant.status = ParticipantStatus.Connected;
+    oldParticipant.status = EParticipantStatus.Connected;
     oldParticipant.socket = ws;
     // provide the rejoining participant with the curren game state
     this.sendStatus(oldParticipant, oldGame);
@@ -371,37 +371,37 @@ export class GameService implements IGameService {
   //#region Private broadcast methods -----------------------------------------
   private broadCastAllEstimations(team: ITeam) {
     team
-      .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
-      .forEach(participant => this.sendEstimations(participant, team.status === GameStatus.Revealed, team.allEstimations));
+      .filterParticipants(participant => participant.status === EParticipantStatus.Connected)
+      .forEach(participant => this.sendEstimations(participant, team.status === EGameStatus.Revealed, team.allEstimations));
   }
 
   private broadCastClearEstimations(team: ITeam) {
     team
-      .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
+      .filterParticipants(participant => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.sendClearEstimations(participant));
   }
 
   private broadCastEstimation(team: ITeam, estimation: Estimation) {
     team
-      .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
-      .forEach(participant => this.sendEstimations(participant, team.status === GameStatus.Revealed, [estimation]));
+      .filterParticipants(participant => participant.status === EParticipantStatus.Connected)
+      .forEach(participant => this.sendEstimations(participant, team.status === EGameStatus.Revealed, [estimation]));
   }
 
   private broadCastGame(team: ITeam) {
     team
-      .filterParticipants(participant => participant.status === ParticipantStatus.Connected)
-      .forEach(participant => this.sendTeam(participant, team));
+      .filterParticipants(participant => participant.status === EParticipantStatus.Connected)
+      .forEach(participant => this.sendGameStatus(participant, team));
   }
 
   private broadcastParticipantToOthers(team: ITeam, participant: Participant): void {
     team
-      .filterParticipants(other => other.uuid !== participant.uuid && other.status === ParticipantStatus.Connected)
+      .filterParticipants(other => other.uuid !== participant.uuid && other.status === EParticipantStatus.Connected)
       .forEach(other => this.sendParticipants(other, [participant]));
   }
 
   private broadcastEndOfGameToOthers(team: ITeam, participant: Participant): void {
     team
-      .filterParticipants(other => other.uuid !== participant.uuid && other.status === ParticipantStatus.Connected)
+      .filterParticipants(other => other.uuid !== participant.uuid && other.status === EParticipantStatus.Connected)
       .forEach(other => this.sendEndOfGame(other));
   }
   //#endregion
@@ -417,13 +417,6 @@ export class GameService implements IGameService {
         uuid: estimation.uuid
       };
     });
-  }
-
-  private prepareTeamData(team: ITeam): ITeamInfo {
-    return {
-      team: team.teamName,
-      status: team.status
-    };
   }
 
   private prepareParticipantsData(participants: Array<Participant>): Array<IParticipant> {
@@ -446,17 +439,17 @@ export class GameService implements IGameService {
   }
 
   private sendEndOfGame(to: Participant): void {
-    const message: ServerMessage = new EndOfGameMessage();
+    const message: ServerMessage = new DissolveTeamMessage();
     this.sendToParticipant(to, message);
   }
 
-  private sendErrorMessage(to: Participant, code: ErrorCode): void {
+  private sendErrorMessage(to: Participant, code: EErrorCode): void {
     const message: ServerMessage = new ErrorMessage(code);
     this.sendToParticipant(to, message);
   }
 
   private sendEstimations(to: Participant, revealed: boolean, estimations: Array<Estimation>): void {
-    const message: ServerMessage = new EstimationsMessage(this.prepareEstimationsData(to, revealed, estimations));
+    const message: ServerMessage = new EstimationListMessage(this.prepareEstimationsData(to, revealed, estimations));
     this.sendToParticipant(to, message);
   }
 
@@ -465,8 +458,8 @@ export class GameService implements IGameService {
     this.sendToParticipant(to, message);
   }
 
-  private sendTeam(to: Participant, game: ITeam): void {
-    const message: ServerMessage = new TeamMessage(this.prepareTeamData(game));
+  private sendGameStatus(to: Participant, game: ITeam): void {
+    const message: ServerMessage = new GameStatusMessage(game.status);
     this.sendToParticipant(to, message);
   }
 
@@ -481,48 +474,49 @@ export class GameService implements IGameService {
   }
 
   private sendStatus(to: Participant, game: ITeam): void {
-    const message: ServerMessage = new TeamStatusMessage(
+    const message: ServerMessage = new TeamInfoMessage(
       {
+        teamName: game.teamName,
+        gameStatus: game.status,
         cards: this.cardService.generateCardSet(),
-        estimations: this.prepareEstimationsData(to, game.status === GameStatus.Revealed, game.allEstimations),
-        game: this.prepareTeamData(game),
-        others: this.prepareParticipantsData(game.filterParticipants(other => other.uuid !== to.uuid)),
+        estimations: this.prepareEstimationsData(to, game.status === EGameStatus.Revealed, game.allEstimations),
+        otherMembers: this.prepareParticipantsData(game.filterParticipants(other => other.uuid !== to.uuid)),
         self: this.prepareParticipantsData([to])[0]
       });
     this.sendToParticipant(to, message);
   }
 
   private sendParticipants(to: Participant, participants: Array<Participant>): void {
-    const message: ServerMessage = new ParticipantListMessage(this.prepareParticipantsData(participants));
+    const message: ServerMessage = new MemberListMessage(this.prepareParticipantsData(participants));
     this.sendToParticipant(to, message);
   }
   //#endregion
 
   //#region Private send to socket methods ------------------------------------
   private sendException(socket: WebSocket, errorMessage: string): void {
-    const message: ServerMessage = new ErrorMessage(ErrorCode.ServerError, errorMessage);
+    const message: ServerMessage = new ErrorMessage(EErrorCode.ServerError, errorMessage);
     this.sendToSocket(socket, message);
   }
 
   private sendParticipantNotFound(socket: WebSocket): void {
-    const message: ServerMessage = new ErrorMessage(ErrorCode.ParticipantNotFound);
+    const message: ServerMessage = new ErrorMessage(EErrorCode.ParticipantNotFound);
     this.sendToSocket(socket, message);
   }
 
   private sendTeamNotFound(socket: WebSocket): void {
-    const message: ServerMessage = new ErrorMessage(ErrorCode.TeamDoesNotExist);
+    const message: ServerMessage = new ErrorMessage(EErrorCode.TeamDoesNotExist);
     this.sendToSocket(socket, message);
   }
   //#endregion
 
   //#region Private send methods ----------------------------------------------
   private sendToParticipant(to: Participant, message: ServerMessage) {
-    console.log(`${new Date().toISOString()}: => to '${to.nick}': ${ServerMessageType[message.type]} - ${JSON.stringify(message)}`);
+    console.log(`${new Date().toISOString()}: => to '${to.nick}': ${EServerMessageType[message.type]} - ${JSON.stringify(message)}`);
     this.send(to.socket, message);
   }
 
   private sendToSocket(socket: WebSocket, message: ServerMessage) {
-    console.log(`${new Date().toISOString()}: => to socket: ${ServerMessageType[message.type]} - ${JSON.stringify(message)}`);
+    console.log(`${new Date().toISOString()}: => to socket: ${EServerMessageType[message.type]} - ${JSON.stringify(message)}`);
     this.send(socket, message);
   }
 
@@ -540,20 +534,20 @@ export class GameService implements IGameService {
   //#endregion
 
   //#region Private helpers ---------------------------------------------------
-  private checkAuthorization(messageType: ClientMessageType, role: Role): ErrorCode {
-    let result = ErrorCode.NoError;
+  private checkAuthorization(messageType: EClientMessageType, role: ERole): EErrorCode {
+    let result = EErrorCode.NoError;
 
     switch (messageType) {
-      case (ClientMessageType.Estimate): {
-        if (role !== Role.ScrumMaster && role !== Role.Developer) {
-          result = ErrorCode.DeveloperRequired;
+      case (EClientMessageType.Estimate): {
+        if (role !== ERole.ScrumMaster && role !== ERole.Developer) {
+          result = EErrorCode.DeveloperRequired;
         }
         break;
       }
-      case (ClientMessageType.Reveal):
-      case (ClientMessageType.Start): {
-        if (role !== Role.ScrumMaster) {
-          result = ErrorCode.ScrumMasterRequired;
+      case (EClientMessageType.Reveal):
+      case (EClientMessageType.Start): {
+        if (role !== ERole.ScrumMaster) {
+          result = EErrorCode.ScrumMasterRequired;
         }
         break;
       }
@@ -570,86 +564,86 @@ export class GameService implements IGameService {
     return this.participants.get(senderUuid) || this.factoryService.dummyParticipant(websocket);
   }
 
-  private messageTypeRequiresTeam(messageType: ClientMessageType): boolean {
+  private messageTypeRequiresTeam(messageType: EClientMessageType): boolean {
     const result =
-      messageType === ClientMessageType.Estimate ||
-      messageType === ClientMessageType.Join ||
-      messageType === ClientMessageType.Leave ||
-      messageType === ClientMessageType.Reveal ||
-      messageType === ClientMessageType.Start;
+      messageType === EClientMessageType.Estimate ||
+      messageType === EClientMessageType.Join ||
+      messageType === EClientMessageType.Leave ||
+      messageType === EClientMessageType.Reveal ||
+      messageType === EClientMessageType.Start;
     return result;
   }
 
-  private messageTypeRequiresParticipation(messageType: ClientMessageType): boolean {
+  private messageTypeRequiresParticipation(messageType: EClientMessageType): boolean {
     const result =
-      messageType === ClientMessageType.Estimate ||
-      messageType === ClientMessageType.Leave ||
-      messageType === ClientMessageType.Reveal ||
-      messageType === ClientMessageType.Start;
+      messageType === EClientMessageType.Estimate ||
+      messageType === EClientMessageType.Leave ||
+      messageType === EClientMessageType.Reveal ||
+      messageType === EClientMessageType.Start;
     return result;
   }
 
-  private messageTypeForbidsParticipation(messageType: ClientMessageType): boolean {
+  private messageTypeForbidsParticipation(messageType: EClientMessageType): boolean {
     const result =
-      messageType === ClientMessageType.Join ||
-      messageType === ClientMessageType.Rejoin;
+      messageType === EClientMessageType.Join ||
+      messageType === EClientMessageType.Rejoin;
     return result;
   }
 
-  private preflight(message: ClientMessage, requestTeam: string): ErrorCode {
-    let result = ErrorCode.NoError;
+  private preflight(message: ClientMessage, requestTeam: string): EErrorCode {
+    let result = EErrorCode.NoError;
 
     // the sender must exist
     if (!this.participants.has(message.senderUuid)) {
       console.log(`participant with uuid '${message.senderUuid}' not found`);
-      result = ErrorCode.ParticipantNotFound;
+      result = EErrorCode.ParticipantNotFound;
     }
-    else if (message.type === ClientMessageType.Rejoin && !this.teams.has(requestTeam)) {
-      console.log(`${ClientMessageType[message.type]}: team '${requestTeam}' does not exist.`);
-      result = ErrorCode.TeamDoesNotExist;
+    else if (message.type === EClientMessageType.Rejoin && !this.teams.has(requestTeam)) {
+      console.log(`${EClientMessageType[message.type]}: team '${requestTeam}' does not exist.`);
+      result = EErrorCode.TeamDoesNotExist;
     }
     // general tests on team and team participation
     else if (this.messageTypeRequiresTeam(message.type)) {
       if (!this.teams.has(requestTeam)) {
-        console.log(`${ClientMessageType[message.type]}: team '${requestTeam}' does not exist.`);
-        result = ErrorCode.TeamDoesNotExist;
+        console.log(`${EClientMessageType[message.type]}: team '${requestTeam}' does not exist.`);
+        result = EErrorCode.TeamDoesNotExist;
       } else if (this.messageTypeRequiresParticipation(message.type)) {
         const game = this.getTeamOfSenderUuid(message.senderUuid);
         if (!game) {
-          console.log(`${ClientMessageType[message.type]}: '${message.senderUuid}' team '${requestTeam}' does not exist.`);
-          result = ErrorCode.TeamDoesNotExist;
+          console.log(`${EClientMessageType[message.type]}: '${message.senderUuid}' team '${requestTeam}' does not exist.`);
+          result = EErrorCode.TeamDoesNotExist;
         }
         else if (game.teamName !== requestTeam) {
-          console.log(`${ClientMessageType[message.type]}: '${message.senderUuid}' does not belong to team '${requestTeam}'.`);
-          result = ErrorCode.ParticipantNotInTeam;
+          console.log(`${EClientMessageType[message.type]}: '${message.senderUuid}' does not belong to team '${requestTeam}'.`);
+          result = EErrorCode.ParticipantNotInTeam;
         }
       } else if (this.messageTypeForbidsParticipation(message.type)) {
         const game = this.getTeamOfSenderUuid(message.senderUuid);
         if (game) {
-          console.log(`${ServerMessageType[message.type]}: '${message.senderUuid}' already belongs to team '${requestTeam}'.`);
-          result = ErrorCode.ParticipantAllReadyInTeam;
+          console.log(`${EServerMessageType[message.type]}: '${message.senderUuid}' already belongs to team '${requestTeam}'.`);
+          result = EErrorCode.ParticipantAllReadyInTeam;
         }
       }
     }
 
     // specific cases
-    if (result === ErrorCode.NoError) {
+    if (result === EErrorCode.NoError) {
       switch (message.type) {
-        case (ClientMessageType.Create): {
+        case (EClientMessageType.Create): {
           if (this.teams.has(requestTeam)) {
-            result = ErrorCode.TeamAlreadyExists;
+            result = EErrorCode.TeamAlreadyExists;
           }
           break;
         }
-        case (ClientMessageType.Rejoin): {
+        case (EClientMessageType.Rejoin): {
           // the old participant must exist
           if (!this.participants.has(<string>message.data)) {
-            result = ErrorCode.ParticipantNotFound;
+            result = EErrorCode.ParticipantNotFound;
           } else {
             const oldGame = this.getTeamOfSenderUuid(<string>message.data);
             if (!oldGame || oldGame.teamName !== requestTeam) {
-              console.log(`${ServerMessageType[message.type]}: '${message.senderUuid}' does not belong to team '${requestTeam}'.`);
-              result = ErrorCode.ParticipantNotInTeam;
+              console.log(`${EServerMessageType[message.type]}: '${message.senderUuid}' does not belong to team '${requestTeam}'.`);
+              result = EErrorCode.ParticipantNotInTeam;
             }
           }
           break;

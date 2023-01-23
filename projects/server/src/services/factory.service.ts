@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 
-import { ParticipantStatus, Role } from '../../../shared-lib/lib';
+import { EParticipantStatus, ERole } from '../../../shared-lib/lib';
 
 import { Team, ITeam } from './game/team';
 import { Participant } from './game/participant';
@@ -11,7 +11,7 @@ export interface IFactoryService {
   dummyGame(): ITeam;
   dummyParticipant(socket: WebSocket): Participant;
   newTeam(team: string): ITeam
-  newParticipant(nick: string, uuid: string, role: Role, socket: WebSocket): Participant;
+  newParticipant(nick: string, uuid: string, role: ERole, socket: WebSocket): Participant;
 }
 
 @injectable()
@@ -22,8 +22,8 @@ export class FactoryService implements IFactoryService {
   }
 
   public dummyParticipant(socket: WebSocket): Participant {
-    const result = new Participant('dummy', '', Role.Unknown, socket);
-    result.status = ParticipantStatus.Disconnected;
+    const result = new Participant('dummy', '', ERole.Unknown, socket);
+    result.status = EParticipantStatus.Disconnected;
     return result;
   }
 
@@ -31,7 +31,7 @@ export class FactoryService implements IFactoryService {
     return new Team(team);
   }
 
-  public newParticipant(nick: string, uuid: string, role: Role, socket: WebSocket) {
+  public newParticipant(nick: string, uuid: string, role: ERole, socket: WebSocket) {
     return new Participant(nick, uuid, role, socket);
   }
 

@@ -1,4 +1,4 @@
-export enum ParticipantStatus {
+export enum EParticipantStatus {
   Unknown,
   Connected,
   Disconnected,

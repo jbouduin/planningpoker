@@ -1,9 +1,8 @@
-export enum ClientMessageType {
-
+export enum EClientMessageType {
   Create,
   Estimate,
   Join,
-  KillMe,
+  Disconnect,
   Leave,
   Nick,
   Reveal,

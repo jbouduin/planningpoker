@@ -1,4 +1,4 @@
-export enum ErrorCode {
+export enum EErrorCode {
   NoError = 0,
   TeamAlreadyExists = 100,
   TeamDoesNotExist = 101,
