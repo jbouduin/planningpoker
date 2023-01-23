@@ -52,9 +52,9 @@ export class GameComponent {
         result.sort((a: Estimation, b: Estimation) => a.card.index - b.card.index);
         break;
       case EGameStatus.Started:
-        result = this.game.estimations.filter((e: Estimation) => !e.participant.me);
-        result.sort((a: Estimation, b: Estimation) => a.participant.nick.localeCompare(b.participant.nick));
-        myEstimation = this.game.estimations.find(estimation => estimation.participant.me);
+        result = this.game.estimations.filter((e: Estimation) => !e.member.me);
+        result.sort((a: Estimation, b: Estimation) => a.member.nick.localeCompare(b.member.nick));
+        myEstimation = this.game.estimations.find(estimation => estimation.member.me);
         if (myEstimation) {
           result.splice(0, 0, myEstimation);
         }
@@ -84,7 +84,7 @@ export class GameComponent {
       result = new Array<Member>();
     }
     return result
-      .filter((p: Member) => this.game.estimations.findIndex((e: Estimation) => e.participant.uuid == p.uuid) < 0)
+      .filter((p: Member) => this.game.estimations.findIndex((e: Estimation) => e.member.uuid == p.uuid) < 0)
       .sort((a: Member, b: Member) => a.nick.localeCompare(b.nick));
   }
 

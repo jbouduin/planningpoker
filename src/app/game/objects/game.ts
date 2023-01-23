@@ -189,8 +189,8 @@ export class Game implements IGame {
     );
   }
 
-  public handleParticipants(participants: Array<IParticipant>, showJoins: boolean): void {
-    participants.forEach(dtoParticipant => {
+  public handleMemberList(memberList: Array<IParticipant>, showJoins: boolean): void {
+    memberList.forEach(dtoParticipant => {
       const participant: Member = new Member(dtoParticipant, false);
       this.dumpParticipant(participant);
       if (participant.status === EParticipantStatus.Left) {
@@ -284,7 +284,7 @@ export class Game implements IGame {
   private dumpEstimation(estimation: Estimation): void {
     console.log({
       card: estimation.card,
-      participant: estimation.participant,
+      participant: estimation.member,
       revealed: estimation.revealed
     });
   }

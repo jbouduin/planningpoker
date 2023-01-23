@@ -5,7 +5,7 @@ import { Participant } from './participant';
 
 export interface ITeam {
   readonly allEstimations: Array<Estimation>;
-  readonly allParticipants: Array<Participant>;
+  readonly allMembers: Array<Participant>;
   readonly status: EGameStatus;
   teamName: string
   reveal(): void;
@@ -14,23 +14,23 @@ export interface ITeam {
   deleteEstimation(uuid: string): void;
   upsertEstimation(estimation: Estimation): void;
 
-  deleteParticipant(uuid: string): void;
-  upsertParticipant(participant: Participant): void;
-  getParticipant(uuid: string): Participant | undefined;
-  filterParticipants(filter: (participant: Participant) => boolean): Array<Participant>;
+  removeMember(participantUuid: string): void;
+  upsertMember(member: Participant): void;
+  getMember(participantUuid: string): Participant | undefined;
+  filterMembers(filter: (member: Participant) => boolean): Array<Participant>;
 }
 
 export class Team implements ITeam {
 
   //#region Private properties ------------------------------------------------
-  private participants: Map<string, Participant>;
+  private members: Map<string, Participant>;
   private estimations: Map<string, Estimation>;
   private gameStatus: EGameStatus;
   //#endregion
 
   //#region Public getters ----------------------------------------------------
-  public get allParticipants(): Array<Participant> {
-    return Array.from(this.participants.values());
+  public get allMembers(): Array<Participant> {
+    return Array.from(this.members.values());
   }
 
   public get allEstimations(): Array<Estimation> {
@@ -46,7 +46,7 @@ export class Team implements ITeam {
   public constructor(public teamName: string) {
     this.teamName = teamName;
     this.gameStatus = EGameStatus.Stopped;
-    this.participants = new Map<string, Participant>();
+    this.members = new Map<string, Participant>();
     this.estimations = new Map<string, Estimation>();
   }
   //#endregion
@@ -73,25 +73,25 @@ export class Team implements ITeam {
   //#endregion
 
   //#region Public participant related methods --------------------------------
-  // insert a new participant or update an existing one
-  public upsertParticipant(participant: Participant): void {
-    this.participants.set(participant.uuid, participant);
+  // insert a new participant as member or update an existing one
+  public upsertMember(participant: Participant): void {
+    this.members.set(participant.uuid, participant);
   }
 
-  // remove a participant from the game
-  public deleteParticipant(uuid: string): void {
-    this.participants.delete(uuid);
+  // remove a member from the team
+  public removeMember(participantUuid: string): void {
+    this.members.delete(participantUuid);
   }
 
-  public getParticipant(uuid: string): Participant | undefined {
-    return this.participants.get(uuid);
+  public getMember(participantUuid: string): Participant | undefined {
+    return this.members.get(participantUuid);
   }
 
-  public filterParticipants(filter: (participant: Participant) => boolean): Array<Participant> {
+  public filterMembers(filter: (member: Participant) => boolean): Array<Participant> {
     const result = new Array<Participant>();
-    for (const participant of this.participants.values()) {
-      if (filter(participant) === true) {
-        result.push(participant);
+    for (const member of this.members.values()) {
+      if (filter(member) === true) {
+        result.push(member);
       }
     }
     return result;

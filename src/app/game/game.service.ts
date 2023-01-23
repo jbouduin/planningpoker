@@ -261,7 +261,7 @@ export class GameService {
           this.game.updateGameStatus(data.gameStatus);
           this.game.setCards(data.cards);
           this.game.handleSelf(data.self);
-          this.game.handleParticipants(data.otherMembers, false);
+          this.game.handleMemberList(data.otherMembers, false);
           this.game.handleEstimations(data.estimations);
           if (this.currentRoute !== '/game') {
             console.log('navigating to game');
@@ -270,7 +270,7 @@ export class GameService {
           break;
         }
         case EServerMessageType.MemberList: {
-          this.game.handleParticipants((<IMemberListMessage>msg).data, false);
+          this.game.handleMemberList((<IMemberListMessage>msg).data, false);
           break;
         }
         case EServerMessageType.Ping: {

@@ -12,12 +12,12 @@ export class Member {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(dtoParticipant: IParticipant, me: boolean) {
-    this.status = dtoParticipant.status;
-    this.nick = dtoParticipant.nick;
-    this.uuid = dtoParticipant.uuid;
-    this.role = dtoParticipant.role;
-    this.observer = dtoParticipant.observer;
+  public constructor(participant: IParticipant, me: boolean) {
+    this.status = participant.status;
+    this.nick = participant.nick;
+    this.uuid = participant.uuid;
+    this.role = participant.role;
+    this.observer = participant.observer;
     this.me = me;
   }
   //#endregion

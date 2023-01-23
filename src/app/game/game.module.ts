@@ -4,7 +4,7 @@ import { MaterialModule } from '@app/material.module';
 import { GameRoutingModule } from './game-routing.module';
 import { CardComponent } from './components/card/card.component';
 import { GameComponent } from './components/game/game.component';
-import { ParticipantComponent } from './components/participant/participant.component';
+import { MemberComponent } from './components/member/member.component';
 
 @NgModule({
   imports: [
@@ -15,7 +15,7 @@ import { ParticipantComponent } from './components/participant/participant.compo
   declarations: [
     CardComponent,
     GameComponent,
-    ParticipantComponent
+    MemberComponent
   ]
 })
 export class GameModule { }

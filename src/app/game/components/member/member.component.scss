@@ -1,22 +1,22 @@
-.participant {
+.member {
   width: auto;
   max-width: 100%;
   display: flex;
   flex-direction: row;
 }
 
-.participant-icon {
+.member-icon {
   overflow: unset;
 }
 
-.participant-nick-container {
+.member-nick-container {
   display: flex;
   flex: 1 1 100%;
   margin-left: 5px;
   margin-right: 5px;
 }
 
-.participant-nick {
+.member-nick {
   max-width: 230px;
   overflow: hidden;
   text-overflow: ellipsis;

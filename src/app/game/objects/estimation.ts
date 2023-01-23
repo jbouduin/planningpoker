@@ -6,29 +6,29 @@ export class Estimation {
 
   //#region Public properties -------------------------------------------------
   public readonly card: Card
-  public readonly participant: Member;
+  public readonly member: Member;
   public readonly revealed: boolean;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public static createEstimation(
     dtoEstimation: IEstimation,
-    participants: Map<string, Member>,
+    members: Map<string, Member>,
     cards: Array<Card>,
     self?: Member): Estimation | undefined {
 
-    let participant: Member | undefined;
+    let member: Member | undefined;
     if (self?.uuid === dtoEstimation.uuid) {
-      participant = self;
+      member = self;
     } else {
-      participant = participants.get(dtoEstimation.uuid);
+      member = members.get(dtoEstimation.uuid);
     }
     const selectedCard = cards.filter(card => card.index === dtoEstimation.card)[0];
-    return participant && selectedCard ? new Estimation(participant, selectedCard, dtoEstimation.revealed) : undefined;
+    return member && selectedCard ? new Estimation(member, selectedCard, dtoEstimation.revealed) : undefined;
   }
 
-  public constructor(participant: Member, card: Card, revealed: boolean) {
-    this.participant = participant;
+  public constructor(member: Member, card: Card, revealed: boolean) {
+    this.member = member;
     this.card = card;
     this.revealed = revealed;
   }

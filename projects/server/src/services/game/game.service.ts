@@ -30,7 +30,7 @@ export interface IGameService {
   teamExists(uuid: string): boolean;
 }
 
-interface IGameDump {
+interface ITeamDump {
   team: string;
   status: EGameStatus;
   participants: Array<IParticipantDump>;
@@ -45,7 +45,7 @@ interface IParticipantDump {
 }
 
 interface IGameServiceDump {
-  games: Array<IGameDump>;
+  games: Array<ITeamDump>;
 }
 
 @injectable()
@@ -55,7 +55,7 @@ export class GameService implements IGameService {
   private readonly factoryService: IFactoryService;
   private readonly cardService: ICardService
   private readonly participants: Map<string, Participant>;
-  private readonly participantGameMap: Map<string, string>;
+  private readonly memberTeamMap: Map<string, string>;
   private cnt: number;
   private teams: Map<string, ITeam>;
   private pingInterval: number;
@@ -69,7 +69,7 @@ export class GameService implements IGameService {
     this.factoryService = factoryService;
     this.cardService = cardService;
     this.participants = new Map<string, Participant>();
-    this.participantGameMap = new Map<string, string>();
+    this.memberTeamMap = new Map<string, string>();
     this.cnt = 0;
     this.teams = new Map<string, ITeam>();
     this.pingInterval = 0;
@@ -226,24 +226,24 @@ export class GameService implements IGameService {
   public reset(): void {
     for (const game of this.teams.values()) {
       console.log(`System reset: Ending game '${game.teamName}'`);
-      game.allParticipants.forEach((participant: Participant) => this.sendReset(participant));
+      game.allMembers.forEach((participant: Participant) => this.sendReset(participant));
     }
-    this.participantGameMap.clear();
+    this.memberTeamMap.clear();
     this.teams.clear();
   }
 
   public serialize(): string {
     const result: IGameServiceDump = {
-      games: new Array<IGameDump>()
+      games: new Array<ITeamDump>()
     };
 
     for (const game of this.teams.values()) {
-      const gameDump: IGameDump = {
+      const gameDump: ITeamDump = {
         team: game.teamName,
         status: game.status,
         participants: new Array<IParticipantDump>()
       }
-      game.allParticipants.forEach((participant: Participant) => gameDump.participants.push({
+      game.allMembers.forEach((participant: Participant) => gameDump.participants.push({
         name: participant.nick,
         role: participant.role,
         status: participant.status,
@@ -262,9 +262,9 @@ export class GameService implements IGameService {
     const newGame = this.factoryService.newTeam(message.data.team);
     sender.observer = message.data.observer;
     sender.role = ERole.ScrumMaster;
-    newGame.upsertParticipant(sender);
+    newGame.upsertMember(sender);
     this.teams.set(message.data.team, newGame);
-    this.participantGameMap.set(message.senderUuid, message.data.team);
+    this.memberTeamMap.set(message.senderUuid, message.data.team);
     // provide the sender with the current game state
     this.sendStatus(sender, newGame);
   }
@@ -284,8 +284,8 @@ export class GameService implements IGameService {
     console.log(`Join: '${sender.nick}' is joining '${message.data.team}'`);
     sender.role = ERole.Developer;
     sender.observer = message.data.observer;
-    team.upsertParticipant(sender);
-    this.participantGameMap.set(message.senderUuid, message.data.team);
+    team.upsertMember(sender);
+    this.memberTeamMap.set(message.senderUuid, message.data.team);
     // provide the sender with the curren game state
     this.sendStatus(sender, team);
     // tell the others someone joined
@@ -302,14 +302,14 @@ export class GameService implements IGameService {
       console.log(`End game: '${sender.nick}' is ending '${team.teamName}'`);
       this.broadcastEndOfGameToOthers(team, sender);
       team
-        .filterParticipants(_participant => true)
-        .forEach(participant => this.participantGameMap.delete(participant.uuid));
+        .filterMembers(_participant => true)
+        .forEach(participant => this.memberTeamMap.delete(participant.uuid));
       this.teams.delete(team.teamName);
     } else {
       console.log(`Leave: '${sender.nick}' is leaving '${team.teamName}'`);
       // remove participant from game and dictionaries
-      team.deleteParticipant(sender.uuid);
-      this.participantGameMap.delete(sender.uuid);
+      team.removeMember(sender.uuid);
+      this.memberTeamMap.delete(sender.uuid);
       this.participants.delete(sender.uuid);
       // tell the others someone left
       sender.status = EParticipantStatus.Left;
@@ -324,7 +324,7 @@ export class GameService implements IGameService {
     this.sendSelf(sender);
     // check if this user is in a game:
     // depending on the client implementation, it can be that the sender changes his nick before entering a game
-    if (game && this.participantGameMap.has(sender.uuid)) {
+    if (game && this.memberTeamMap.has(sender.uuid)) {
       this.broadcastParticipantToOthers(game, sender);
     }
   }
@@ -371,37 +371,37 @@ export class GameService implements IGameService {
   //#region Private broadcast methods -----------------------------------------
   private broadCastAllEstimations(team: ITeam) {
     team
-      .filterParticipants(participant => participant.status === EParticipantStatus.Connected)
+      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.sendEstimations(participant, team.status === EGameStatus.Revealed, team.allEstimations));
   }
 
   private broadCastClearEstimations(team: ITeam) {
     team
-      .filterParticipants(participant => participant.status === EParticipantStatus.Connected)
+      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.sendClearEstimations(participant));
   }
 
   private broadCastEstimation(team: ITeam, estimation: Estimation) {
     team
-      .filterParticipants(participant => participant.status === EParticipantStatus.Connected)
+      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.sendEstimations(participant, team.status === EGameStatus.Revealed, [estimation]));
   }
 
   private broadCastGame(team: ITeam) {
     team
-      .filterParticipants(participant => participant.status === EParticipantStatus.Connected)
+      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.sendGameStatus(participant, team));
   }
 
   private broadcastParticipantToOthers(team: ITeam, participant: Participant): void {
     team
-      .filterParticipants(other => other.uuid !== participant.uuid && other.status === EParticipantStatus.Connected)
+      .filterMembers(other => other.uuid !== participant.uuid && other.status === EParticipantStatus.Connected)
       .forEach(other => this.sendParticipants(other, [participant]));
   }
 
   private broadcastEndOfGameToOthers(team: ITeam, participant: Participant): void {
     team
-      .filterParticipants(other => other.uuid !== participant.uuid && other.status === EParticipantStatus.Connected)
+      .filterMembers(other => other.uuid !== participant.uuid && other.status === EParticipantStatus.Connected)
       .forEach(other => this.sendEndOfGame(other));
   }
   //#endregion
@@ -480,7 +480,7 @@ export class GameService implements IGameService {
         gameStatus: game.status,
         cards: this.cardService.generateCardSet(),
         estimations: this.prepareEstimationsData(to, game.status === EGameStatus.Revealed, game.allEstimations),
-        otherMembers: this.prepareParticipantsData(game.filterParticipants(other => other.uuid !== to.uuid)),
+        otherMembers: this.prepareParticipantsData(game.filterMembers(other => other.uuid !== to.uuid)),
         self: this.prepareParticipantsData([to])[0]
       });
     this.sendToParticipant(to, message);
@@ -556,7 +556,7 @@ export class GameService implements IGameService {
   }
 
   private getTeamOfSenderUuid(senderUuid: string): ITeam | undefined {
-    const gameName = this.participantGameMap.get(senderUuid);
+    const gameName = this.memberTeamMap.get(senderUuid);
     return gameName ? this.teams.get(gameName) : undefined;
   }
 

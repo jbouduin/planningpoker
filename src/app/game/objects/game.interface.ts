@@ -32,7 +32,7 @@ export interface IGame {
   handleEstimations(dtoEstimations: Array<IEstimation>): void;
   handleSelf(participant: IParticipant): void;
   handleSocketError(error: any): void; // eslint-disable-line
-  handleParticipants(participants: Array<IParticipant>, showJoins: boolean): void
+  handleMemberList(memberList: Array<IParticipant>, showJoins: boolean): void
   reset(): void;
   setCards(cards: Array<ICard>): void;
   showError(errorCode: EErrorCode): void
