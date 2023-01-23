@@ -11,11 +11,11 @@ import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import {
   ClientMessage, ICreate, IJoin, ICardSetMessage, IErrorMessage, IEstimationsMessage,
-  IInitMessage, IMemberListMessage, ISelfMessage, IGameStatusMessage, ITeamInfoMessage, EServerMessageType, ServerMessage
+  IInitMessage, ISelfMessage, IGameStatusMessage, ITeamInfoMessage, EServerMessageType, ServerMessage, IMemberChangedMessage
 } from '@shared-lib';
 import {
   CreateMessage, DisconnectMessage, EstimateMessage, JoinMessage,
-  LeaveMessage, RejoinMessage, RevealMessage, SetNickMessage, StartMessage
+  LeaveMessage, RejoinMessage, RevealMessage, StartMessage
 } from './messages';
 import { GameFactoryService, IGame } from './objects';
 
@@ -101,7 +101,7 @@ export class GameService {
       nick,
       observer,
       undefined,
-      [this.setNick.bind(this), this.createTeam.bind(this)]
+      [this.createTeam.bind(this)]
     );
   }
 
@@ -112,7 +112,7 @@ export class GameService {
       nick,
       observer,
       undefined,
-      [this.setNick.bind(this), this.joinTeam.bind(this)]
+      [this.joinTeam.bind(this)]
     );
   }
 
@@ -261,7 +261,7 @@ export class GameService {
           this.game.updateGameStatus(data.gameStatus);
           this.game.setCards(data.cards);
           this.game.handleSelf(data.self);
-          this.game.handleMemberList(data.otherMembers, false);
+          this.game.handleMemberList(data.otherMembers);
           this.game.handleEstimations(data.estimations);
           if (this.currentRoute !== '/game') {
             console.log('navigating to game');
@@ -269,9 +269,9 @@ export class GameService {
           }
           break;
         }
-        case EServerMessageType.MemberList: {
-          this.game.handleMemberList((<IMemberListMessage>msg).data, false);
-          break;
+        case EServerMessageType.MemberChanged: {
+           this.game.handleMemberChanged((<IMemberChangedMessage>msg).data);
+           break;
         }
         case EServerMessageType.Ping: {
           this.logServerMessage(msg)
@@ -345,7 +345,8 @@ export class GameService {
     console.log('call createTeam:', params);
     const createData: ICreate = {
       team: params.team,
-      observer: params.observer || false
+      observer: params.observer || false,
+      nick: params.nick
     };
 
     if (this.socket) {
@@ -359,7 +360,8 @@ export class GameService {
 
     const joinData: IJoin = {
       team: params.team || '',
-      observer: params.observer || false
+      observer: params.observer || false,
+      nick: params.nick
     };
 
     if (this.socket) {
@@ -376,13 +378,13 @@ export class GameService {
     }
   }
 
-  private setNick(params: CallBackParameter) {
-    console.log('call setNick:', params);
-    if (this.socket) {
-      const message = new SetNickMessage(params.uuid, params.nick);
-      this.socket.next(message);
-    }
-  }
+  // private setNick(params: CallBackParameter) {
+  //   console.log('call setNick:', params);
+  //   if (this.socket) {
+  //     const message = new SetNickMessage(params.uuid, params.nick);
+  //     this.socket.next(message);
+  //   }
+  // }
   //#endregion
 
   //#region Private logger methods for incoming messages ----------------------

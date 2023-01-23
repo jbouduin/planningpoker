@@ -6,7 +6,7 @@ export enum EServerMessageType {
   EstimationList,
   Init,
   GameStatus,
-  MemberList,
+  MemberChanged,
   Ping,
   Self,
   TeamInfo,

@@ -4,7 +4,7 @@ export enum EClientMessageType {
   Join,
   Disconnect,
   Leave,
-  Nick,
+  // NickChanged,
   Reveal,
   Rejoin,
   Start

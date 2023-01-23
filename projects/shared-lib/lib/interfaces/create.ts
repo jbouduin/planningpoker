@@ -1,6 +1,6 @@
-import { IJoin } from './join';
-
-export type ICreate = IJoin;
-// export interface DtoCreate extends DtoJoin {
-
-// }
+export interface ICreate {
+  team: string;
+  observer: boolean;
+  nick: string;
+  // TODO 109 card set
+}

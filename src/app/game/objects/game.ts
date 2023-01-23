@@ -1,6 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { SnackbarService } from '@shared';
-import { ICard, IEstimation, IParticipant, EErrorCode, EGameStatus, EParticipantStatus, ERole } from '@shared-lib';
+import { ICard, IEstimation, IParticipant, EErrorCode, EGameStatus, EParticipantStatus, ERole, IMemberStatusChange, EMemberStatusChange } from '@shared-lib';
 import { Card } from './card';
 import { Estimation } from './estimation';
 import { IGame } from './game.interface';
@@ -189,30 +189,58 @@ export class Game implements IGame {
     );
   }
 
-  public handleMemberList(memberList: Array<IParticipant>, showJoins: boolean): void {
-    memberList.forEach(dtoParticipant => {
-      const participant: Member = new Member(dtoParticipant, false);
-      this.dumpParticipant(participant);
-      if (participant.status === EParticipantStatus.Left) {
-        this.snackbarService.showInfo(
-          this.translateService.instant(
-            'Game.Snackbar.$participant_has_left',
-            { participant: participant.nick }
-          )
+  public handleMemberChanged(memberChange: IMemberStatusChange): void {
+    // TODO  this.dumpParticipant(participant);
+    let message = '';
+    if (memberChange.memberStatusChange != EMemberStatusChange.Left) {
+      this.participants.set(
+        memberChange.member.uuid,
+        new Member(memberChange.member, false)
+      );
+    } else {
+      this.participants.delete(memberChange.member.uuid);
+    }
+
+    switch (memberChange.memberStatusChange) {
+      case EMemberStatusChange.Disconnected:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_was_disconnected',
+          { member: memberChange.member.nick }
         );
-        this.participants.delete(participant.uuid);
-      } else {
-        if (showJoins && !this.participants.has(participant.uuid)) {
-          this.snackbarService.showInfo(
-            this.translateService.instant(
-              'Game.Snackbar.$participant_has_joined',
-              { participant: participant.nick }
-            )
-          );
-        }
-        this.participants.set(participant.uuid, participant);
-      }
-    });
+        break;
+      case EMemberStatusChange.Joined:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_has_joined',
+          { member: memberChange.member.nick }
+        );
+        break;
+      case EMemberStatusChange.Left:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_has_left',
+          { member: memberChange.member.nick }
+        );
+        break;
+      case EMemberStatusChange.Paused:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_is_having_a_break',
+          { member: memberChange.member.nick }
+        );
+        break;
+      case EMemberStatusChange.Rejoined:
+        message = this.translateService.instant(
+          'Game.Snackbar.$member_is_back',
+          { member: memberChange.member.nick }
+        );
+        break;
+      // case EMemberStatusChange.NickChanged:
+      default:
+        return;
+    }
+    this.snackbarService.showInfo(message);
+  }
+
+  public handleMemberList(memberList: Array<IParticipant>): void {
+    memberList.forEach((member: IParticipant) => this.participants.set(member.uuid, new Member(member, false)));
   }
 
   public reset(): void {
@@ -237,6 +265,7 @@ export class Game implements IGame {
       });
   }
 
+  // TODO 2332 move this out
   public showError(errorCode: EErrorCode): void {
     this.snackbarService.showError(
       this.translateService.instant(`ErrorCode.${EErrorCode[errorCode]}`)

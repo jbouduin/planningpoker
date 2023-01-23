@@ -14,7 +14,7 @@ export type IJoinMessage = IClientMessage<IJoin>;
 export type ILeaveMessage = IClientMessage<string>;
 export type IRejoinMessage = IClientMessage<string>;
 export type IRevealMessage = IClientMessage<string>;
-export type ISetNickMessage = IClientMessage<string>;
+// export type ISetNickMessage = IClientMessage<string>;
 export type IStartMessage = IClientMessage<string>;
 export type ClientMessage =
   ICreatemessage |
@@ -24,5 +24,5 @@ export type ClientMessage =
   ILeaveMessage |
   IRejoinMessage |
   IRevealMessage |
-  ISetNickMessage |
+  // ISetNickMessage |
   IStartMessage;

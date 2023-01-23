@@ -94,6 +94,10 @@ export class GameComponent {
       this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
   }
 
+  public get meLabel(): string {
+    return this.translateService.instant('Game.Card.Me_label');
+  }
+
   public get observers(): Array<Member> {
     return this.game.observers;
   }

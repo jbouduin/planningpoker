@@ -3,6 +3,8 @@ export * from './create';
 export * from './error';
 export * from './estimation';
 export * from './join';
+export * from './member-status-change';
+export * from './member-status-change.enum';
 export * from './participant';
 export * from './team-info';
 export * from './game-status.enum';

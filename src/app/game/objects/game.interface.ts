@@ -1,4 +1,4 @@
-import { ICard, IEstimation, IParticipant } from '@shared-lib';
+import { ICard, IEstimation, IMemberStatusChange, IParticipant } from '@shared-lib';
 import { EErrorCode, EGameStatus, ERole } from '@shared-lib';
 
 import { Card } from './card';
@@ -32,7 +32,8 @@ export interface IGame {
   handleEstimations(dtoEstimations: Array<IEstimation>): void;
   handleSelf(participant: IParticipant): void;
   handleSocketError(error: any): void; // eslint-disable-line
-  handleMemberList(memberList: Array<IParticipant>, showJoins: boolean): void
+  handleMemberChanged(memberChange: IMemberStatusChange): void
+  handleMemberList(memberList: Array<IParticipant>): void;
   reset(): void;
   setCards(cards: Array<ICard>): void;
   showError(errorCode: EErrorCode): void
