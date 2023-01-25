@@ -25,7 +25,7 @@ import {
 
 export interface IGameService {
   disconnectParticipant(participantUuid: string): number;
-  initializeTeam(expressWS: expressWs.Instance): void;
+  initializeService(expressWS: expressWs.Instance): void;
   reset(): void;
   serializeAllTeams(): string;
   serializeTeam(teamname: string): string;
@@ -94,14 +94,13 @@ export class GameService implements IGameService {
     }
   }
 
-  public initializeTeam(expressWs: expressWs.Instance): void {
+  public initializeService(expressWs: expressWs.Instance): void {
     const router = Router(); // as expressWs.Router;
     const wss = expressWs.getWss();
     wss.on('connection', (ws, req) => {
       // new connection:
       // store in the participants collection
       // assign it an uuid and send the participant back to the sender
-      // TODO: (#693) const param = req['params'] ? req['params'].team : 'not specified';
       const uuid = Uuid();
       const newParticipant = this.factoryService.newParticipant(
         `participant ${++this.cnt}`,
@@ -109,14 +108,14 @@ export class GameService implements IGameService {
         ERole.Unknown,
         ws);
       this.participants.set(uuid, newParticipant);
-      console.log(`${new Date().toISOString()}: connection from client '${req.headers['sec-websocket-key'] || 'unknown'}' entered as '${newParticipant.nick}' in '{TODO (#693) param}'`);
+      console.log(`${new Date().toISOString()}: connection from client '${req.headers['sec-websocket-key'] || 'unknown'}' registered as '${newParticipant.nick}'`);
       // send the participant himself back, so he knows his assigned uuid
       this.sendInit(newParticipant);
 
       // if an existing connection closes
       // set the connection status to disconnected
       // if the user was in a game: send other participants an update
-      ws.on('close', (_number, _reason) => {
+      ws.on('close', (_number: number, _reason: Buffer) => {
         const closed = this.filterParticipants((participant: Participant) => participant.socket == ws)[0];
         if (closed) {
           console.log(`${new Date().toISOString()}: '${closed.nick}'' has been disconnected`);
@@ -126,11 +125,11 @@ export class GameService implements IGameService {
             console.log('sending disconnection to other participants');
             this.broadcastMemberChange(team, closed, EMemberStatusChange.Disconnected);
           } else {
-            console.log('disconnecting participant was not in a valid game');
+            console.log('disconnected participant was not in a valid game');
           }
         }
         else {
-          console.log('disconnecting participant is unknown');
+          console.log('disconnected participant is unknown');
         }
       });
     });

@@ -5,7 +5,7 @@ import 'reflect-metadata';
 
 import CONTROLLERTYPES from '../controllers/controller.types';
 
-import { ISystemController } from 'controllers';
+import { ISystemController } from '../controllers';
 import { env } from 'process';
 
 export interface IRouteService {

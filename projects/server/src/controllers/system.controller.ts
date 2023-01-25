@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { IGameService } from 'services';
+import { IGameService } from '../services';
 import SERVICETYPES from '../services/service.types';
 
 export interface ISystemController {
