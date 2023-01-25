@@ -1,33 +1,6 @@
 <mat-sidenav-container>
   <mat-sidenav #sidenav opened="true" mode="side">
-    <!-- TODO Participants panel component member panel-->
-    <div class="side-nav-container">
-      <!-- Scrum-master -->
-      <div class="participants">
-        <mat-card-title>{{scrumMasterHeaderLabel}}</mat-card-title>
-        <mat-card-content class="participant-list">
-          <session-member [member]="scrumMaster"></session-member>
-        </mat-card-content>
-      </div>
-      <!-- Developers -->
-      <div class="participants">
-        <mat-card-title>{{developersHeaderLabel}}</mat-card-title>
-        <mat-card-content class="participant-list">
-          <div *ngFor="let developer of developers">
-            <session-member [member]="developer"></session-member>
-          </div>
-        </mat-card-content>
-      </div>
-      <!-- Observers -->
-      <div class="participants">
-        <mat-card-title>{{observersHeaderLabel}}</mat-card-title>
-        <mat-card-content class="participant-list">
-          <div *ngFor="let observer of observers">
-            <session-member [member]="observer"></session-member>
-          </div>
-        </mat-card-content>
-      </div>
-    </div>
+    <session-member-panel [team]="team"></session-member-panel>
   </mat-sidenav>
   <mat-sidenav-content>
     <!-- Game board -->

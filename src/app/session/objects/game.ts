@@ -88,7 +88,7 @@ export class Game implements IGame {
     return result;
   }
 
-  public get scrumMaster(): Member | undefined {
+  public get scrumMaster(): Member  {
     if (this.self?.role === ERole.ScrumMaster) {
       return this.self;
     }
@@ -97,7 +97,7 @@ export class Game implements IGame {
         return participant;
       }
     }
-    return undefined;
+    return this.participants[0];
   }
 
   public get showReveal(): boolean {

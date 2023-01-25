@@ -18,7 +18,7 @@ export interface IGame {
   readonly myRole: ERole;
   readonly myUuid: string;
   readonly observers: Array<Member>;
-  readonly scrumMaster: Member | undefined;
+  readonly scrumMaster: Member;
   readonly showReveal: boolean;
   readonly showForceReveal: boolean
   readonly showStart: boolean;

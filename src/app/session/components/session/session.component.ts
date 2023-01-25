@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { EGameStatus } from '@shared-lib';
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
 import { environment } from '@env/environment';
-import { Card, IGame, Estimation, Member } from '../../objects';
+import { Card, IGame, Estimation, Member, Team } from '../../objects';
 import { SessionService } from '../../session.service';
 
 @Component({
@@ -31,16 +31,16 @@ export class SessionComponent {
     return this.game.canEstimate;
   }
 
-  public get developers(): Array<Member> {
-    return this.game.developers;
-  }
-
-  public get developersHeaderLabel(): string {
-    return this.translateService.instant('Game.Component.Header.Developers');
-  }
-
   public get enabled(): boolean {
     return this.game.enabled;
+  }
+
+  public get team(): Team {
+    // TODO this is not what we want
+    const result = new Team(this.game.team, this.game.scrumMaster);
+    result.developers = this.game.developers;
+    result.observers = this.game.observers;
+    return result;
   }
 
   public get estimations(): Array<Estimation> {
@@ -98,14 +98,6 @@ export class SessionComponent {
     return this.translateService.instant('Game.Card.Me_label');
   }
 
-  public get observers(): Array<Member> {
-    return this.game.observers;
-  }
-
-  public get observersHeaderLabel(): string {
-    return this.translateService.instant('Game.Component.Header.Observers');
-  }
-
   public get revealButtonLabel(): string {
     return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
   }
@@ -114,16 +106,8 @@ export class SessionComponent {
     return this.translateService.instant('Game.Component.ButtonLabel.Pause');
   }
 
-  public get scrumMaster(): Member | undefined {
-    return this.game.scrumMaster;
-  }
-
   public get forceRevealButtonLabel(): string {
     return this.translateService.instant('Game.Component.ButtonLabel.ForceReveal');
-  }
-
-  public get scrumMasterHeaderLabel(): string {
-    return this.translateService.instant('Game.Component.Header.ScrumMaster');
   }
 
   public get showDisconnect(): boolean {
@@ -148,10 +132,6 @@ export class SessionComponent {
 
   public get status(): string {
     return EGameStatus[this.game.status];
-  }
-
-  public get team(): string {
-    return this.game.team;
   }
   //#endregion
 
