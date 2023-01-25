@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialogParams } from './confirmation-dialog.params';
 
 @Component({
-  selector: 'app-confirmation-dialog',
+  selector: 'common-confirmation-dialog',
   templateUrl: './confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.scss']
 })

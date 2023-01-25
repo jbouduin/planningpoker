@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { SessionService } from '../../session/session.service';
 
 @Component({
-  selector: 'app-join',
+  selector: 'home-join',
   templateUrl: './join.component.html',
   styleUrls: ['./join.component.scss']
 })

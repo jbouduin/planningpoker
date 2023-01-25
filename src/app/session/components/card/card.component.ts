@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Card } from '../../objects';
 
 @Component({
-  selector: 'game-card',
+  selector: 'session-card',
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss']
 })

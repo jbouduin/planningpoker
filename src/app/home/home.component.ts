@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { SessionService } from '../session/session.service';
 
 @Component({
-  selector: 'app-home',
+  selector: 'home-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

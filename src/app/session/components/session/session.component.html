@@ -1,12 +1,12 @@
 <mat-sidenav-container>
   <mat-sidenav #sidenav opened="true" mode="side">
-    <!-- Participants panel -->
+    <!-- TODO Participants panel component member panel-->
     <div class="side-nav-container">
       <!-- Scrum-master -->
       <div class="participants">
         <mat-card-title>{{scrumMasterHeaderLabel}}</mat-card-title>
         <mat-card-content class="participant-list">
-          <game-member [member]="scrumMaster"></game-member>
+          <session-member [member]="scrumMaster"></session-member>
         </mat-card-content>
       </div>
       <!-- Developers -->
@@ -14,7 +14,7 @@
         <mat-card-title>{{developersHeaderLabel}}</mat-card-title>
         <mat-card-content class="participant-list">
           <div *ngFor="let developer of developers">
-            <game-member [member]="developer"></game-member>
+            <session-member [member]="developer"></session-member>
           </div>
         </mat-card-content>
       </div>
@@ -23,7 +23,7 @@
         <mat-card-title>{{observersHeaderLabel}}</mat-card-title>
         <mat-card-content class="participant-list">
           <div *ngFor="let observer of observers">
-            <game-member [member]="observer"></game-member>
+            <session-member [member]="observer"></session-member>
           </div>
         </mat-card-content>
       </div>
@@ -36,7 +36,7 @@
         <button (click)="sidenav.toggle()" class="toggle">T</button>
       </div>
       <div class="flex-column game-container">
-        <!-- Title -->
+        <!-- TODO Title component team header -->
         <mat-card>
           <div class="mat-card-inner-container">
             <mat-card-title>
@@ -44,15 +44,15 @@
             </mat-card-title>
           </div>
         </mat-card>
-        <!-- Played cards -->
+        <!-- TODO Played cards component poker table-->
         <mat-card>
           <div class="flex-row flex-wrap estimations mat-card-inner-container">
             <ng-container *ngFor="let estimation of estimations">
               <div class="flex-column">
-                <game-card [card]="estimation.card" [revealed]="estimation.revealed"
+                <session-card [card]="estimation.card" [revealed]="estimation.revealed"
                   [enabled]="estimation.member.me && canEstimate" [mine]="estimation.member.me"
                   (cardClicked)="withdraw()">
-                </game-card>
+                </session-card>
                 <div class="flex-center" [class.mine]="estimation.member.me">
                   <div class="nick">
                     <span>{{estimation.member.me ? 'me' : estimation.member.nick}}</span>
@@ -63,8 +63,8 @@
             <!-- Missing estimations -->
             <ng-container *ngFor="let participant of participantsWithoutEstimation">
               <div class="flex-column">
-                <game-card [enabled]="false" [mine]="participant.me" (cardClicked)="withdraw()">
-                </game-card>
+                <session-card [enabled]="false" [mine]="participant.me" (cardClicked)="withdraw()">
+                </session-card>
                 <div class="flex-center" [class.mine]="participant.me">
                   <div class="nick not-estimated">
                     <span>{{participant.me ? meLabel : participant.nick}}</span>
@@ -74,17 +74,18 @@
             </ng-container>
           </div>
         </mat-card>
-        <!-- Available cards -->
+        <!-- TODO Available cards component my-hand -->
         <mat-card>
           <div class="flex-row flex-wrap mat-card-inner-container">
             <div class="list-group-item" *ngFor="let card of availableCards">
-              <game-card [card]="card" [enabled]="canEstimate && enabled" [isAvailableCard]="true"
-                (cardClicked)="estimate($event)"></game-card>
+              <session-card [card]="card" [enabled]="canEstimate && enabled" [isAvailableCard]="true"
+                (cardClicked)="estimate($event)"></session-card>
             </div>
           </div>
         </mat-card>
         <!-- Buttons -->
         <mat-card>
+          <!-- TODO  component poker buttons -->
           <div class="flex-row mat-card-inner-container">
             <div *ngIf="showStart" class="game-button">
               <button mat-stroked-button color="primary" (click)="start()" [disabled]="!enabled">
@@ -101,6 +102,7 @@
                 {{forceRevealButtonLabel}}
               </button>
             </div>
+            <!-- TODO  component member buttons -->
             <div class="game-button">
               <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">
                 {{leaveLabel}}

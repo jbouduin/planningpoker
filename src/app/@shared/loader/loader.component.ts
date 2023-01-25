@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-loader',
+  selector: 'common-loader',
   templateUrl: './loader.component.html',
   styleUrls: ['./loader.component.scss']
 })

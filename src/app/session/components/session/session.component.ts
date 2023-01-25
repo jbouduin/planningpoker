@@ -9,11 +9,11 @@ import { Card, IGame, Estimation, Member } from '../../objects';
 import { SessionService } from '../../session.service';
 
 @Component({
-  selector: 'session-team',
-  templateUrl: './team.component.html',
-  styleUrls: ['./team.component.scss']
+  selector: 'session-session',
+  templateUrl: './session.component.html',
+  styleUrls: ['./session.component.scss']
 })
-export class TeamComponent {
+export class SessionComponent {
 
   //#region Private Properties ------------------------------------------------
   private game: IGame;

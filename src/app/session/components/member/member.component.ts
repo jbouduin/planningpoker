@@ -3,7 +3,7 @@ import { EParticipantStatus } from '@shared-lib';
 import { Member } from '../../objects/member';
 
 @Component({
-  selector: 'game-member',
+  selector: 'session-member',
   templateUrl: './member.component.html',
   styleUrls: ['./member.component.scss']
 })

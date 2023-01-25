@@ -5,7 +5,7 @@ import { EConnectionStatus, ConnectionService } from '@core';
 import { SessionService } from '../../session/session.service';
 
 @Component({
-  selector: 'app-connection',
+  selector: 'shell-connection',
   templateUrl: './connection.component.html',
   styleUrls: ['./connection.component.scss']
 })

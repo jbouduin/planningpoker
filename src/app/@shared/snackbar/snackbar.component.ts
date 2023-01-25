@@ -5,7 +5,7 @@ import { ESnackbarType } from './snackbar-type.enum';
 import { SnackbarParams } from './snackbar.params';
 
 @Component({
-  selector: 'app-snackba',
+  selector: 'common-snackbar',
   templateUrl: './snackbar.component.html',
   styleUrls: ['./snackbar.component.scss']
 })

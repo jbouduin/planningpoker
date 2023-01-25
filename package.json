@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "ng": "ng",
     "build": "ng build --configuration production",
     "start:site": "ng serve --verbose",
     "start:server": "cd projects/server && npm run dev",

@@ -3,7 +3,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-main',
+  selector: 'shell-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss']
 })
