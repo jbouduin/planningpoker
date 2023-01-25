@@ -90,7 +90,7 @@ export class GameComponent {
 
   public get leaveLabel(): string {
     return this.game.scrumMaster && this.game.scrumMaster.me ?
-      this.translateService.instant('Game.Component.ButtonLabel.End_Session') :
+      this.translateService.instant('Game.Component.ButtonLabel.End_session') :
       this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
   }
 
@@ -177,8 +177,8 @@ export class GameComponent {
       const params = new ConfirmationDialogParams();
       params.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.No');
       params.okButtonLabel = this.translateService.instant('Dialog.ButtonLabel.Yes');
-      params.text = this.translateService.instant('Dialog.Confirm.Text.End_the_game');
-      params.title = this.translateService.instant('Dialog.Confirm.Title.End_the_game');
+      params.text = this.translateService.instant('Dialog.Confirm.Text.End_Session');
+      params.title = this.translateService.instant('Dialog.Confirm.Title.End_session');
 
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
         width: '250px',

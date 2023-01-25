@@ -1,21 +1,32 @@
 import { ICard } from '@shared-lib';
 
 export class Card {
-  //#region  Public get methods
+
+  //#region private properties ------------------------------------------------
+  private readonly card: ICard;
+  //#endregion
+
+  //#region getters -----------------------------------------------------------
   public get index(): number {
-    return this.cardIndex;
+    return this.card.index;
   }
 
   public get label(): string {
-    return this.cardLabel;
+    return this.card.label;
+  }
+
+  public get isIcon(): boolean {
+    return this.card.isIcon;
   }
   //#endregion
 
-  //#region  Constructor & C°
-  public static createCard(dtoCard: ICard): Card {
-    return new Card(dtoCard.index, dtoCard.label);
+  //#region Constructor & C° --------------------------------------------------
+  public static createCard(card: ICard): Card {
+    return new Card(card);
   }
 
-  private constructor(private cardIndex: number, private cardLabel: string) { }
+  private constructor(card: ICard) {
+    this.card = card;
+  }
   //#endregion
 }

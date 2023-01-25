@@ -3,15 +3,28 @@
   <!-- if card is set (available cards and estimations) -->
   <div *ngIf="card; else nocard" class="value-wrapper">
     <div *ngIf="showFaceUp; else showFaceDown" class="value-wrapper">
-      <div class="top-value">
-        <span>{{label}}</span>
+      <div *ngIf="isIcon; else noIcon" class="value-wrapper">
+        <div class="top-value">
+          <mat-icon class="top-value">{{label}}</mat-icon>
+        </div>
+        <div class="center-value">
+          <mat-icon class="center-value">{{label}}</mat-icon>
+        </div>
+        <div class="bottom-value">
+          <mat-icon class="bottom-value">{{label}}</mat-icon>
+        </div>
       </div>
-      <div class="center-value">
-        <span>{{label}}</span>
-      </div>
-      <div class="bottom-value">
-        <span>{{label}}</span>
-      </div>
+      <ng-template #noIcon>
+        <div class="top-value">
+          <span>{{label}}</span>
+        </div>
+        <div class="center-value">
+          <span>{{label}}</span>
+        </div>
+        <div class="bottom-value">
+          <span>{{label}}</span>
+        </div>
+      </ng-template>
     </div>
     <ng-template #showFaceDown>
       <div>

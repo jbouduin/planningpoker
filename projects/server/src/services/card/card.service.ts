@@ -18,18 +18,19 @@ export class CardService implements ICardService {
   //#region Interface members -------------------------------------------------
   public generateCardSet(): Array<ICard> {
     const result = new Array<ICard>();
-    result.push({ index: 0, label: '0', isUnknownEstimation: false });
-    result.push({ index: 1, label: '0.5', isUnknownEstimation: false });
-    result.push({ index: 2, label: '1', isUnknownEstimation: false });
-    result.push({ index: 3, label: '2', isUnknownEstimation: false });
-    result.push({ index: 4, label: '3', isUnknownEstimation: false });
-    result.push({ index: 5, label: '8', isUnknownEstimation: false });
-    result.push({ index: 6, label: '12', isUnknownEstimation: false });
-    result.push({ index: 7, label: '20', isUnknownEstimation: false });
-    result.push({ index: 8, label: '40', isUnknownEstimation: false });
-    result.push({ index: 9, label: '100', isUnknownEstimation: false });
-    result.push({ index: 10, label: '1000', isUnknownEstimation: false });
-    result.push({ index: 11, label: '?', isUnknownEstimation: true });
+    result.push({ index: 0, label: '0', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 1, label: '0.5', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 2, label: '1', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 3, label: '2', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 4, label: '3', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 5, label: '8', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 6, label: '12', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 7, label: '20', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 8, label: '40', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 9, label: '100', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 10, label: '1000', isIcon: false, isUnknownEstimation: false });
+    result.push({ index: 11, label: '?', isIcon: false, isUnknownEstimation: true });
+    result.push({ index: 12, label: 'local_cafe', isIcon: true, isUnknownEstimation: false });
     return result;
   }
   //#endregion

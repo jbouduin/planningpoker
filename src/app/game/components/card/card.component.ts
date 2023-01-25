@@ -21,11 +21,15 @@ export class CardComponent {
 
   //#region public getter methods ---------------------------------------------
   public get label(): string {
-    return this.card ? this.card.label : ''
+    return this.card ? this.card.label : '';
   }
 
   public get showFaceUp(): boolean {
     return this.revealed || this.isAvailableCard;
+  }
+
+  public get isIcon(): boolean {
+    return this.card ? this.card.isIcon : false;
   }
   //#endregion
 

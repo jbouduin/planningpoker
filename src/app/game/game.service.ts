@@ -405,8 +405,8 @@ export class GameService {
   private handleEndOfGame(): void {
     const params = new ConfirmationDialogParams();
     params.showCancelButton = false;
-    params.title = this.translateService.instant('Dialog.Title.Game_Ended');
-    params.text = this.translateService.instant('Dialog.Text.The_scrummaster_has_ended_the_game.');
+    params.title = this.translateService.instant('Dialog.Title.Session_ended');
+    params.text = this.translateService.instant('Dialog.Text.The_scrummaster_has_ended_the_session');
 
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '250px',
