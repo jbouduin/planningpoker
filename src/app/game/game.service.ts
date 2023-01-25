@@ -217,7 +217,7 @@ export class GameService {
           this.game.clearEstimations();
           break;
         }
-        case EServerMessageType.DissolveTeam: {
+        case EServerMessageType.EndSession: {
           this.handleEndOfGame();
           break;
         }

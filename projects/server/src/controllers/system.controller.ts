@@ -37,7 +37,7 @@ export class SystemController implements ISystemController {
   }
 
   public DisconnectParticipant(uuid: string, response: Response) {
-    response.sendStatus(this.gameService.disconnectParticipant(uuid));
+    response.sendStatus(this.gameService.disconnectParticipant(uuid)); // eslint-disable-line
   }
 
   public ResetServer(response: Response): void {

@@ -1,6 +1,6 @@
 export * from './card-list-message';
 export * from './clear-estimations-message';
-export * from './dissolve-team-message';
+export * from './end-session-message';
 export * from './error-message';
 export * from './estimation-list-message';
 export * from './game-status-message';

@@ -20,6 +20,7 @@ export interface IGame {
   readonly observers: Array<Member>;
   readonly scrumMaster: Member | undefined;
   readonly showReveal: boolean;
+  readonly showForceReveal: boolean
   readonly showStart: boolean;
   readonly status: EGameStatus;
   readonly team: string;

@@ -31,7 +31,7 @@ export class Game implements IGame {
   }
 
   public get canEstimate(): boolean {
-    return this.gameStatus === EGameStatus.Started && !this.self?.observer;
+    return this.gameStatus === EGameStatus.Estimating && !this.self?.observer;
   }
 
   public get canReconnect(): boolean {
@@ -101,13 +101,17 @@ export class Game implements IGame {
   }
 
   public get showReveal(): boolean {
-    return this.gameStatus === EGameStatus.Started &&
+    return this.gameStatus === EGameStatus.Estimating &&
       this.myRole === ERole.ScrumMaster &&
       this.estimations.length === this.developers.length + 1;
   }
 
+  public get showForceReveal(): boolean{
+    return this.gameStatus === EGameStatus.Estimating &&
+      this.myRole === ERole.ScrumMaster
+  }
   public get showStart(): boolean {
-    return (this.gameStatus === EGameStatus.Revealed || this.gameStatus === EGameStatus.Stopped) &&
+    return (this.gameStatus === EGameStatus.Revealed || this.gameStatus === EGameStatus.Ready) &&
       this.myRole === ERole.ScrumMaster;
   }
 
@@ -131,7 +135,7 @@ export class Game implements IGame {
     this.participants = new Map<string, Member>();
     this.name = localStorage.getItem(this.localStorageTeamKey) || '';
     this.gameStatus = localStorage.getItem(this.localStorageTeamKey) && localStorage.getItem(this.localStorageUuidKey) ?
-      EGameStatus.Disconnected : EGameStatus.NoGame;
+      EGameStatus.Disconnected : EGameStatus.Ready;
   }
   //#endregion
 
@@ -166,12 +170,12 @@ export class Game implements IGame {
           Array.from(this.cardCollection.values()),
           this.self);
         if (estimation) {
-          this.estimationCollection.set(dtoEstimation.uuid, estimation);
+          this.estimationCollection.set(dtoEstimation.participantUuid, estimation);
           this.dumpEstimation(estimation);
         }
       } else {
-        console.log(`Removing estimation '${dtoEstimation.uuid}'`);
-        this.estimationCollection.delete(dtoEstimation.uuid);
+        console.log(`Removing estimation '${dtoEstimation.participantUuid}'`);
+        this.estimationCollection.delete(dtoEstimation.participantUuid);
       }
     });
   }
@@ -248,7 +252,7 @@ export class Game implements IGame {
     this.cardCollection.clear();
     this.estimationCollection.clear();
     this.participants.clear();
-    this.gameStatus = EGameStatus.NoGame;
+    this.gameStatus = EGameStatus.Ready;
     this.name = '';
     this.self = undefined;
     localStorage.removeItem(this.localStorageNickKey);

@@ -13,17 +13,17 @@
       <div class="participants">
         <mat-card-title>{{developersHeaderLabel}}</mat-card-title>
         <mat-card-content class="participant-list">
-            <div *ngFor="let developer of developers">
-              <game-member [member]="developer"></game-member>
-            </div>
+          <div *ngFor="let developer of developers">
+            <game-member [member]="developer"></game-member>
+          </div>
         </mat-card-content>
       </div>
       <!-- Observers -->
       <div class="participants">
         <mat-card-title>{{observersHeaderLabel}}</mat-card-title>
         <mat-card-content class="participant-list">
-            <div *ngFor="let observer of observers">
-              <game-member [member]="observer"></game-member>
+          <div *ngFor="let observer of observers">
+            <game-member [member]="observer"></game-member>
           </div>
         </mat-card-content>
       </div>
@@ -50,7 +50,8 @@
             <ng-container *ngFor="let estimation of estimations">
               <div class="flex-column">
                 <game-card [card]="estimation.card" [revealed]="estimation.revealed"
-                  [enabled]="estimation.member.me && canEstimate" [mine]="estimation.member.me" (cardClicked)="withdraw()">
+                  [enabled]="estimation.member.me && canEstimate" [mine]="estimation.member.me"
+                  (cardClicked)="withdraw()">
                 </game-card>
                 <div class="flex-center" [class.mine]="estimation.member.me">
                   <div class="nick">
@@ -95,14 +96,20 @@
                 {{revealButtonLabel}}
               </button>
             </div>
+            <div *ngIf="showForceReveal" class="game-button">
+              <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">
+                {{forceRevealButtonLabel}}
+              </button>
+            </div>
             <div class="game-button">
               <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">
                 {{leaveLabel}}
               </button>
             </div>
             <div *ngIf="showDisconnect" class="game-button">
-              <button mat-stroked-button color="warning" (click)="disconnect()"
-                [disabled]="!enabled">Disconnect</button>
+              <button mat-stroked-button color="warning" (click)="disconnect()" [disabled]="!enabled">
+                {{pauseButtonLabel}}
+              </button>
             </div>
           </div>
         </mat-card>

@@ -1,7 +1,7 @@
 export enum EServerMessageType {
   CardList,
   ClearEstimations,
-  DissolveTeam,
+  EndSession,
   Error,
   EstimationList,
   Init,

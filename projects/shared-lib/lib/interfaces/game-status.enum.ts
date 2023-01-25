@@ -1,8 +1,7 @@
 // TODO distinct between connection status and game
 export enum EGameStatus {
-  NoGame,
+  Ready,
   Disconnected,
-  Started,
-  Revealed,
-  Stopped
+  Estimating,
+  Revealed
 }

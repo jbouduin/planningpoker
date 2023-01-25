@@ -19,7 +19,7 @@ import { Participant } from './participant';
 
 import SERVICETYPES from '../service.types';
 import {
-  PingMessage, ClearEstimationsMessage, DissolveTeamMessage, ErrorMessage, EstimationListMessage,
+  PingMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage,
   InitMessage, GameStatusMessage, ServerResetMessage, SelfMessage, TeamInfoMessage, MemberChangedMessage
 } from '../../messages';
 
@@ -92,8 +92,8 @@ export class GameService implements IGameService {
     } else {
       return 404;
     }
-
   }
+
   public initializeTeam(expressWs: expressWs.Instance): void {
     const router = Router(); // as expressWs.Router;
     const wss = expressWs.getWss();
@@ -155,7 +155,7 @@ export class GameService implements IGameService {
               const auth = this.checkAuthorization(message.type, sender.role);
               if (preflight === EErrorCode.NoError && auth === EErrorCode.NoError) {
                 // make sure we always have a game, although preflight has checked this
-                const team = this.teams.get(req.params.team) || this.factoryService.dummyGame();
+                const team = this.teams.get(req.params.team) || this.factoryService.dummyGame(this.cardService.unknownEstimationIndex);
                 switch (message.type) {
                   case (EClientMessageType.Create): {
                     this.handleCreate(sender, <ICreatemessage>message);
@@ -307,7 +307,7 @@ export class GameService implements IGameService {
   // TODO 2333 create a handler
   private handleCreate(sender: Participant, message: ICreatemessage): void {
     console.log(`Create: '${sender.nick}' is creating '${message.data.team}'`);
-    const newGame = this.factoryService.newTeam(message.data.team);
+    const newGame = this.factoryService.newTeam(message.data.team, this.cardService.unknownEstimationIndex);
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
     sender.role = ERole.ScrumMaster;
@@ -324,7 +324,7 @@ export class GameService implements IGameService {
       team.upsertEstimation(estimation);
     }
     else {
-      team.deleteEstimation(estimation.uuid);
+      team.deleteEstimation(estimation.participantUuid);
     }
     this.broadcastEstimation(team, estimation);
   }
@@ -350,7 +350,7 @@ export class GameService implements IGameService {
   private handleLeave(sender: Participant, _message: ILeaveMessage, team: ITeam): void {
     if (sender.role === ERole.ScrumMaster) {
       console.log(`End game: '${sender.nick}' is ending '${team.teamName}'`);
-      this.broadcastTeamDissolved(team, sender);
+      this.broadcastSessionEnded(team, sender);
       team
         .filterMembers(_participant => true)
         .forEach(participant => this.memberTeamMap.delete(participant.uuid));
@@ -452,10 +452,10 @@ export class GameService implements IGameService {
       .forEach(other => this.sendMemberChange(other, changedMember, change));
   }
 
-  private broadcastTeamDissolved(team: ITeam, participant: Participant): void {
+  private broadcastSessionEnded(team: ITeam, participant: Participant): void {
     team
       .filterMembers(other => other.uuid !== participant.uuid && other.status === EParticipantStatus.Connected)
-      .forEach(other => this.sendTeamDissolved(other));
+      .forEach(other => this.sendSessionEnded(other));
   }
   //#endregion
 
@@ -465,9 +465,9 @@ export class GameService implements IGameService {
       return {
         card: estimation.card < 0 ?
           estimation.card :
-          revealed || estimation.uuid === to.uuid ? estimation.card : 0,
-        revealed: revealed || estimation.uuid === to.uuid,
-        uuid: estimation.uuid
+          revealed || estimation.participantUuid === to.uuid ? estimation.card : 0,
+        revealed: revealed || estimation.participantUuid === to.uuid,
+        participantUuid: estimation.participantUuid
       };
     });
   }
@@ -493,8 +493,8 @@ export class GameService implements IGameService {
     this.sendToParticipant(to, message);
   }
 
-  private sendTeamDissolved(to: Participant): void {
-    const message: ServerMessage = new DissolveTeamMessage();
+  private sendSessionEnded(to: Participant): void {
+    const message: ServerMessage = new EndSessionMessage();
     this.sendToParticipant(to, message);
   }
 

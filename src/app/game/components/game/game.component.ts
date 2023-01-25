@@ -51,7 +51,7 @@ export class GameComponent {
         result = new Array<Estimation>(...this.game.estimations);
         result.sort((a: Estimation, b: Estimation) => a.card.index - b.card.index);
         break;
-      case EGameStatus.Started:
+      case EGameStatus.Estimating:
         result = this.game.estimations.filter((e: Estimation) => !e.member.me);
         result.sort((a: Estimation, b: Estimation) => a.member.nick.localeCompare(b.member.nick));
         myEstimation = this.game.estimations.find(estimation => estimation.member.me);
@@ -67,7 +67,7 @@ export class GameComponent {
 
   public get participantsWithoutEstimation(): Array<Member> {
     let result: Array<Member>;
-    if (this.game.status === EGameStatus.Started) {
+    if (this.game.status === EGameStatus.Estimating) {
       if (this.game.scrumMaster) {
         if (this.game.scrumMaster.observer) {
           result = this.game.developers;
@@ -90,7 +90,7 @@ export class GameComponent {
 
   public get leaveLabel(): string {
     return this.game.scrumMaster && this.game.scrumMaster.me ?
-      this.translateService.instant('Game.Component.ButtonLabel.End_game') :
+      this.translateService.instant('Game.Component.ButtonLabel.End_Session') :
       this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
   }
 
@@ -110,8 +110,16 @@ export class GameComponent {
     return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
   }
 
+  public get pauseButtonLabel(): string {
+    return this.translateService.instant('Game.Component.ButtonLabel.Pause');
+  }
+
   public get scrumMaster(): Member | undefined {
     return this.game.scrumMaster;
+  }
+
+  public get forceRevealButtonLabel(): string {
+    return this.translateService.instant('Game.Component.ButtonLabel.ForceReveal');
   }
 
   public get scrumMasterHeaderLabel(): string {
@@ -124,6 +132,10 @@ export class GameComponent {
 
   public get showReveal(): boolean {
     return this.game.showReveal;
+  }
+
+  public get showForceReveal(): boolean {
+    return this.game.showForceReveal;
   }
 
   public get showStart(): boolean {

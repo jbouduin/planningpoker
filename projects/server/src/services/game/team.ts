@@ -28,6 +28,11 @@ export class Team implements ITeam {
   private gameStatus: EGameStatus;
   //#endregion
 
+  //#region Public properties -------------------------------------------------
+  public readonly teamName: string;
+  public readonly unknownEstimationIndex: number;
+  //#endregion
+
   //#region Public getters ----------------------------------------------------
   public get allMembers(): Array<Participant> {
     return Array.from(this.members.values());
@@ -43,9 +48,10 @@ export class Team implements ITeam {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(public teamName: string) {
+  public constructor(teamName: string, unknownEstimationIndex: number) {
     this.teamName = teamName;
-    this.gameStatus = EGameStatus.Stopped;
+    this.unknownEstimationIndex = unknownEstimationIndex;
+    this.gameStatus = EGameStatus.Ready;
     this.members = new Map<string, Participant>();
     this.estimations = new Map<string, Estimation>();
   }
@@ -53,12 +59,18 @@ export class Team implements ITeam {
 
   //#region Public GameStatus related methods ---------------------------------
   public reveal(): void {
+    // TODO create ? estimations for missing estimations
+    for (const member of this.members.values()) {
+      if (Array.from(this.estimations.values()).findIndex((e: Estimation) => e.participantUuid === member.uuid) < 0) {
+        this.estimations.set(member.uuid, new Estimation(member.uuid, this.unknownEstimationIndex));
+      }
+    }
     this.gameStatus = EGameStatus.Revealed;
   }
 
   public startEstimating(): void {
     this.estimations = new Map<string, Estimation>();
-    this.gameStatus = EGameStatus.Started;
+    this.gameStatus = EGameStatus.Estimating;
   }
   //#endregion
 
@@ -68,7 +80,7 @@ export class Team implements ITeam {
   }
 
   public upsertEstimation(estimation: Estimation): void {
-    this.estimations.set(estimation.uuid, estimation);
+    this.estimations.set(estimation.participantUuid, estimation);
   }
   //#endregion
 

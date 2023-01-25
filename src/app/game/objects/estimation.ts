@@ -18,10 +18,10 @@ export class Estimation {
     self?: Member): Estimation | undefined {
 
     let member: Member | undefined;
-    if (self?.uuid === dtoEstimation.uuid) {
+    if (self?.uuid === dtoEstimation.participantUuid) {
       member = self;
     } else {
-      member = members.get(dtoEstimation.uuid);
+      member = members.get(dtoEstimation.participantUuid);
     }
     const selectedCard = cards.filter(card => card.index === dtoEstimation.card)[0];
     return member && selectedCard ? new Estimation(member, selectedCard, dtoEstimation.revealed) : undefined;

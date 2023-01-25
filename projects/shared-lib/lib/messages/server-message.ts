@@ -10,7 +10,7 @@ export interface IServerMessage<T> {
 
 export type ICardSetMessage = IServerMessage<Array<ICard>>;
 export type IClearEstimationsMessage = IServerMessage<string>;
-export type IDissolveTeamMessage = IServerMessage<string>;
+export type IEndSessionMessage = IServerMessage<string>;
 export type IErrorMessage = IServerMessage<IError>;
 export type IEstimationsMessage = IServerMessage<Array<IEstimation>>;
 export type IGameStatusMessage = IServerMessage<EGameStatus>;
@@ -23,7 +23,7 @@ export type ITeamInfoMessage = IServerMessage<ITeamInfo>;
 export type ServerMessage =
   ICardSetMessage |
   IClearEstimationsMessage |
-  IDissolveTeamMessage |
+  IEndSessionMessage |
   IErrorMessage |
   IEstimationsMessage |
   IGameStatusMessage |
