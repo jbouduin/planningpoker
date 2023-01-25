@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@app/material.module';
 import { GameRoutingModule } from './session-routing.module';
 import { CardComponent } from './components/card/card.component';
-import { GameComponent } from './components/game/game.component';
+import { TeamComponent } from './components/team/team.component';
 import { MemberComponent } from './components/member/member.component';
 
 @NgModule({
@@ -14,7 +14,7 @@ import { MemberComponent } from './components/member/member.component';
   ],
   declarations: [
     CardComponent,
-    GameComponent,
+    TeamComponent,
     MemberComponent
   ]
 })

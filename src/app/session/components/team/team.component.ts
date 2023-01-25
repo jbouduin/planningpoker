@@ -9,17 +9,17 @@ import { Card, IGame, Estimation, Member } from '../../objects';
 import { SessionService } from '../../session.service';
 
 @Component({
-  selector: 'game-game',
-  templateUrl: './game.component.html',
-  styleUrls: ['./game.component.scss']
+  selector: 'session-team',
+  templateUrl: './team.component.html',
+  styleUrls: ['./team.component.scss']
 })
-export class GameComponent {
+export class TeamComponent {
 
   //#region Private Properties ------------------------------------------------
   private game: IGame;
   private dialog: MatDialog;
   private translateService: TranslateService;
-  private gameService: SessionService;
+  private sessionService: SessionService;
   //#endregion
 
   //#region Public Getter methods ---------------------------------------------
@@ -163,13 +163,13 @@ export class GameComponent {
     this.game = gameService.game;
     this.dialog = dialog;
     this.translateService = translateService;
-    this.gameService = gameService;
+    this.sessionService = gameService;
   }
   //#endregion
 
   //#region Public UI Trigger methods -----------------------------------------
   public disconnect(): void {
-    this.gameService.disconnect();
+    this.sessionService.disconnect();
   }
 
   public leave(): void {
@@ -187,28 +187,28 @@ export class GameComponent {
 
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.gameService.leave();
+          this.sessionService.leave();
         }
       });
     } else {
-      this.gameService.leave();
+      this.sessionService.leave();
     }
   }
 
   public estimate(cardIndex: number): void {
-    this.gameService.estimate(cardIndex);
+    this.sessionService.estimate(cardIndex);
   }
 
   public reveal(): void {
-    this.gameService.reveal();
+    this.sessionService.reveal();
   }
 
   public start(): void {
-    this.gameService.start();
+    this.sessionService.start();
   }
 
   public withdraw(): void {
-    this.gameService.withdraw();
+    this.sessionService.withdraw();
   }
   //#endregion
 
