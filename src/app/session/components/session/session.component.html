@@ -8,15 +8,8 @@
       <div class="toggle-container">
         <button (click)="sidenav.toggle()" class="toggle">T</button>
       </div>
-      <div class="flex-column game-container">
-        <!-- TODO Title component team header -->
-        <mat-card>
-          <div class="mat-card-inner-container">
-            <mat-card-title>
-              {{team}} ({{status}})
-            </mat-card-title>
-          </div>
-        </mat-card>
+      <div class="game-container">
+        <session-team-header [team]="team"></session-team-header>
         <!-- TODO Played cards component poker table-->
         <mat-card>
           <div class="flex-row flex-wrap estimations mat-card-inner-container">

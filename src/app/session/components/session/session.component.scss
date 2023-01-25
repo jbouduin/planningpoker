@@ -20,20 +20,11 @@
   transform-origin: 5px center;
 }
 
-// side-nav
-
-
 .game-container {
+  display: flex;
+  flex-direction: column;
   margin-left: 15px;
   margin-right: 15px;
-}
-
-mat-card {
-  margin-bottom: 10px;
-}
-
-.mat-card-inner-container {
-  padding: 10px;
 }
 
 .estimations {
