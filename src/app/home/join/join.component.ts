@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
-import { GameService } from '../../game/game.service';
+import { SessionService } from '../../session/session.service';
 
 @Component({
   selector: 'app-join',
@@ -58,7 +58,7 @@ export class JoinComponent {
   public constructor(
     private translateService: TranslateService,
     private formBuilder: FormBuilder,
-    private gameService: GameService) {
+    private sessionService: SessionService) {
     this.formData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
       nick: new FormControl('', [Validators.required])
@@ -82,12 +82,12 @@ export class JoinComponent {
 
   public submit(): void {
     if (this.isCreate) {
-      this.gameService.create(
+      this.sessionService.create(
         this.formData.get('team')?.value,
         this.formData.get('nick')?.value,
         this.observer);
     } else {
-      this.gameService.join(
+      this.sessionService.join(
         this.formData.get('team')?.value,
         this.formData.get('nick')?.value,
         this.observer);

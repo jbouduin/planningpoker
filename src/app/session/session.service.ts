@@ -37,7 +37,7 @@ type AMessage = ServerMessage | ClientMessage;
 @Injectable({
   providedIn: 'root'
 })
-export class GameService {
+export class SessionService {
 
   //#region private readonly properties ---------------------------------------
   private readonly dialog: MatDialog;

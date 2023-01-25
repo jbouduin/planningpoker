@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { EConnectionStatus, ConnectionService } from '@core';
-import { GameService } from '../../game/game.service';
+import { SessionService } from '../../session/session.service';
 
 @Component({
   selector: 'app-connection',
@@ -14,7 +14,7 @@ export class ConnectionComponent {
   //#region private properties ------------------------------------------------
   private translateService: TranslateService;
   private connectionService: ConnectionService;
-  private gameService: GameService;
+  private gameService: SessionService;
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
@@ -60,7 +60,7 @@ export class ConnectionComponent {
   public constructor(
     translateService: TranslateService,
     connectionService: ConnectionService,
-    gameService: GameService) {
+    gameService: SessionService) {
     this.translateService = translateService;
     this.connectionService = connectionService;
     this.gameService = gameService;

@@ -6,7 +6,7 @@ import { EGameStatus } from '@shared-lib';
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
 import { environment } from '@env/environment';
 import { Card, IGame, Estimation, Member } from '../../objects';
-import { GameService } from '../../game.service';
+import { SessionService } from '../../session.service';
 
 @Component({
   selector: 'game-game',
@@ -19,7 +19,7 @@ export class GameComponent {
   private game: IGame;
   private dialog: MatDialog;
   private translateService: TranslateService;
-  private gameService: GameService;
+  private gameService: SessionService;
   //#endregion
 
   //#region Public Getter methods ---------------------------------------------
@@ -159,7 +159,7 @@ export class GameComponent {
   public constructor(
     dialog: MatDialog,
     translateService: TranslateService,
-    gameService: GameService) {
+    gameService: SessionService) {
     this.game = gameService.game;
     this.dialog = dialog;
     this.translateService = translateService;

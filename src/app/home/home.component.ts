@@ -4,7 +4,7 @@ import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@app/@sha
 // import { finalize } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
-import { GameService } from '../game/game.service';
+import { SessionService } from '../session/session.service';
 
 @Component({
   selector: 'app-home',
@@ -16,21 +16,21 @@ export class HomeComponent implements AfterViewInit {
   //#region private properties ------------------------------------------------
   private dialog: MatDialog;
   private translateService: TranslateService;
-  private gameService: GameService;
+  private sessionService: SessionService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(dialog: MatDialog, translateService: TranslateService, gameService: GameService) {
+  public constructor(dialog: MatDialog, translateService: TranslateService, sessionService: SessionService) {
     this.dialog = dialog;
     this.translateService = translateService;
-    this.gameService = gameService;
+    this.sessionService = sessionService;
   }
   //#endregion
 
   //#region Angular interface members -----------------------------------------
   public ngAfterViewInit() {
-    if (this.gameService.game.canReconnect) {
-      this.gameService.checkTeamExists().subscribe((exists: boolean) => {
+    if (this.sessionService.game.canReconnect) {
+      this.sessionService.checkTeamExists().subscribe((exists: boolean) => {
         if (exists) {
           const params = new ConfirmationDialogParams();
           params.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.No');
@@ -38,8 +38,8 @@ export class HomeComponent implements AfterViewInit {
           params.text = this.translateService.instant(
             'Home.Component.Question.Rejoin_$team_as_$nick',
             {
-              team: this.gameService.game.team,
-              nick: this.gameService.game.myNick
+              team: this.sessionService.game.team,
+              nick: this.sessionService.game.myNick
             });
           params.title = this.translateService.instant('Dialog.Confirm.Title.Rejoin');
 
@@ -49,13 +49,13 @@ export class HomeComponent implements AfterViewInit {
           });
           dialogRef.afterClosed().subscribe(result => {
             if (result) {
-              this.gameService.rejoin();
+              this.sessionService.rejoin();
             } else {
-              this.gameService.leave();
+              this.sessionService.leave();
             }
           });
         } else {
-          this.gameService.reset();
+          this.sessionService.reset();
         }
       });
     }
