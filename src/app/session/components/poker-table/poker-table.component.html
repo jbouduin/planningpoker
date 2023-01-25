@@ -1,1 +1,29 @@
-<p>poker-table works!</p>
+<mat-card>
+  <div class="estimations mat-card-inner-container">
+    <!-- Estimations  -->
+    <ng-container *ngFor="let estimation of estimations">
+      <div class="cards">
+        <session-card [card]="estimation.card" [revealed]="estimation.revealed"
+          [enabled]="estimation.member.me && canEstimate" [mine]="estimation.member.me" (cardClicked)="cardClicked()">
+        </session-card>
+        <div class="flex-center" [class.mine]="estimation.member.me">
+          <div class="nick">
+            <span>{{estimation.member.me ? meLabel : estimation.member.nick}}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <!-- Missing estimations -->
+    <ng-container *ngFor="let participant of participantsWithoutEstimation">
+      <div class="cards">
+        <session-card [enabled]="false" [mine]="participant.me" (cardClicked)="cardClicked()">
+        </session-card>
+        <div class="flex-center" [class.mine]="participant.me">
+          <div class="nick not-estimated">
+            <span>{{participant.me ? meLabel : participant.nick}}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</mat-card>

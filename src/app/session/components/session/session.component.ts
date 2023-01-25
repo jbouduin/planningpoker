@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { EGameStatus } from '@shared-lib';
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
 import { environment } from '@env/environment';
-import { Card, IGame, Estimation, Member, Team } from '../../objects';
+import { Card, IGame, Estimation, Member, Team, PokerRound } from '../../objects';
 import { SessionService } from '../../session.service';
 
 @Component({
@@ -40,6 +40,14 @@ export class SessionComponent {
     const result = new Team(this.game.team, this.game.scrumMaster);
     result.developers = this.game.developers;
     result.observers = this.game.observers;
+    return result;
+  }
+
+  public get pokerRound(): PokerRound {
+    // TODO this is not what we want
+    const result = new PokerRound();
+    result.estimations = this.estimations;
+    result.participantsWithoutEstimation = this.participantsWithoutEstimation;
     return result;
   }
 
@@ -94,9 +102,6 @@ export class SessionComponent {
       this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
   }
 
-  public get meLabel(): string {
-    return this.translateService.instant('Game.Card.Me_label');
-  }
 
   public get revealButtonLabel(): string {
     return this.translateService.instant('Game.Component.ButtonLabel.Reveal');

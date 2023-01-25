@@ -11,35 +11,7 @@
       <div class="game-container">
         <session-team-header [team]="team"></session-team-header>
         <!-- TODO Played cards component poker table-->
-        <mat-card>
-          <div class="flex-row flex-wrap estimations mat-card-inner-container">
-            <ng-container *ngFor="let estimation of estimations">
-              <div class="flex-column">
-                <session-card [card]="estimation.card" [revealed]="estimation.revealed"
-                  [enabled]="estimation.member.me && canEstimate" [mine]="estimation.member.me"
-                  (cardClicked)="withdraw()">
-                </session-card>
-                <div class="flex-center" [class.mine]="estimation.member.me">
-                  <div class="nick">
-                    <span>{{estimation.member.me ? 'me' : estimation.member.nick}}</span>
-                  </div>
-                </div>
-              </div>
-            </ng-container>
-            <!-- Missing estimations -->
-            <ng-container *ngFor="let participant of participantsWithoutEstimation">
-              <div class="flex-column">
-                <session-card [enabled]="false" [mine]="participant.me" (cardClicked)="withdraw()">
-                </session-card>
-                <div class="flex-center" [class.mine]="participant.me">
-                  <div class="nick not-estimated">
-                    <span>{{participant.me ? meLabel : participant.nick}}</span>
-                  </div>
-                </div>
-              </div>
-            </ng-container>
-          </div>
-        </mat-card>
+        <session-poker-table (withdraw)="withdraw()" [pokerRound]="pokerRound"></session-poker-table>
         <!-- TODO Available cards component my-hand -->
         <mat-card>
           <div class="flex-row flex-wrap mat-card-inner-container">
