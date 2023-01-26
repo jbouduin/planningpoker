@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "ng build --configuration production",
-    "start:site": "ng serve --verbose",
+    "start:site": "ng serve",
     "start:server": "cd projects/server && npm run dev",
     "deploy": "ng deploy",
     "serve:sw": "npx http-server ./dist -p 4200",

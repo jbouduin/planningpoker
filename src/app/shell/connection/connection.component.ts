@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { EConnectionStatus, ConnectionService } from '@core';
-import { SessionService } from '../../session/session.service';
+import { EConnectionStatus, ConnectionService } from '@shared';
+import { SessionService } from '../../session/services/session.service';
 
 @Component({
   selector: 'shell-connection',

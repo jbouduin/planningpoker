@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
-import { SessionService } from '../../session/session.service';
+import { SessionService } from '../../session/services/session.service';
 
 @Component({
   selector: 'home-join',

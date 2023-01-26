@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { EGameStatus } from '@shared-lib';
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
 import { Card, IGame, Estimation, Member, Team, PokerRound } from '../../objects';
-import { SessionService } from '../../session.service';
+import { SessionService } from '../../services/session.service';
 
 @Component({
   selector: 'session-session',

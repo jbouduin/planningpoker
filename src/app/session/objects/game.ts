@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { SnackbarService } from '@shared';
+import { LocalStorageService, SnackbarService } from '@shared';
 import { ICard, IEstimation, IParticipant, EErrorCode, EGameStatus, EParticipantStatus, ERole, IMemberStatusChange, EMemberStatusChange } from '@shared-lib';
 import { Card } from './card';
 import { Estimation } from './estimation';
@@ -12,9 +12,10 @@ export class Game implements IGame {
   private readonly translateService: TranslateService;
   private readonly snackbarService: SnackbarService;
   private readonly estimationCollection: Map<string, Estimation>;
-  private readonly localStorageNickKey: string = 'current_nick';
-  private readonly localStorageUuidKey: string = 'current_uuid';
-  private readonly localStorageTeamKey: string = 'current_team';
+  private readonly localStorageService: LocalStorageService;
+  // private readonly localStorageNickKey: string = 'current_nick';
+  // private readonly localStorageUuidKey: string = 'current_uuid';
+  // private readonly localStorageTeamKey: string = 'current_team';
   private readonly participants: Map<string, Member>;
   private readonly cardCollection: Map<number, Card>;
   //#endregion
@@ -62,7 +63,7 @@ export class Game implements IGame {
   public get myNick(): string {
     return this.self ?
       this.self.nick :
-      localStorage.getItem(this.localStorageNickKey) || '';
+      this.localStorageService.nick || '';
   }
 
   public get myRole(): ERole {
@@ -72,7 +73,7 @@ export class Game implements IGame {
   public get myUuid(): string {
     return this.self ?
       this.self.uuid :
-      localStorage.getItem(this.localStorageUuidKey) || '';
+      this.localStorageService.uuid || '';
   }
 
   public get observers(): Array<Member> {
@@ -127,14 +128,16 @@ export class Game implements IGame {
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     translateService: TranslateService,
-    snackbarService: SnackbarService) {
+    snackbarService: SnackbarService,
+    localStorageService: LocalStorageService) {
     this.translateService = translateService;
     this.snackbarService = snackbarService;
+    this.localStorageService = localStorageService;
     this.cardCollection = new Map<number, Card>();
     this.estimationCollection = new Map<string, Estimation>();
     this.participants = new Map<string, Member>();
-    this.name = localStorage.getItem(this.localStorageTeamKey) || '';
-    this.gameStatus = localStorage.getItem(this.localStorageTeamKey) && localStorage.getItem(this.localStorageUuidKey) ?
+    this.name = localStorageService.team || '';
+    this.gameStatus = localStorageService.team && localStorageService.nick ?
       EGameStatus.Disconnected : EGameStatus.Ready;
   }
   //#endregion
@@ -183,8 +186,8 @@ export class Game implements IGame {
   public handleSelf(participant: IParticipant): void {
     this.self = new Member(participant, true);
     this.dumpSelf();
-    localStorage.setItem(this.localStorageNickKey, this.self.nick);
-    localStorage.setItem(this.localStorageUuidKey, this.self.uuid);
+    this.localStorageService.nick = this.self.nick;
+    this.localStorageService.uuid = this.self.uuid;
   }
 
   public handleSocketError(_error: any): void { // eslint-disable-line
@@ -255,9 +258,7 @@ export class Game implements IGame {
     this.gameStatus = EGameStatus.Ready;
     this.name = '';
     this.self = undefined;
-    localStorage.removeItem(this.localStorageNickKey);
-    localStorage.removeItem(this.localStorageUuidKey);
-    localStorage.removeItem(this.localStorageTeamKey);
+    this.localStorageService.clear();
   }
 
   public setCards(cards: Array<ICard>): void {
@@ -296,7 +297,7 @@ export class Game implements IGame {
   public updateTeamName(teamName: string): void {
     this.name = teamName;
     this.dumpGame();
-    localStorage.setItem(this.localStorageTeamKey, teamName);
+    this.localStorageService.team = teamName;
   }
   //#endregion
 

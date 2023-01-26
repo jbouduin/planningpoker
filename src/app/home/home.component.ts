@@ -1,10 +1,9 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@app/@shared';
-// import { finalize } from 'rxjs/operators';
+import { ConfirmationDialogComponent, ConfirmationDialogParams, HttpService } from '@app/@shared';
 import { TranslateService } from '@ngx-translate/core';
 
-import { SessionService } from '../session/session.service';
+import { SessionService } from '../session/services/session.service';
 
 @Component({
   selector: 'home-home',
@@ -14,14 +13,16 @@ import { SessionService } from '../session/session.service';
 export class HomeComponent implements AfterViewInit {
 
   //#region private properties ------------------------------------------------
-  private dialog: MatDialog;
-  private translateService: TranslateService;
-  private sessionService: SessionService;
+  private readonly dialog: MatDialog;
+  private readonly httpService: HttpService
+  private readonly sessionService: SessionService;
+  private readonly translateService: TranslateService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(dialog: MatDialog, translateService: TranslateService, sessionService: SessionService) {
+  public constructor(dialog: MatDialog, translateService: TranslateService, sessionService: SessionService, httpService: HttpService) {
     this.dialog = dialog;
+    this.httpService = httpService;
     this.translateService = translateService;
     this.sessionService = sessionService;
   }
@@ -30,7 +31,7 @@ export class HomeComponent implements AfterViewInit {
   //#region Angular interface members -----------------------------------------
   public ngAfterViewInit() {
     if (this.sessionService.game.canReconnect) {
-      this.sessionService.checkTeamExists().subscribe((exists: boolean) => {
+      this.httpService.checkTeamExists(this.sessionService.game.team).subscribe((exists: boolean) => {
         if (exists) {
           const params = new ConfirmationDialogParams();
           params.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.No');

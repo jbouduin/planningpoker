@@ -9,9 +9,11 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class PokerTableComponent {
 
+  //#region @Input/@Output ----------------------------------------------------
   @Input() public pokerRound?: PokerRound;
   @Input() public canEstimate: boolean;
   @Output() public withdraw: EventEmitter<void>;
+  //#endregion
 
   //#region Private Properties ------------------------------------------------
   private translateService: TranslateService;

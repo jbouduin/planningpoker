@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-
-import { SnackbarComponent } from './snackbar.component';
-import { SnackbarParams } from './snackbar.params';
-
-import { ESnackbarType } from './snackbar-type.enum';
+import { SnackbarComponent } from '../components/snackbar/snackbar.component';
+import { SnackbarParams } from '../components/snackbar/snackbar.params';
+import { ESnackbarType } from '../components/snackbar/snackbar-type.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +11,8 @@ export class SnackbarService {
 
   //#region Private properties ------------------------------------------------
   private readonly snackbar: MatSnackBar;
-  private current?: MatSnackBarRef<any>; // eslint-disable-line
-  private queue: Array<SnackbarParams>;
+  private readonly queue: Array<SnackbarParams>;
+  private current?: MatSnackBarRef<SnackbarComponent>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------

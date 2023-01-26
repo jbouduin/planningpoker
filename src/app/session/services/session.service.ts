@@ -5,8 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Observable, of, Subject } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
 
-import { ConnectionService } from '@core';
-import { ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService } from '@shared';
+import { ConnectionService, ConfirmationDialogComponent, ConfirmationDialogParams, SnackbarService } from '@shared';
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import {
@@ -16,8 +15,10 @@ import {
 import {
   CreateMessage, DisconnectMessage, EstimateMessage, JoinMessage,
   LeaveMessage, RejoinMessage, RevealMessage, StartMessage
-} from './messages';
-import { GameFactoryService, IGame } from './objects';
+} from '../messages';
+import { IGame } from '../objects';
+import { GameFactoryService } from './game-factory.service';
+
 
 class CallBackParameter {
   public observer: boolean | undefined;
@@ -83,16 +84,7 @@ export class SessionService {
   //#endregion
 
   //#region public connection related methods ---------------------------------
-  public checkTeamExists(): Observable<boolean> {
-    return this.http
-      .get(`/api/team/${this.game.team}`, { observe: 'response', responseType: 'text' })
-      .pipe(
-        catchError((error: HttpResponse<unknown>) => of(error)),
-        map((response: HttpResponse<unknown>) => {
-          return response.status == 200 ? true : false
-        })
-      );
-  }
+
 
   public create(team: string, nick: string, observer: boolean): void {
     console.log(`creating: ${nick}@${team}`);
@@ -117,7 +109,7 @@ export class SessionService {
   }
 
   public rejoin(): void {
-    console.log(`rejoining: ${this.game.myNick}@${this.game.team}`);
+    console.log(`rejoining  ${this.game.team} as ${this.game.myNick}`);
     this.createConnection(
       this.game.team,
       '',
