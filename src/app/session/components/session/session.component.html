@@ -10,17 +10,9 @@
       </div>
       <div class="game-container">
         <session-team-header [team]="team"></session-team-header>
-        <!-- TODO Played cards component poker table-->
-        <session-poker-table (withdraw)="withdraw()" [pokerRound]="pokerRound"></session-poker-table>
-        <!-- TODO Available cards component my-hand -->
-        <mat-card>
-          <div class="flex-row flex-wrap mat-card-inner-container">
-            <div class="list-group-item" *ngFor="let card of availableCards">
-              <session-card [card]="card" [enabled]="canEstimate && enabled" [isAvailableCard]="true"
-                (cardClicked)="estimate($event)"></session-card>
-            </div>
-          </div>
-        </mat-card>
+        <session-poker-table (withdraw)="withdraw()" [pokerRound]="pokerRound" [canEstimate]="canEstimate"></session-poker-table>
+        <session-my-hand [canEstimate]="canEstimate && enabled" [availableCards]="availableCards"
+          (estimate)="estimate($event)"></session-my-hand>
         <!-- Buttons -->
         <mat-card>
           <!-- TODO  component poker buttons -->

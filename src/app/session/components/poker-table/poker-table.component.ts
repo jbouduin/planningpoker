@@ -13,6 +13,7 @@ export class PokerTableComponent {
   @Input() public pokerRound?: PokerRound;
   @Input() public canEstimate: boolean;
   @Output() public withdraw: EventEmitter<void>;
+
   //#region Private Properties ------------------------------------------------
   private translateService: TranslateService;
   //#endregion
