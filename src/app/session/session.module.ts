@@ -10,7 +10,7 @@ import { TeamHeaderComponent } from './components/team-header/team-header.compon
 import { PokerTableComponent } from './components/poker-table/poker-table.component';
 import { MyHandComponent } from './components/my-hand/my-hand.component';
 import { MemberButtonsComponent } from './components/member-buttons/member-buttons.component';
-import { PokerButtonsComponent } from './components/poker-buttons/poker-buttons.component';
+import { ScrumMasterButtonsComponent } from './components/scrum-master-buttons/scrum-master-buttons.component';
 
 @NgModule({
   imports: [
@@ -27,7 +27,7 @@ import { PokerButtonsComponent } from './components/poker-buttons/poker-buttons.
     PokerTableComponent,
     MyHandComponent,
     MemberButtonsComponent,
-    PokerButtonsComponent
+    ScrumMasterButtonsComponent
   ]
 })
 export class GameModule { }

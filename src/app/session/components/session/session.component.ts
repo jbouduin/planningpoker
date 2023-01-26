@@ -4,7 +4,6 @@ import { MatDialog, } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { EGameStatus } from '@shared-lib';
 import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@shared';
-import { environment } from '@env/environment';
 import { Card, IGame, Estimation, Member, Team, PokerRound } from '../../objects';
 import { SessionService } from '../../session.service';
 
@@ -16,12 +15,12 @@ import { SessionService } from '../../session.service';
 export class SessionComponent {
 
   //#region Private Properties ------------------------------------------------
-  private game: IGame;
   private dialog: MatDialog;
   private translateService: TranslateService;
   private sessionService: SessionService;
   //#endregion
 
+  public game: IGame;
   //#region Public Getter methods ---------------------------------------------
   public get availableCards(): Array<Card> {
     return this.game.availableCards;
@@ -94,45 +93,6 @@ export class SessionComponent {
     return result
       .filter((p: Member) => this.game.estimations.findIndex((e: Estimation) => e.member.uuid == p.uuid) < 0)
       .sort((a: Member, b: Member) => a.nick.localeCompare(b.nick));
-  }
-
-  public get leaveLabel(): string {
-    return this.game.scrumMaster && this.game.scrumMaster.me ?
-      this.translateService.instant('Game.Component.ButtonLabel.End_session') :
-      this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
-  }
-
-
-  public get revealButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
-  }
-
-  public get pauseButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Pause');
-  }
-
-  public get forceRevealButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.ForceReveal');
-  }
-
-  public get showDisconnect(): boolean {
-    return !environment.production && this.game.status !== EGameStatus.Disconnected;
-  }
-
-  public get showReveal(): boolean {
-    return this.game.showReveal;
-  }
-
-  public get showForceReveal(): boolean {
-    return this.game.showForceReveal;
-  }
-
-  public get showStart(): boolean {
-    return this.game.showStart;
-  }
-
-  public get startButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Start');
   }
 
   public get status(): string {

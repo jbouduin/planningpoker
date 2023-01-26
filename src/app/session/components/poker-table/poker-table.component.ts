@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Estimation, Member, PokerRound } from '../../../session/objects';
 import { TranslateService } from '@ngx-translate/core';
-import { outputAst } from '@angular/compiler';
 
 @Component({
   selector: 'session-poker-table',

@@ -3,46 +3,22 @@
     <session-member-panel [team]="team"></session-member-panel>
   </mat-sidenav>
   <mat-sidenav-content>
-    <!-- Game board -->
     <div>
       <div class="toggle-container">
         <button (click)="sidenav.toggle()" class="toggle">T</button>
       </div>
       <div class="game-container">
         <session-team-header [team]="team"></session-team-header>
-        <session-poker-table (withdraw)="withdraw()" [pokerRound]="pokerRound" [canEstimate]="canEstimate"></session-poker-table>
+        <session-poker-table (withdraw)="withdraw()" [pokerRound]="pokerRound"
+          [canEstimate]="canEstimate"></session-poker-table>
         <session-my-hand [canEstimate]="canEstimate && enabled" [availableCards]="availableCards"
           (estimate)="estimate($event)"></session-my-hand>
-        <!-- Buttons -->
         <mat-card>
-          <!-- TODO  component poker buttons -->
-          <div class="flex-row mat-card-inner-container">
-            <div *ngIf="showStart" class="game-button">
-              <button mat-stroked-button color="primary" (click)="start()" [disabled]="!enabled">
-                {{startButtonLabel}}
-              </button>
-            </div>
-            <div *ngIf="showReveal" class="game-button">
-              <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">
-                {{revealButtonLabel}}
-              </button>
-            </div>
-            <div *ngIf="showForceReveal" class="game-button">
-              <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="!enabled">
-                {{forceRevealButtonLabel}}
-              </button>
-            </div>
-            <!-- TODO  component member buttons -->
-            <div class="game-button">
-              <button mat-stroked-button color="primary" (click)="leave()" [disabled]="!enabled">
-                {{leaveLabel}}
-              </button>
-            </div>
-            <div *ngIf="showDisconnect" class="game-button">
-              <button mat-stroked-button color="warning" (click)="disconnect()" [disabled]="!enabled">
-                {{pauseButtonLabel}}
-              </button>
-            </div>
+          <div class="mat-card-inner-container button-row">
+            <session-scrum-master-buttons [game]="game" [enabled]="enabled" (startEstimating)="start()"
+              (revealEstimations)="reveal()"></session-scrum-master-buttons>
+            <session-member-buttons [game]="game" [enabled]="enabled" (leave)="leave()"
+              (disconnect)="disconnect()"></session-member-buttons>
           </div>
         </mat-card>
       </div>

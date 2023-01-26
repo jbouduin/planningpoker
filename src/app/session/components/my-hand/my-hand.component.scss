@@ -1,6 +1,5 @@
 .my-hand {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-flow: wrap;
   min-height: 160px;
 }
