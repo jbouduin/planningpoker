@@ -38,7 +38,7 @@ export class PokerService {
       default:
         result = this.teamService.estimatingMembers
           .filter((m: Member) => !this.givenEstimations.has(m.uuid))
-          .sort((a: Member, b: Member) => a.nick.localeCompare(b.nick));;
+          .sort((a: Member, b: Member) => a.nick.localeCompare(b.nick));
         break;
     }
     return result;

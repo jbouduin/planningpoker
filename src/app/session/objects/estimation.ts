@@ -1,4 +1,3 @@
-import { IEstimation } from '@shared-lib';
 import { Card } from './card';
 import { Member } from './member';
 

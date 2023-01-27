@@ -38,7 +38,7 @@ export class MemberButtonsComponent {
   }
 
   public leave(): void {
-    this.teamService.leave();;
+    this.teamService.leave();
   }
   //#endregion
 }

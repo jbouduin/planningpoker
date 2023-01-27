@@ -7,10 +7,7 @@ import {
   ClientMessage,  EServerMessageType,    IInitMessage, ServerMessage
 } from '@shared-lib';
 import { filter } from 'rxjs/operators';
-import {
-  CreateMessage, JoinMessage,
-  LeaveMessage, RejoinMessage
-} from '../messages';
+import { CreateMessage, JoinMessage } from '../messages';
 
 import { CardService } from './card.service';
 import { ErrorHandlerService } from './error-handler.service';

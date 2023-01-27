@@ -1,6 +1,6 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent, ConfirmationDialogParams, HttpService } from '@app/@shared';
+import { HttpService } from '@app/@shared';
 import { TranslateService } from '@ngx-translate/core';
 
 import { SessionService } from '../session/services/session.service';
@@ -30,6 +30,7 @@ export class HomeComponent implements AfterViewInit {
 
   //#region Angular interface members -----------------------------------------
   public ngAfterViewInit() {
+    console.log('afterviewinit');
     // TODO
     // if (this.sessionService.game.canReconnect) {
     //   this.httpService.checkTeamExists(this.sessionService.game.team).subscribe((exists: boolean) => {
