@@ -1,4 +1,4 @@
-<div class="button-row">
+<div *ngIf="showMe" class="button-row">
   <div *ngIf="showStart" class="game-button">
     <button mat-stroked-button color="primary" (click)="start()">
       {{startButtonLabel}}

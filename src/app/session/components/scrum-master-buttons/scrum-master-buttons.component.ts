@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { PokerService } from '@app/session/services/poker.service';
+import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -11,6 +12,7 @@ export class ScrumMasterButtonsComponent {
 
   //#region Private Properties ------------------------------------------------
   private readonly pokerService: PokerService;
+  private readonly teamService: TeamService;
   private readonly translateService: TranslateService;
   //#endregion
 
@@ -31,6 +33,10 @@ export class ScrumMasterButtonsComponent {
     return this.pokerService.membersWithoutEstimation.length > 0;
   }
 
+  public get showMe(): boolean {
+    return this.teamService.scrumMaster?.me ?? false;
+  }
+
   public get showReveal(): boolean {
     return this.pokerService.canPoker;
   }
@@ -41,8 +47,9 @@ export class ScrumMasterButtonsComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(pokerService: PokerService, translateService: TranslateService) {
+  public constructor(pokerService: PokerService, teamService: TeamService, translateService: TranslateService) {
     this.pokerService = pokerService;
+    this.teamService = teamService;
     this.translateService = translateService;
   }
   //#endregion
