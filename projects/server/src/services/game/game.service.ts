@@ -5,23 +5,20 @@ import 'reflect-metadata';
 import { v4 as Uuid } from 'uuid';
 
 import {
-  ClientMessage, EClientMessageType, IEstimation, IParticipant, EErrorCode,
-  ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IRejoinMessage,
-  EParticipantStatus, ERole, ServerMessage, EMemberStatusChange, IMemberStatusChange, EPokerStatus
+  ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ERole,
+  ICreatemessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IMemberStatusChange, IParticipant, IRejoinMessage, ServerMessage
 } from '../../../../shared-lib/lib';
-
+import {
+  CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage,
+  InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamNameMessage
+} from '../../messages';
 import { ICardService } from '../card';
 import { IFactoryService } from '../factory.service';
+import SERVICETYPES from '../service.types';
 import { ReadyState, WebSocket } from '../websocket';
 import { Estimation } from './estimation';
-import { ITeam } from './team';
 import { Participant } from './participant';
-
-import SERVICETYPES from '../service.types';
-import {
-  PingMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage,
-  InitMessage, ServerResetMessage, SelfMessage, MemberChangedMessage, CardSetMessage, MemberListMessage, TeamNameMessage, PokerStatusChangedMessage
-} from '../../messages';
+import { ITeam } from './team';
 
 export interface IGameService {
   disconnectParticipant(participantUuid: string): number;
@@ -118,14 +115,14 @@ export class GameService implements IGameService {
       ws.on('close', (_number: number, _reason: Buffer) => {
         const closed = this.filterParticipants((participant: Participant) => participant.socket == ws)[0];
         if (closed) {
-          console.log(`${new Date().toISOString()}: '${closed.nick}'' has been disconnected`);
-          closed.status = EParticipantStatus.Disconnected;
-          const team = this.getTeamByParticipantUuid(closed.uuid);
-          if (team) {
-            console.log('sending disconnection to other participants');
-            this.broadcastMemberChange(team, closed, EMemberStatusChange.Disconnected);
-          } else {
-            console.log('disconnected participant was not in a valid game');
+          if (closed.status !== EParticipantStatus.Paused) {
+            console.log(`${new Date().toISOString()}: '${closed.nick}'' has been disconnected`);
+            closed.status = EParticipantStatus.Disconnected;
+            const team = this.getTeamByParticipantUuid(closed.uuid);
+            if (team) {
+              console.log('sending disconnection to other participants');
+              this.broadcastMemberChange(team, closed, EMemberStatusChange.Disconnected);
+            }
           }
         }
         else {
@@ -176,10 +173,10 @@ export class GameService implements IGameService {
                     this.handleLeave(sender, <ILeaveMessage>message, team);
                     break;
                   }
-                  // case (EClientMessageType.NickChanged): {
-                  //   this.handleNick(sender, <ISetNickMessage>message, team);
-                  //   break;
-                  // }
+                  case (EClientMessageType.Pause): {
+                    this.handlePause(sender, team);
+                    break;
+                  }
                   case (EClientMessageType.Reveal): {
                     this.handleReveal(sender, team);
                     break;
@@ -243,7 +240,7 @@ export class GameService implements IGameService {
     this.teams.clear();
   }
 
-   // TODO 2333 create serializer
+  // TODO 2333 create serializer
   public serializeAllTeams(): string {
     const result: IGameServiceDump = {
       teams: new Array<ITeamDump>()
@@ -354,6 +351,8 @@ export class GameService implements IGameService {
         .filterMembers(_participant => true)
         .forEach(participant => this.memberTeamMap.delete(participant.uuid));
       this.teams.delete(team.teamName);
+      // aknowledge to the scrum master
+      this.sendSessionEnded(sender);
     } else {
       console.log(`Leave: '${sender.nick}' is leaving '${team.teamName}'`);
       // remove participant from game and dictionaries
@@ -363,25 +362,26 @@ export class GameService implements IGameService {
       // tell the others someone left
       sender.status = EParticipantStatus.Left;
       this.broadcastMemberChange(team, sender, EMemberStatusChange.Left);
+      this.sendLeft(sender);
     }
+
   }
 
-  // private handleNick(sender: Participant, message: ISetNickMessage, game?: ITeam): void {
-  //   console.log(`Nick: '${sender.nick}' => '${message.data}'`);
-  //   sender.nick = message.data;
-  //   // send the data back as aknowledgment
-  //   this.sendSelf(sender);
-  //   if (game && this.memberTeamMap.has(sender.uuid)) {
-  //     this.broadcastMemberChange(game, sender, EMemberStatusChange.NickChanged);
-  //   }
-  // }
+  private handlePause(sender: Participant, game: ITeam): void {
+    console.log(`Pause: '${sender.nick}'`);
+    // send the data back as aknowledgment
+    sender.status = EParticipantStatus.Paused;
+    this.sendSelf(sender);
+    this.broadcastMemberChange(game, sender, EMemberStatusChange.Paused);
+
+  }
 
   private handleReveal(sender: Participant, team: ITeam): void {
     if (sender.role !== ERole.ScrumMaster) {
       this.sendErrorMessage(sender, EErrorCode.ScrumMasterRequired);
     } else {
       team.reveal();
-      this.broadcastTeamInfo(team);
+      this.broadcastPokerStatus(team);
       this.broadcastAllEstimations(team);
     }
   }
@@ -392,7 +392,7 @@ export class GameService implements IGameService {
     } else {
       team.startEstimating();
       this.broadcastClearEstimations(team);
-      this.broadcastTeamInfo(team);
+      this.broadcastPokerStatus(team);
     }
   }
 
@@ -439,7 +439,7 @@ export class GameService implements IGameService {
       .forEach(participant => this.sendEstimations(participant, team.status === EPokerStatus.Revealed, [estimation]));
   }
 
-  private broadcastTeamInfo(team: ITeam) {
+  private broadcastPokerStatus(team: ITeam) {
     team
       .filterMembers(participant => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.sendPokerStatusChanged(participant, team));
@@ -470,7 +470,6 @@ export class GameService implements IGameService {
       };
     });
   }
-
 
   private prepareParticipantsData(participants: Array<Participant>): Array<IParticipant> {
     return participants.map(participant => {
@@ -509,6 +508,11 @@ export class GameService implements IGameService {
 
   private sendInit(to: Participant): void {
     const message: ServerMessage = new InitMessage(this.prepareParticipantsData([to])[0]);
+    this.sendToParticipant(to, message);
+  }
+
+  private sendLeft(to: Participant): void {
+    const message: ServerMessage = new LeftMessage();
     this.sendToParticipant(to, message);
   }
 

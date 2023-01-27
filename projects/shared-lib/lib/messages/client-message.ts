@@ -12,17 +12,17 @@ export type IDisconnectMessage = IClientMessage<string>;
 export type IEstimateMessage = IClientMessage<number>;
 export type IJoinMessage = IClientMessage<IJoin>;
 export type ILeaveMessage = IClientMessage<string>;
+export type IPauseMessage = IClientMessage<string>;
 export type IRejoinMessage = IClientMessage<string>;
 export type IRevealMessage = IClientMessage<string>;
-// export type ISetNickMessage = IClientMessage<string>;
 export type IStartMessage = IClientMessage<string>;
 export type ClientMessage =
   ICreatemessage |
   IDisconnectMessage |
   IEstimateMessage |
   IJoinMessage |
+  IPauseMessage |
   ILeaveMessage |
   IRejoinMessage |
   IRevealMessage |
-  // ISetNickMessage |
   IStartMessage;

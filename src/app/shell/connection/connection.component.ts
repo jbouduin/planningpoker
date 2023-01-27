@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
 
 import { EConnectionStatus, ConnectionService } from '@shared';
@@ -14,7 +15,7 @@ export class ConnectionComponent {
   //#region private properties ------------------------------------------------
   private translateService: TranslateService;
   private connectionService: ConnectionService;
-  private gameService: SessionService;
+  private teamService: TeamService;
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
@@ -57,19 +58,16 @@ export class ConnectionComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    translateService: TranslateService,
-    connectionService: ConnectionService,
-    gameService: SessionService) {
-    this.translateService = translateService;
+  public constructor(connectionService: ConnectionService, teamService: TeamService, translateService: TranslateService) {
     this.connectionService = connectionService;
-    this.gameService = gameService;
+    this.teamService = teamService;
+    this.translateService = translateService;
   }
   //#endregion
 
   //#region UI triggered methods ----------------------------------------------
   public reconnect(): void {
-    this.gameService.rejoin();
+    // TODO this.teamService.rejoin();
   }
   //#endregion
 }

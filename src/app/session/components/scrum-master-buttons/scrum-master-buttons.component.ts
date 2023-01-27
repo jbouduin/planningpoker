@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { PokerService } from '@app/session/services/poker.service';
 import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ERole } from '@shared-lib';
 
 @Component({
   selector: 'session-scrum-master-buttons',
@@ -34,7 +35,7 @@ export class ScrumMasterButtonsComponent {
   }
 
   public get showMe(): boolean {
-    return this.teamService.scrumMaster?.me ?? false;
+    return this.teamService.me.role === ERole.ScrumMaster;
   }
 
   public get showReveal(): boolean {

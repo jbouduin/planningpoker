@@ -1,4 +1,4 @@
-import { EPokerStatus } from '../../../../shared-lib/lib';
+import { EParticipantStatus, EPokerStatus } from '../../../../shared-lib/lib';
 
 import { Estimation } from './estimation';
 import { Participant } from './participant';
@@ -59,9 +59,9 @@ export class Team implements ITeam {
 
   //#region Public GameStatus related methods ---------------------------------
   public reveal(): void {
-    // TODO create ? estimations for missing estimations
     for (const member of this.members.values()) {
-      if (Array.from(this.estimations.values()).findIndex((e: Estimation) => e.participantUuid === member.uuid) < 0) {
+      if (member.status === EParticipantStatus.Connected && !this.estimations.has(member.uuid))
+      {
         this.estimations.set(member.uuid, new Estimation(member.uuid, this.unknownEstimationIndex));
       }
     }

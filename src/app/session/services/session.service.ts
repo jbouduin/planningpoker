@@ -1,13 +1,9 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { ConfirmationDialogComponent, ConfirmationDialogParams, ConnectionService,  LocalStorageService} from '@shared';
-import {
-  ClientMessage,  EServerMessageType,    IInitMessage, ServerMessage
-} from '@shared-lib';
+import { ConnectionService } from '@shared';
+import { ClientMessage, EServerMessageType, ServerMessage } from '@shared-lib';
 import { filter } from 'rxjs/operators';
-import { CreateMessage, JoinMessage } from '../messages';
+import { CreateMessage, JoinMessage, RejoinMessage } from '../messages';
 
 import { CardService } from './card.service';
 import { ErrorHandlerService } from './error-handler.service';
@@ -22,11 +18,8 @@ export class SessionService {
   //#region private readonly properties ---------------------------------------
   private readonly cardService: CardService;
   private readonly connectionService: ConnectionService;
-  private readonly dialog: MatDialog;
   private readonly errorHandlerService: ErrorHandlerService;
-  private readonly localStorageService: LocalStorageService;
   private readonly teamService: TeamService;
-  private readonly translateService: TranslateService;
   private readonly pokerService: PokerService;
   private readonly router: Router;
   //#endregion
@@ -39,23 +32,17 @@ export class SessionService {
   public constructor(
     cardService: CardService,
     connectionService: ConnectionService,
-    dialog: MatDialog,
-    localStorageService: LocalStorageService,
     pokerService: PokerService,
     router: Router,
     errorHandlerService: ErrorHandlerService,
-    teamService: TeamService,
-    translateService: TranslateService) {
+    teamService: TeamService) {
 
     this.cardService = cardService;
     this.connectionService = connectionService;
-    this.dialog = dialog;
-    this.localStorageService = localStorageService;
     this.pokerService = pokerService;
     this.errorHandlerService = errorHandlerService;
     this.router = router;
     this.teamService = teamService;
-    this.translateService = translateService;
     this.currentRoute = '/';
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd)) // eslint-disable-line
@@ -88,11 +75,10 @@ export class SessionService {
     this.startSession(team, message);
   }
 
-  // TODO this one is still called from home.component
   public rejoin(): void {
-    // console.log(`rejoining  ${this.game.team} as ${this.game.myNick}`);
-    // const message = new RejoinMessage('', this.game.myUuid);
-    // this.startSession(this.game.team, message);
+    console.log(`rejoining  ${this.teamService.teamName} as ${this.teamService.me.nick}`);
+    const message = new RejoinMessage('', this.teamService.me.uuid);
+    this.startSession(this.teamService.teamName, message);
   }
   //#endregion
 
@@ -110,46 +96,31 @@ export class SessionService {
     // this.reset();
   }
 
-  public reset() {
-    // TODO this one is still called from home
-    this.connectionService.disconnect();
-    // TODO reset all the services this.game.reset();
-    if (this.currentRoute !== '/home') {
-      console.log('navigating to home');
-      this.router.navigate(['home']);
-    }
-  }
+
   //#endregion
 
   //#region Private methods ---------------------------------------------------
-  private serverMessageHandler(msg: ServerMessage): void {
-    if (msg.type === EServerMessageType.Error) {
-      if (this.errorHandlerService.handleErrorMessage(msg)) {
-        this.reset();
-      }
-    } else if (msg.type === EServerMessageType.Reset) {
-      this.handleServerReset();
-    } else {
-      this.cardService.handleServerMessage(msg);
-      this.pokerService.handleServerMessage(msg);
-      this.teamService.handleServerMessage(msg);
+  private serverMessageHandler(message: ServerMessage): void {
+    this.cardService.handleServerMessage(message);
+    this.pokerService.handleServerMessage(message);
+    this.teamService.handleServerMessage(message);
+    this.handleServerMessage(message);
+  }
 
-      switch (msg.type) {
-        case EServerMessageType.EndSession: {
-          this.handleEndSession();
-          break;
+  private handleServerMessage(message: ServerMessage): void {
+    switch (message.type) {
+      case EServerMessageType.Error:
+        if (this.errorHandlerService.handleErrorMessage(message)) {
+          this.reset();
         }
-        case EServerMessageType.Init:
-          if (this.currentRoute !== '/game') {
-            console.log('navigating to game');
-            this.router.navigate(['game']);
-          }
-          this.localStorageService.uuid = (<IInitMessage>msg).data.uuid;
-          break;
-        case EServerMessageType.Self:
-          this.localStorageService.nick = (<IInitMessage>msg).data.nick;
-          break;
-      }
+        break;
+      case EServerMessageType.EndSession:
+      case EServerMessageType.Left:
+      case EServerMessageType.Reset:
+        this.reset();
+        break;
+      case EServerMessageType.Init:
+        this.navigateTo('/game');
     }
   }
 
@@ -160,31 +131,16 @@ export class SessionService {
       this.serverMessageHandler.bind(this));
   }
 
-  private handleEndSession(): void {
-    const params = new ConfirmationDialogParams();
-    params.showCancelButton = false;
-    params.title = this.translateService.instant('Dialog.Title.Session_ended');
-    params.text = this.translateService.instant('Dialog.Text.The_scrummaster_has_ended_the_session');
-
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: '250px',
-      data: params
-    });
-
-    dialogRef.afterClosed().subscribe(_result => this.reset());
+  private reset() {
+    this.connectionService.disconnect();
+    this.navigateTo('/home');
   }
 
-  private handleServerReset(): void {
-    const params = new ConfirmationDialogParams();
-    params.showCancelButton = false;
-    params.title = this.translateService.instant('Dialog.Title.Server_reset');
-    params.text = this.translateService.instant('Dialog.Text.The_server_has_been_reset.');
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: '250px',
-      data: params
-    });
-
-    dialogRef.afterClosed().subscribe(_result => this.reset());
+  private navigateTo(route: string): void {
+    if (this.currentRoute !== route) {
+      console.log(`navigating to '${route}'`);
+      this.router.navigate([route]);
+    }
   }
   //#endregion
 }

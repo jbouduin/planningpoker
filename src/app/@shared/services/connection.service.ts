@@ -78,12 +78,7 @@ export class ConnectionService {
           // this happens when the client or the server close the socket
           // normally that happens only after 'leave'
           // so we normally do not have to do anything here
-          // we have this special case in development, where we asked the server to kill me
           console.log('gracefull disconnect');
-          // if (this.socket) {
-          //   this.game.handleDisconnect();
-          //   this.handleDisconnect();
-          // }
         }
       });
       this.connectionStatus = EConnectionStatus.Connected;
