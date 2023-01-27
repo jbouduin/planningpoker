@@ -1,8 +1,10 @@
 import { EClientMessageType, IStartMessage } from "@shared-lib";
-import { ClientMessage } from "./client.message";
+import { BaseClientMessage } from "./base-client.message";
 
-export class StartMessage extends ClientMessage<string> implements IStartMessage {
+export class StartMessage extends BaseClientMessage<string> implements IStartMessage {
+  //#region Constructor & C° --------------------------------------------------
   public constructor(sender: string, data: string) {
     super(sender, EClientMessageType.Start, data);
   }
+  //#endregion
 }

@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Estimation, Member, PokerRound } from '../../../session/objects';
+import { Component } from '@angular/core';
+import { PokerService } from '@app/session/services/poker.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Estimation, Member } from '../../../session/objects';
 
 @Component({
   selector: 'session-poker-table',
@@ -9,38 +10,39 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class PokerTableComponent {
 
-  //#region @Input/@Output ----------------------------------------------------
-  @Input() public pokerRound?: PokerRound;
-  @Input() public canEstimate: boolean;
-  @Output() public withdraw: EventEmitter<void>;
-  //#endregion
-
   //#region Private Properties ------------------------------------------------
+  private pokerService: PokerService
   private translateService: TranslateService;
   //#endregion
 
+  //#region getters -----------------------------------------------------------
   public get estimations(): Array<Estimation> {
-    return this.pokerRound?.estimations || new Array<Estimation>();
+    return this.pokerService.estimations;
   }
 
-  public get participantsWithoutEstimation(): Array<Member> {
-    return this.pokerRound?.participantsWithoutEstimation || new Array<Member>
+  public get membersWithoutEstimation(): Array<Member> {
+    return this.pokerService.membersWithoutEstimation;
   }
 
   public get meLabel(): string {
     return this.translateService.instant('Game.Card.Me_label');
   }
 
-  //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    translateService: TranslateService) {
-    this.translateService = translateService;
-    this.canEstimate = false;
-    this.withdraw = new EventEmitter<void>;
+  public get canWithdraw(): boolean {
+    return this.pokerService.canPoker;
   }
   //#endregion
 
-  public cardClicked(): void {
-    this.withdraw.emit();
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(pokerService: PokerService, translateService: TranslateService) {
+    this.pokerService = pokerService;
+    this.translateService = translateService;
   }
+  //#endregion
+
+  //#region UI triggered methods ----------------------------------------------
+  public cardClicked(): void {
+    this.pokerService.withDraw();
+  }
+  //#endregion
 }

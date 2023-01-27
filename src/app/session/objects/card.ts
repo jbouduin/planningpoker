@@ -1,7 +1,6 @@
 import { ICard } from '@shared-lib';
 
 export class Card {
-
   //#region private properties ------------------------------------------------
   private readonly card: ICard;
   //#endregion
@@ -18,14 +17,14 @@ export class Card {
   public get isIcon(): boolean {
     return this.card.isIcon;
   }
+
+  public get isUnknownEstimation(): boolean {
+    return this.card.isUnknownEstimation;
+  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public static createCard(card: ICard): Card {
-    return new Card(card);
-  }
-
-  private constructor(card: ICard) {
+  public constructor(card: ICard) {
     this.card = card;
   }
   //#endregion

@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component } from '@angular/core';
 import { Card } from '@app/session/objects';
-
+import { CardService } from '@app/session/services/card.service';
+import { PokerService } from '@app/session/services/poker.service';
+import { TeamService } from '@app/session/services/team.service';
 
 @Component({
   selector: 'session-my-hand',
@@ -8,17 +10,34 @@ import { Card } from '@app/session/objects';
   styleUrls: ['./my-hand.component.scss']
 })
 export class MyHandComponent {
-  @Input() public availableCards: Array<Card>;
-  @Input() public canEstimate: boolean;
-  @Output() public estimate: EventEmitter<number>;
 
-  public constructor() {
-    this.availableCards = new Array<Card>();
-    this.canEstimate = false;
-    this.estimate = new EventEmitter<number>();
+  //#region private properties ------------------------------------------------
+  private readonly cardService: CardService;
+  private readonly pokerService: PokerService;
+  private readonly teamService: TeamService;
+  //#endregion
+
+  //#region getters -----------------------------------------------------------
+  public get cards(): Array<Card> {
+    return this.cardService.cards;
   }
 
+  public get canEstimate(): boolean {
+    return this.pokerService.canPoker && this.teamService.canPoker;
+  }
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(cardService: CardService, pokerService: PokerService, teamService: TeamService) {
+    this.cardService = cardService;
+    this.teamService = teamService;
+    this.pokerService = pokerService;
+  }
+  //#endregion
+
+  //#region UI triggered methods ----------------------------------------------
   public cardClicked(index: number) {
-    this.estimate.emit(index);
+    this.pokerService.estimate(index);
   }
+  //#endregion
 }

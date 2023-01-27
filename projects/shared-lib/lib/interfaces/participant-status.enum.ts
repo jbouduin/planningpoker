@@ -1,6 +1,6 @@
 export enum EParticipantStatus {
-  Unknown,
-  Connected,
-  Disconnected,
-  Left
+  Unknown = 'unknown',
+  Connected = 'connected',
+  Disconnected = 'disconnected',
+  Left = 'left'
 }

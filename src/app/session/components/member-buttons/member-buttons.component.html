@@ -1,11 +1,11 @@
 <div class="button-row">
   <div class="game-button">
-    <button mat-stroked-button color="primary" (click)="clickLeave()" [disabled]="!enabled">
+    <button mat-stroked-button color="primary" (click)="leave()">
       {{leaveLabel}}
     </button>
   </div>
   <div class="game-button">
-    <button mat-stroked-button color="warning" (click)="clickDisconnect()" [disabled]="!enabled">
+    <button mat-stroked-button color="warning" (click)="disconnect()">
       {{pauseButtonLabel}}
     </button>
   </div>

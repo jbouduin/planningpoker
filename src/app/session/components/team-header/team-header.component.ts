@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { Team } from '@app/session/objects';
+import { Component } from '@angular/core';
+import { TeamService } from '@app/session/services/team.service';
 
 @Component({
   selector: 'session-team-header',
@@ -8,12 +8,20 @@ import { Team } from '@app/session/objects';
 })
 export class TeamHeaderComponent {
 
-  // TODO replace by team service
-  @Input() team?: Team;
+  //#region private properties ------------------------------------------------
+  private readonly teamService: TeamService;
+  //#endregion
 
   //#region getters -----------------------------------------------------------
   public get teamName(): string {
-    return this.team?.teamName || 'unknown';
+    return this.teamService.teamName;
   }
   //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(teamService: TeamService) {
+    this.teamService = teamService;
+  }
+  //#endregion
+
 }

@@ -7,7 +7,7 @@ import { v4 as Uuid } from 'uuid';
 import {
   ClientMessage, EClientMessageType, IEstimation, IParticipant, EErrorCode, EGameStatus,
   ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IRejoinMessage,
-  EServerMessageType, EParticipantStatus, ERole, ServerMessage, EMemberStatusChange, IMemberStatusChange
+  EParticipantStatus, ERole, ServerMessage, EMemberStatusChange, IMemberStatusChange
 } from '../../../../shared-lib/lib';
 
 import { ICardService } from '../card';
@@ -20,7 +20,7 @@ import { Participant } from './participant';
 import SERVICETYPES from '../service.types';
 import {
   PingMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage,
-  InitMessage, GameStatusMessage, ServerResetMessage, SelfMessage, TeamInfoMessage, MemberChangedMessage
+  InitMessage, GameStatusMessage, ServerResetMessage, SelfMessage, MemberChangedMessage, CardSetMessage, MemberListMessage, TeamNameMessage
 } from '../../messages';
 
 export interface IGameService {
@@ -141,7 +141,7 @@ export class GameService implements IGameService {
           try {
             // parse the message
             const message: ClientMessage = JSON.parse(msg);
-            console.log(`${new Date().toISOString()}: <= ${EServerMessageType[message.type]}: ${msg}`);
+            console.log(`${new Date().toISOString()}: <= ${message.type}: ${msg}`);
             const preflight = this.preflight(message, req.params.team);
             if (preflight === EErrorCode.ParticipantNotFound) {
               this.sendParticipantNotFound(ws);
@@ -543,15 +543,15 @@ export class GameService implements IGameService {
   }
 
   private sendTeamInfo(to: Participant, game: ITeam): void {
-    const message: ServerMessage = new TeamInfoMessage(
-      {
-        teamName: game.teamName,
-        gameStatus: game.status,
-        cards: this.cardService.generateCardSet(),
-        estimations: this.prepareEstimationsData(to, game.status === EGameStatus.Revealed, game.allEstimations),
-        otherMembers: this.prepareParticipantsData(game.filterMembers(other => other.uuid !== to.uuid)),
-        self: this.prepareParticipantsData([to])[0]
-      });
+    let message: ServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0])
+    this.sendToParticipant(to, message);
+    message = new TeamNameMessage(game.teamName);
+    this.sendToParticipant(to, message);
+    message = new CardSetMessage(this.cardService.generateCardSet());
+    this.sendToParticipant(to, message);
+    message = new MemberListMessage(this.prepareParticipantsData(game.filterMembers(other => other.uuid !== to.uuid)));
+    this.sendToParticipant(to, message);
+    message = new EstimationListMessage(this.prepareEstimationsData(to, game.status === EGameStatus.Revealed, game.allEstimations));
     this.sendToParticipant(to, message);
   }
   //#endregion
@@ -575,12 +575,12 @@ export class GameService implements IGameService {
 
   //#region Private send methods ----------------------------------------------
   private sendToParticipant(to: Participant, message: ServerMessage) {
-    console.log(`${new Date().toISOString()}: => to '${to.nick}': ${EServerMessageType[message.type]} - ${JSON.stringify(message)}`);
+    console.log(`${new Date().toISOString()}: => to '${to.nick}': ${message.type} - ${JSON.stringify(message)}`);
     this.send(to.socket, message);
   }
 
   private sendToSocket(socket: WebSocket, message: ServerMessage) {
-    console.log(`${new Date().toISOString()}: => to socket: ${EServerMessageType[message.type]} - ${JSON.stringify(message)}`);
+    console.log(`${new Date().toISOString()}: => to socket: ${message.type} - ${JSON.stringify(message)}`);
     this.send(socket, message);
   }
 
@@ -663,28 +663,28 @@ export class GameService implements IGameService {
       result = EErrorCode.ParticipantNotFound;
     }
     else if (message.type === EClientMessageType.Rejoin && !this.teams.has(requestTeam)) {
-      console.log(`${EClientMessageType[message.type]}: team '${requestTeam}' does not exist.`);
+      console.log(`${message.type}: team '${requestTeam}' does not exist.`);
       result = EErrorCode.TeamDoesNotExist;
     }
     // general tests on team and team participation
     else if (this.messageTypeRequiresTeam(message.type)) {
       if (!this.teams.has(requestTeam)) {
-        console.log(`${EClientMessageType[message.type]}: team '${requestTeam}' does not exist.`);
+        console.log(`${message.type}: team '${requestTeam}' does not exist.`);
         result = EErrorCode.TeamDoesNotExist;
       } else if (this.messageTypeRequiresParticipation(message.type)) {
         const game = this.getTeamByParticipantUuid(message.senderUuid);
         if (!game) {
-          console.log(`${EClientMessageType[message.type]}: '${message.senderUuid}' team '${requestTeam}' does not exist.`);
+          console.log(`${message.type}: '${message.senderUuid}' team '${requestTeam}' does not exist.`);
           result = EErrorCode.TeamDoesNotExist;
         }
         else if (game.teamName !== requestTeam) {
-          console.log(`${EClientMessageType[message.type]}: '${message.senderUuid}' does not belong to team '${requestTeam}'.`);
+          console.log(`${message.type}: '${message.senderUuid}' does not belong to team '${requestTeam}'.`);
           result = EErrorCode.ParticipantNotInTeam;
         }
       } else if (this.messageTypeForbidsParticipation(message.type)) {
         const game = this.getTeamByParticipantUuid(message.senderUuid);
         if (game) {
-          console.log(`${EServerMessageType[message.type]}: '${message.senderUuid}' already belongs to team '${requestTeam}'.`);
+          console.log(`${message.type}: '${message.senderUuid}' already belongs to team '${requestTeam}'.`);
           result = EErrorCode.ParticipantAllReadyInTeam;
         }
       }
@@ -706,7 +706,7 @@ export class GameService implements IGameService {
           } else {
             const oldGame = this.getTeamByParticipantUuid(<string>message.data);
             if (!oldGame || oldGame.teamName !== requestTeam) {
-              console.log(`${EServerMessageType[message.type]}: '${message.senderUuid}' does not belong to team '${requestTeam}'.`);
+              console.log(`${message.type}: '${message.senderUuid}' does not belong to team '${requestTeam}'.`);
               result = EErrorCode.ParticipantNotInTeam;
             }
           }

@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-
 import { SessionService } from '../../session/services/session.service';
 
 @Component({
@@ -11,16 +10,22 @@ import { SessionService } from '../../session/services/session.service';
 })
 export class JoinComponent {
 
-  //#region  @Input
+  //#region @Input ------------------------------------------------------------
   @Input() public isCreate!: boolean;
-
   //#endregion
-  //#region  Public properties
+
+  //#region private properties ------------------------------------------------
+  private translateService: TranslateService;
+  private formBuilder: FormBuilder;
+  private sessionService: SessionService;
+  //#endregion
+
+  //#region Public properties -------------------------------------------------
   public formData: FormGroup;
   public observer: boolean;
   //#endregion
 
-  //#region  Public getter methods
+  //#region Public getter methods ---------------------------------------------
   public get gameHeader(): string {
     return this.isCreate ?
       this.translateService.instant('Home.Component.Header.Start_a_game') :
@@ -54,11 +59,11 @@ export class JoinComponent {
   }
   //#endregion
 
-  //#region  Constructor&C°
-  public constructor(
-    private translateService: TranslateService,
-    private formBuilder: FormBuilder,
-    private sessionService: SessionService) {
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(translateService: TranslateService, formBuilder: FormBuilder, sessionService: SessionService) {
+    this.translateService = translateService;
+    this.formBuilder = formBuilder;
+    this.sessionService = sessionService;
     this.formData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
       nick: new FormControl('', [Validators.required])
@@ -67,11 +72,7 @@ export class JoinComponent {
   }
   //#endregion
 
-  //#region  Public Angular interface methods
-  // public ngOnInit(): void { }
-  //#endregion
-
-  //#region  Public methods
+  //#region Public methods ----------------------------------------------------
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
@@ -92,9 +93,6 @@ export class JoinComponent {
         this.formData.get('nick')?.value,
         this.observer);
     }
-
   }
-
   //#endregion
-
 }

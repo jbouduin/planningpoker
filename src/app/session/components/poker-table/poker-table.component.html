@@ -4,7 +4,7 @@
     <ng-container *ngFor="let estimation of estimations">
       <div class="cards">
         <session-card [card]="estimation.card" [revealed]="estimation.revealed"
-          [enabled]="estimation.member.me && canEstimate" [mine]="estimation.member.me" (cardClicked)="cardClicked()">
+          [enabled]="estimation.member.me && canWithdraw" [mine]="estimation.member.me" (cardClicked)="cardClicked()">
         </session-card>
         <div class="flex-center" [class.mine]="estimation.member.me">
           <div class="nick">
@@ -14,13 +14,13 @@
       </div>
     </ng-container>
     <!-- Missing estimations -->
-    <ng-container *ngFor="let participant of participantsWithoutEstimation">
+    <ng-container *ngFor="let member of membersWithoutEstimation">
       <div class="cards">
-        <session-card [enabled]="false" [mine]="participant.me" (cardClicked)="cardClicked()">
+        <session-card [enabled]="false" [mine]="member.me">
         </session-card>
-        <div class="flex-center" [class.mine]="participant.me">
+        <div class="flex-center" [class.mine]="member.me">
           <div class="nick not-estimated">
-            <span>{{participant.me ? meLabel : participant.nick}}</span>
+            <span>{{member.me ? meLabel : member.nick}}</span>
           </div>
         </div>
       </div>

@@ -1,8 +1,10 @@
 import { EClientMessageType, ILeaveMessage } from "@shared-lib";
-import { ClientMessage } from "./client.message";
+import { BaseClientMessage } from "./base-client.message";
 
-export class LeaveMessage extends ClientMessage<string> implements ILeaveMessage {
+export class LeaveMessage extends BaseClientMessage<string> implements ILeaveMessage {
+  //#region Constructor & C° --------------------------------------------------
   public constructor(sender: string) {
     super(sender, EClientMessageType.Leave, '');
   }
+  //#endregion
 }

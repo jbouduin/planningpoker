@@ -1,6 +1,6 @@
 <mat-card>
   <div class="my-hand mat-card-inner-container">
-    <div *ngFor="let card of availableCards">
+    <div *ngFor="let card of cards">
       <session-card [card]="card" [enabled]="canEstimate" [isAvailableCard]="true"
         (cardClicked)="cardClicked($event)"></session-card>
     </div>

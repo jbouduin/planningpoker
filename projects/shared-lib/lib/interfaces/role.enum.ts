@@ -1,5 +1,5 @@
 export enum ERole {
-  Unknown,
-  Developer,
-  ScrumMaster
+  Unknown = 'unknown',
+  Developer = 'developer',
+  ScrumMaster = 'scrum-master'
 }

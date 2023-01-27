@@ -1,6 +1,5 @@
-import { EGameStatus, ICard, IError, IEstimation, IParticipant } from "../interfaces";
+import { EGameStatus, EPokerStatus, ICard, IError, IEstimation, IParticipant } from "../interfaces";
 import { IMemberStatusChange } from "../interfaces/member-status-change";
-import { ITeamInfo } from "../interfaces/team-info";
 import { EServerMessageType } from "./server-message-type.enum";
 
 export interface IServerMessage<T> {
@@ -16,10 +15,12 @@ export type IEstimationsMessage = IServerMessage<Array<IEstimation>>;
 export type IGameStatusMessage = IServerMessage<EGameStatus>;
 export type IInitMessage = IServerMessage<IParticipant>;
 export type IMemberChangedMessage = IServerMessage<IMemberStatusChange>;
+export type IMemberListMessage = IServerMessage<Array<IParticipant>>;
 export type IPingMessage = IServerMessage<string>;
+export type IPokerStatusChangedMessage = IServerMessage<EPokerStatus>;
 export type ISelfMessage = IServerMessage<IParticipant>;
 export type IServerResetMessage = IServerMessage<string>;
-export type ITeamInfoMessage = IServerMessage<ITeamInfo>;
+export type ITeamNameMessage = IServerMessage<string>;
 export type ServerMessage =
   ICardSetMessage |
   IClearEstimationsMessage |
@@ -29,7 +30,9 @@ export type ServerMessage =
   IGameStatusMessage |
   IInitMessage |
   IMemberChangedMessage |
+  IMemberListMessage |
   IPingMessage |
+  IPokerStatusChangedMessage |
   ISelfMessage |
   IServerResetMessage |
-  ITeamInfoMessage;
+  ITeamNameMessage;

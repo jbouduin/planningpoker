@@ -1,7 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IGame } from '@app/session/objects';
+import { Component } from '@angular/core';
+import { PokerService } from '@app/session/services/poker.service';
 import { TranslateService } from '@ngx-translate/core';
-import { EGameStatus } from '@shared-lib';
 
 @Component({
   selector: 'session-scrum-master-buttons',
@@ -10,22 +9,15 @@ import { EGameStatus } from '@shared-lib';
 })
 export class ScrumMasterButtonsComponent {
 
-  @Input() public enabled: boolean;
-  @Input() public game?: IGame;
-  @Output() public startEstimating: EventEmitter<void>;
-  @Output() public revealEstimations: EventEmitter<void>;
-
   //#region Private Properties ------------------------------------------------
-  private translateService: TranslateService;
+  private readonly pokerService: PokerService;
+  private readonly translateService: TranslateService;
   //#endregion
 
-
-
+  //#region getters -----------------------------------------------------------
   public get revealButtonLabel(): string {
     return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
   }
-
-
 
   public get forceRevealButtonLabel(): string {
     return this.translateService.instant('Game.Component.ButtonLabel.ForceReveal');
@@ -35,39 +27,33 @@ export class ScrumMasterButtonsComponent {
     return this.translateService.instant('Game.Component.ButtonLabel.Start');
   }
 
-  public get showDisconnect(): boolean {
-    return  this.game ?  this.game.status !== EGameStatus.Disconnected : false;
-    // !environment.production &&
+  public get disableReveal(): boolean {
+    return this.pokerService.membersWithoutEstimation.length > 0;
   }
 
   public get showReveal(): boolean {
-    return this.game ? this.game.showReveal : false;
-  }
-
-  public get showForceReveal(): boolean {
-    return this.game ? this.game.showForceReveal : false;
+    return this.pokerService.canPoker;
   }
 
   public get showStart(): boolean {
-    return this.game ? this.game.showStart : false;
-  }
-
-  //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    translateService: TranslateService) {
-    this.translateService = translateService;
-    this.enabled = false;
-    this.revealEstimations = new EventEmitter<void>();
-    this.startEstimating = new EventEmitter<void>();
-
+    return !this.pokerService.canPoker;
   }
   //#endregion
 
-  public clickReveal(): void {
-    this.revealEstimations.emit();
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(pokerService: PokerService, translateService: TranslateService) {
+    this.pokerService = pokerService;
+    this.translateService = translateService;
+  }
+  //#endregion
+
+  //#region UI triggered methods ----------------------------------------------
+  public reveal(): void {
+    this.pokerService.reveal();
   }
 
-  public clickStart(): void {
-    this.startEstimating.emit();
+  public start(): void {
+    this.pokerService.start();
   }
+  //#endregion
 }

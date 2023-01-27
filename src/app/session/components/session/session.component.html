@@ -1,6 +1,6 @@
 <mat-sidenav-container>
   <mat-sidenav #sidenav opened="true" mode="side">
-    <session-member-panel [team]="team"></session-member-panel>
+    <session-member-panel></session-member-panel>
   </mat-sidenav>
   <mat-sidenav-content>
     <div>
@@ -8,17 +8,13 @@
         <button (click)="sidenav.toggle()" class="toggle">T</button>
       </div>
       <div class="game-container">
-        <session-team-header [team]="team"></session-team-header>
-        <session-poker-table (withdraw)="withdraw()" [pokerRound]="pokerRound"
-          [canEstimate]="canEstimate"></session-poker-table>
-        <session-my-hand [canEstimate]="canEstimate && enabled" [availableCards]="availableCards"
-          (estimate)="estimate($event)"></session-my-hand>
+        <session-team-header></session-team-header>
+        <session-poker-table></session-poker-table>
+        <session-my-hand></session-my-hand>
         <mat-card>
           <div class="mat-card-inner-container button-row">
-            <session-scrum-master-buttons [game]="game" [enabled]="enabled" (startEstimating)="start()"
-              (revealEstimations)="reveal()"></session-scrum-master-buttons>
-            <session-member-buttons [game]="game" [enabled]="enabled" (leave)="leave()"
-              (disconnect)="disconnect()"></session-member-buttons>
+            <session-scrum-master-buttons ></session-scrum-master-buttons>
+            <session-member-buttons></session-member-buttons>
           </div>
         </mat-card>
       </div>

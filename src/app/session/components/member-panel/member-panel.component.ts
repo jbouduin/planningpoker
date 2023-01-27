@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { Member, Team } from '@app/session/objects';
+import { Component } from '@angular/core';
+import { Member } from '@app/session/objects';
+import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -9,10 +10,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class MemberPanelComponent {
 
-  // TODO replace by a teamservice
-  @Input() public team?: Team;
-
   //#region Private Properties ------------------------------------------------
+  private teamService: TeamService;
   private translateService: TranslateService;
   //#endregion
 
@@ -32,21 +31,21 @@ export class MemberPanelComponent {
 
   //#region Member getters ----------------------------------------------------
   public get observers(): Array<Member> {
-    return this.team ? this.team.observers : new Array<Member>();
+    return this.teamService.observers;
   }
 
   public get developers(): Array<Member> {
-    return this.team ? this.team.developers : new Array<Member>();
+    return this.teamService.developers;
   }
 
   public get scrumMaster(): Member | undefined {
-    return this.team?.scrumMaster;
+    return this.teamService.scrumMaster;
   }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    translateService: TranslateService) {
+  public constructor(teamService: TeamService, translateService: TranslateService) {
+    this.teamService = teamService;
     this.translateService = translateService;
   }
   //#endregion

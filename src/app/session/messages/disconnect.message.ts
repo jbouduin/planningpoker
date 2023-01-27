@@ -1,8 +1,10 @@
 import { EClientMessageType, IDisconnectMessage } from "@shared-lib";
-import { ClientMessage } from "./client.message";
+import { BaseClientMessage } from "./base-client.message";
 
-export class DisconnectMessage extends ClientMessage<string> implements IDisconnectMessage {
+export class DisconnectMessage extends BaseClientMessage<string> implements IDisconnectMessage {
+  //#region Constructor & C° --------------------------------------------------
   public constructor(sender: string) {
     super(sender, EClientMessageType.Disconnect, '');
   }
+  //#endregion
 }

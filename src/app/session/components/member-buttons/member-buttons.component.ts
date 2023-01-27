@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IGame } from '@app/session/objects';
+import { Component } from '@angular/core';
+import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -8,17 +8,14 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./member-buttons.component.sass']
 })
 export class MemberButtonsComponent {
-  @Input() public game?: IGame;
-  @Input() public enabled: boolean;
-  @Output() public leave: EventEmitter<void>;
-  @Output() public disconnect: EventEmitter<void>;
-
   //#region Private Properties ------------------------------------------------
-  private translateService: TranslateService;
+  private readonly teamService: TeamService;
+  private readonly translateService: TranslateService;
   //#endregion
 
+  //#region getters -----------------------------------------------------------
   public get leaveLabel(): string {
-    return this.game?.scrumMaster.me ?
+    return this.teamService.scrumMaster?.me ?
       this.translateService.instant('Game.Component.ButtonLabel.End_session') :
       this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
   }
@@ -26,21 +23,22 @@ export class MemberButtonsComponent {
   public get pauseButtonLabel(): string {
     return this.translateService.instant('Game.Component.ButtonLabel.Pause');
   }
+  //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    translateService: TranslateService) {
+  public constructor(teamService: TeamService,    translateService: TranslateService) {
+    this.teamService = teamService;
     this.translateService = translateService;
-    this.enabled = false;
-    this.leave = new EventEmitter<void>();
-    this.disconnect = new EventEmitter<void>();
   }
   //#endregion
 
-  public clickDisconnect(): void{
-    this.disconnect.emit();
+  //#region UI triggered methods ----------------------------------------------
+  public disconnect(): void{
+    // TODO this.teamService.disconnect();
   }
-  public clickLeave(): void {
-    this.leave.emit();
+
+  public leave(): void {
+    this.teamService.leave();;
   }
+  //#endregion
 }
