@@ -1,4 +1,4 @@
-import { EGameStatus, EPokerStatus, ICard, IError, IEstimation, IParticipant } from "../interfaces";
+import { EPokerStatus, ICard, IError, IEstimation, IParticipant } from "../interfaces";
 import { IMemberStatusChange } from "../interfaces/member-status-change";
 import { EServerMessageType } from "./server-message-type.enum";
 
@@ -12,7 +12,6 @@ export type IClearEstimationsMessage = IServerMessage<string>;
 export type IEndSessionMessage = IServerMessage<string>;
 export type IErrorMessage = IServerMessage<IError>;
 export type IEstimationsMessage = IServerMessage<Array<IEstimation>>;
-export type IGameStatusMessage = IServerMessage<EGameStatus>;
 export type IInitMessage = IServerMessage<IParticipant>;
 export type IMemberChangedMessage = IServerMessage<IMemberStatusChange>;
 export type IMemberListMessage = IServerMessage<Array<IParticipant>>;
@@ -27,7 +26,6 @@ export type ServerMessage =
   IEndSessionMessage |
   IErrorMessage |
   IEstimationsMessage |
-  IGameStatusMessage |
   IInitMessage |
   IMemberChangedMessage |
   IMemberListMessage |

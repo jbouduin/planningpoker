@@ -5,9 +5,9 @@ import 'reflect-metadata';
 import { v4 as Uuid } from 'uuid';
 
 import {
-  ClientMessage, EClientMessageType, IEstimation, IParticipant, EErrorCode, EGameStatus,
+  ClientMessage, EClientMessageType, IEstimation, IParticipant, EErrorCode,
   ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IRejoinMessage,
-  EParticipantStatus, ERole, ServerMessage, EMemberStatusChange, IMemberStatusChange
+  EParticipantStatus, ERole, ServerMessage, EMemberStatusChange, IMemberStatusChange, EPokerStatus
 } from '../../../../shared-lib/lib';
 
 import { ICardService } from '../card';
@@ -20,7 +20,7 @@ import { Participant } from './participant';
 import SERVICETYPES from '../service.types';
 import {
   PingMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage,
-  InitMessage, GameStatusMessage, ServerResetMessage, SelfMessage, MemberChangedMessage, CardSetMessage, MemberListMessage, TeamNameMessage
+  InitMessage, ServerResetMessage, SelfMessage, MemberChangedMessage, CardSetMessage, MemberListMessage, TeamNameMessage, PokerStatusChangedMessage
 } from '../../messages';
 
 export interface IGameService {
@@ -35,7 +35,7 @@ export interface IGameService {
 
 interface ITeamDump {
   team: string;
-  status: EGameStatus;
+  status: EPokerStatus;
   members: Array<IParticipantDump>;
 }
 
@@ -424,7 +424,7 @@ export class GameService implements IGameService {
   private broadcastAllEstimations(team: ITeam) {
     team
       .filterMembers(participant => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.sendEstimations(participant, team.status === EGameStatus.Revealed, team.allEstimations));
+      .forEach(participant => this.sendEstimations(participant, team.status === EPokerStatus.Revealed, team.allEstimations));
   }
 
   private broadcastClearEstimations(team: ITeam) {
@@ -436,13 +436,13 @@ export class GameService implements IGameService {
   private broadcastEstimation(team: ITeam, estimation: Estimation) {
     team
       .filterMembers(participant => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.sendEstimations(participant, team.status === EGameStatus.Revealed, [estimation]));
+      .forEach(participant => this.sendEstimations(participant, team.status === EPokerStatus.Revealed, [estimation]));
   }
 
   private broadcastTeamInfo(team: ITeam) {
     team
       .filterMembers(participant => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.sendGameStatus(participant, team));
+      .forEach(participant => this.sendPokerStatusChanged(participant, team));
   }
 
   private broadcastMemberChange(team: ITeam, changedMember: Participant, change: EMemberStatusChange): void {
@@ -527,8 +527,8 @@ export class GameService implements IGameService {
     this.sendToParticipant(to, message);
   }
 
-  private sendGameStatus(to: Participant, game: ITeam): void {
-    const message: ServerMessage = new GameStatusMessage(game.status);
+  private sendPokerStatusChanged(to: Participant, game: ITeam): void {
+    const message: ServerMessage = new PokerStatusChangedMessage(game.status);
     this.sendToParticipant(to, message);
   }
 
@@ -551,7 +551,7 @@ export class GameService implements IGameService {
     this.sendToParticipant(to, message);
     message = new MemberListMessage(this.prepareParticipantsData(game.filterMembers(other => other.uuid !== to.uuid)));
     this.sendToParticipant(to, message);
-    message = new EstimationListMessage(this.prepareEstimationsData(to, game.status === EGameStatus.Revealed, game.allEstimations));
+    message = new EstimationListMessage(this.prepareEstimationsData(to, game.status === EPokerStatus.Revealed, game.allEstimations));
     this.sendToParticipant(to, message);
   }
   //#endregion

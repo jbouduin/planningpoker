@@ -6,8 +6,6 @@ export * from './join';
 export * from './member-status-change';
 export * from './member-status-change.enum';
 export * from './participant';
-export * from './team-info';
-export * from './game-status.enum';
 export * from './participant-status.enum';
 export * from './poker-status.enum';
 export * from './role.enum';

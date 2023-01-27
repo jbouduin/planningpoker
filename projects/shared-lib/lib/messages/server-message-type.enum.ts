@@ -5,8 +5,6 @@ export enum EServerMessageType {
   Error = 'error',
   EstimationList = 'estimation-list',
   Init = 'init',
-  // TODO get rid of gamestatus
-  GameStatus = 'game-status',
   MemberChanged = 'member-changed',
   MemberList = 'list',
   Ping = 'ping',
