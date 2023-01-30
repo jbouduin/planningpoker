@@ -47,7 +47,7 @@ export class ConnectionService {
     teamName: string,
     initialMessage: ClientMessage,
     messageHandler: (msg: ServerMessage) => void): Subject<AMessage> {
-    // TODO find a way to pass the first part of the url to connection service (probably ask portnumber from host)
+    // TODO 2344 first part of the url to connection service differently
     const url = `ws://localhost:3001/game/${encodeURI(teamName)}`
     if (!this.subject || this.webSocket?.readyState !== WebSocket.OPEN) {
       this.subject = this.create(url).pipe(map((response: MessageEvent): AMessage => {
@@ -69,7 +69,7 @@ export class ConnectionService {
           console.log(error);
           if (error.target && error.target.readyState && error.target.readyState === 3) {
             this.handleDisconnect();
-            // TODO this.initiateReconnectTimer();
+            // TODO NOW this.initiateReconnectTimer();
           } else {
             this.handleSocketError(error);
           }

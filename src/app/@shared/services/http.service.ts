@@ -18,8 +18,8 @@ export class HttpService {
   //#endregion
 
   //#region Public methods ----------------------------------------------------
-  // TODO handle this different as sending a 404
-  // TODO check for uuid and nick also
+  // TODO 2345 handle this different as sending a 404
+  // TODO 2345 check for uuid and nick also
   public checkTeamExists(teamName: string): Observable<boolean> {
     return this.httpClient
       .get(`/api/team/${teamName}`, { observe: 'response', responseType: 'text' })

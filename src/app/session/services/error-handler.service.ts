@@ -24,6 +24,7 @@ export class ErrorHandlerService {
   public handleErrorMessage(message: ServerMessage): boolean {
     const code = (<IErrorMessage>message).data.code;
     this.snackbarService.showError(
+      // TODO 2343 ngx-translate-extract-marker does not work anymore
       this.translateService.instant(`ErrorCode.${EErrorCode[code]}`)
     );
 
