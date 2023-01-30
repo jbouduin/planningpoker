@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@app/material.module';
 import { GameRoutingModule } from './session-routing.module';
 import { CardComponent } from './components/card/card.component';
-import { SessionComponent } from './components/session/session.component';
+import { ContainerComponent } from './components/container/container.component';
 import { MemberComponent } from './components/member/member.component';
 import { MemberPanelComponent } from './components/member-panel/member-panel.component';
 import { TeamHeaderComponent } from './components/team-header/team-header.component';
@@ -20,7 +20,7 @@ import { ScrumMasterButtonsComponent } from './components/scrum-master-buttons/s
   ],
   declarations: [
     CardComponent,
-    SessionComponent,
+    ContainerComponent,
     MemberComponent,
     MemberPanelComponent,
     TeamHeaderComponent,

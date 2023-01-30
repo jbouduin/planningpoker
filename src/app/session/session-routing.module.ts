@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { SessionComponent } from './components/session/session.component';
+import { ContainerComponent } from './components/container/container.component';
 
 const routes: Routes = [
   // Module is lazy loaded, see app-routing.module.ts
-  { path: '', component: SessionComponent }
+  { path: '', component: ContainerComponent }
 ];
 
 @NgModule({
