@@ -89,10 +89,10 @@ export class SessionService {
     // if we are connected, we are just leaving the game
     // if not we are leaving a game we have been disconnected from before
     if (this.connectionService.connectionStatus == EConnectionStatus.Connected) {
-       this.connectionService.sendMessage(message);
-     } else {
+      this.connectionService.sendMessage(message);
+    } else {
       this.startSession(team, message);
-     }
+    }
   }
   //#endregion
 
@@ -125,7 +125,8 @@ export class SessionService {
     this.connectionService.connect(
       team,
       message,
-      this.serverMessageHandler.bind(this));
+      this.serverMessageHandler.bind(this),
+      this.rejoinCallBack.bind(this));
   }
 
   private reset() {
@@ -138,6 +139,10 @@ export class SessionService {
       console.log(`navigating to '${route}'`);
       this.router.navigate([route]);
     }
+  }
+
+  private rejoinCallBack(): void {
+    this.rejoin(this.teamService.teamName, this.teamService.me.uuid);
   }
   //#endregion
 }

@@ -66,8 +66,8 @@ export class ConnectionComponent {
   //#endregion
 
   //#region UI triggered methods ----------------------------------------------
-  public reconnect(): void {
-    // TODO NOW this.teamService.rejoin();
+  public reconnectNow(): void {
+    this.connectionService.reconnectNow();
   }
   //#endregion
 }

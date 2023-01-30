@@ -17,6 +17,7 @@ export class ConnectionService {
   private readonly snackbarService: SnackbarService;
   private readonly translateService: TranslateService;
   private currentReconnectIn: number;
+  private rejoinCallBack?: () => void;
   private reconnectTimer: number;
   private subject?: Subject<AMessage>;
   private webSocket?: WebSocket;
@@ -29,6 +30,10 @@ export class ConnectionService {
   //#region Public getter methods ---------------------------------------------
   public get reconnectIn(): number {
     return this.currentReconnectIn;
+  }
+
+  public get canAutomaticallyReconnect(): boolean {
+    return this.rejoinCallBack !== null;
   }
   //#endregion
 
@@ -46,7 +51,9 @@ export class ConnectionService {
   public connect(
     teamName: string,
     initialMessage: ClientMessage,
-    messageHandler: (msg: ServerMessage) => void): Subject<AMessage> {
+    messageHandler: (msg: ServerMessage) => void,
+    rejoinCallBack: () => void): Subject<AMessage> {
+    this.rejoinCallBack = rejoinCallBack;
     // TODO 2344 first part of the url to connection service differently
     const url = `ws://localhost:3001/game/${encodeURI(teamName)}`
     if (!this.subject || this.webSocket?.readyState !== WebSocket.OPEN) {
@@ -69,7 +76,7 @@ export class ConnectionService {
           console.log(error);
           if (error.target && error.target.readyState && error.target.readyState === 3) {
             this.handleDisconnect();
-            // TODO NOW this.initiateReconnectTimer();
+            this.initiateReconnectTimer();
           } else {
             this.handleSocketError(error);
           }
@@ -104,13 +111,21 @@ export class ConnectionService {
       this.subject.next(message);
     }
   }
+
+  public reconnectNow(): void {
+    if (this.rejoinCallBack) {
+      this.rejoinCallBack();
+    }
+  }
   //#endregion
 
   //#region Private methods ---------------------------------------------------
-  private initiateReconnectTimer(callback: () => void): void {
-    this.currentReconnectIn = 30;
-    this.connectionStatus = EConnectionStatus.Countdown;
-    this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000, callback);
+  private initiateReconnectTimer(): void {
+    if (this.rejoinCallBack) {
+      this.currentReconnectIn = 30;
+      this.connectionStatus = EConnectionStatus.Countdown;
+      this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000, this.rejoinCallBack);
+    }
   }
 
   private create(url: string): Subject<MessageEvent> {
