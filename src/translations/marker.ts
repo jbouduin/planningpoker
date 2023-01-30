@@ -1,5 +1,5 @@
 // leave this file in place! It contains keys for translations that can not be extracted
-import { marker } from '@bartholomej/ngx-translate-extract-marker';
+import { marker } from '@biesbjerg/ngx-translate-extract-marker';
 
 marker('ErrorCode.TeamAlreadyExists');
 marker('ErrorCode.TeamDoesNotExist');
