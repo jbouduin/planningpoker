@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { I18nService } from '@core';
 
 @Component({
-  selector: 'app-language-selector',
+  selector: 'shell-language-selector',
   templateUrl: './language-selector.component.html',
   styleUrls: ['./language-selector.component.scss']
 })

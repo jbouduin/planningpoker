@@ -1,4 +1,4 @@
-import { EGameStatus } from '../../../../shared-lib/lib';
+import { EParticipantStatus, EPokerStatus } from '../../../../shared-lib/lib';
 
 import { Estimation } from './estimation';
 import { Participant } from './participant';
@@ -6,7 +6,7 @@ import { Participant } from './participant';
 export interface ITeam {
   readonly allEstimations: Array<Estimation>;
   readonly allMembers: Array<Participant>;
-  readonly status: EGameStatus;
+  readonly status: EPokerStatus;
   teamName: string
   reveal(): void;
   startEstimating(): void;
@@ -25,7 +25,7 @@ export class Team implements ITeam {
   //#region Private properties ------------------------------------------------
   private members: Map<string, Participant>;
   private estimations: Map<string, Estimation>;
-  private gameStatus: EGameStatus;
+  private pokerStatus: EPokerStatus;
   //#endregion
 
   //#region Public properties -------------------------------------------------
@@ -42,8 +42,8 @@ export class Team implements ITeam {
     return Array.from(this.estimations.values());
   }
 
-  public get status(): EGameStatus {
-    return this.gameStatus;
+  public get status(): EPokerStatus {
+    return this.pokerStatus;
   }
   //#endregion
 
@@ -51,7 +51,7 @@ export class Team implements ITeam {
   public constructor(teamName: string, unknownEstimationIndex: number) {
     this.teamName = teamName;
     this.unknownEstimationIndex = unknownEstimationIndex;
-    this.gameStatus = EGameStatus.Ready;
+    this.pokerStatus = EPokerStatus.Cleared;
     this.members = new Map<string, Participant>();
     this.estimations = new Map<string, Estimation>();
   }
@@ -59,18 +59,18 @@ export class Team implements ITeam {
 
   //#region Public GameStatus related methods ---------------------------------
   public reveal(): void {
-    // TODO create ? estimations for missing estimations
     for (const member of this.members.values()) {
-      if (Array.from(this.estimations.values()).findIndex((e: Estimation) => e.participantUuid === member.uuid) < 0) {
+      if (member.status === EParticipantStatus.Connected && !this.estimations.has(member.uuid))
+      {
         this.estimations.set(member.uuid, new Estimation(member.uuid, this.unknownEstimationIndex));
       }
     }
-    this.gameStatus = EGameStatus.Revealed;
+    this.pokerStatus = EPokerStatus.Revealed;
   }
 
   public startEstimating(): void {
     this.estimations = new Map<string, Estimation>();
-    this.gameStatus = EGameStatus.Estimating;
+    this.pokerStatus = EPokerStatus.Started;
   }
   //#endregion
 

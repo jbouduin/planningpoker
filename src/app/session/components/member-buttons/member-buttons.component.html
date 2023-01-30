@@ -1,0 +1,17 @@
+<div class="button-row">
+  <div class="game-button">
+    <button mat-stroked-button color="primary" (click)="leave()">
+      {{leaveLabel}}
+    </button>
+  </div>
+  <div class="game-button">
+    <button *ngIf="canPause" mat-stroked-button color="warning" (click)="pause()">
+      {{pauseButtonLabel}}
+    </button>
+  </div>
+  <div class="game-button">
+    <button *ngIf="canRejoin" mat-stroked-button color="warning" (click)="rejoin()">
+      {{rejoinButtonLabel}}
+    </button>
+  </div>
+</div>

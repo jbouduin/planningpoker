@@ -1,0 +1,27 @@
+import { Component } from '@angular/core';
+import { TeamService } from '@app/session/services/team.service';
+
+@Component({
+  selector: 'session-team-header',
+  templateUrl: './team-header.component.html',
+  styleUrls: ['./team-header.component.scss']
+})
+export class TeamHeaderComponent {
+
+  //#region private properties ------------------------------------------------
+  private readonly teamService: TeamService;
+  //#endregion
+
+  //#region getters -----------------------------------------------------------
+  public get teamName(): string {
+    return this.teamService.teamName;
+  }
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(teamService: TeamService) {
+    this.teamService = teamService;
+  }
+  //#endregion
+
+}

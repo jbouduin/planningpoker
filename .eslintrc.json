@@ -27,7 +27,7 @@
           "error",
           {
             "type": "element",
-            "prefix": ["game", "app"],
+            "prefix": ["session", "home", "about", "shell", "common", "app"],
             "style": "kebab-case"
           }
         ],

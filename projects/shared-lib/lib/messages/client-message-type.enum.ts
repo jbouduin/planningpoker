@@ -1,11 +1,11 @@
 export enum EClientMessageType {
-  Create,
-  Estimate,
-  Join,
-  Disconnect,
-  Leave,
-  // NickChanged,
-  Reveal,
-  Rejoin,
-  Start
+  Create = 'create',
+  Estimate = 'estimate',
+  Join = 'join',
+  Disconnect = 'disconnect',
+  Leave = 'leave',
+  Pause = 'pause',
+  Reveal = 'reveal',
+  Rejoin = 'rejoin',
+  Start = 'start'
 }

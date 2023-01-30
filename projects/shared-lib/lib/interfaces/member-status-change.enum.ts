@@ -1,7 +1,7 @@
 export enum EMemberStatusChange {
-  Joined,
-  Disconnected,
-  Left,
-  Paused,
-  Rejoined
+  Joined = 'joined',
+  Disconnected = 'disconnected',
+  Left = 'left',
+  Paused = 'paused',
+  Rejoined = 'rejoined'
 }

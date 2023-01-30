@@ -1,0 +1,26 @@
+.estimations {
+  display: flex;
+  flex-flow: wrap;
+  min-height: 160px;
+}
+
+.cards {
+  display:flex;
+  flex-direction: column;
+}
+
+.mine {
+  color: blue;
+  font-weight: bold;
+}
+
+.nick {
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.not-estimated {
+  color: lightgray;
+}

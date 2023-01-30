@@ -1,0 +1,17 @@
+<div *ngIf="showMe" class="button-row">
+  <div *ngIf="showStart" class="game-button">
+    <button mat-stroked-button color="primary" (click)="start()">
+      {{startButtonLabel}}
+    </button>
+  </div>
+  <div *ngIf="showReveal" class="game-button">
+    <button mat-stroked-button color="primary" (click)="reveal()" [disabled]="disableReveal">
+      {{revealButtonLabel}}
+    </button>
+  </div>
+  <div *ngIf="showReveal" class="game-button">
+    <button mat-stroked-button color="primary" (click)="reveal()">
+      {{forceRevealButtonLabel}}
+    </button>
+  </div>
+</div>

@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
-  selector: 'app-header',
+  selector: 'shell-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

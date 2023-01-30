@@ -1,0 +1,23 @@
+<mat-sidenav-container>
+  <mat-sidenav #sidenav opened="true" mode="side">
+    <session-member-panel></session-member-panel>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div>
+      <div class="toggle-container">
+        <button (click)="sidenav.toggle()" class="toggle">T</button>
+      </div>
+      <div class="game-container">
+        <session-team-header></session-team-header>
+        <session-poker-table></session-poker-table>
+        <session-my-hand></session-my-hand>
+        <mat-card>
+          <div class="mat-card-inner-container button-row">
+            <session-scrum-master-buttons></session-scrum-master-buttons>
+            <session-member-buttons></session-member-buttons>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
