@@ -42,10 +42,11 @@ export class SystemController implements ISystemController {
 
   public ResetServer(response: Response): void {
     try {
-      this.gameService.reset();
-      response.sendStatus(200);
+      response
+        .type('application/json')
+        .send(this.gameService.reset());
     } catch (error) {
-      response.status(500).send();
+      response.sendStatus(500);
     }
   }
 

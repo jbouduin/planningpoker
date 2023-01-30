@@ -23,11 +23,15 @@ import { ITeam } from './team';
 export interface IGameService {
   disconnectParticipant(participantUuid: string): number;
   initializeService(expressWS: expressWs.Instance): void;
-  reset(): void;
+  reset(): string;
   serializeAllTeams(): string;
   serializeTeam(teamname: string): string;
   serializeParticipants(): string;
   teamExists(uuid: string): boolean;
+}
+
+interface LooseObject {
+  [key: string]: any
 }
 
 interface ITeamDump {
@@ -231,13 +235,29 @@ export class GameService implements IGameService {
     expressWs.app.use('/game', router);
   }
 
-  public reset(): void {
-    for (const game of this.teams.values()) {
-      console.log(`System reset: Ending game '${game.teamName}'`);
-      game.allMembers.forEach((participant: Participant) => this.sendReset(participant));
+  public reset(): string {
+    const response: LooseObject = {};
+    response.teams = 0;
+    response.totalMembers = 0;
+    response.removedTeams = new Array<LooseObject>();
+    for (const team of this.teams.values()) {
+      const removedTeam: LooseObject = {};
+      console.log(`System reset: Ending game '${team.teamName}'`);
+      removedTeam.team = team.teamName;
+      removedTeam.members = 0;
+      removedTeam.removedMembers = new Array<string>();
+      team.allMembers.forEach((participant: Participant) => {
+        this.sendReset(participant);
+        this.memberTeamMap.delete(participant.uuid);
+        removedTeam.removedMembers.push(`${participant.nick} - ${participant.uuid}`);
+        response.totalMembers++;
+        removedTeam.members++;
+      });
+      response.removedTeams.push(removedTeam);
+      this.teams.delete(team.teamName);
+      response.teams++;
     }
-    this.memberTeamMap.clear();
-    this.teams.clear();
+    return JSON.stringify(response);
   }
 
   // TODO 2333 create serializer

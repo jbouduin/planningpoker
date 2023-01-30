@@ -35,8 +35,8 @@ export class RouteService implements IRouteService {
   public setRoutes(expressWs: expressWs.Instance): void {
     const router = Router();
 
-    router.delete(
-      this.systemPath,
+    router.post(
+      `${this.systemPath}/reset`,
       (_request: Request, response: Response) => {
         this.systemController.ResetServer(response);
       }
@@ -52,7 +52,7 @@ export class RouteService implements IRouteService {
     router.get(
       `${this.systemPath}/team/:name`,
       (request: Request, response: Response) => {
-        const teamName = request.params['name'];
+        const teamName = request.params.name;
         if (teamName) {
           this.systemController.GetTeam(teamName, response);
         }
