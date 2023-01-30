@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '@env/environment';
 import { TranslateService } from '@ngx-translate/core';
 import { ClientMessage, EServerMessageType, IInitMessage, ServerMessage } from '@shared-lib';
 import { map, Observable, Observer, Subject } from 'rxjs';
@@ -53,9 +54,9 @@ export class ConnectionService {
     initialMessage: ClientMessage,
     messageHandler: (msg: ServerMessage) => void,
     rejoinCallBack: () => void): Subject<AMessage> {
+
     this.rejoinCallBack = rejoinCallBack;
-    // TODO 2344 first part of the url to connection service differently
-    const url = `ws://localhost:3001/game/${encodeURI(teamName)}`
+    const url = `ws://${environment.ws}/game/${encodeURI(teamName)}`
     if (!this.subject || this.webSocket?.readyState !== WebSocket.OPEN) {
       this.subject = this.create(url).pipe(map((response: MessageEvent): AMessage => {
         console.log(response.data);
