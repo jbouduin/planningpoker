@@ -37,7 +37,14 @@ export class SystemController implements ISystemController {
   }
 
   public DisconnectParticipant(uuid: string, response: Response) {
-    response.sendStatus(this.gameService.disconnectParticipant(uuid)); // eslint-disable-line
+    try {
+      response
+        .type('application/json')
+        .send(this.gameService.disconnectParticipant(uuid));
+    } catch (error) {
+      console.log(error);
+      response.sendStatus(500);
+    }
   }
 
   public ResetServer(response: Response): void {
@@ -46,6 +53,7 @@ export class SystemController implements ISystemController {
         .type('application/json')
         .send(this.gameService.reset());
     } catch (error) {
+      console.log(error);
       response.sendStatus(500);
     }
   }

@@ -69,10 +69,10 @@ export class RouteService implements IRouteService {
       }
     );
 
-    router.delete(
-      `${this.systemPath}/participant/:uuid`,
+    router.post(
+      `${this.systemPath}/participant/:uuid/disconnect`,
       (request: Request, response: Response) => {
-        this.systemController.DisconnectParticipant(request.params['uuid'], response);
+        this.systemController.DisconnectParticipant(request.params.uuid, response);
       }
     );
 

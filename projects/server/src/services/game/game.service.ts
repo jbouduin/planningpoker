@@ -21,7 +21,7 @@ import { Participant } from './participant';
 import { ITeam } from './team';
 
 export interface IGameService {
-  disconnectParticipant(participantUuid: string): number;
+  disconnectParticipant(participantUuid: string): string;
   initializeService(expressWS: expressWs.Instance): void;
   reset(): string;
   serializeAllTeams(): string;
@@ -85,14 +85,17 @@ export class GameService implements IGameService {
     return this.teams.has(name);
   }
 
-  public disconnectParticipant(participantUuid: string): number {
+  public disconnectParticipant(participantUuid: string): string {
     const participant = this.participants.get(participantUuid)
+    const response: LooseObject = {}
     if (participant) {
       participant.socket.close();
-      return 200;
+      response.status = 'ok';
     } else {
-      return 404;
+      response.status = 'error';
+      response.message = 'participant not found';
     }
+    return JSON.stringify(response);
   }
 
   public initializeService(expressWs: expressWs.Instance): void {
