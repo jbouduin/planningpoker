@@ -147,21 +147,4 @@ export class PokerService {
     }
     return result;
   }
-  // private handlePokerStatus(status: EPokerStatus): void {
-
-  //   switch (status) {
-  //     case EPokerStatus.Cleared:
-  //       this.givenEstimations.clear();
-  //       this.givenEstimations.clear();
-  //       break;
-  //     case EPokerStatus.Revealed:
-  //       for (const estimation of this.givenEstimations) {
-  //         estimation.re
-  //       }
-  //       break;
-  //     case EPokerStatus.Started:
-  //       // this.membersWithoutEstimation = this.teamService.allMembers.filter((member: Member) => !member.observer);
-  //     }
-  //     this.pokerStatus = status;
-  // }
 }

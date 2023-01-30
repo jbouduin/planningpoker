@@ -59,7 +59,7 @@ export class MemberButtonsComponent {
   }
 
   public rejoin(): void {
-    this.sessionService.rejoin();
+    this.sessionService.rejoin(this.teamService.teamName, this.teamService.me.uuid);
   }
   //#endregion
 }

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent, ConfirmationDialogParams, ConnectionService, EConnectionStatus, LocalStorageService, SnackbarService } from '@app/@shared';
 import { TranslateService } from '@ngx-translate/core';
+
+import { ConfirmationDialogComponent, ConfirmationDialogParams, ConnectionService, LocalStorageService, SnackbarService } from '@app/@shared';
 import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
 import { LeaveMessage } from '../messages';
 import { PauseMessage } from '../messages/pause.message';
@@ -119,6 +120,7 @@ export class TeamService {
         break;
       case EServerMessageType.TeamName:
         this.teamName = (<ITeamNameMessage>message).data;
+        this.localStorageService.team = this.teamName;
         break;
     }
   }
@@ -159,17 +161,9 @@ export class TeamService {
   private sendLeaveMessage(uuid: string): void {
     const message = new LeaveMessage(uuid);
     this.connectionService.sendMessage(message);
-    // if we are connected, we are just leaving the game
-    // if not we are leaving a game we have been disconnected from before
-    if (this.connectionService.connectionStatus == EConnectionStatus.Connected) {
-    } else {
-      // TODO this.connectionService.connect(createConnection(this.game.team, message);
-      // when this is solved, we can move the sendmessage call to the leave method
-    }
   }
 
   private handleMemberChanged(memberChange: IMemberStatusChange): void {
-    // TODO  this.dumpParticipant(participant);
     let message = '';
     if (memberChange.memberStatusChange != EMemberStatusChange.Left) {
       this.allMembers.set(
@@ -237,7 +231,7 @@ export class TeamService {
     params.showCancelButton = false;
     params.title = this.translateService.instant('Dialog.Title.Server_reset');
     params.text = this.translateService.instant('Dialog.Text.The_server_has_been_reset.');
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    this.dialog.open(ConfirmationDialogComponent, {
       width: '250px',
       data: params
     });
@@ -247,6 +241,7 @@ export class TeamService {
 
   private resetMe(): void {
     this._me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, uuid: '' }, true);
+    this.localStorageService.clear();
     this.allMembers.clear();
     this.teamName = '';
   }

@@ -7,7 +7,7 @@ export enum EServerMessageType {
   Init = 'init',
   Left = 'left',
   MemberChanged = 'member-changed',
-  MemberList = 'list',
+  MemberList = 'member-list',
   Ping = 'ping',
   PokerStatus = 'poker-status',
   Self = 'self',

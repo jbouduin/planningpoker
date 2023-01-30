@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { ConnectionService } from '@shared';
+import { ConnectionService, EConnectionStatus } from '@shared';
 import { ClientMessage, EServerMessageType, ServerMessage } from '@shared-lib';
 import { filter } from 'rxjs/operators';
-import { CreateMessage, JoinMessage, RejoinMessage } from '../messages';
+import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../messages';
 
 import { CardService } from './card.service';
 import { ErrorHandlerService } from './error-handler.service';
@@ -75,28 +75,25 @@ export class SessionService {
     this.startSession(team, message);
   }
 
-  public rejoin(): void {
-    console.log(`rejoining  ${this.teamService.teamName} as ${this.teamService.me.nick}`);
-    const message = new RejoinMessage('', this.teamService.me.uuid);
-    this.startSession(this.teamService.teamName, message);
+  public rejoin(team: string, uuid: string): void {
+    console.log(`rejoining  ${team} as ${uuid}`);
+    const message = new RejoinMessage('', uuid);
+    this.startSession(team, message);
   }
   //#endregion
 
-  // TODO this one is called from home component, should be solved differently
-  public leave(): void {
-    // const message = new LeaveMessage(this.game.myUuid);
-    // this.connectionService.sendMessage(message);
-    // // if we are connected, we are just leaving the game
-    // // if not we are leaving a game we have been disconnected from before
-    // if (this.connectionService.connectionStatus == EConnectionStatus.Connected) {
-    //   this.connectionService.sendMessage(message);
-    // } else {
-    //   this.startSession(this.game.team, message);
-    // }
-    // this.reset();
+  // this one is called from home component
+  public leave(team: string, myUuid: string): void {
+    const message = new LeaveMessage(myUuid);
+
+    // if we are connected, we are just leaving the game
+    // if not we are leaving a game we have been disconnected from before
+    if (this.connectionService.connectionStatus == EConnectionStatus.Connected) {
+       this.connectionService.sendMessage(message);
+     } else {
+      this.startSession(team, message);
+     }
   }
-
-
   //#endregion
 
   //#region Private methods ---------------------------------------------------

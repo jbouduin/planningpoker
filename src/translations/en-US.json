@@ -10,6 +10,7 @@
 	"Dialog.ButtonLabel.Yes": "Yes",
 	"Dialog.Confirm.Text.End_Session": "Are you sure you want to end the session?",
 	"Dialog.Confirm.Title.End_session": "End session...",
+	"Dialog.Confirm.Title.Rejoin": "Rejoin existing team?",
 	"Dialog.Text.Confirm.Are_you_sure": "Are you sure?",
 	"Dialog.Text.The_scrummaster_has_ended_the_session": "The Scrum Master has ended the session",
 	"Dialog.Text.The_server_has_been_reset.": "The server has been reset",
@@ -43,6 +44,7 @@
 	"Home.Component.InputLabel.TeamName.Label": "Team",
 	"Home.Component.InputPlaceholder.NickName": "Enter your name here",
 	"Home.Component.InputPlaceholder.TeamName": "Enter the team name here",
+	"Home.Component.Question.Rejoin_$team_as_$nick": "Do you want to join '{{team}}' as '{{nick}}' again?",
 	"Input.Error.Mandatory": "Please enter a value",
 	"Navigation.RouteLabel.About": "About",
 	"Navigation.RouteLabel.Home": "Home"
