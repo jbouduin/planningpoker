@@ -34,59 +34,10 @@ export class RouteService implements IRouteService {
   //#region IRouteService methods ---------------------------------------------
   public setRoutes(expressWs: expressWs.Instance): void {
     const router = Router();
+    this.setSystemRoutes(router);
+    this.setApiRoutes(router);
 
-    router.post(
-      `${this.systemPath}/reset`,
-      (_request: Request, response: Response) => {
-        this.systemController.ResetServer(response);
-      }
-    );
-
-    router.get(
-      `${this.systemPath}/team`,
-      (_request: Request, response: Response) => {
-        this.systemController.GetAllTeams(response);
-      }
-    );
-
-    router.get(
-      `${this.systemPath}/team/:name`,
-      (request: Request, response: Response) => {
-        const teamName = request.params.name;
-        if (teamName) {
-          this.systemController.GetTeam(teamName, response);
-        }
-        else {
-          this.systemController.GetAllTeams(response);
-        }
-      }
-    );
-
-    router.get(
-      `${this.systemPath}/participant`,
-      (_request: Request, response: Response) => {
-        this.systemController.GetParticipants(response);
-      }
-    );
-
-    router.post(
-      `${this.systemPath}/participant/:uuid/disconnect`,
-      (request: Request, response: Response) => {
-        this.systemController.DisconnectParticipant(request.params.uuid, response);
-      }
-    );
-
-    router.get(
-      '/team/:name',
-      (request: Request, response: Response) => {
-        const name = request.params.name;
-        if (name) {
-          this.systemController.CheckTeam(name, response);
-        } else {
-          response.sendStatus(404);
-        }
-      });
-
+    // fallback
     router.all(
       '*',
       (_request: Request, response: Response) => {
@@ -95,6 +46,60 @@ export class RouteService implements IRouteService {
       });
 
     expressWs.app.use('/', router);
+  }
+  //#endregion
+
+  //#region system routes -----------------------------------------------------
+  private setSystemRoutes(router: Router): void {
+    router.post(
+      `${this.systemPath}/reset`,
+      (_request: Request, response: Response) => {
+        this.systemController.resetServer(response);
+      }
+    );
+
+    router.get(
+      `${this.systemPath}/team`,
+      (_request: Request, response: Response) => {
+        this.systemController.getAllTeams(response);
+      }
+    );
+
+    router.get(
+      `${this.systemPath}/team/:name`,
+      (request: Request, response: Response) => {
+        const teamName = request.params.name;
+        if (teamName) {
+          this.systemController.getTeam(teamName, response);
+        }
+        else {
+          this.systemController.getAllTeams(response);
+        }
+      }
+    );
+
+    router.get(
+      `${this.systemPath}/participant`,
+      (_request: Request, response: Response) => {
+        this.systemController.getParticipants(response);
+      }
+    );
+
+    router.post(
+      `${this.systemPath}/participant/:uuid/disconnect`,
+      (request: Request, response: Response) => {
+        this.systemController.disconnectParticipant(request.params.uuid, response);
+      }
+    );
+  }
+
+  private setApiRoutes(router: Router): void {
+    router.get(
+      '/team/:name/participant/:uuid',
+      (request: Request, response: Response) => {
+        this.systemController.canRejoin(request.params.name, request.params.uuid, response);
+      }
+    );
   }
   //#endregion
 }

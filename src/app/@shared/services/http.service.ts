@@ -2,6 +2,10 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 
+interface LooseObject {
+  [key: string]: any
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,15 +22,13 @@ export class HttpService {
   //#endregion
 
   //#region Public methods ----------------------------------------------------
-  // TODO 2345 handle this different as sending a 404
-  // TODO 2345 check for uuid and nick also
-  public checkTeamExists(teamName: string): Observable<boolean> {
+  public checkCanRejoin(teamName: string, uuid: string): Observable<boolean> {
     return this.httpClient
-      .get(`/api/team/${teamName}`, { observe: 'response', responseType: 'text' })
+      .get<LooseObject>(`/api/team/${teamName}/participant/${uuid}`, { observe: 'response', responseType: 'json' })
       .pipe(
-        catchError((error: HttpResponse<unknown>) => of(error)),
-        map((response: HttpResponse<unknown>) => {
-          return response.status == 200 ? true : false
+        catchError((error: HttpResponse<LooseObject>) => of(error)),
+        map((response: HttpResponse<LooseObject>) => {
+          return response.status == 200 && response.body?.canRejoin == true ? true : false
         })
       );
   }

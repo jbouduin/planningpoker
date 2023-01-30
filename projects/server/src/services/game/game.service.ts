@@ -21,13 +21,13 @@ import { Participant } from './participant';
 import { ITeam } from './team';
 
 export interface IGameService {
+  canRejoin(teamName: string, uuid: string): string;
   disconnectParticipant(participantUuid: string): string;
   initializeService(expressWS: expressWs.Instance): void;
   reset(): string;
   serializeAllTeams(): string;
   serializeTeam(teamname: string): string;
   serializeParticipants(): string;
-  teamExists(uuid: string): boolean;
 }
 
 interface LooseObject {
@@ -81,8 +81,21 @@ export class GameService implements IGameService {
   //#endregion
 
   //#region Interface members -------------------------------------------------
-  public teamExists(name: string): boolean {
-    return this.teams.has(name);
+  public canRejoin(teamName: string, uuid: string): string {
+    const response: LooseObject = {};
+    response.canRejoin = true;
+    response.message = null;
+    if (!this.teams.has(teamName)) {
+      response.canRejoin = false;
+      response.message = 'team does not exist';
+    } else if (!this.participants.has(uuid)) {
+      response.canRejoin = false;
+      response.message = 'participant does not exist';
+    } else if (this.memberTeamMap.get(uuid) !== teamName) {
+      response.canRejoin = false;
+      response.message = 'participant is not a teammember';
+    }
+    return JSON.stringify(response);
   }
 
   public disconnectParticipant(participantUuid: string): string {
@@ -91,6 +104,7 @@ export class GameService implements IGameService {
     if (participant) {
       participant.socket.close();
       response.status = 'ok';
+      response.message = 'participant disconnected';
     } else {
       response.status = 'error';
       response.message = 'participant not found';
@@ -263,7 +277,7 @@ export class GameService implements IGameService {
     return JSON.stringify(response);
   }
 
-  // TODO 2333 create serializer
+  // TODO 2333 create serializer (and use looseobject)
   public serializeAllTeams(): string {
     const result: IGameServiceDump = {
       teams: new Array<ITeamDump>()

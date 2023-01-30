@@ -5,12 +5,12 @@ import { IGameService } from '../services';
 import SERVICETYPES from '../services/service.types';
 
 export interface ISystemController {
-  CheckTeam(name: string, response: Response): void;
-  DisconnectParticipant(uuid: string, response: Response): void;
-  ResetServer(response: Response): void;
-  GetTeam(teamName: string, response: Response): void;
-  GetAllTeams(response: Response): void;
-  GetParticipants(response: Response): void;
+  canRejoin(teamName: string, uuid: string, response: Response): void;
+  disconnectParticipant(uuid: string, response: Response): void;
+  resetServer(response: Response): void;
+  getTeam(teamName: string, response: Response): void;
+  getAllTeams(response: Response): void;
+  getParticipants(response: Response): void;
 }
 
 @injectable()
@@ -27,16 +27,19 @@ export class SystemController implements ISystemController {
   //#endregion
 
   //#region ISystemController methods -----------------------------------------
-  public CheckTeam(name: string, response: Response): void {
-    console.log(`requested existence of ${name}`);
-    if (this.gameService.teamExists(name)) {
-      response.sendStatus(200);
-    } else {
-      response.sendStatus(404);
+  public canRejoin(teamName: string, uuid: string, response: Response): void {
+    console.log(`check if ${uuid} can rejoin ${teamName}`);
+    try {
+      response
+        .type('application/json')
+        .send(this.gameService.canRejoin(teamName, uuid));
+    } catch (error) {
+      console.log(error);
+      response.sendStatus(500);
     }
   }
 
-  public DisconnectParticipant(uuid: string, response: Response) {
+  public disconnectParticipant(uuid: string, response: Response) {
     try {
       response
         .type('application/json')
@@ -47,7 +50,7 @@ export class SystemController implements ISystemController {
     }
   }
 
-  public ResetServer(response: Response): void {
+  public resetServer(response: Response): void {
     try {
       response
         .type('application/json')
@@ -58,19 +61,19 @@ export class SystemController implements ISystemController {
     }
   }
 
-  public GetTeam(teamName: string, response: Response): void {
+  public getTeam(teamName: string, response: Response): void {
     response
       .type('application/json')
       .send(this.gameService.serializeTeam(teamName));
   }
 
-  public GetAllTeams(response: Response): void {
+  public getAllTeams(response: Response): void {
     response
       .type('application/json')
       .send(this.gameService.serializeAllTeams());
   }
 
-  public GetParticipants(response: Response): void {
+  public getParticipants(response: Response): void {
     response
       .type('application/json')
       .send(this.gameService.serializeParticipants());
