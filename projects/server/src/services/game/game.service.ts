@@ -21,13 +21,17 @@ import { Participant } from './participant';
 import { ITeam } from './team';
 
 export interface IGameService {
-  disconnectParticipant(participantUuid: string): number;
+  canRejoin(teamName: string, uuid: string): string;
+  disconnectParticipant(participantUuid: string): string;
   initializeService(expressWS: expressWs.Instance): void;
-  reset(): void;
+  reset(): string;
   serializeAllTeams(): string;
   serializeTeam(teamname: string): string;
   serializeParticipants(): string;
-  teamExists(uuid: string): boolean;
+}
+
+interface LooseObject {
+  [key: string]: any
 }
 
 interface ITeamDump {
@@ -77,18 +81,35 @@ export class GameService implements IGameService {
   //#endregion
 
   //#region Interface members -------------------------------------------------
-  public teamExists(name: string): boolean {
-    return this.teams.has(name);
+  public canRejoin(teamName: string, uuid: string): string {
+    const response: LooseObject = {};
+    response.canRejoin = true;
+    response.message = null;
+    if (!this.teams.has(teamName)) {
+      response.canRejoin = false;
+      response.message = 'team does not exist';
+    } else if (!this.participants.has(uuid)) {
+      response.canRejoin = false;
+      response.message = 'participant does not exist';
+    } else if (this.memberTeamMap.get(uuid) !== teamName) {
+      response.canRejoin = false;
+      response.message = 'participant is not a teammember';
+    }
+    return JSON.stringify(response);
   }
 
-  public disconnectParticipant(participantUuid: string): number {
+  public disconnectParticipant(participantUuid: string): string {
     const participant = this.participants.get(participantUuid)
+    const response: LooseObject = {}
     if (participant) {
       participant.socket.close();
-      return 200;
+      response.status = 'ok';
+      response.message = 'participant disconnected';
     } else {
-      return 404;
+      response.status = 'error';
+      response.message = 'participant not found';
     }
+    return JSON.stringify(response);
   }
 
   public initializeService(expressWs: expressWs.Instance): void {
@@ -231,16 +252,32 @@ export class GameService implements IGameService {
     expressWs.app.use('/game', router);
   }
 
-  public reset(): void {
-    for (const game of this.teams.values()) {
-      console.log(`System reset: Ending game '${game.teamName}'`);
-      game.allMembers.forEach((participant: Participant) => this.sendReset(participant));
+  public reset(): string {
+    const response: LooseObject = {};
+    response.teams = 0;
+    response.totalMembers = 0;
+    response.removedTeams = new Array<LooseObject>();
+    for (const team of this.teams.values()) {
+      const removedTeam: LooseObject = {};
+      console.log(`System reset: Ending game '${team.teamName}'`);
+      removedTeam.team = team.teamName;
+      removedTeam.members = 0;
+      removedTeam.removedMembers = new Array<string>();
+      team.allMembers.forEach((participant: Participant) => {
+        this.sendReset(participant);
+        this.memberTeamMap.delete(participant.uuid);
+        removedTeam.removedMembers.push(`${participant.nick} - ${participant.uuid}`);
+        response.totalMembers++;
+        removedTeam.members++;
+      });
+      response.removedTeams.push(removedTeam);
+      this.teams.delete(team.teamName);
+      response.teams++;
     }
-    this.memberTeamMap.clear();
-    this.teams.clear();
+    return JSON.stringify(response);
   }
 
-  // TODO 2333 create serializer
+  // TODO 2333 create serializer (and use looseobject)
   public serializeAllTeams(): string {
     const result: IGameServiceDump = {
       teams: new Array<ITeamDump>()

@@ -42,7 +42,7 @@ export class HomeComponent implements AfterViewInit {
     const team = this.localStorageService.team;
     const nick = this.localStorageService.nick
     if (team &&  nick && myUuid) {
-      this.httpService.checkTeamExists(team).subscribe((exists: boolean) => {
+      this.httpService.checkCanRejoin(team, myUuid).subscribe((exists: boolean) => {
         if (exists) {
           const params = new ConfirmationDialogParams();
           params.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.No');

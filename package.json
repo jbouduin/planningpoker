@@ -19,7 +19,7 @@
     "translations:extract:template": "ngx-translate-extract -i './src' --output './src/translations/template.json' -f=json --clean -s --marker extract",
     "translations:extract:us": "ngx-translate-extract -i './src' --output './src/translations/en-US.json' -f=json --clean -s --marker extract",
     "translations:extract:de": "ngx-translate-extract -i './src' --output './src/translations/de-DE.json' -f=json --clean -s --marker extract",
-    "reset": "curl -X DELETE localhost:3001/82b52f20-24e6-44c0-a87d-701c150858a0"
+    "reset": "curl -X POST localhost:3001/82b52f20-24e6-44c0-a87d-701c150858a0/reset"
   },
   "dependencies": {
     "@angular/animations": "^15.0.4",
