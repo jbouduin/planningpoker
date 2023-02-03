@@ -1,8 +1,9 @@
 import * as cors from 'cors';
 import * as express from 'express';
 import * as expressWs from 'express-ws';
+
 import { IGameService, IRouteService } from './services';
-import container from './inversify.config';
+import container from './services/inversify.config';
 import SERVICETYPES from './services/service.types';
 
 class App {

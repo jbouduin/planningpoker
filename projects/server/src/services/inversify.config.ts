@@ -1,13 +1,13 @@
 import { Container } from 'inversify';
 
-import CONTROLLERTYPES from './controllers/controller.types';
-import SERVICETYPES from './services/service.types';
+import CONTROLLERTYPES from '../controllers/controller.types';
+import SERVICETYPES from './service.types';
 
-import { ISystemController, SystemController } from './controllers';
-import { IFactoryService, FactoryService } from './services';
-import { ICardService, CardService } from './services';
-import { IGameService, GameService } from './services';
-import { IRouteService, RouteService } from './services';
+import { FactoryService, IFactoryService } from '.';
+import { ISystemController, SystemController } from '../controllers';
+import { CardService, GameService, RouteService } from './implementation';
+import { ICardService, IGameService, IRouteService } from './interfaces';
+
 
 const container = new Container();
 

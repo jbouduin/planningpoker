@@ -3,14 +3,11 @@ import * as expressWs from 'express-ws';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 
-import CONTROLLERTYPES from '../controllers/controller.types';
+import CONTROLLERTYPES from '../../controllers/controller.types';
 
-import { ISystemController } from '../controllers';
+import { ISystemController } from '../../controllers';
 import { env } from 'process';
-
-export interface IRouteService {
-  setRoutes(expressWS: expressWs.Instance): void;
-}
+import { IRouteService } from '../interfaces';
 
 @injectable()
 export class RouteService implements IRouteService {

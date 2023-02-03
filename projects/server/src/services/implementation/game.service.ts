@@ -12,23 +12,16 @@ import {
   CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage,
   InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamNameMessage
 } from '../../messages';
-import { ICardService } from '../card';
+import { ICardService } from '../interfaces';
 import { IFactoryService } from '../factory.service';
 import SERVICETYPES from '../service.types';
 import { ReadyState, WebSocket } from '../websocket';
-import { Estimation } from './estimation';
-import { Participant } from './participant';
-import { ITeam } from './team';
+import { Estimation } from '../game/estimation';
+import { Participant } from '../game/participant';
+import { ITeam } from '../game/team';
+import { IGameService } from '../interfaces';
 
-export interface IGameService {
-  canRejoin(teamName: string, uuid: string): string;
-  disconnectParticipant(participantUuid: string): string;
-  initializeService(expressWS: expressWs.Instance): void;
-  reset(): string;
-  serializeAllTeams(): string;
-  serializeTeam(teamname: string): string;
-  serializeParticipants(): string;
-}
+
 
 interface LooseObject {
   [key: string]: any
