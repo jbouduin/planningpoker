@@ -1,5 +1,3 @@
-import { Response } from 'express';
-
 import { LooseObject } from '../../objects';
 
 export interface ISystemController {

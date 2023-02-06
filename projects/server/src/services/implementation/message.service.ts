@@ -11,16 +11,21 @@ import { IWebSocket } from "../websocket";
 @injectable()
 export class MessageService implements IMessageService {
 
+  //#region private properties ------------------------------------------------
   private readonly cardService: ICardService;
   private readonly senderService: ISenderService;
+  //#endregion
 
+  //#region Constructor & C° --------------------------------------------------
   public constructor(
     @inject(SERVICETYPES.CardService) cardService: ICardService,
     @inject(SERVICETYPES.SenderService) senderService: ISenderService) {
     this.cardService = cardService;
     this.senderService = senderService;
   }
+  //#endregion
 
+  //#region IMessageService broadcast methods ---------------------------------
   public broadcastAllEstimations(team: ITeam): void {
     team
       .filterMembers(participant => participant.status === EParticipantStatus.Connected)
@@ -56,12 +61,9 @@ export class MessageService implements IMessageService {
       .filterMembers(other => other.uuid !== participant.uuid && other.status === EParticipantStatus.Connected)
       .forEach(other => this.sendSessionEnded(other));
   }
+  //#endregion
 
-  private sendClearEstimations(to: Participant): void {
-    const message: ServerMessage = new ClearEstimationsMessage();
-    this.senderService.sendToParticipant(to, message);
-  }
-
+  //#region IMessageService send message methods ------------------------------
   public sendSessionEnded(to: Participant): void {
     const message: ServerMessage = new EndSessionMessage();
     this.senderService.sendToParticipant(to, message);
@@ -77,11 +79,6 @@ export class MessageService implements IMessageService {
     this.senderService.sendToSocket(ws, message);
   }
 
-  private sendEstimations(to: Participant, revealed: boolean, estimations: Array<Estimation>): void {
-    const message: ServerMessage = new EstimationListMessage(this.prepareEstimationsData(to, revealed, estimations));
-    this.senderService.sendToParticipant(to, message);
-  }
-
   public sendInit(to: Participant): void {
     const message: ServerMessage = new InitMessage(this.prepareParticipantsData([to])[0]);
     this.senderService.sendToParticipant(to, message);
@@ -92,28 +89,8 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendMemberChange(to: Participant, changedMember: Participant, change: EMemberStatusChange) {
-    const data: IMemberStatusChange = {
-      memberStatusChange: change,
-      member: {
-        status: changedMember.status,
-        nick: changedMember.nick,
-        uuid: changedMember.uuid,
-        role: changedMember.role,
-        observer: changedMember.observer
-      }
-    }
-    const message: ServerMessage = new MemberChangedMessage(data);
-    this.senderService.sendToParticipant(to, message);
-  }
-
   public sendPing(to: Participant): void {
     const message: ServerMessage = new PingMessage();
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  private sendPokerStatusChanged(to: Participant, game: ITeam): void {
-    const message: ServerMessage = new PokerStatusChangedMessage(game.status);
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -144,6 +121,38 @@ export class MessageService implements IMessageService {
     const message: ServerMessage = new ErrorMessage(EErrorCode.ServerError, errorMessage);
     this.senderService.sendToSocket(socket, message);
   }
+
+  //#region private send methods ----------------------------------------------
+  private sendClearEstimations(to: Participant): void {
+    const message: ServerMessage = new ClearEstimationsMessage();
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  private sendEstimations(to: Participant, revealed: boolean, estimations: Array<Estimation>): void {
+    const message: ServerMessage = new EstimationListMessage(this.prepareEstimationsData(to, revealed, estimations));
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  private sendMemberChange(to: Participant, changedMember: Participant, change: EMemberStatusChange) {
+    const data: IMemberStatusChange = {
+      memberStatusChange: change,
+      member: {
+        status: changedMember.status,
+        nick: changedMember.nick,
+        uuid: changedMember.uuid,
+        role: changedMember.role,
+        observer: changedMember.observer
+      }
+    }
+    const message: ServerMessage = new MemberChangedMessage(data);
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  private sendPokerStatusChanged(to: Participant, game: ITeam): void {
+    const message: ServerMessage = new PokerStatusChangedMessage(game.status);
+    this.senderService.sendToParticipant(to, message);
+  }
+  //#endregion
 
   //#region Private prepare message data methods ------------------------------
   private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<IEstimation> {

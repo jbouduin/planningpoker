@@ -8,7 +8,8 @@ import { IWebSocket } from "../../services/websocket";
 import { IStorageService } from "../../storage/interfaces";
 
 @injectable()
-export class StorageService implements IStorageService{
+export class StorageService implements IStorageService {
+
   //#region Private properties ------------------------------------------------
   private readonly participants: Map<string, Participant>;
   private readonly memberTeamMap: Map<string, string>;
@@ -69,8 +70,7 @@ export class StorageService implements IStorageService{
     return result;
   }
 
-  public filterTeams(filter: (team: ITeam) => boolean): Array<ITeam>
-  {
+  public filterTeams(filter: (team: ITeam) => boolean): Array<ITeam> {
     const result = new Array<ITeam>();
     for (const team of this.teams.values()) {
       if (filter(team) === true) {
@@ -145,7 +145,12 @@ export class StorageService implements IStorageService{
       }));
       return result;
     }
-    else{ return { error: EErrorCode.TeamDoesNotExist, errorMessage: `Team '${teamName}' not found` }};
+    else {
+      return {
+        error: EErrorCode.TeamDoesNotExist,
+        errorMessage: `Team '${teamName}' not found`
+      }
+    }
   }
 
   public serializeParticipants(): LooseObject {

@@ -1,33 +1,15 @@
 import { Router } from 'express';
 import * as expressWs from 'express-ws';
 import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
 
 import SERVICETYPES from '../service.types';
 
-import { ClientMessage, EParticipantStatus, EPokerStatus, ERole } from '../../../../shared-lib/lib';
-import { IGameService, IHandlerService } from '../interfaces';
+import { ClientMessage } from '../../../../shared-lib/lib';
+import { ISocketService, IHandlerService } from '../interfaces';
 
-interface ITeamDump {
-  team: string;
-  status: EPokerStatus;
-  members: Array<IParticipantDump>;
-}
-
-interface IParticipantDump {
-  name: string;
-  role: ERole;
-  status: EParticipantStatus;
-  observer: boolean;
-  uuid: string;
-}
-
-interface IGameServiceDump {
-  teams: Array<ITeamDump>;
-}
 
 @injectable()
-export class GameService implements IGameService {
+export class SocketService implements ISocketService {
 
   //#region Private properties ------------------------------------------------
   private readonly handlerService: IHandlerService;
@@ -60,7 +42,7 @@ export class GameService implements IGameService {
         ws.on('message', (msg: string) => {
           try {
             const message: ClientMessage = JSON.parse(msg);
-            console.log(`${new Date().toISOString()}: <= ${message.type}: ${message}`);
+            console.log(`${new Date().toISOString()}: <= ${message.type}: ${message}`); //eslint-disable-line
             this.handlerService.handleMessage(message, req.params.team, ws);
           } catch (err) {
             this.handlerService.handleError(ws, err);
@@ -71,7 +53,6 @@ export class GameService implements IGameService {
     if (this.pingInterval > 0) {
       setInterval(() => { this.handlerService.handlePing() }, this.pingInterval);
     }
-
     expressWs.app.use('/game', router);
   }
   //#endregion

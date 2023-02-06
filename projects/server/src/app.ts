@@ -2,8 +2,8 @@ import * as cors from 'cors';
 import * as express from 'express';
 import * as expressWs from 'express-ws';
 
-import { IGameService, IRouteService } from './services';
 import container from './inversify.config';
+import { IRouteService, ISocketService } from './services/interfaces';
 import SERVICETYPES from './services/service.types';
 
 class App {
@@ -13,7 +13,7 @@ class App {
   public constructor() {
     this.expressWS = expressWs(express());
 
-    container.get<IGameService>(SERVICETYPES.GameService).initializeService(this.expressWS);
+    container.get<ISocketService>(SERVICETYPES.SocketService).initializeService(this.expressWS);
     container.get<IRouteService>(SERVICETYPES.RouteService).setRoutes(this.expressWS);
 
     this.config(this.expressWS.app);

@@ -7,9 +7,9 @@ import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EPa
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IMessageService } from "../interfaces";
-import { IWebSocket } from '../websocket';
 import { IPreflightService } from "../interfaces/preflight.service";
-import { PreflightService } from "./preflight.service";
+import { IWebSocket } from '../websocket';
+
 
 @injectable()
 export class HandlerService {
@@ -64,7 +64,7 @@ export class HandlerService {
   }
 
   public handleError(ws: IWebSocket, err: unknown): void {
-    console.log(`${new Date().toISOString()}: ERROR ${err}`);
+    console.log(`${new Date().toISOString()}: ERROR ${err}`);  //eslint-disable-line
 
     if (err instanceof Error) {
       this.messageService.sendException(ws, err.message);
@@ -74,31 +74,7 @@ export class HandlerService {
   }
 
   public handleMessage(message: ClientMessage, teamName: string, ws: IWebSocket): void {
-    console.log(`${new Date().toISOString()}: <= ${message.type}: ${message}`);
-
-    // const preflight = this.preflight(message, req.params.team);
-    // if (preflight === EErrorCode.ParticipantNotFound) {
-    //   this.sendParticipantNotFound(ws);
-    // } else if (preflight == EErrorCode.TeamDoesNotExist) {
-    //   this.sendTeamNotFound(ws);
-    // }
-    // else {
-    //   // make sure we always have a sender, although preflight has checked this
-    //   const sender = this.getParticipantBySenderUuid(message.senderUuid, ws);
-    //   const auth = this.checkAuthorization(message.type, sender.role);
-    //   if (preflight === EErrorCode.NoError && auth === EErrorCode.NoError) {
-    //     // make sure we always have a game, although preflight has checked this
-    //     const team = this.teams.get(req.params.team) || this.factoryService.dummyGame(-1);  //this.cardService.unknownEstimationIndex);
-    //     // this.handlerService.HandleMessage(sender, message, team, ws);
-    //   } else { // end of preflight = NoError && auth = NoError
-    //     if (preflight !== EErrorCode.NoError) {
-    //       this.sendErrorMessage(sender, preflight);
-    //     } else {
-    //       this.sendErrorMessage(sender, auth);
-    //     }
-    //   }
-    // } // end of else preflight != ParticipantNotFound
-
+    console.log(`${new Date().toISOString()}: <= ${message.type}: ${message}`); //eslint-disable-line
     const preflight = this.preflightService.preflight(this.storage, message, teamName);
     if (preflight !== EErrorCode.NoError) {
       this.messageService.sendErrorMessageToSocket(ws, preflight);
@@ -261,26 +237,6 @@ export class HandlerService {
     this.messageService.broadcastMemberChange(game, sender, EMemberStatusChange.Paused);
   }
 
-  private handleReveal(sender: Participant, team: ITeam): void {
-    if (sender.role !== ERole.ScrumMaster) {
-      this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ScrumMasterRequired);
-    } else {
-      team.reveal();
-      this.messageService.broadcastPokerStatus(team);
-      this.messageService.broadcastAllEstimations(team);
-    }
-  }
-
-  private handleStart(sender: Participant, team: ITeam): void {
-    if (sender.role !== ERole.ScrumMaster) {
-      this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ScrumMasterRequired);
-    } else {
-      team.startEstimating();
-      this.messageService.broadcastClearEstimations(team);
-      this.messageService.broadcastPokerStatus(team);
-    }
-  }
-
   private handleRejoin(sender: Participant, message: IRejoinMessage, ws: any): void {
     console.log(`Rejoin: '${message.senderUuid}' => '${message.data}' `);
     // find the original participant and the game he was in
@@ -299,6 +255,26 @@ export class HandlerService {
       this.messageService.sendTeamInfo(oldParticipant, teamToRejoin);
       // tell the others that participant rejoined
       this.messageService.broadcastMemberChange(teamToRejoin, oldParticipant, EMemberStatusChange.Rejoined);
+    }
+  }
+
+  private handleReveal(sender: Participant, team: ITeam): void {
+    if (sender.role !== ERole.ScrumMaster) {
+      this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ScrumMasterRequired);
+    } else {
+      team.reveal();
+      this.messageService.broadcastPokerStatus(team);
+      this.messageService.broadcastAllEstimations(team);
+    }
+  }
+
+  private handleStart(sender: Participant, team: ITeam): void {
+    if (sender.role !== ERole.ScrumMaster) {
+      this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ScrumMasterRequired);
+    } else {
+      team.startEstimating();
+      this.messageService.broadcastClearEstimations(team);
+      this.messageService.broadcastPokerStatus(team);
     }
   }
   //#endregion

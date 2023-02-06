@@ -7,6 +7,7 @@ import { IPreflightService } from "../interfaces";
 @injectable()
 export class PreflightService implements IPreflightService {
 
+  //#region IPreflightService methods -----------------------------------------
   public preflight(storageService: IStorageService, message: ClientMessage, teamName: string): EErrorCode {
     let result = EErrorCode.NoError;
 
@@ -43,7 +44,9 @@ export class PreflightService implements IPreflightService {
     }
     return result;
   }
+  //#endregion
 
+  //#region private methods ---------------------------------------------------
   private messageTypeRequiresTeam(messageType: EClientMessageType): boolean {
     const result =
       messageType === EClientMessageType.Estimate ||
@@ -91,4 +94,5 @@ export class PreflightService implements IPreflightService {
     }
     return result;
   }
+  //#endregion
 }

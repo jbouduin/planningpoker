@@ -6,7 +6,7 @@ import STORAGETYPES from '../../storage/storage.types';
 
 import { EErrorCode } from '../../../../shared-lib/lib';
 import { LooseObject } from '../../objects';
-import { IHandlerService } from '../../services';
+import { IHandlerService } from '../../services/interfaces';
 import { IStorageService } from '../../storage/interfaces';
 import { ISystemController } from '../interfaces';
 
