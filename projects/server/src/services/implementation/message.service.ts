@@ -3,10 +3,10 @@ import { inject, injectable } from "inversify";
 import SERVICETYPES from "../service.types";
 
 import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, IEstimation, IMemberStatusChange, IParticipant, ServerMessage } from "../../../../shared-lib/lib";
-import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamNameMessage } from "../..//messages";
+import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamNameMessage } from "../../messages";
 import { Estimation, ITeam, Participant } from "../../objects";
 import { ICardService, IMessageService, ISenderService } from "../interfaces";
-import { IWebSocket } from "services/websocket";
+import { IWebSocket } from "../websocket";
 
 @injectable()
 export class MessageService implements IMessageService {
@@ -67,9 +67,14 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendErrorMessage(to: Participant, code: EErrorCode): void {
+  public sendErrorMessageToParticipant(to: Participant, code: EErrorCode): void {
     const message: ServerMessage = new ErrorMessage(code);
     this.senderService.sendToParticipant(to, message);
+  }
+
+  public sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void {
+    const message: ServerMessage = new ErrorMessage(code);
+    this.senderService.sendToSocket(ws, message);
   }
 
   private sendEstimations(to: Participant, revealed: boolean, estimations: Array<Estimation>): void {
@@ -140,15 +145,6 @@ export class MessageService implements IMessageService {
     this.senderService.sendToSocket(socket, message);
   }
 
-  public sendParticipantNotFound(socket: IWebSocket): void {
-    const message: ServerMessage = new ErrorMessage(EErrorCode.ParticipantNotFound);
-    this.senderService.sendToSocket(socket, message);
-  }
-
-  public sendTeamNotFound(socket: IWebSocket): void {
-    const message: ServerMessage = new ErrorMessage(EErrorCode.TeamDoesNotExist);
-    this.senderService.sendToSocket(socket, message);
-  }
   //#region Private prepare message data methods ------------------------------
   private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<IEstimation> {
     return estimations.map(estimation => {

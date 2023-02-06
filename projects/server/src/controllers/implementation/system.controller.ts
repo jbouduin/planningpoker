@@ -1,76 +1,62 @@
-import { Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { IGameService } from '../../services';
+
 import SERVICETYPES from '../../services/service.types';
+import STORAGETYPES from '../../storage/storage.types';
+
+import { EErrorCode } from '../../../../shared-lib/lib';
+import { LooseObject } from '../../objects';
+import { IHandlerService } from '../../services';
+import { IStorageService } from '../../storage/interfaces';
 import { ISystemController } from '../interfaces';
-
-
 
 @injectable()
 export class SystemController implements ISystemController {
 
   //#region Private properties ------------------------------------------------
-  private gameService: IGameService;
+  private readonly handlerService: IHandlerService;
+  private readonly storageService: IStorageService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(@inject(SERVICETYPES.GameService) gameService: IGameService) {
-    this.gameService = gameService;
+  public constructor(
+    @inject(SERVICETYPES.HandlerService) HandlerService: IHandlerService,
+    @inject(STORAGETYPES.StorageService) storageService: IStorageService) {
+    this.handlerService = HandlerService;
+    this.storageService = storageService;
   }
   //#endregion
 
   //#region ISystemController methods -----------------------------------------
-  public canRejoin(teamName: string, uuid: string, response: Response): void {
-    console.log(`check if ${uuid} can rejoin ${teamName}`);
-    try {
-      response
-        .type('application/json')
-        .send(this.gameService.canRejoin(teamName, uuid));
-    } catch (error) {
-      console.log(error);
-      response.sendStatus(500);
+  public disconnectParticipant(uuid: string): LooseObject {
+    const participant = this.storageService.getParticipant(uuid);
+    const response: LooseObject = {}
+    if (participant) {
+      participant.socket.close();
+      response.errorCode = EErrorCode.NoError;
+      response.message = 'participant disconnected';
+    } else {
+      response.status = EErrorCode.ParticipantNotFound;
+      response.message = 'participant not found';
     }
+    return response;
   }
 
-  public disconnectParticipant(uuid: string, response: Response) {
-    try {
-      response
-        .type('application/json')
-        .send(this.gameService.disconnectParticipant(uuid));
-    } catch (error) {
-      console.log(error);
-      response.sendStatus(500);
-    }
+  public resetServer(): LooseObject {
+    return this.handlerService.handleReset();
   }
 
-  public resetServer(response: Response): void {
-    try {
-      response
-        .type('application/json')
-        .send(this.gameService.reset());
-    } catch (error) {
-      console.log(error);
-      response.sendStatus(500);
-    }
+  public getTeam(teamName: string): LooseObject {
+    return this.storageService.serializeTeam(teamName);
   }
 
-  public getTeam(teamName: string, response: Response): void {
-    response
-      .type('application/json')
-      .send(this.gameService.serializeTeam(teamName));
+  public getAllTeams(): LooseObject {
+    return this.storageService.serializeAllTeams();
+
   }
 
-  public getAllTeams(response: Response): void {
-    response
-      .type('application/json')
-      .send(this.gameService.serializeAllTeams());
-  }
-
-  public getParticipants(response: Response): void {
-    response
-      .type('application/json')
-      .send(this.gameService.serializeParticipants());
+  public getParticipants(): LooseObject {
+    return this.storageService.serializeParticipants();
   }
   //#endregion
 }

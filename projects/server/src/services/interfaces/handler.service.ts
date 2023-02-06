@@ -1,5 +1,5 @@
 import { ClientMessage } from "../../../../shared-lib/lib";
-import { Participant } from "../../objects";
+import { LooseObject, Participant } from "../../objects";
 import { IWebSocket } from "../websocket";
 
 export interface IHandlerService {
@@ -8,5 +8,5 @@ export interface IHandlerService {
   handleError(ws: IWebSocket, err: unknown): void;
   handleMessage(message: ClientMessage, team: string, ws: IWebSocket): void;
   handlePing(): void;
-  handleReset(): string;
+  handleReset(): LooseObject;
 }

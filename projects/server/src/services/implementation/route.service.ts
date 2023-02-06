@@ -6,14 +6,15 @@ import 'reflect-metadata';
 
 import CONTROLLERTYPES from '../../controllers/controller.types';
 
-import { ISystemController } from '../../controllers/interfaces';
+import { IApiController, ISystemController } from '../../controllers/interfaces';
 import { IRouteService } from '../interfaces';
 
 @injectable()
 export class RouteService implements IRouteService {
 
   //#region private properties ------------------------------------------------
-  private systemController: ISystemController;
+  private readonly apiController: IApiController
+  private readonly systemController: ISystemController;
   //#endregion
 
   //#region private getters ---------------------------------------------------
@@ -23,7 +24,10 @@ export class RouteService implements IRouteService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(@inject(CONTROLLERTYPES.SystemController) systemController: ISystemController) {
+  public constructor(
+    @inject(CONTROLLERTYPES.ApiController) apiController: IApiController,
+    @inject(CONTROLLERTYPES.SystemController) systemController: ISystemController) {
+    this.apiController = apiController;
     this.systemController = systemController;
   }
   //#endregion
@@ -51,26 +55,41 @@ export class RouteService implements IRouteService {
     router.post(
       `${this.systemPath}/reset`,
       (_request: Request, response: Response) => {
-        this.systemController.resetServer(response);
+        try {
+          response
+            .type('application/json')
+            .send(this.systemController.resetServer());
+        } catch (error) {
+          console.log(error);
+          response.sendStatus(500);
+        }
       }
     );
 
     router.get(
       `${this.systemPath}/team`,
       (_request: Request, response: Response) => {
-        this.systemController.getAllTeams(response);
+        try {
+          response
+            .type('application/json')
+            .send(this.systemController.getAllTeams());
+        } catch (error) {
+          console.log(error);
+          response.sendStatus(500);
+        }
       }
     );
 
     router.get(
       `${this.systemPath}/team/:name`,
       (request: Request, response: Response) => {
-        const teamName = request.params.name;
-        if (teamName) {
-          this.systemController.getTeam(teamName, response);
-        }
-        else {
-          this.systemController.getAllTeams(response);
+        try {
+          response
+            .type('application/json')
+            .send(this.systemController.getTeam(request.params.name));
+        } catch (error) {
+          console.log(error);
+          response.sendStatus(500);
         }
       }
     );
@@ -78,14 +97,28 @@ export class RouteService implements IRouteService {
     router.get(
       `${this.systemPath}/participant`,
       (_request: Request, response: Response) => {
-        this.systemController.getParticipants(response);
+        try {
+          response
+            .type('application/json')
+            .send(this.systemController.getParticipants());
+        } catch (error) {
+          console.log(error);
+          response.sendStatus(500);
+        }
       }
     );
 
     router.post(
       `${this.systemPath}/participant/:uuid/disconnect`,
       (request: Request, response: Response) => {
-        this.systemController.disconnectParticipant(request.params.uuid, response);
+        try {
+          response
+            .type('application/json')
+            .send(this.systemController.disconnectParticipant(request.params.uuid));
+        } catch (error) {
+          console.log(error);
+          response.sendStatus(500);
+        }
       }
     );
   }
@@ -94,7 +127,14 @@ export class RouteService implements IRouteService {
     router.get(
       '/team/:name/participant/:uuid',
       (request: Request, response: Response) => {
-        this.systemController.canRejoin(request.params.name, request.params.uuid, response);
+        try {
+          response
+            .type('application/json')
+            .send(JSON.stringify(this.apiController.canRejoin(request.params.name, request.params.uuid)));
+        } catch (error) {
+          console.log(error);
+          response.sendStatus(500);
+        }
       }
     );
   }

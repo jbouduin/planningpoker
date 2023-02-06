@@ -1,11 +1,10 @@
+import { injectable } from "inversify";
 import { v4 as Uuid } from 'uuid';
 
-import { injectable } from "inversify";
-import { IWebSocket } from "../../services/websocket";
-import { ERole } from "../../../../shared-lib/lib";
-
-import { ITeam, Team } from "../../objects";
+import { EErrorCode, ERole } from "../../../../shared-lib/lib";
+import { ITeam, LooseObject, Team } from "../../objects";
 import { Participant } from "../../objects/participant";
+import { IWebSocket } from "../../services/websocket";
 import { IStorageService } from "../../storage/interfaces";
 
 @injectable()
@@ -25,6 +24,19 @@ export class StorageService implements IStorageService{
     this.cnt = 0;
   }
   //#endregion
+
+  //#region IStorageService methods -------------------------------------------
+  public canRejoin(uuid: string, teamName: string): EErrorCode {
+    let result = EErrorCode.NoError;
+    if (!this.teamExists(teamName)) {
+      result = EErrorCode.TeamDoesNotExist;
+    } else if (!this.participantExists(uuid)) {
+      result = EErrorCode.ParticipantNotFound;
+    } else if (!this.participantInTeam(uuid, teamName)) {
+      result = EErrorCode.ParticipantNotInTeam;
+    }
+    return result;
+  }
 
   public createParticipant(socket: IWebSocket): Participant {
     const result = new Participant(`participant ${++this.cnt}`, Uuid(), ERole.Unknown, socket);
@@ -85,8 +97,6 @@ export class StorageService implements IStorageService{
     this.memberTeamMap.set(participantUuid, teamName);
   }
 
-
-
   public participantExists(uuid: string): boolean {
     return this.participants.has(uuid);
   }
@@ -95,7 +105,65 @@ export class StorageService implements IStorageService{
     return this.memberTeamMap.get(uuid) === teamName;
   }
 
+  public serializeAllTeams(): LooseObject {
+    const result: LooseObject = {
+      teams: new Array<LooseObject>()
+    };
+
+    for (const team of this.teams.values()) {
+      const gameDump: LooseObject = {
+        team: team.teamName,
+        status: team.status,
+        members: new Array<LooseObject>()
+      }
+      team.allMembers.forEach((menber: Participant) => gameDump.members.push({
+        name: menber.nick,
+        role: menber.role,
+        status: menber.status,
+        observer: menber.observer,
+        uuid: menber.uuid
+      }));
+      result.teams.push(gameDump);
+    }
+    return result;
+  }
+
+  public serializeTeam(teamName: string): LooseObject {
+    const team = this.teams.get(teamName);
+    if (team) {
+      const result: LooseObject = {
+        team: team.teamName,
+        status: team.status,
+        members: new Array<LooseObject>()
+      }
+      team.allMembers.forEach((member: Participant) => result.members.push({
+        name: member.nick,
+        role: member.role,
+        status: member.status,
+        observer: member.observer,
+        uuid: member.uuid
+      }));
+      return result;
+    }
+    else{ return { error: EErrorCode.TeamDoesNotExist, errorMessage: `Team '${teamName}' not found` }};
+  }
+
+  public serializeParticipants(): LooseObject {
+    const result = new Array<LooseObject>();
+    for (const participant of this.participants.values()) {
+      result.push({
+        name: participant.nick,
+        role: participant.role,
+        status: participant.status,
+        observer: participant.observer,
+        uuid: participant.uuid
+      })
+    }
+    return result;
+  }
+
   public teamExists(teamName: string): boolean {
     return this.teams.has(teamName);
   }
+  //#endregion
 }

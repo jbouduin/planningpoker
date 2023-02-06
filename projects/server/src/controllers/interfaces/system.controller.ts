@@ -1,10 +1,11 @@
 import { Response } from 'express';
 
+import { LooseObject } from '../../objects';
+
 export interface ISystemController {
-  canRejoin(teamName: string, uuid: string, response: Response): void;
-  disconnectParticipant(uuid: string, response: Response): void;
-  resetServer(response: Response): void;
-  getTeam(teamName: string, response: Response): void;
-  getAllTeams(response: Response): void;
-  getParticipants(response: Response): void;
+  disconnectParticipant(uuid: string): LooseObject;
+  resetServer(): LooseObject;
+  getTeam(teamName: string): LooseObject;
+  getAllTeams(): LooseObject;
+  getParticipants(): LooseObject;
 }

@@ -4,6 +4,7 @@ const SERVICETYPES = {
   GameService: Symbol('GameService'),
   HandlerService: Symbol('HandlerService'),
   MessageService: Symbol('MessageService'),
+  PreflightService: Symbol('PreflightService'),
   RouteService: Symbol('RouteService'),
   SenderService: Symbol('SenderService')
 };

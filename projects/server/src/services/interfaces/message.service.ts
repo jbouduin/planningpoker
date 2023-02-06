@@ -9,7 +9,8 @@ export interface IMessageService {
   broadcastPokerStatus(team: ITeam): void;
   broadcastMemberChange(team: ITeam, changedMember: Participant, change: EMemberStatusChange): void;
   broadcastSessionEnded(team: ITeam, participant: Participant): void;
-  sendErrorMessage(to: Participant, code: EErrorCode): void;
+  sendErrorMessageToParticipant(to: Participant, code: EErrorCode): void;
+  sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void;
   sendException(socket: IWebSocket, errorMessage: string): void;
   sendInit(to: Participant): void;
   sendLeft(to: Participant): void;

@@ -8,6 +8,8 @@ import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IMessageService } from "../interfaces";
 import { IWebSocket } from '../websocket';
+import { IPreflightService } from "../interfaces/preflight.service";
+import { PreflightService } from "./preflight.service";
 
 @injectable()
 export class HandlerService {
@@ -15,6 +17,7 @@ export class HandlerService {
   //#region Private properties ------------------------------------------------
   private readonly cardService: ICardService;
   private readonly messageService: IMessageService;
+  private readonly preflightService: IPreflightService;
   private readonly storage: IStorageService;
   //#endregion
 
@@ -22,9 +25,11 @@ export class HandlerService {
   public constructor(
     @inject(SERVICETYPES.CardService) cardService: ICardService,
     @inject(SERVICETYPES.MessageService) messageService: IMessageService,
+    @inject(SERVICETYPES.PreflightService) preflightService: IPreflightService,
     @inject(STORAGETYPES.StorageService) storage: IStorageService) {
     this.cardService = cardService;
     this.messageService = messageService;
+    this.preflightService = preflightService;
     this.storage = storage;
   }
   //#endregion
@@ -93,10 +98,16 @@ export class HandlerService {
     //     }
     //   }
     // } // end of else preflight != ParticipantNotFound
-    const participant = this.storage.getParticipant(message.senderUuid);
-    const team = this.storage.getTeam(teamName);
-    if (participant && team) {
-      this.processMessage(participant, message, team, ws)
+
+    const preflight = this.preflightService.preflight(this.storage, message, teamName);
+    if (preflight !== EErrorCode.NoError) {
+      this.messageService.sendErrorMessageToSocket(ws, preflight);
+    } else {
+      const participant = this.storage.getParticipant(message.senderUuid);
+      const team = this.storage.getTeam(teamName);
+      if (participant && team) {
+        this.processMessage(participant, message, team, ws)
+      }
     }
   }
 
@@ -107,7 +118,7 @@ export class HandlerService {
       .forEach(participant => this.messageService.sendPing(participant));
   }
 
-  public handleReset(): string {
+  public handleReset(): LooseObject {
     const response: LooseObject = {};
     response.teams = 0;
     response.totalMembers = 0;
@@ -129,11 +140,11 @@ export class HandlerService {
       this.storage.deleteTeam(team.teamName);
       response.teams++;
     }
-    return JSON.stringify(response);
+    return response;
   }
   //#endregion
 
-  //#region private methods
+  //#region private methods ---------------------------------------------------
   private processMessage(sender: Participant, message: ClientMessage, team: ITeam, ws: IWebSocket): void {
     switch (message.type) {
       case (EClientMessageType.Create): {
@@ -173,7 +184,7 @@ export class HandlerService {
         break;
       }
       default: {
-        this.messageService.sendErrorMessage(sender, EErrorCode.UnknownVerb);
+        this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.UnknownVerb);
         console.log('unexpected messagetype');
       }
     } // end switch
@@ -252,7 +263,7 @@ export class HandlerService {
 
   private handleReveal(sender: Participant, team: ITeam): void {
     if (sender.role !== ERole.ScrumMaster) {
-      this.messageService.sendErrorMessage(sender, EErrorCode.ScrumMasterRequired);
+      this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ScrumMasterRequired);
     } else {
       team.reveal();
       this.messageService.broadcastPokerStatus(team);
@@ -262,7 +273,7 @@ export class HandlerService {
 
   private handleStart(sender: Participant, team: ITeam): void {
     if (sender.role !== ERole.ScrumMaster) {
-      this.messageService.sendErrorMessage(sender, EErrorCode.ScrumMasterRequired);
+      this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ScrumMasterRequired);
     } else {
       team.startEstimating();
       this.messageService.broadcastClearEstimations(team);
