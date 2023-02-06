@@ -2,7 +2,10 @@ const SERVICETYPES = {
   FactoryService: Symbol('FactoryService'),
   CardService: Symbol('CardService'),
   GameService: Symbol('GameService'),
-  RouteService: Symbol('RouteService')
+  HandlerService: Symbol('HandlerService'),
+  MessageService: Symbol('MessageService'),
+  RouteService: Symbol('RouteService'),
+  SenderService: Symbol('SenderService')
 };
 
 export default SERVICETYPES;

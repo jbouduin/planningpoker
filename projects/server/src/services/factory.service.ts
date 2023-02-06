@@ -3,15 +3,15 @@ import 'reflect-metadata';
 
 import { EParticipantStatus, ERole } from '../../../shared-lib/lib';
 
-import { Team, ITeam } from './game/team';
-import { Participant } from './game/participant';
-import { WebSocket } from './websocket';
+import { Team, ITeam } from '../objects/team';
+import { Participant } from '../objects/participant';
+import { IWebSocket } from './websocket';
 
 export interface IFactoryService {
   dummyGame(unknownEstimationIndex: number): ITeam;
-  dummyParticipant(socket: WebSocket): Participant;
+  dummyParticipant(socket: IWebSocket): Participant;
   newTeam(team: string, unknownEstimationIndex: number): ITeam
-  newParticipant(nick: string, uuid: string, role: ERole, socket: WebSocket): Participant;
+  newParticipant(nick: string, uuid: string, role: ERole, socket: IWebSocket): Participant;
 }
 
 @injectable()
@@ -21,7 +21,7 @@ export class FactoryService implements IFactoryService {
     return new Team('dummy', unknownEstimationIndex);
   }
 
-  public dummyParticipant(socket: WebSocket): Participant {
+  public dummyParticipant(socket: IWebSocket): Participant {
     const result = new Participant('dummy', '', ERole.Unknown, socket);
     result.status = EParticipantStatus.Disconnected;
     return result;
@@ -31,7 +31,8 @@ export class FactoryService implements IFactoryService {
     return new Team(team, unknownEstimationIndex);
   }
 
-  public newParticipant(nick: string, uuid: string, role: ERole, socket: WebSocket) {
+  public newParticipant(nick: string, uuid: string, role: ERole, socket: IWebSocket) {
+
     return new Participant(nick, uuid, role, socket);
   }
 

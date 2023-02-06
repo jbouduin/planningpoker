@@ -1,12 +1,12 @@
 import { Request, Response, Router } from 'express';
 import * as expressWs from 'express-ws';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
+import { env } from 'process';
 import 'reflect-metadata';
 
 import CONTROLLERTYPES from '../../controllers/controller.types';
 
-import { ISystemController } from '../../controllers';
-import { env } from 'process';
+import { ISystemController } from '../../controllers/interfaces';
 import { IRouteService } from '../interfaces';
 
 @injectable()

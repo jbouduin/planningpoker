@@ -1,17 +1,11 @@
 import { Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { IGameService } from '../services';
-import SERVICETYPES from '../services/service.types';
+import { IGameService } from '../../services';
+import SERVICETYPES from '../../services/service.types';
+import { ISystemController } from '../interfaces';
 
-export interface ISystemController {
-  canRejoin(teamName: string, uuid: string, response: Response): void;
-  disconnectParticipant(uuid: string, response: Response): void;
-  resetServer(response: Response): void;
-  getTeam(teamName: string, response: Response): void;
-  getAllTeams(response: Response): void;
-  getParticipants(response: Response): void;
-}
+
 
 @injectable()
 export class SystemController implements ISystemController {

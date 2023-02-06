@@ -1,4 +1,4 @@
-import { IEstimation } from '../../../../shared-lib/lib';
+import { IEstimation } from '../../../shared-lib/lib';
 
 export class Estimation implements IEstimation {
 
