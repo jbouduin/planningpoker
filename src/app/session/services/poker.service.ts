@@ -96,15 +96,13 @@ export class PokerService {
 
   public reveal(): void {
     console.log('reveal');
-    // TODO 2346 this should work without teamname
-    const message = new RevealMessage(this.myUuid, this.teamService.teamName);
+    const message = new RevealMessage(this.myUuid);
     this.connectionService.sendMessage(message);
   }
 
   public start(): void {
     console.log('starting');
-    // TODO 2346 this should work without teamname
-    const message = new StartMessage(this.myUuid, this.teamService.teamName);
+    const message = new StartMessage(this.myUuid);
     this.connectionService.sendMessage(message);
   }
   //#endregion
