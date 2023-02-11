@@ -80,9 +80,8 @@ export class HandlerService {
       this.messageService.sendErrorMessageToSocket(ws, preflight);
     } else {
       const participant = this.storage.getParticipant(message.senderUuid);
-      const team = this.storage.getTeam(teamName);
-      if (participant && team) {
-        this.processMessage(participant, message, team, ws)
+      if (participant) {
+        this.processMessage(participant, message, teamName, ws)
       }
     }
   }
@@ -121,49 +120,53 @@ export class HandlerService {
   //#endregion
 
   //#region private methods ---------------------------------------------------
-  private processMessage(sender: Participant, message: ClientMessage, team: ITeam, ws: IWebSocket): void {
-    switch (message.type) {
-      case (EClientMessageType.Create): {
-        this.handleCreate(sender, <ICreatemessage>message);
-        break;
+  private processMessage(sender: Participant, message: ClientMessage, teamName: string, ws: IWebSocket): void {
+    if (message.type === EClientMessageType.Create) {
+      this.handleCreate(sender, <ICreatemessage>message);
+    }
+    else {
+      const team = this.storage.getTeam(teamName);
+      if (team) {
+        switch (message.type) {
+          case (EClientMessageType.Estimate): {
+            this.handleEstimate(sender, <IEstimateMessage>message, team);
+            break;
+          }
+          case (EClientMessageType.Join): {
+            this.handleJoin(sender, <IJoinMessage>message, team);
+            break;
+          }
+          case (EClientMessageType.Disconnect): {
+            this.handleKillMe(sender);
+            break;
+          }
+          case (EClientMessageType.Leave): {
+            this.handleLeave(sender, <ILeaveMessage>message, team);
+            break;
+          }
+          case (EClientMessageType.Pause): {
+            this.handlePause(sender, team);
+            break;
+          }
+          case (EClientMessageType.Reveal): {
+            this.handleReveal(sender, team);
+            break;
+          }
+          case (EClientMessageType.Start): {
+            this.handleStart(sender, team);
+            break;
+          }
+          case (EClientMessageType.Rejoin): {
+            this.handleRejoin(sender, <IRejoinMessage>message, ws);
+            break;
+          }
+          default: {
+            this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.UnknownVerb);
+            console.log('unexpected messagetype');
+          }
+        } // end switch
       }
-      case (EClientMessageType.Estimate): {
-        this.handleEstimate(sender, <IEstimateMessage>message, team);
-        break;
-      }
-      case (EClientMessageType.Join): {
-        this.handleJoin(sender, <IJoinMessage>message, team);
-        break;
-      }
-      case (EClientMessageType.Disconnect): {
-        this.handleKillMe(sender);
-        break;
-      }
-      case (EClientMessageType.Leave): {
-        this.handleLeave(sender, <ILeaveMessage>message, team);
-        break;
-      }
-      case (EClientMessageType.Pause): {
-        this.handlePause(sender, team);
-        break;
-      }
-      case (EClientMessageType.Reveal): {
-        this.handleReveal(sender, team);
-        break;
-      }
-      case (EClientMessageType.Start): {
-        this.handleStart(sender, team);
-        break;
-      }
-      case (EClientMessageType.Rejoin): {
-        this.handleRejoin(sender, <IRejoinMessage>message, ws);
-        break;
-      }
-      default: {
-        this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.UnknownVerb);
-        console.log('unexpected messagetype');
-      }
-    } // end switch
+    }
   }
 
   private handleCreate(sender: Participant, message: ICreatemessage): void {
