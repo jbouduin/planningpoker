@@ -8,14 +8,14 @@ export interface IClientMessage<T> {
 }
 
 export type ICreatemessage = IClientMessage<ICreate>;
-export type IDisconnectMessage = IClientMessage<string>;
+export type IDisconnectMessage = IClientMessage<void>;
 export type IEstimateMessage = IClientMessage<number>;
 export type IJoinMessage = IClientMessage<IJoin>;
-export type ILeaveMessage = IClientMessage<string>;
-export type IPauseMessage = IClientMessage<string>;
+export type ILeaveMessage = IClientMessage<void>;
+export type IPauseMessage = IClientMessage<void>;
 export type IRejoinMessage = IClientMessage<string>;
-export type IRevealMessage = IClientMessage<string>;
-export type IStartMessage = IClientMessage<string>;
+export type IRevealMessage = IClientMessage<void>;
+export type IStartMessage = IClientMessage<void>;
 export type ClientMessage =
   ICreatemessage |
   IDisconnectMessage |

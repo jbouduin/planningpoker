@@ -1,10 +1,10 @@
 import { EClientMessageType, IRevealMessage } from "@shared-lib";
 import { BaseClientMessage } from "./base-client.message";
 
-export class RevealMessage extends BaseClientMessage<string> implements IRevealMessage {
+export class RevealMessage extends BaseClientMessage<void> implements IRevealMessage {
   //#region Constructor & C° --------------------------------------------------
-  public constructor(sender: string, data: string) {
-    super(sender, EClientMessageType.Reveal, data);
+  public constructor(sender: string) {
+    super(sender, EClientMessageType.Reveal, undefined);
   }
   //#endregion
 }
