@@ -64,6 +64,7 @@ export class HomeComponent implements AfterViewInit {
               this.sessionService.rejoin(team, myUuid);
             } else {
               this.sessionService.leave(team, myUuid);
+              this.localStorageService.clear();
             }
           });
         } else {

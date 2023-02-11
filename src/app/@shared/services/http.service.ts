@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 
 interface LooseObject {
-  [key: string]: any
+  [key: string]: any  //eslint-disable-line
 }
 
 @Injectable({
