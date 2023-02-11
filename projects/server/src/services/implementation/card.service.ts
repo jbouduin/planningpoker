@@ -1,12 +1,9 @@
 import { injectable } from 'inversify';
 
 import { ICard } from '../../../../shared-lib/lib';
+import { ICardService } from '../interfaces';
 
-export interface ICardService {
-  readonly unknownEstimationIndex: number;
-  generateCardSet(): Array<ICard>;
 
-}
 
 @injectable()
 export class CardService implements ICardService {

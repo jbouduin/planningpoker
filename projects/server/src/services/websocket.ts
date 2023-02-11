@@ -5,7 +5,7 @@ export enum ReadyState {
   CLOSED
 }
 
-export interface WebSocket {
+export interface IWebSocket {
   readyState: ReadyState;
   close(): void;
   send(message: string): void;

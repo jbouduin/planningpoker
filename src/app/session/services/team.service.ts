@@ -104,6 +104,9 @@ export class TeamService {
         this.handleEndSession();
         this.resetMe();
         break;
+      case EServerMessageType.Left:
+        this.resetMe();
+        break;
       case EServerMessageType.Reset:
         this.handleServerReset();
         this.resetMe();

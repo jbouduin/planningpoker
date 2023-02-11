@@ -1,4 +1,4 @@
-import { EParticipantStatus, EPokerStatus } from '../../../../shared-lib/lib';
+import { EParticipantStatus, EPokerStatus } from '../../../shared-lib/lib';
 
 import { Estimation } from './estimation';
 import { Participant } from './participant';
