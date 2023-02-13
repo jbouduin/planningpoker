@@ -1,7 +1,6 @@
-import { ICard } from "../../../../shared-lib/lib";
+import { ECardSet, ICardSet } from "../../../../shared-lib/lib";
 
 export interface ICardService {
-  readonly unknownEstimationIndex: number;
-  generateCardSet(): Array<ICard>;
+  getCardSet(set: ECardSet): ICardSet
 
 }

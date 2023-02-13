@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 
 import SERVICETYPES from "../service.types";
 
-import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, IEstimation, IMemberStatusChange, IParticipant, ServerMessage } from "../../../../shared-lib/lib";
+import { ECardSet, EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, IEstimation, IMemberStatusChange, IParticipant, ServerMessage } from "../../../../shared-lib/lib";
 import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamNameMessage } from "../../messages";
 import { Estimation, ITeam, Participant } from "../../objects";
 import { ICardService, IMessageService, ISenderService } from "../interfaces";
@@ -109,7 +109,7 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
     message = new TeamNameMessage(game.teamName);
     this.senderService.sendToParticipant(to, message);
-    message = new CardSetMessage(this.cardService.generateCardSet());
+    message = new CardSetMessage(this.cardService.getCardSet(ECardSet.Cohn).cards);
     this.senderService.sendToParticipant(to, message);
     message = new MemberListMessage(this.prepareParticipantsData(game.filterMembers(other => other.uuid !== to.uuid)));
     this.senderService.sendToParticipant(to, message);
