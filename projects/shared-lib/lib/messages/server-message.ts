@@ -20,6 +20,7 @@ export type IPingMessage = IServerMessage<void>;
 export type IPokerStatusChangedMessage = IServerMessage<EPokerStatus>;
 export type ISelfMessage = IServerMessage<IParticipant>;
 export type IServerResetMessage = IServerMessage<void>;
+export type ITeamIdleMessage = IServerMessage<void>;
 export type ITeamNameMessage = IServerMessage<string>;
 export type ServerMessage =
   ICardSetMessage |
@@ -35,4 +36,5 @@ export type ServerMessage =
   IPokerStatusChangedMessage |
   ISelfMessage |
   IServerResetMessage |
+  ITeamIdleMessage |
   ITeamNameMessage;

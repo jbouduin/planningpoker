@@ -116,7 +116,8 @@ export class SessionService {
         break;
       case EServerMessageType.EndSession:
       case EServerMessageType.Left:
-      case EServerMessageType.Reset:
+      case EServerMessageType.ServerReset:
+      case EServerMessageType.TeamIdle:
         this.reset();
         break;
       case EServerMessageType.Init:

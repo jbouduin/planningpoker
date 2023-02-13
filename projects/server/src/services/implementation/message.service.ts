@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import SERVICETYPES from "../service.types";
 
 import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, IEstimation, IMemberStatusChange, IParticipant, ServerMessage } from "../../../../shared-lib/lib";
-import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamNameMessage } from "../../messages";
+import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
 import { Estimation, ITeam, Participant } from "../../objects";
 import { IMessageService, ISenderService } from "../interfaces";
 import { IWebSocket } from "../websocket";
@@ -97,6 +97,11 @@ export class MessageService implements IMessageService {
 
   public sendSelf(to: Participant): void {
     const message: ServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  public sendTeamIdleMessage(to: Participant): void {
+    const message: ServerMessage = new TeamIdleMessage();
     this.senderService.sendToParticipant(to, message);
   }
 

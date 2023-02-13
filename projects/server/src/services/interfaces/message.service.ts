@@ -15,8 +15,9 @@ export interface IMessageService {
   sendInit(to: Participant): void;
   sendLeft(to: Participant): void;
   sendPing(to: Participant): void;
-  sendReset(to: Participant): void
+  sendReset(to: Participant): void;
   sendSelf(to: Participant): void;
   sendSessionEnded(to: Participant): void;
+  sendTeamIdleMessage(to: Participant): void;
   sendTeamInfo(to: Participant, game: ITeam): void;
 }

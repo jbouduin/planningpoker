@@ -34,7 +34,8 @@ export class CardService {
         this._cards = (<ICardSetMessage>message).data.cards.map((card: ICard) => new Card(card));
         break;
       case EServerMessageType.EndSession:
-      case EServerMessageType.Reset:
+      case EServerMessageType.ServerReset:
+      case EServerMessageType.TeamIdle:
         this._cards = new Array<Card>();
     }
   }

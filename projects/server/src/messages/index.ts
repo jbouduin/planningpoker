@@ -11,6 +11,7 @@ export * from './ping-message';
 export * from './poker-status-changed-message';
 export * from './self-message';
 export * from './server-reset-message';
+export * from './team-idle-message';
 export * from './team-name-message';
 
 

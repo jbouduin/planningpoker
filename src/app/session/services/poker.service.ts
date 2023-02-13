@@ -69,7 +69,8 @@ export class PokerService {
         this.givenEstimations.clear();
         break;
       case EServerMessageType.EndSession:
-      case EServerMessageType.Reset:
+      case EServerMessageType.ServerReset:
+      case EServerMessageType.TeamIdle:
         this.givenEstimations.clear();
         this.pokerStatus = EPokerStatus.Cleared;
         break;
