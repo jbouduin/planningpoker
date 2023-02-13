@@ -1,0 +1,29 @@
+<mat-card>
+  <div class="estimations mat-card-inner-container">
+    <!-- Estimations  -->
+    <ng-container *ngFor="let estimation of estimations">
+      <div class="cards">
+        <session-card [card]="estimation.card" [revealed]="estimation.revealed"
+          [enabled]="estimation.member.me && canWithdraw" [mine]="estimation.member.me" (cardClicked)="cardClicked()">
+        </session-card>
+        <div class="flex-center" [class.mine]="estimation.member.me">
+          <div class="nick">
+            <span>{{estimation.member.me ? meLabel : estimation.member.nick}}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <!-- Missing estimations -->
+    <ng-container *ngFor="let member of membersWithoutEstimation">
+      <div class="cards">
+        <session-card [enabled]="false" [mine]="member.me">
+        </session-card>
+        <div class="flex-center" [class.mine]="member.me">
+          <div class="nick not-estimated">
+            <span>{{member.me ? meLabel : member.nick}}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</mat-card>

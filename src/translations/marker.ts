@@ -1,4 +1,6 @@
-import { marker } from '@biesbjerg/ngx-translate-extract-marker';
+// leave this file in place! It contains keys for translations that can not be extracted
+// TODO 2343 marker does not work anymore
+import { marker } from '@bartholomej/ngx-translate-extract-marker';
 
 marker('ErrorCode.TeamAlreadyExists');
 marker('ErrorCode.TeamDoesNotExist');

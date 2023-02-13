@@ -1,13 +1,24 @@
-/*
-* {
-  box-sizing: border-box;
-}
-*/
-
 html,
 body {
   display: flex;
   flex-direction: column;
   margin: 0;
   height: 100%;
+}
+
+.mat-card-inner-container {
+  padding: 10px;
+}
+
+mat-card {
+  margin-bottom: 10px;
+}
+
+.button-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.game-button {
+  margin-right: 10px;
 }

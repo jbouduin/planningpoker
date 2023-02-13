@@ -12,7 +12,7 @@ const routes: Routes = [
   Shell.childRoutes([
     {
       path: 'game',
-      loadChildren: () => import('./game/game.module').then(m => m.GameModule)
+      loadChildren: () => import('./session/session.module').then(m => m.GameModule)
     }
   ]),
   // Fallback when no prior route is matched

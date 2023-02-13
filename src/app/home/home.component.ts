@@ -1,36 +1,48 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent, ConfirmationDialogParams } from '@app/@shared';
-// import { finalize } from 'rxjs/operators';
+import { ConfirmationDialogComponent, ConfirmationDialogParams, HttpService, LocalStorageService } from '@app/@shared';
 import { TranslateService } from '@ngx-translate/core';
 
-import { GameService } from '../game/game.service';
+import { SessionService } from '../session/services/session.service';
 
 @Component({
-  selector: 'app-home',
+  selector: 'home-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements AfterViewInit {
 
   //#region private properties ------------------------------------------------
-  private dialog: MatDialog;
-  private translateService: TranslateService;
-  private gameService: GameService;
+  private readonly dialog: MatDialog;
+  private readonly httpService: HttpService;
+  private readonly localStorageService: LocalStorageService;
+  private readonly sessionService: SessionService;
+  private readonly translateService: TranslateService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(dialog: MatDialog, translateService: TranslateService, gameService: GameService) {
+  public constructor(
+    dialog: MatDialog,
+    httpService: HttpService,
+    localStorageService: LocalStorageService,
+    translateService: TranslateService,
+    sessionService: SessionService) {
     this.dialog = dialog;
+    this.httpService = httpService;
+    this.localStorageService = localStorageService
+    this.sessionService = sessionService;
     this.translateService = translateService;
-    this.gameService = gameService;
   }
   //#endregion
 
   //#region Angular interface members -----------------------------------------
   public ngAfterViewInit() {
-    if (this.gameService.game.canReconnect) {
-      this.gameService.checkTeamExists().subscribe((exists: boolean) => {
+    console.log('afterviewinit');
+    const myUuid = this.localStorageService.uuid;
+    const team = this.localStorageService.team;
+    const nick = this.localStorageService.nick
+    if (team &&  nick && myUuid) {
+      this.httpService.checkCanRejoin(team, myUuid).subscribe((exists: boolean) => {
         if (exists) {
           const params = new ConfirmationDialogParams();
           params.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.No');
@@ -38,8 +50,8 @@ export class HomeComponent implements AfterViewInit {
           params.text = this.translateService.instant(
             'Home.Component.Question.Rejoin_$team_as_$nick',
             {
-              team: this.gameService.game.team,
-              nick: this.gameService.game.myNick
+              team: team,
+              nick: nick
             });
           params.title = this.translateService.instant('Dialog.Confirm.Title.Rejoin');
 
@@ -49,13 +61,14 @@ export class HomeComponent implements AfterViewInit {
           });
           dialogRef.afterClosed().subscribe(result => {
             if (result) {
-              this.gameService.rejoin();
+              this.sessionService.rejoin(team, myUuid);
             } else {
-              this.gameService.leave();
+              this.sessionService.leave(team, myUuid);
+              this.localStorageService.clear();
             }
           });
         } else {
-          this.gameService.reset();
+          this.localStorageService.clear();
         }
       });
     }

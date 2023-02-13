@@ -1,8 +1,8 @@
 export const environment = {
   production: false,
-  hmr: true,
   defaultLanguage: 'en-US',
-  supportedLanguages: ['de-DE', 'en-US']
+  supportedLanguages: ['de-DE', 'en-US'],
+  ws: 'localhost:3001',
 };
 
 /*

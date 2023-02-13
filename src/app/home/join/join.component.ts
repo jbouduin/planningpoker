@@ -1,26 +1,48 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { ECardSet } from '@shared-lib';
+import { Subscription } from 'rxjs';
+import { SessionService } from '../../session/services/session.service';
 
-import { GameService } from '../../game/game.service';
+interface ICardSetSelectItem {
+  set: ECardSet;
+  label: string;
+}
 
 @Component({
-  selector: 'app-join',
+  selector: 'home-join',
   templateUrl: './join.component.html',
   styleUrls: ['./join.component.scss']
 })
-export class JoinComponent {
+export class JoinComponent implements OnDestroy {
 
-  //#region  @Input
+  //#region @Input ------------------------------------------------------------
   @Input() public isCreate!: boolean;
-
   //#endregion
-  //#region  Public properties
+
+  //#region private properties ------------------------------------------------
+  private readonly translateService: TranslateService;
+  private readonly formBuilder: FormBuilder;
+  private readonly languageChangeSubscription: Subscription;
+  private readonly sessionService: SessionService;
+  private _cardSetValues: Array<ICardSetSelectItem>;
+  //#endregion
+
+  //#region Public properties -------------------------------------------------
   public formData: FormGroup;
   public observer: boolean;
   //#endregion
 
-  //#region  Public getter methods
+  //#region Public getter methods ---------------------------------------------
+  public get cardSetLabel(): string {
+    return this.translateService.instant('Home.Component.SelectLabel.CardSet');
+  }
+
+  public get cardSetValues(): Array<ICardSetSelectItem> {
+    return this._cardSetValues;
+  }
+
   public get gameHeader(): string {
     return this.isCreate ?
       this.translateService.instant('Home.Component.Header.Start_a_game') :
@@ -54,24 +76,30 @@ export class JoinComponent {
   }
   //#endregion
 
-  //#region  Constructor&C°
-  public constructor(
-    private translateService: TranslateService,
-    private formBuilder: FormBuilder,
-    private gameService: GameService) {
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(translateService: TranslateService, formBuilder: FormBuilder, sessionService: SessionService) {
+    this.translateService = translateService;
+    this.formBuilder = formBuilder;
+    this.sessionService = sessionService;
+    this._cardSetValues = this.getCardSetitems();
     this.formData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
-      nick: new FormControl('', [Validators.required])
+      nick: new FormControl('', [Validators.required]),
+      cardSet: new FormControl(ECardSet.Cohn, [Validators.required])
     });
+    this.languageChangeSubscription = this.translateService.onLangChange
+      .subscribe((_event: LangChangeEvent) => this._cardSetValues = this.getCardSetitems());
     this.observer = false;
+  }
+
+  public ngOnDestroy() {
+    if (this.languageChangeSubscription) {
+      this.languageChangeSubscription.unsubscribe();
+    }
   }
   //#endregion
 
-  //#region  Public Angular interface methods
-  // public ngOnInit(): void { }
-  //#endregion
-
-  //#region  Public methods
+  //#region Public methods ----------------------------------------------------
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
@@ -82,19 +110,30 @@ export class JoinComponent {
 
   public submit(): void {
     if (this.isCreate) {
-      this.gameService.create(
+      this.sessionService.create(
         this.formData.get('team')?.value,
         this.formData.get('nick')?.value,
-        this.observer);
+        this.observer,
+        this.formData.get('cardSet')?.value);
     } else {
-      this.gameService.join(
+      this.sessionService.join(
         this.formData.get('team')?.value,
         this.formData.get('nick')?.value,
         this.observer);
     }
-
   }
-
   //#endregion
 
+  //#region private methods ---------------------------------------------------
+  private getCardSetitems(): Array<ICardSetSelectItem> {
+    // TODO 2343 change this if marker works again
+    const result: Array<ICardSetSelectItem> =
+      [
+        { set: ECardSet.Cohn, label: this.translateService.instant('Home.Component.SelectItem.Cohn') },
+        { set: ECardSet.Fibonacci, label: this.translateService.instant('Home.Component.SelectItem.Fibonacci') },
+        { set: ECardSet.TShirt, label: this.translateService.instant('Home.Component.SelectItem.TShirt') }
+      ];
+    return result;
+  }
+  //#endregion
 }
