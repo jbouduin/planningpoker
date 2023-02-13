@@ -45,6 +45,10 @@
 	"Home.Component.InputPlaceholder.NickName": "Enter your name here",
 	"Home.Component.InputPlaceholder.TeamName": "Enter the team name here",
 	"Home.Component.Question.Rejoin_$team_as_$nick": "Do you want to join '{{team}}' as '{{nick}}' again?",
+	"Home.Component.SelectItem.Cohn": "Cohn Sequence",
+	"Home.Component.SelectItem.Fibonacci": "Fibonacci Sequence",
+	"Home.Component.SelectItem.TShirt": "T-Shirt Sizes",
+	"Home.Component.SelectLabel.CardSet": "Cardset",
 	"Input.Error.Mandatory": "Please enter a value",
 	"Navigation.RouteLabel.About": "About",
 	"Navigation.RouteLabel.Home": "Home"

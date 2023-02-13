@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { ConnectionService, EConnectionStatus } from '@shared';
-import { ClientMessage, EServerMessageType, ServerMessage } from '@shared-lib';
+import { ClientMessage, ECardSet, EServerMessageType, ServerMessage } from '@shared-lib';
 import { filter } from 'rxjs/operators';
 import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../messages';
 
@@ -51,14 +51,17 @@ export class SessionService {
   //#endregion
 
   //#region public connection related methods ---------------------------------
-  public create(team: string, nick: string, observer: boolean): void {
+  public create(team: string, nick: string, observer: boolean, cardSet: ECardSet.Cohn): void {
     console.log(`creating: ${nick}@${team}`);
     const message = new CreateMessage(
-      '', {
-      team: team,
-      observer: observer || false,
-      nick: nick
-    });
+      '',
+      {
+        team: team,
+        observer: observer || false,
+        nick: nick,
+        cardSet: cardSet
+      }
+    );
     this.startSession(team, message);
   }
 

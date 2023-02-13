@@ -74,7 +74,6 @@ export class HandlerService {
   }
 
   public handleMessage(message: ClientMessage, teamName: string, ws: IWebSocket): void {
-    console.log(`${new Date().toISOString()}: <= ${message.type}: ${message}`); //eslint-disable-line
     const preflight = this.preflightService.preflight(this.storage, message, teamName);
     if (preflight !== EErrorCode.NoError) {
       this.messageService.sendErrorMessageToSocket(ws, preflight);

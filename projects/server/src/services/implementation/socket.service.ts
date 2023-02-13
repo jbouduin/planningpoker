@@ -42,7 +42,7 @@ export class SocketService implements ISocketService {
         ws.on('message', (msg: string) => {
           try {
             const message: ClientMessage = JSON.parse(msg);
-            console.log(`${new Date().toISOString()}: <= ${message.type}: ${message}`); //eslint-disable-line
+            console.log(`${new Date().toISOString()}: <= ${message.type}: ${JSON.stringify(message)}`);
             this.handlerService.handleMessage(message, req.params.team, ws);
           } catch (err) {
             this.handlerService.handleError(ws, err);
