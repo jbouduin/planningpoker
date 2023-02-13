@@ -1,4 +1,4 @@
-import { EParticipantStatus, EPokerStatus } from '../../../shared-lib/lib';
+import { EParticipantStatus, EPokerStatus, ICardSet } from '../../../shared-lib/lib';
 
 import { Estimation } from './estimation';
 import { Participant } from './participant';
@@ -7,6 +7,7 @@ export interface ITeam {
   readonly allEstimations: Array<Estimation>;
   readonly allMembers: Array<Participant>;
   readonly status: EPokerStatus;
+  readonly cardSet: ICardSet;
   teamName: string
   reveal(): void;
   startEstimating(): void;
@@ -30,7 +31,7 @@ export class Team implements ITeam {
 
   //#region Public properties -------------------------------------------------
   public readonly teamName: string;
-  public readonly unknownEstimationIndex: number;
+  public readonly cardSet: ICardSet;
   //#endregion
 
   //#region Public getters ----------------------------------------------------
@@ -48,9 +49,9 @@ export class Team implements ITeam {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(teamName: string, unknownEstimationIndex: number) {
+  public constructor(teamName: string, cardSet: ICardSet) {
     this.teamName = teamName;
-    this.unknownEstimationIndex = unknownEstimationIndex;
+    this.cardSet = cardSet;
     this.pokerStatus = EPokerStatus.Cleared;
     this.members = new Map<string, Participant>();
     this.estimations = new Map<string, Estimation>();
@@ -62,7 +63,7 @@ export class Team implements ITeam {
     for (const member of this.members.values()) {
       if (member.status === EParticipantStatus.Connected && !this.estimations.has(member.uuid))
       {
-        this.estimations.set(member.uuid, new Estimation(member.uuid, this.unknownEstimationIndex));
+        this.estimations.set(member.uuid, new Estimation(member.uuid, this.cardSet.unknownEstimationIndex));
       }
     }
     this.pokerStatus = EPokerStatus.Revealed;

@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { v4 as Uuid } from 'uuid';
 
-import { EErrorCode, ERole } from "../../../../shared-lib/lib";
+import { EErrorCode, ERole, ICardSet } from "../../../../shared-lib/lib";
 import { ITeam, LooseObject, Team } from "../../objects";
 import { Participant } from "../../objects/participant";
 import { IWebSocket } from "../../services/websocket";
@@ -45,8 +45,8 @@ export class StorageService implements IStorageService {
     return result;
   }
 
-  public createTeam(teamName: string, unknownEstimationIndex: number): ITeam {
-    const result = new Team(teamName, unknownEstimationIndex);
+  public createTeam(teamName: string, cardSet: ICardSet): ITeam {
+    const result = new Team(teamName, cardSet);
     this.teams.set(teamName, result);
     return result;
   }

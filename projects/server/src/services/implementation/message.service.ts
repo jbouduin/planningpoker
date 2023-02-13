@@ -2,25 +2,21 @@ import { inject, injectable } from "inversify";
 
 import SERVICETYPES from "../service.types";
 
-import { ECardSet, EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, IEstimation, IMemberStatusChange, IParticipant, ServerMessage } from "../../../../shared-lib/lib";
+import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, IEstimation, IMemberStatusChange, IParticipant, ServerMessage } from "../../../../shared-lib/lib";
 import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamNameMessage } from "../../messages";
 import { Estimation, ITeam, Participant } from "../../objects";
-import { ICardService, IMessageService, ISenderService } from "../interfaces";
+import { IMessageService, ISenderService } from "../interfaces";
 import { IWebSocket } from "../websocket";
 
 @injectable()
 export class MessageService implements IMessageService {
 
   //#region private properties ------------------------------------------------
-  private readonly cardService: ICardService;
   private readonly senderService: ISenderService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    @inject(SERVICETYPES.CardService) cardService: ICardService,
-    @inject(SERVICETYPES.SenderService) senderService: ISenderService) {
-    this.cardService = cardService;
+  public constructor(@inject(SERVICETYPES.SenderService) senderService: ISenderService) {
     this.senderService = senderService;
   }
   //#endregion
@@ -104,16 +100,16 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendTeamInfo(to: Participant, game: ITeam): void {
+  public sendTeamInfo(to: Participant, team: ITeam): void {
     let message: ServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0])
     this.senderService.sendToParticipant(to, message);
-    message = new TeamNameMessage(game.teamName);
+    message = new TeamNameMessage(team.teamName);
     this.senderService.sendToParticipant(to, message);
-    message = new CardSetMessage(this.cardService.getCardSet(ECardSet.Cohn));
+    message = new CardSetMessage(team.cardSet);
     this.senderService.sendToParticipant(to, message);
-    message = new MemberListMessage(this.prepareParticipantsData(game.filterMembers(other => other.uuid !== to.uuid)));
+    message = new MemberListMessage(this.prepareParticipantsData(team.filterMembers(other => other.uuid !== to.uuid)));
     this.senderService.sendToParticipant(to, message);
-    message = new EstimationListMessage(this.prepareEstimationsData(to, game.status === EPokerStatus.Revealed, game.allEstimations));
+    message = new EstimationListMessage(this.prepareEstimationsData(to, team.status === EPokerStatus.Revealed, team.allEstimations));
     this.senderService.sendToParticipant(to, message);
   }
 
