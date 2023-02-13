@@ -1,8 +1,8 @@
-import { ICard, ICardSetMessage, EServerMessageType } from "../../../shared-lib/lib";
+import { EServerMessageType, ICardSet, ICardSetMessage } from "../../../shared-lib/lib";
 import { ServerMessage } from "./server-message";
 
-export class CardSetMessage extends ServerMessage<Array<ICard>> implements ICardSetMessage {
-  public constructor(data: Array<ICard>) {
+export class CardSetMessage extends ServerMessage<ICardSet> implements ICardSetMessage {
+  public constructor(data: ICardSet) {
     super(EServerMessageType.CardList, data);
   }
 }

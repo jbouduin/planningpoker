@@ -109,7 +109,7 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
     message = new TeamNameMessage(game.teamName);
     this.senderService.sendToParticipant(to, message);
-    message = new CardSetMessage(this.cardService.getCardSet(ECardSet.Cohn).cards);
+    message = new CardSetMessage(this.cardService.getCardSet(ECardSet.Cohn));
     this.senderService.sendToParticipant(to, message);
     message = new MemberListMessage(this.prepareParticipantsData(game.filterMembers(other => other.uuid !== to.uuid)));
     this.senderService.sendToParticipant(to, message);
@@ -178,4 +178,5 @@ export class MessageService implements IMessageService {
       };
     });
   }
+  //#endregion
 }

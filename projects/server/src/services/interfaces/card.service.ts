@@ -1,6 +1,5 @@
 import { ECardSet, ICardSet } from "../../../../shared-lib/lib";
 
 export interface ICardService {
-  getCardSet(set: ECardSet): ICardSet
-
+  getCardSet(set: ECardSet): ICardSet;
 }

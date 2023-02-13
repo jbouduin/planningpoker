@@ -31,7 +31,7 @@ export class CardService {
   public handleServerMessage(message: ServerMessage): void {
     switch (message.type) {
       case EServerMessageType.CardList:
-        this._cards = (<ICardSetMessage>message).data.map((card: ICard) => new Card(card));
+        this._cards = (<ICardSetMessage>message).data.cards.map((card: ICard) => new Card(card));
         break;
       case EServerMessageType.EndSession:
       case EServerMessageType.Reset:

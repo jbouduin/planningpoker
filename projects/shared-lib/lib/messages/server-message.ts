@@ -1,4 +1,4 @@
-import { EPokerStatus, ICard, IError, IEstimation, IParticipant } from "../interfaces";
+import { EPokerStatus, ICardSet, IError, IEstimation, IParticipant } from "../interfaces";
 import { IMemberStatusChange } from "../interfaces/member-status-change";
 import { EServerMessageType } from "./server-message-type.enum";
 
@@ -7,7 +7,7 @@ export interface IServerMessage<T> {
   type: EServerMessageType;
 }
 
-export type ICardSetMessage = IServerMessage<Array<ICard>>;
+export type ICardSetMessage = IServerMessage<ICardSet>;
 export type IClearEstimationsMessage = IServerMessage<void>;
 export type IEndSessionMessage = IServerMessage<void>;
 export type IErrorMessage = IServerMessage<IError>;
