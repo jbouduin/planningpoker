@@ -107,7 +107,7 @@ export class TeamService {
       case EServerMessageType.Left:
         this.resetMe();
         break;
-      case EServerMessageType.Reset:
+      case EServerMessageType.ServerReset:
         this.handleServerReset();
         this.resetMe();
         break;
@@ -120,6 +120,10 @@ export class TeamService {
         (<IMemberListMessage>message).data.forEach(
           (participant: IParticipant) => this.allMembers.set(participant.uuid, new Member(participant, participant.uuid === this.me?.uuid))
         );
+        break;
+      case EServerMessageType.TeamIdle:
+        this.handleTeamIdle();
+        this.resetMe();
         break;
       case EServerMessageType.TeamName:
         this.teamName = (<ITeamNameMessage>message).data;
@@ -238,8 +242,17 @@ export class TeamService {
       width: '250px',
       data: params
     });
+  }
 
-
+  private handleTeamIdle(): void {
+    const params = new ConfirmationDialogParams();
+    params.showCancelButton = false;
+    params.title = this.translateService.instant('Dialog.Title.Team_idle');
+    params.text = this.translateService.instant('Dialog.Text.The_was_idle_for_to_long.');
+    this.dialog.open(ConfirmationDialogComponent, {
+      width: '250px',
+      data: params
+    });
   }
 
   private resetMe(): void {

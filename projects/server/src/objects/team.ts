@@ -8,6 +8,7 @@ export interface ITeam {
   readonly allMembers: Array<Participant>;
   readonly status: EPokerStatus;
   readonly cardSet: ICardSet;
+  readonly idleTime: number;
   teamName: string
   reveal(): void;
   startEstimating(): void;
@@ -27,9 +28,14 @@ export class Team implements ITeam {
   private members: Map<string, Participant>;
   private estimations: Map<string, Estimation>;
   private pokerStatus: EPokerStatus;
+  private lastAccessTime: number;
   //#endregion
 
   //#region Public properties -------------------------------------------------
+  public get idleTime(): number {
+    return Date.now() - this.lastAccessTime;
+  }
+
   public readonly teamName: string;
   public readonly cardSet: ICardSet;
   //#endregion
@@ -40,6 +46,7 @@ export class Team implements ITeam {
   }
 
   public get allEstimations(): Array<Estimation> {
+    this.lastAccessTime = Date.now();
     return Array.from(this.estimations.values());
   }
 
@@ -50,6 +57,7 @@ export class Team implements ITeam {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(teamName: string, cardSet: ICardSet) {
+    this.lastAccessTime = Date.now();
     this.teamName = teamName;
     this.cardSet = cardSet;
     this.pokerStatus = EPokerStatus.Cleared;
@@ -60,6 +68,7 @@ export class Team implements ITeam {
 
   //#region Public GameStatus related methods ---------------------------------
   public reveal(): void {
+    this.lastAccessTime = Date.now();
     for (const member of this.members.values()) {
       if (member.status === EParticipantStatus.Connected && !this.estimations.has(member.uuid))
       {
@@ -70,6 +79,7 @@ export class Team implements ITeam {
   }
 
   public startEstimating(): void {
+    this.lastAccessTime = Date.now();
     this.estimations = new Map<string, Estimation>();
     this.pokerStatus = EPokerStatus.Started;
   }
@@ -77,10 +87,12 @@ export class Team implements ITeam {
 
   //#region Public estimation related methods ---------------------------------
   public deleteEstimation(uuid: string): void {
+    this.lastAccessTime = Date.now();
     this.estimations.delete(uuid);
   }
 
   public upsertEstimation(estimation: Estimation): void {
+    this.lastAccessTime = Date.now();
     this.estimations.set(estimation.participantUuid, estimation);
   }
   //#endregion
@@ -88,11 +100,13 @@ export class Team implements ITeam {
   //#region Public participant related methods --------------------------------
   // insert a new participant as member or update an existing one
   public upsertMember(participant: Participant): void {
+    this.lastAccessTime = Date.now();
     this.members.set(participant.uuid, participant);
   }
 
   // remove a member from the team
   public removeMember(participantUuid: string): void {
+    this.lastAccessTime = Date.now();
     this.members.delete(participantUuid);
   }
 

@@ -18,7 +18,7 @@ export class SocketService implements ISocketService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(@inject(SERVICETYPES.HandlerService) handlerService: IHandlerService) {
-    console.log(`${new Date().toISOString()}: gameservice constructor`);
+    console.log(`${new Date().toISOString()}: SocketService constructor`);
     this.handlerService = handlerService;
     this.pingInterval = 0;
   }

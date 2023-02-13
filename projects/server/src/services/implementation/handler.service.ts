@@ -63,6 +63,18 @@ export class HandlerService {
     return newParticipant;
   }
 
+  public handleCronTick(maxIdleTime: number): void {
+    console.log(`${new Date().toISOString()}: Cron tick`);
+    for (const team of this.storage.filterTeams((team: ITeam) => team.idleTime > maxIdleTime)) {
+      console.log(`Cron Tick: deleting '${team.teamName}'`);
+      team.allMembers.forEach((participant: Participant) => {
+        this.messageService.sendTeamIdleMessage(participant);
+        this.storage.deleteParticipant(participant.uuid);
+      });
+      this.storage.deleteTeam(team.teamName);
+    }
+  }
+
   public handleError(ws: IWebSocket, err: unknown): void {
     console.log(`${new Date().toISOString()}: ERROR ${err}`);  //eslint-disable-line
 
@@ -99,7 +111,7 @@ export class HandlerService {
     response.removedTeams = new Array<LooseObject>();
     for (const team of this.storage.filterTeams((_team: ITeam) => true)) {
       const removedTeam: LooseObject = {};
-      console.log(`System reset: Ending game '${team.teamName}'`);
+      console.log(`System reset: removing '${team.teamName}'`);
       removedTeam.team = team.teamName;
       removedTeam.members = 0;
       removedTeam.removedMembers = new Array<string>();

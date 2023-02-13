@@ -11,6 +11,7 @@ export enum EServerMessageType {
   Ping = 'ping',
   PokerStatus = 'poker-status',
   Self = 'self',
-  TeamName = 'team-name',
-  Reset = 'reset'
+  ServerReset = 'server-reset',
+  TeamIdle = 'team-idle',
+  TeamName = 'team-name'
 }
