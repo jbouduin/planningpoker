@@ -1,23 +1,32 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { ECardSet } from '@shared-lib';
+import { Subscription } from 'rxjs';
 import { SessionService } from '../../session/services/session.service';
+
+interface ICardSetSelectItem {
+  set: ECardSet;
+  label: string;
+}
 
 @Component({
   selector: 'home-join',
   templateUrl: './join.component.html',
   styleUrls: ['./join.component.scss']
 })
-export class JoinComponent {
+export class JoinComponent implements OnDestroy {
 
   //#region @Input ------------------------------------------------------------
   @Input() public isCreate!: boolean;
   //#endregion
 
   //#region private properties ------------------------------------------------
-  private translateService: TranslateService;
-  private formBuilder: FormBuilder;
-  private sessionService: SessionService;
+  private readonly translateService: TranslateService;
+  private readonly formBuilder: FormBuilder;
+  private readonly languageChangeSubscription: Subscription;
+  private readonly sessionService: SessionService;
+  private _cardSetValues: Array<ICardSetSelectItem>;
   //#endregion
 
   //#region Public properties -------------------------------------------------
@@ -26,6 +35,14 @@ export class JoinComponent {
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
+  public get cardSetLabel(): string {
+    return this.translateService.instant('Home.Component.SelectLabel.CardSet');
+  }
+
+  public get cardSetValues(): Array<ICardSetSelectItem> {
+    return this._cardSetValues;
+  }
+
   public get gameHeader(): string {
     return this.isCreate ?
       this.translateService.instant('Home.Component.Header.Start_a_game') :
@@ -64,11 +81,21 @@ export class JoinComponent {
     this.translateService = translateService;
     this.formBuilder = formBuilder;
     this.sessionService = sessionService;
+    this._cardSetValues = this.getCardSetitems();
     this.formData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
-      nick: new FormControl('', [Validators.required])
+      nick: new FormControl('', [Validators.required]),
+      cardSet: new FormControl(ECardSet.Cohn, [Validators.required])
     });
+    this.languageChangeSubscription = this.translateService.onLangChange
+      .subscribe((_event: LangChangeEvent) => this._cardSetValues = this.getCardSetitems());
     this.observer = false;
+  }
+
+  public ngOnDestroy() {
+    if (this.languageChangeSubscription) {
+      this.languageChangeSubscription.unsubscribe();
+    }
   }
   //#endregion
 
@@ -86,13 +113,27 @@ export class JoinComponent {
       this.sessionService.create(
         this.formData.get('team')?.value,
         this.formData.get('nick')?.value,
-        this.observer);
+        this.observer,
+        this.formData.get('cardSet')?.value);
     } else {
       this.sessionService.join(
         this.formData.get('team')?.value,
         this.formData.get('nick')?.value,
         this.observer);
     }
+  }
+  //#endregion
+
+  //#region private methods ---------------------------------------------------
+  private getCardSetitems(): Array<ICardSetSelectItem> {
+    // TODO 2343 change this if marker works again
+    const result: Array<ICardSetSelectItem> =
+      [
+        { set: ECardSet.Cohn, label: this.translateService.instant('Home.Component.SelectItem.Cohn') },
+        { set: ECardSet.Fibonacci, label: this.translateService.instant('Home.Component.SelectItem.Fibonacci') },
+        { set: ECardSet.TShirt, label: this.translateService.instant('Home.Component.SelectItem.TShirt') }
+      ];
+    return result;
   }
   //#endregion
 }

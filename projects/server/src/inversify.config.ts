@@ -19,7 +19,7 @@ container.bind<ISystemController>(CONTROLLERTYPES.SystemController).to(SystemCon
 //#endregion
 
 //#region services ------------------------------------------------------------
-container.bind<ICardService>(SERVICETYPES.CardService).to(CardService);
+container.bind<ICardService>(SERVICETYPES.CardService).to(CardService).inSingletonScope();
 container.bind<IHandlerService>(SERVICETYPES.HandlerService).to(HandlerService);
 container.bind<IMessageService>(SERVICETYPES.MessageService).to(MessageService);
 container.bind<IPreflightService>(SERVICETYPES.PreflightService).to(PreflightService);

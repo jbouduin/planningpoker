@@ -18,6 +18,16 @@
         <mat-error>{{ getErrorMessage('nick') }}</mat-error>
       </mat-form-field>
     </div>
+    <div *ngIf="isCreate">
+      <mat-form-field appearance="fill">
+        <mat-label>{{cardSetLabel}}</mat-label>
+        <mat-select formControlName="cardSet">
+          <mat-option *ngFor="let cardSet of cardSetValues" [value]="cardSet.set">
+            {{cardSet.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
     <div>
       <mat-checkbox [(ngModel)]="observer" [ngModelOptions]="{standalone: true}">
         {{observerLabel}}

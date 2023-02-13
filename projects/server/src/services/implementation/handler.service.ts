@@ -74,7 +74,6 @@ export class HandlerService {
   }
 
   public handleMessage(message: ClientMessage, teamName: string, ws: IWebSocket): void {
-    console.log(`${new Date().toISOString()}: <= ${message.type}: ${message}`); //eslint-disable-line
     const preflight = this.preflightService.preflight(this.storage, message, teamName);
     if (preflight !== EErrorCode.NoError) {
       this.messageService.sendErrorMessageToSocket(ws, preflight);
@@ -171,7 +170,7 @@ export class HandlerService {
 
   private handleCreate(sender: Participant, message: ICreatemessage): void {
     console.log(`Create: '${sender.nick}' is creating '${message.data.team}'`);
-    const newGame = this.storage.createTeam(message.data.team, this.cardService.unknownEstimationIndex);
+    const newGame = this.storage.createTeam(message.data.team, this.cardService.getCardSet(message.data.cardSet));
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
     sender.role = ERole.ScrumMaster;
