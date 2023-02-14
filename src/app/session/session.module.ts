@@ -11,11 +11,15 @@ import { PokerTableComponent } from './components/poker-table/poker-table.compon
 import { MyHandComponent } from './components/my-hand/my-hand.component';
 import { MemberButtonsComponent } from './components/member-buttons/member-buttons.component';
 import { ScrumMasterButtonsComponent } from './components/scrum-master-buttons/scrum-master-buttons.component';
+import { ChangeNickDialogComponent } from './components/change-nick-dialog/change-nick-dialog.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
     CommonModule,
     MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
     GameRoutingModule
   ],
   declarations: [
@@ -27,7 +31,8 @@ import { ScrumMasterButtonsComponent } from './components/scrum-master-buttons/s
     PokerTableComponent,
     MyHandComponent,
     MemberButtonsComponent,
-    ScrumMasterButtonsComponent
+    ScrumMasterButtonsComponent,
+    ChangeNickDialogComponent
   ]
 })
 export class GameModule { }

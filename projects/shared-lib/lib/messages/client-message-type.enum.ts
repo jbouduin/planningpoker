@@ -1,4 +1,5 @@
 export enum EClientMessageType {
+  ChangeNick = 'change-nick',
   Create = 'create',
   Estimate = 'estimate',
   Join = 'join',

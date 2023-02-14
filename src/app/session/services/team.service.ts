@@ -4,10 +4,11 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ConfirmationDialogComponent, ConfirmationDialogParams, ConnectionService, LocalStorageService, SnackbarService } from '@app/@shared';
 import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
-import { LeaveMessage } from '../messages';
+import { ChangeNickMessage, LeaveMessage } from '../messages';
 import { ObserveMessage } from '../messages/observe-message';
 import { PauseMessage } from '../messages/pause.message';
 import { Member } from '../objects';
+import { ChangeNickDialogComponent } from '../components/change-nick-dialog/change-nick-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -83,6 +84,20 @@ export class TeamService {
   //#endregion
 
   //#region public methods ----------------------------------------------------
+  public changeNick(): void
+  {
+    const dialogRef = this.dialog.open(ChangeNickDialogComponent, {
+      width: '350px'
+    });
+
+    dialogRef.afterClosed().subscribe((result: string) => {
+      if (result) {
+        const message = new ChangeNickMessage(this.me.uuid, result);
+        this.connectionService.sendMessage(message);
+      }
+    });
+  }
+
   public getMember(uuid: string): Member | undefined {
     return this.allMembers.get(uuid);
   }

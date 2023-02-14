@@ -1,3 +1,4 @@
+export * from './change-nick.message';
 export * from './create.message';
 export * from './disconnect.message';
 export * from './estimate.message';

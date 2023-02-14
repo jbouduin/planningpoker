@@ -41,9 +41,16 @@ export class MemberComponent {
   public get stopEstimatingLabel(): string {
     return this.translateService.instant('Member.Menu.Label.Stop_estimating');
   }
+
+  public get changeNickLabel(): string {
+    return this.translateService.instant('Member.Menu.Label.Change_nick');
+  }
   //#endregion
 
   //#region public getter methods authorization -------------------------------
+  public get canChangeNick(): boolean {
+    return this.member?.me || false;
+  }
   public get canStartEstimating(): boolean {
     if (this.member) {
       return this.teamService.me.role === ERole.ScrumMaster ?
@@ -75,6 +82,10 @@ export class MemberComponent {
   //#endregion
 
   //#region UI triggered methods ----------------------------------------------
+  public changeNickClick(): void {
+    this.teamService.changeNick();
+  }
+
   public startObserverClick(): void {
     this.teamService.switchObserving(true, this.member?.uuid || '');
   }

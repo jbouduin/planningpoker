@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
+import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeNickMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IMessageService } from "../interfaces";
@@ -139,6 +139,9 @@ export class HandlerService {
       const team = this.storage.getTeam(teamName);
       if (team) {
         switch (message.type) {
+          case (EClientMessageType.ChangeNick): {
+            this.handleChangeNick(sender, <IChangeNickMessage>message, team);
+          }
           case (EClientMessageType.Estimate): {
             this.handleEstimate(sender, <IEstimateMessage>message, team);
             break;
@@ -181,6 +184,14 @@ export class HandlerService {
           }
         } // end switch
       }
+    }
+  }
+
+  private handleChangeNick(sender: Participant, message: IChangeNickMessage, team: ITeam) {
+    if (sender.nick !== message.data) {
+      sender.nick = message.data;
+      this.messageService.broadcastMemberChange(team, sender, EMemberStatusChange.ChangedNick);
+      this.messageService.sendSelf(sender);
     }
   }
 

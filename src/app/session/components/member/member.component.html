@@ -10,5 +10,6 @@
   <mat-menu #menu="matMenu">
     <button *ngIf="canStopEstimating" mat-menu-item (click)="startObserverClick()">{{stopEstimatingLabel}}</button>
     <button *ngIf="canStartEstimating" mat-menu-item (click)="stopObserverClick()">{{startEstimatingLabel}}</button>
+    <button *ngIf="canChangeNick" mat-menu-item (click)="changeNickClick()">{{changeNickLabel}}</button>
   </mat-menu>
 </div>

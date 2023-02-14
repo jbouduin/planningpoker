@@ -7,6 +7,7 @@ export interface IClientMessage<T> {
   type: EClientMessageType
 }
 
+export type IChangeNickMessage = IClientMessage<string>;
 export type ICreatemessage = IClientMessage<ICreate>;
 export type IDisconnectMessage = IClientMessage<void>;
 export type IEstimateMessage = IClientMessage<number>;
@@ -18,6 +19,7 @@ export type IRejoinMessage = IClientMessage<string>;
 export type IRevealMessage = IClientMessage<void>;
 export type IStartMessage = IClientMessage<void>;
 export type ClientMessage =
+  IChangeNickMessage |
   ICreatemessage |
   IDisconnectMessage |
   IEstimateMessage |
