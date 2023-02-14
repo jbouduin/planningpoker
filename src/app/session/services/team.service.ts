@@ -4,11 +4,13 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ConfirmationDialogComponent, ConfirmationDialogParams, ConnectionService, LocalStorageService, SnackbarService } from '@app/@shared';
 import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
+import { ChangeNickDialogComponent } from '../components/change-nick-dialog/change-nick-dialog.component';
+import { ChangeScrumMasterDialogComponent } from '../components/change-scrum-master-dialog/change-scrum-master-dialog.component';
 import { ChangeNickMessage, LeaveMessage } from '../messages';
+import { ChangeScrumMasterMessage } from '../messages/change-scrum-master.message';
 import { ObserveMessage } from '../messages/observe-message';
 import { PauseMessage } from '../messages/pause.message';
 import { Member } from '../objects';
-import { ChangeNickDialogComponent } from '../components/change-nick-dialog/change-nick-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -84,8 +86,7 @@ export class TeamService {
   //#endregion
 
   //#region public methods ----------------------------------------------------
-  public changeNick(): void
-  {
+  public changeNick(): void {
     const dialogRef = this.dialog.open(ChangeNickDialogComponent, {
       width: '350px'
     });
@@ -98,6 +99,20 @@ export class TeamService {
     });
   }
 
+  public changeScrumMaster(): void {
+    const dialogRef = this.dialog.open(ChangeScrumMasterDialogComponent, {
+      width: '350px',
+      data: Array.from(this.allMembers.values()).filter((member: Member) => !member.me)
+    });
+
+    dialogRef.afterClosed().subscribe((result: string) => {
+      if (result) {
+        const message = new ChangeScrumMasterMessage(this.me.uuid, result);
+        this.connectionService.sendMessage(message);
+      }
+    });
+  }
+
   public getMember(uuid: string): Member | undefined {
     return this.allMembers.get(uuid);
   }
@@ -105,6 +120,11 @@ export class TeamService {
   public handleServerMessage(message: ServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Self:
+        if (this.me.role === ERole.Developer && (<ISelfMessage>message).data.role === ERole.ScrumMaster) {
+          this.snackbarService.showInfo(
+            this.translateService.instant('Game.Snackbar.You_are_now_scrum-master')
+          );
+        }
         this.me = new Member((<ISelfMessage>message).data, true);
         this.localStorageService.nick = this.me.nick;
         this.localStorageService.uuid = this.me.uuid;
@@ -194,7 +214,6 @@ export class TeamService {
   }
 
   private handleMemberChanged(memberChange: IMemberStatusChange): void {
-    let message = '';
     if (memberChange.memberStatusChange != EMemberStatusChange.Left) {
       this.allMembers.set(
         memberChange.member.uuid,
@@ -205,41 +224,58 @@ export class TeamService {
     }
 
     switch (memberChange.memberStatusChange) {
+      case EMemberStatusChange.ChangedRole:
+        if (memberChange.member.role === ERole.ScrumMaster) {
+          this.snackbarService.showInfo(
+            this.translateService.instant(
+              'Game.Snackbar.$member_is_now_scrum-master',
+              { member: memberChange.member.nick }
+            )
+          );
+        }
+        break;
       case EMemberStatusChange.Disconnected:
-        message = this.translateService.instant(
-          'Game.Snackbar.$member_was_disconnected',
-          { member: memberChange.member.nick }
+        this.snackbarService.showInfo(
+          this.translateService.instant(
+            'Game.Snackbar.$member_was_disconnected',
+            { member: memberChange.member.nick }
+          )
         );
         break;
       case EMemberStatusChange.Joined:
-        message = this.translateService.instant(
-          'Game.Snackbar.$member_has_joined',
-          { member: memberChange.member.nick }
+        this.snackbarService.showInfo(
+          this.translateService.instant(
+            'Game.Snackbar.$member_has_joined',
+            { member: memberChange.member.nick }
+          )
         );
         break;
       case EMemberStatusChange.Left:
-        message = this.translateService.instant(
-          'Game.Snackbar.$member_has_left',
-          { member: memberChange.member.nick }
+        this.snackbarService.showInfo(
+          this.translateService.instant(
+            'Game.Snackbar.$member_has_left',
+            { member: memberChange.member.nick }
+          )
         );
         break;
       case EMemberStatusChange.Paused:
-        message = this.translateService.instant(
-          'Game.Snackbar.$member_is_having_a_break',
-          { member: memberChange.member.nick }
+        this.snackbarService.showInfo(
+          this.translateService.instant(
+            'Game.Snackbar.$member_is_having_a_break',
+            { member: memberChange.member.nick }
+          )
         );
         break;
       case EMemberStatusChange.Rejoined:
-        message = this.translateService.instant(
-          'Game.Snackbar.$member_is_back',
-          { member: memberChange.member.nick }
+        this.snackbarService.showInfo(
+          this.translateService.instant(
+            'Game.Snackbar.$member_is_back',
+            { member: memberChange.member.nick }
+          )
         );
         break;
-      // case EMemberStatusChange.NickChanged:
-      default:
-        return;
     }
-    this.snackbarService.showInfo(message);
+
   }
 
   private handleEndSession(): void {

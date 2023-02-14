@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeNickMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
+import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IMessageService } from "../interfaces";
@@ -141,6 +141,11 @@ export class HandlerService {
         switch (message.type) {
           case (EClientMessageType.ChangeNick): {
             this.handleChangeNick(sender, <IChangeNickMessage>message, team);
+            break;
+          }
+          case (EClientMessageType.ChangeScrumMaster): {
+            this.handleChangeScrumMaster(sender, <IChangeScrumMasterMessage>message, team);
+            break;
           }
           case (EClientMessageType.Estimate): {
             this.handleEstimate(sender, <IEstimateMessage>message, team);
@@ -192,6 +197,23 @@ export class HandlerService {
       sender.nick = message.data;
       this.messageService.broadcastMemberChange(team, sender, EMemberStatusChange.ChangedNick);
       this.messageService.sendSelf(sender);
+    }
+  }
+
+  private handleChangeScrumMaster(sender: Participant, message: IChangeNickMessage, team: ITeam) {
+    if (sender.uuid !== message.data) {
+      const newScrumMaster = team.getMember(message.data);
+      if (newScrumMaster) {
+        sender.role = ERole.Developer;
+        newScrumMaster.role = ERole.ScrumMaster;
+        this.messageService.broadcastMemberChange(team, sender, EMemberStatusChange.ChangedRole);
+        this.messageService.broadcastMemberChange(team, newScrumMaster, EMemberStatusChange.ChangedRole);
+        this.messageService.sendSelf(sender);
+        this.messageService.sendSelf(newScrumMaster);
+      }
+      else {
+        this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ParticipantNotFound);
+      }
     }
   }
 

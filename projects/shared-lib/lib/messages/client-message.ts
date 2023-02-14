@@ -8,6 +8,7 @@ export interface IClientMessage<T> {
 }
 
 export type IChangeNickMessage = IClientMessage<string>;
+export type IChangeScrumMasterMessage = IClientMessage<string>;
 export type ICreatemessage = IClientMessage<ICreate>;
 export type IDisconnectMessage = IClientMessage<void>;
 export type IEstimateMessage = IClientMessage<number>;
@@ -20,6 +21,7 @@ export type IRevealMessage = IClientMessage<void>;
 export type IStartMessage = IClientMessage<void>;
 export type ClientMessage =
   IChangeNickMessage |
+  IChangeScrumMasterMessage |
   ICreatemessage |
   IDisconnectMessage |
   IEstimateMessage |

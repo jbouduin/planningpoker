@@ -59,6 +59,7 @@ export class PreflightService implements IPreflightService {
 
   private messageTypeRequiresMembership(messageType: EClientMessageType): boolean {
     const result =
+      messageType === EClientMessageType.ChangeScrumMaster ||
       messageType === EClientMessageType.Estimate ||
       messageType === EClientMessageType.Leave ||
       messageType === EClientMessageType.Observe ||
@@ -85,6 +86,7 @@ export class PreflightService implements IPreflightService {
         }
         break;
       }
+      case (EClientMessageType.ChangeScrumMaster):
       case (EClientMessageType.Reveal):
       case (EClientMessageType.Start): {
         if (role !== ERole.ScrumMaster) {

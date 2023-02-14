@@ -1,5 +1,6 @@
 export enum EClientMessageType {
   ChangeNick = 'change-nick',
+  ChangeScrumMaster = 'change-scrum-master',
   Create = 'create',
   Estimate = 'estimate',
   Join = 'join',

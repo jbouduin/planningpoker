@@ -45,12 +45,21 @@ export class MemberComponent {
   public get changeNickLabel(): string {
     return this.translateService.instant('Member.Menu.Label.Change_nick');
   }
+
+  public get changeScrumMasterLabel(): string {
+    return this.translateService.instant('Member.Menu.Label.Change_scrummaster');
+  }
   //#endregion
 
   //#region public getter methods authorization -------------------------------
   public get canChangeNick(): boolean {
     return this.member?.me || false;
   }
+
+  public get canChangeScrumMaster(): boolean {
+    return this.member?.role === ERole.ScrumMaster;
+  }
+
   public get canStartEstimating(): boolean {
     if (this.member) {
       return this.teamService.me.role === ERole.ScrumMaster ?
@@ -84,6 +93,10 @@ export class MemberComponent {
   //#region UI triggered methods ----------------------------------------------
   public changeNickClick(): void {
     this.teamService.changeNick();
+  }
+
+  public changeScrumMasterClick(): void {
+    this.teamService.changeScrumMaster();
   }
 
   public startObserverClick(): void {
