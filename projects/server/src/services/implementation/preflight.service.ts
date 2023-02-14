@@ -61,6 +61,7 @@ export class PreflightService implements IPreflightService {
     const result =
       messageType === EClientMessageType.Estimate ||
       messageType === EClientMessageType.Leave ||
+      messageType === EClientMessageType.Observe ||
       messageType === EClientMessageType.Pause ||
       messageType === EClientMessageType.Reveal ||
       messageType === EClientMessageType.Start;

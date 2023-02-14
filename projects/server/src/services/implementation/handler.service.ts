@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
+import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IMessageService } from "../interfaces";
@@ -155,6 +155,10 @@ export class HandlerService {
             this.handleLeave(sender, <ILeaveMessage>message, team);
             break;
           }
+          case (EClientMessageType.Observe): {
+            this.handleObserve(<IObserveMessage>message, team);
+            break;
+          }
           case (EClientMessageType.Pause): {
             this.handlePause(sender, team);
             break;
@@ -241,6 +245,15 @@ export class HandlerService {
       this.messageService.sendLeft(sender);
     }
 
+  }
+
+  private handleObserve(message: IObserveMessage, team: ITeam): void {
+    const member = this.storage.getParticipant(message.data.member);
+    if (member && member.observer !== message.data.observer) {
+      member.observer = message.data.observer;
+      this.messageService.broadcastMemberChange(team, member, EMemberStatusChange.Observe);
+      this.messageService.sendSelf(member);
+    }
   }
 
   private handlePause(sender: Participant, game: ITeam): void {

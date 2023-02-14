@@ -52,6 +52,8 @@
 	"Home.Component.SelectItem.TShirt": "T-Shirt Sizes",
 	"Home.Component.SelectLabel.CardSet": "Cardset",
 	"Input.Error.Mandatory": "Please enter a value",
+	"Member.Menu.Label.Start_estimating": "Participate in estimations",
+	"Member.Menu.Label.Stop_estimating": "Stop giving estimations",
 	"Navigation.RouteLabel.About": "About",
 	"Navigation.RouteLabel.Home": "Home"
 }

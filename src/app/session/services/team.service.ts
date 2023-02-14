@@ -3,8 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ConfirmationDialogComponent, ConfirmationDialogParams, ConnectionService, LocalStorageService, SnackbarService } from '@app/@shared';
-import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
+import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
 import { LeaveMessage } from '../messages';
+import { ObserveMessage } from '../messages/observe-message';
 import { PauseMessage } from '../messages/pause.message';
 import { Member } from '../objects';
 
@@ -49,7 +50,7 @@ export class TeamService {
 
   public get observers(): Array<Member> {
     return Array.from(this.allMembers.values())
-      .filter((m: Member) => m.observer && (m.role !== ERole.Unknown));
+      .filter((m: Member) => m.observer && (m.role !== ERole.Unknown && m.role !== ERole.ScrumMaster));
   }
 
   public get canPoker(): boolean {
@@ -161,7 +162,14 @@ export class TeamService {
     this.connectionService.sendMessage(message);
   }
 
-
+  public switchObserving(observe: boolean, member: string): void {
+    const data: IObserverChange = {
+      member: member,
+      observer: observe
+    };
+    const message = new ObserveMessage(this.me.uuid, data);
+    this.connectionService.sendMessage(message);
+  }
   //#endregion
 
   //#region private methods -----------------------------------------

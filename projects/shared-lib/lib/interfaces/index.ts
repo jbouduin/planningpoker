@@ -7,6 +7,7 @@ export * from './estimation';
 export * from './join';
 export * from './member-status-change';
 export * from './member-status-change.enum';
+export * from './observer-change';
 export * from './participant';
 export * from './participant-status.enum';
 export * from './poker-status.enum';

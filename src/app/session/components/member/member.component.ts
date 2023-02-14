@@ -1,6 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { EParticipantStatus } from '@shared-lib';
+import { TeamService } from '@app/session/services/team.service';
+import { TranslateService } from '@ngx-translate/core';
+import { EParticipantStatus, ERole } from '@shared-lib';
 import { Member } from '../../objects/member';
+
 
 @Component({
   selector: 'session-member',
@@ -13,7 +16,12 @@ export class MemberComponent {
   @Input() public member: Member | undefined;
   //#endregion
 
-  //#region Public getter methods ---------------------------------------------
+  //#region Private properties ------------------------------------------------
+  private readonly teamService: TeamService;
+  private readonly translateService: TranslateService;
+  //#endregion
+
+  //#region Public getter methods labels --------------------------------------
   public get connectionStatusIcon(): string {
     return this.member?.status === EParticipantStatus.Connected ? 'cloud' : 'cloud_off';
   }
@@ -24,6 +32,55 @@ export class MemberComponent {
 
   public get person(): string {
     return this.member?.observer ? "person_outline" : "person";
+  }
+
+  public get startEstimatingLabel(): string {
+    return this.translateService.instant('Member.Menu.Label.Start_estimating');
+  }
+
+  public get stopEstimatingLabel(): string {
+    return this.translateService.instant('Member.Menu.Label.Stop_estimating');
+  }
+  //#endregion
+
+  //#region public getter methods authorization -------------------------------
+  public get canStartEstimating(): boolean {
+    if (this.member) {
+      return this.teamService.me.role === ERole.ScrumMaster ?
+        this.member.observer :
+        this.member.observer && this.member.me;
+    }
+    else {
+      return false;
+    }
+  }
+
+  public get canStopEstimating(): boolean {
+    if (this.member) {
+      return this.teamService.me.role === ERole.ScrumMaster ?
+        !this.member.observer :
+        !this.member.observer && this.member.me;
+    }
+    else {
+      return false;
+    }
+  }
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(teamService: TeamService, translateService: TranslateService) {
+    this.teamService = teamService;
+    this.translateService = translateService;
+  }
+  //#endregion
+
+  //#region UI triggered methods ----------------------------------------------
+  public startObserverClick(): void {
+    this.teamService.switchObserving(true, this.member?.uuid || '');
+  }
+
+  public stopObserverClick(): void {
+    this.teamService.switchObserving(false, this.member?.uuid || '');
   }
   //#endregion
 }
