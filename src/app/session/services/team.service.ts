@@ -192,9 +192,21 @@ export class TeamService {
   }
 
   public pause(): void {
-    // TODO #117: if scrum master, ask him to assign the scrum-master role to someone else before pausing
-    const message = new PauseMessage(this.me.uuid)
-    this.connectionService.sendMessage(message);
+    if (this.me.role === ERole.ScrumMaster) {
+      const params = new ConfirmationDialogParams();
+      params.showCancelButton = false;
+      params.okButtonLabel = this.translateService.instant('Dialog.ButtonLabel.OK');
+      params.text = this.translateService.instant('Dialog.Confirm.Text.Assign_another_scrum_master_first');
+      params.title = this.translateService.instant('Dialog.Confirm.Title.Assign_another_scrum_master_first');
+
+      this.dialog.open(ConfirmationDialogComponent, {
+        width: '350px',
+        data: params
+      });
+    } else {
+      const message = new PauseMessage(this.me.uuid)
+      this.connectionService.sendMessage(message);
+    }
   }
 
   public switchObserving(observe: boolean, member: string): void {

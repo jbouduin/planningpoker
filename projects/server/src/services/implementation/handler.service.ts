@@ -48,6 +48,17 @@ export class HandlerService {
         if (team) {
           console.log('sending disconnection to other participants');
           this.messageService.broadcastMemberChange(team, closed, EMemberStatusChange.Disconnected);
+          if (closed.role === ERole.ScrumMaster) {
+            // assign some random participant the scrum master role
+            const connected = team.filterMembers((p: Participant) => p.status === EParticipantStatus.Connected);
+            if (connected.length > 0) {
+              closed.role = ERole.Developer;
+              const newScrumMaster = connected[0];
+              newScrumMaster.role = ERole.ScrumMaster;
+              this.messageService.broadcastMemberChange(team, newScrumMaster, EMemberStatusChange.ChangedRole);
+              this.messageService.sendSelf(newScrumMaster);
+            }
+          }
         }
       }
     }
