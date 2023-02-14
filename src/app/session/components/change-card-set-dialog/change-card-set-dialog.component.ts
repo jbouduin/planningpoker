@@ -1,22 +1,27 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { TranslateService } from '@ngx-translate/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
-import { Member } from '../../objects';
+import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-set.service';
+import { ECardSet } from '@shared-lib';
 
 @Component({
-  selector: 'app-change-scrum-master-dialog',
-  templateUrl: './change-scrum-master-dialog.component.html',
-  styleUrls: ['./change-scrum-master-dialog.component.scss']
+  selector: 'app-change-card-set-dialog',
+  templateUrl: './change-card-set-dialog.component.html',
+  styleUrls: ['./change-card-set-dialog.component.scss']
 })
-export class ChangeScrumMasterDialogComponent {
+export class ChangeCardSetDialogComponent implements OnDestroy{
 
   //#region private properties ------------------------------------------------
-  private readonly dialogRef: MatDialogRef<ChangeScrumMasterDialogComponent>;
+  private readonly cardSetService: CardSetService;
+  private readonly dialogRef: MatDialogRef<ChangeCardSetDialogComponent>;
   private readonly formBuilder: FormBuilder;
+  private readonly languageChangeSubscription: Subscription;
   private readonly translateService: TranslateService;
-  private readonly teamMembers: Array<Member>;
+  private readonly cardSets: Array<ECardSet>;
+  private _cardSetValues: Array<ICardSetSelectItem>;
   //#endregion
 
   //#region Public properties -------------------------------------------------
@@ -28,16 +33,16 @@ export class ChangeScrumMasterDialogComponent {
     return this.translateService.instant('Dialog.ButtonLabel.Cancel');
   }
 
-  public get otherMembers(): Array<Member> {
-    return this.teamMembers;
+  public get cardSetValues(): Array<ICardSetSelectItem> {
+    return this._cardSetValues;
   }
 
   public get scrumMasterLabel(): string {
-    return this.translateService.instant('Dialog.Change-ScrumMaster.InputLabel.ScrumMaster');
+    return this.translateService.instant('Dialog.Change-Card-Set.InputLabel.Card-set');
   }
 
   public get scrumMasterPlaceHolder(): string {
-    return this.translateService.instant('Dialog.Change-ScrumMaster.Placeholder.ScrumMaster');
+    return this.translateService.instant('Dialog.Change-Card-Set.Placeholder.Card-set');
   }
 
   public get saveButtonLabel(): string {
@@ -45,23 +50,34 @@ export class ChangeScrumMasterDialogComponent {
   }
 
   public get title(): string {
-    return this.translateService.instant('Dialog.Change-ScrumMaster.Title');
+    return this.translateService.instant('Dialog.Change-Card-Set.Title');
   }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
-    dialogRef: MatDialogRef<ChangeScrumMasterDialogComponent>,
+    cardSetService: CardSetService,
+    dialogRef: MatDialogRef<ChangeCardSetDialogComponent>,
     formBuilder: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) params: Array<Member>,
+    @Inject(MAT_DIALOG_DATA) params: Array<ECardSet>,
     translateService: TranslateService) {
+    this.cardSetService = cardSetService;
     this.dialogRef = dialogRef;
     this.formBuilder = formBuilder;
-    this.teamMembers = params;
+    this.cardSets = params;
     this.translateService = translateService;
+    this._cardSetValues = this.cardSetService.getCardSetSelectItems(...this.cardSets);
     this.formData = this.formBuilder.group({
       nick: new FormControl('', [Validators.required])
     });
+    this.languageChangeSubscription = this.translateService.onLangChange
+      .subscribe((_event: LangChangeEvent) => this._cardSetValues = this.cardSetService.getCardSetSelectItems(...this.cardSets));
+  }
+
+  public ngOnDestroy() {
+    if (this.languageChangeSubscription) {
+      this.languageChangeSubscription.unsubscribe();
+    }
   }
   //#region
 

@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 
 import SERVICETYPES from "../service.types";
 
-import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, IEstimation, IMemberStatusChange, IParticipant, ServerMessage } from "../../../../shared-lib/lib";
+import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ICardSet, IEstimation, IMemberStatusChange, IParticipant, ServerMessage } from "../../../../shared-lib/lib";
 import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
 import { Estimation, ITeam, Participant } from "../../objects";
 import { IMessageService, ISenderService } from "../interfaces";
@@ -26,6 +26,12 @@ export class MessageService implements IMessageService {
     team
       .filterMembers(participant => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.sendEstimations(participant, team.status === EPokerStatus.Revealed, team.allEstimations));
+  }
+
+  public broadcastCardSet(team: ITeam, cardSet: ICardSet): void {
+    team
+      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
+      .forEach(participant => this.sendCardSet(participant, cardSet));
   }
 
   public broadcastClearEstimations(team: ITeam): void {
@@ -124,6 +130,11 @@ export class MessageService implements IMessageService {
   }
 
   //#region private send methods ----------------------------------------------
+  private sendCardSet(to: Participant, cardSet: ICardSet): void {
+    const message: ServerMessage = new CardSetMessage(cardSet);
+    this.senderService.sendToParticipant(to, message);
+  }
+
   private sendClearEstimations(to: Participant): void {
     const message: ServerMessage = new ClearEstimationsMessage();
     this.senderService.sendToParticipant(to, message);

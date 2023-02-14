@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
+import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IMessageService } from "../interfaces";
@@ -150,6 +150,10 @@ export class HandlerService {
       const team = this.storage.getTeam(teamName);
       if (team) {
         switch (message.type) {
+          case (EClientMessageType.ChangeCardSet): {
+            this.handleChangeCardSet(<IChangeCardSetMessage>message, team);
+            break;
+          }
           case (EClientMessageType.ChangeNick): {
             this.handleChangeNick(sender, <IChangeNickMessage>message, team);
             break;
@@ -203,7 +207,12 @@ export class HandlerService {
     }
   }
 
-  private handleChangeNick(sender: Participant, message: IChangeNickMessage, team: ITeam) {
+  private handleChangeCardSet(message: IChangeCardSetMessage, team: ITeam): void {
+    const cardSet = this.cardService.getCardSet(message.data);
+    this.messageService.broadcastCardSet(team, cardSet);
+  }
+
+  private handleChangeNick(sender: Participant, message: IChangeNickMessage, team: ITeam): void {
     if (sender.nick !== message.data) {
       sender.nick = message.data;
       this.messageService.broadcastMemberChange(team, sender, EMemberStatusChange.ChangedNick);
@@ -211,7 +220,7 @@ export class HandlerService {
     }
   }
 
-  private handleChangeScrumMaster(sender: Participant, message: IChangeNickMessage, team: ITeam) {
+  private handleChangeScrumMaster(sender: Participant, message: IChangeNickMessage, team: ITeam): void {
     if (sender.uuid !== message.data) {
       const newScrumMaster = team.getMember(message.data);
       if (newScrumMaster) {

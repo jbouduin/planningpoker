@@ -1,14 +1,10 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-set.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { ECardSet } from '@shared-lib';
 import { Subscription } from 'rxjs';
 import { SessionService } from '../../session/services/session.service';
-
-interface ICardSetSelectItem {
-  set: ECardSet;
-  label: string;
-}
 
 @Component({
   selector: 'home-join',
@@ -22,6 +18,7 @@ export class JoinComponent implements OnDestroy {
   //#endregion
 
   //#region private properties ------------------------------------------------
+  private readonly cardSetService: CardSetService;
   private readonly translateService: TranslateService;
   private readonly formBuilder: FormBuilder;
   private readonly languageChangeSubscription: Subscription;
@@ -77,18 +74,19 @@ export class JoinComponent implements OnDestroy {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(translateService: TranslateService, formBuilder: FormBuilder, sessionService: SessionService) {
+  public constructor(cardSetService: CardSetService, translateService: TranslateService, formBuilder: FormBuilder, sessionService: SessionService) {
+    this.cardSetService = cardSetService;
     this.translateService = translateService;
     this.formBuilder = formBuilder;
     this.sessionService = sessionService;
-    this._cardSetValues = this.getCardSetitems();
+    this._cardSetValues = this.cardSetService.getCardSetSelectItems();
     this.formData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
       nick: new FormControl('', [Validators.required]),
       cardSet: new FormControl(ECardSet.Cohn, [Validators.required])
     });
     this.languageChangeSubscription = this.translateService.onLangChange
-      .subscribe((_event: LangChangeEvent) => this._cardSetValues = this.getCardSetitems());
+      .subscribe((_event: LangChangeEvent) => this._cardSetValues = this.cardSetService.getCardSetSelectItems());
     this.observer = false;
   }
 
@@ -125,15 +123,6 @@ export class JoinComponent implements OnDestroy {
   //#endregion
 
   //#region private methods ---------------------------------------------------
-  private getCardSetitems(): Array<ICardSetSelectItem> {
-    // TODO 2343 change this if marker works again
-    const result: Array<ICardSetSelectItem> =
-      [
-        { set: ECardSet.Cohn, label: this.translateService.instant('Home.Component.SelectItem.Cohn') },
-        { set: ECardSet.Fibonacci, label: this.translateService.instant('Home.Component.SelectItem.Fibonacci') },
-        { set: ECardSet.TShirt, label: this.translateService.instant('Home.Component.SelectItem.TShirt') }
-      ];
-    return result;
-  }
+
   //#endregion
 }

@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+
+import { CardService } from '@app/session/services/card.service';
 import { PokerService } from '@app/session/services/poker.service';
 import { TeamService } from '@app/session/services/team.service';
-import { TranslateService } from '@ngx-translate/core';
+
 import { ERole } from '@shared-lib';
 
 @Component({
@@ -12,12 +15,17 @@ import { ERole } from '@shared-lib';
 export class ScrumMasterButtonsComponent {
 
   //#region Private Properties ------------------------------------------------
+  private readonly cardService: CardService
   private readonly pokerService: PokerService;
   private readonly teamService: TeamService;
   private readonly translateService: TranslateService;
   //#endregion
 
   //#region getters -----------------------------------------------------------
+  public get changeCardSetButtonLabel(): string {
+    return this.translateService.instant('Game.Component.ButtonLabel.Change-card-set');
+  }
+
   public get revealButtonLabel(): string {
     return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
   }
@@ -48,7 +56,8 @@ export class ScrumMasterButtonsComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(pokerService: PokerService, teamService: TeamService, translateService: TranslateService) {
+  public constructor(cardService: CardService, pokerService: PokerService, teamService: TeamService, translateService: TranslateService) {
+    this.cardService = cardService;
     this.pokerService = pokerService;
     this.teamService = teamService;
     this.translateService = translateService;
@@ -62,6 +71,10 @@ export class ScrumMasterButtonsComponent {
 
   public start(): void {
     this.pokerService.start();
+  }
+
+  public changeCardSet(): void {
+    this.cardService.changeCardSet();
   }
   //#endregion
 }

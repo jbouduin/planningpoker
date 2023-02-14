@@ -49,6 +49,8 @@ export class PreflightService implements IPreflightService {
   //#region private methods ---------------------------------------------------
   private messageTypeRequiresTeam(messageType: EClientMessageType): boolean {
     const result =
+      messageType === EClientMessageType.ChangeCardSet ||
+      messageType === EClientMessageType.ChangeScrumMaster ||
       messageType === EClientMessageType.Estimate ||
       messageType === EClientMessageType.Join ||
       messageType === EClientMessageType.Leave ||
@@ -59,6 +61,7 @@ export class PreflightService implements IPreflightService {
 
   private messageTypeRequiresMembership(messageType: EClientMessageType): boolean {
     const result =
+      messageType === EClientMessageType.ChangeCardSet ||
       messageType === EClientMessageType.ChangeScrumMaster ||
       messageType === EClientMessageType.Estimate ||
       messageType === EClientMessageType.Leave ||
@@ -80,12 +83,14 @@ export class PreflightService implements IPreflightService {
     let result = EErrorCode.NoError;
 
     switch (messageType) {
+      // TODO is this correct ???
       case (EClientMessageType.Estimate): {
         if (role !== ERole.ScrumMaster && role !== ERole.Developer) {
           result = EErrorCode.DeveloperRequired;
         }
         break;
       }
+      case (EClientMessageType.ChangeCardSet):
       case (EClientMessageType.ChangeScrumMaster):
       case (EClientMessageType.Reveal):
       case (EClientMessageType.Start): {

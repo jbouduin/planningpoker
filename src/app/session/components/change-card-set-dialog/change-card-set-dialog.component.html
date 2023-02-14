@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>{{title}}</h1>
+
+<mat-dialog-content [formGroup]="formData">
+  <mat-form-field appearance="fill">
+    <mat-label>{{scrumMasterLabel}}</mat-label>
+    <mat-select formControlName="nick" appearance="fill">
+      <mat-option *ngFor="let item of cardSetValues" [value]="item.set">
+        {{item.label}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</mat-dialog-content>
+
+<div mat-dialog-actions>
+  <button mat-button (click)="cancel()">{{cancelButtonLabel}}</button>
+  <button mat-button [mat-dialog-close]="true" [disabled]="formData.invalid"
+    (click)="save()">{{saveButtonLabel}}</button>
+</div>

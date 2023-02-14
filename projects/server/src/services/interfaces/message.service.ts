@@ -1,9 +1,10 @@
 import { IWebSocket } from "../websocket";
-import { EErrorCode, EMemberStatusChange } from "../../../../shared-lib/lib";
+import { EErrorCode, EMemberStatusChange, ICardSet } from "../../../../shared-lib/lib";
 import { Estimation, ITeam, Participant } from "../../objects";
 
 export interface IMessageService {
   broadcastAllEstimations(team: ITeam): void;
+  broadcastCardSet(team: ITeam, cardSet: ICardSet): void;
   broadcastClearEstimations(team: ITeam): void;
   broadcastEstimation(team: ITeam, estimation: Estimation): void;
   broadcastPokerStatus(team: ITeam): void;
