@@ -19,7 +19,7 @@ export class MemberButtonsComponent {
 
   //#region getters -----------------------------------------------------------
   public get canPause(): boolean {
-    return this.teamService.me.status === EParticipantStatus.Connected && this.teamService.me.role !== ERole.ScrumMaster;
+    return this.teamService.me.status === EParticipantStatus.Connected;
   }
 
   public get canRejoin(): boolean {
