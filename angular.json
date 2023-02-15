@@ -7,7 +7,7 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "sass"
+          "style": "scss"
         }
       },
       "root": "",
@@ -31,7 +31,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.sass"
+              "src/styles.scss"
             ],
             "allowedCommonJsDependencies": [
               "typescript-collections"
@@ -118,7 +118,7 @@
             "karmaConfig": "karma.conf.js",
             "scripts": [ ],
             "styles": [
-              "src/main.sass"
+              "src/styles.scss"
             ],
             "assets": [
               "src/favicon.ico",

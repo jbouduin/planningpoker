@@ -1,42 +1,33 @@
-/*
- * Global application theme.
- * Framework overrides and customization goes here.
- */
 @use "@angular/material" as mat;
-
 @include mat.core();
 
-$app-primary: mat.define-palette($mat-blue);
-$app-accent: mat.define-palette($mat-pink, a200, a100, a400);
-$app-warn: mat.define-palette($mat-red);
+@import "./palette.scss";
 
-$app-theme: mat.define-light-theme(
-  (
-    color: (
-      primary: $my-primary,
-      accent: $my-accent,
-      warn: $my-warn,
-    ),
-    typography: mat.define-typography-config(),
-    density: 0,
-  )
-);
-
-@include mat.all-component-themes($app-theme);
-
-$heading-font-family: "Philosopher, Roboto, 'Helvetica Neue', sans-serif";
-$typography: mat-typography-config($font-family: $heading-font-family,
-    $display-4: mat-typography-level(112px, 112px, 300, $letter-spacing: -0.05em),
-    $display-3: mat-typography-level(56px, 56px, 400, $letter-spacing: -0.02em),
-    $display-2: mat-typography-level(45px, 48px, 400, $letter-spacing: -0.005em),
-    $display-1: mat-typography-level(34px, 40px, 400),
-    $headline: mat-typography-level(24px, 32px, 400),
-    $title: mat-typography-level(20px, 32px, 500),
-    $subheading-2: mat-typography-level(16px, 28px, 400),
-    $subheading-1: mat-typography-level(15px, 24px, 400),
-    $body-2: mat-typography-level(14px, 24px, 500),
-    $body-1: mat-typography-level(14px, 20px, 400),
-    $caption: mat-typography-level(12px, 20px, 400),
-    $button: mat-typography-level(14px, 14px, 500),
+.pp-theme {
+  $pp-typography: mat.define-typography-config($font-family: "Philosopher, Roboto, 'Helvetica Neue', sans-serif",
+    $headline-4: mat.define-typography-level(112px, 112px, 300, $letter-spacing: -0.05em),
+    $headline-3: mat.define-typography-level(56px, 56px, 400, $letter-spacing: -0.02em),
+    $headline-2: mat.define-typography-level(45px, 48px, 400, $letter-spacing: -0.005em),
+    $headline-1: mat.define-typography-level(34px, 40px, 400),
+    $subtitle-2: mat.define-typography-level(16px, 28px, 400),
+    $subtitle-1: mat.define-typography-level(15px, 24px, 400),
+    $body-2: mat.define-typography-level(14px, 24px, 500),
+    $body-1: mat.define-typography-level(14px, 20px, 400),
+    $caption: mat.define-typography-level(12px, 20px, 400),
+    $button: mat.define-typography-level(14px, 14px, 500),
   );
-@include angular-material-typography($typography);
+
+  $pp-primary: mat.define-palette($pp-blue-palette);
+  $pp-accent: mat.define-palette($pp-green-palette);
+  $pp-warn: mat.define-palette($pp-red-palette);
+
+  $pp-theme: mat.define-light-theme((color: (primary: $pp-primary,
+        accent: $pp-accent,
+        warn: $pp-warn,
+      ),
+      typography: $pp-typography,
+      density: 0,
+    ));
+
+  @include mat.all-component-themes($pp-theme);
+}
