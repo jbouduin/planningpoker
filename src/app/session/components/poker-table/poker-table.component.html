@@ -6,7 +6,7 @@
         <session-card [card]="estimation.card" [revealed]="estimation.revealed"
           [enabled]="estimation.member.me && canWithdraw" [mine]="estimation.member.me" (cardClicked)="cardClicked()">
         </session-card>
-        <div class="flex-center" [class.mine]="estimation.member.me">
+        <div class="nick-wrapper" [class.mine]="estimation.member.me">
           <div class="nick">
             <span>{{estimation.member.me ? meLabel : estimation.member.nick}}</span>
           </div>
@@ -18,7 +18,7 @@
       <div class="cards">
         <session-card [enabled]="false" [mine]="member.me">
         </session-card>
-        <div class="flex-center" [class.mine]="member.me">
+        <div class="nick-wrapper" [class.mine]="member.me">
           <div class="nick not-estimated">
             <span>{{member.me ? meLabel : member.nick}}</span>
           </div>

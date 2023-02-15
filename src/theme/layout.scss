@@ -4,6 +4,7 @@ body {
   flex-direction: column;
   margin: 0;
   height: 100%;
+  font-family: "Philosopher, Roboto, 'Helvetica Neue', sans-serif";
 }
 
 .mat-card-inner-container {
@@ -21,4 +22,8 @@ mat-card {
 
 .game-button {
   margin-right: 10px;
+}
+
+button {
+  font-family: "Philosopher, Roboto, 'Helvetica Neue', sans-serif";
 }

@@ -1,9 +1,26 @@
+.snackbar-wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.snack-bar-icon {
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 48px;
+}
+
 .span-message {
+  display: flex;
+  flex: 1 1 100%;
   margin-left: 5px;
+  align-items: center;
 }
 
 .close-button {
   border: 0;
   background: unset;
   color: white;
+  display: flex;
+  margin-right: -15px;
+  margin-top: -5px;
 }

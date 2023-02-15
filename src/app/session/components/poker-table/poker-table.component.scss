@@ -5,13 +5,18 @@
 }
 
 .cards {
-  display:flex;
+  display: flex;
   flex-direction: column;
 }
 
 .mine {
   color: blue;
   font-weight: bold;
+}
+
+.nick-wrapper {
+  display: flex;
+  justify-content: center;
 }
 
 .nick {
