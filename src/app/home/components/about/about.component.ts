@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'about-about',
+  selector: 'home-about',
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss']
 })

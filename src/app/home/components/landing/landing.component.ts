@@ -1,16 +1,16 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MessageBoxComponent, MessageBoxParams, HttpService, LocalStorageService } from '@app/@shared';
 import { TranslateService } from '@ngx-translate/core';
 
-import { SessionService } from '../session/services/session.service';
+import { MessageBoxComponent, MessageBoxParams, HttpService, LocalStorageService } from '@app/@shared';
+import { SessionService } from '../../../session/services/session.service';
 
 @Component({
-  selector: 'home-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  selector: 'home-landing',
+  templateUrl: './landing.component.html',
+  styleUrls: ['./landing.component.scss']
 })
-export class HomeComponent implements AfterViewInit {
+export class LandingComponent implements AfterViewInit {
 
   //#region private properties ------------------------------------------------
   private readonly dialog: MatDialog;

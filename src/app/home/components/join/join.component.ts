@@ -7,7 +7,7 @@ import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-s
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { ECardSet, ICardSet } from '@shared-lib';
 import { Subscription } from 'rxjs';
-import { SessionService } from '../../session/services/session.service';
+import { SessionService } from '../../../session/services/session.service';
 
 @Component({
   selector: 'home-join',

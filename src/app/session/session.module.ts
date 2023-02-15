@@ -39,4 +39,4 @@ import { SharedModule } from '@app/@shared';
 
   ]
 })
-export class GameModule { }
+export class SessionModule { }

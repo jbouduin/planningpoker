@@ -5,8 +5,9 @@ import { CoreModule } from '@core';
 import { SharedModule } from '@shared';
 import { MaterialModule } from '@app/material.module';
 import { HomeRoutingModule } from './home-routing.module';
-import { HomeComponent } from './home.component';
-import { JoinComponent } from './join/join.component';
+import { LandingComponent } from './components/landing/landing.component';
+import { JoinComponent } from './components/join/join.component';
+import { AboutComponent } from './components/about/about.component';
 
 @NgModule({
   imports: [
@@ -19,8 +20,9 @@ import { JoinComponent } from './join/join.component';
     HomeRoutingModule
   ],
   declarations: [
-    HomeComponent,
-    JoinComponent
+    LandingComponent,
+    JoinComponent,
+    AboutComponent
   ],
   providers: []
 })
