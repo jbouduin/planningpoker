@@ -14,7 +14,6 @@ import { PokerTableComponent } from './components/poker-table/poker-table.compon
 import { ScrumMasterButtonsComponent } from './components/scrum-master-buttons/scrum-master-buttons.component';
 import { TeamHeaderComponent } from './components/team-header/team-header.component';
 import { GameRoutingModule } from './session-routing.module';
-import { ChangeCardSetDialogComponent } from './components/change-card-set-dialog/change-card-set-dialog.component';
 import { SharedModule } from '@app/@shared';
 
 @NgModule({
@@ -36,8 +35,8 @@ import { SharedModule } from '@app/@shared';
     MemberButtonsComponent,
     ScrumMasterButtonsComponent,
     ChangeNickDialogComponent,
-    ChangeScrumMasterDialogComponent,
-    ChangeCardSetDialogComponent
+    ChangeScrumMasterDialogComponent
+
   ]
 })
 export class GameModule { }

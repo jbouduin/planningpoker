@@ -208,8 +208,8 @@ export class HandlerService {
   }
 
   private handleChangeCardSet(message: IChangeCardSetMessage, team: ITeam): void {
-    const cardSet = this.cardService.getCardSet(message.data);
-    this.messageService.broadcastCardSet(team, cardSet);
+    team.cardSet = message.data;
+    this.messageService.broadcastCardSet(team);
   }
 
   private handleChangeNick(sender: Participant, message: IChangeNickMessage, team: ITeam): void {

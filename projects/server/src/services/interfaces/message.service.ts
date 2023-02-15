@@ -4,7 +4,7 @@ import { Estimation, ITeam, Participant } from "../../objects";
 
 export interface IMessageService {
   broadcastAllEstimations(team: ITeam): void;
-  broadcastCardSet(team: ITeam, cardSet: ICardSet): void;
+  broadcastCardSet(team: ITeam): void;
   broadcastClearEstimations(team: ITeam): void;
   broadcastEstimation(team: ITeam, estimation: Estimation): void;
   broadcastPokerStatus(team: ITeam): void;

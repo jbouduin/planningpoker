@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
-import { ECardSet, EServerMessageType, ICard, ICardSetMessage, ServerMessage } from '@shared-lib';
+import { ECardSet, EServerMessageType, ICard, ICardSet, ICardSetMessage, ServerMessage } from '@shared-lib';
 
 import { Card, ConnectionService } from '@shared';
-import { ChangeCardSetDialogComponent } from '../components/change-card-set-dialog/change-card-set-dialog.component';
 import { ChangeCardSetMessage } from '../messages';
 import { TeamService } from './team.service';
+import { ICardSetDialogParams } from '@app/@shared/components/card-set-dialog/card-set-dialog.params';
+import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/card-set-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -43,24 +44,21 @@ export class CardService {
   }
 
   public changeCardSet(): void {
-    const data = new Array<ECardSet>();
-    if (this.currentCardSet !== ECardSet.Cohn) {
-      data.push(ECardSet.Cohn);
+    const data: ICardSetDialogParams = {
+      cardSets: [ECardSet.Cohn, ECardSet.Fibonacci, ECardSet.TShirt],
+      currentCards: this._cards.map((card: Card) => {
+        return {
+          index: card.index,
+          label: card.label,
+          isIcon: card.isIcon,
+          isUnknownEstimation: card.isUnknownEstimation
+        }
+      }),
+      currentCardSet: this.currentCardSet
     }
+    const dialogRef = this.dialog.open(CardSetDialogComponent, { data: data });
 
-    if (this.currentCardSet !== ECardSet.Fibonacci) {
-      data.push(ECardSet.Fibonacci);
-    }
-
-    if (this.currentCardSet !== ECardSet.TShirt) {
-      data.push(ECardSet.TShirt);
-    }
-    const dialogRef = this.dialog.open(ChangeCardSetDialogComponent, {
-      width: '350px',
-      data: data
-    });
-
-    dialogRef.afterClosed().subscribe((result: ECardSet) => {
+    dialogRef.afterClosed().subscribe((result: ICardSet) => {
       if (result) {
         const message = new ChangeCardSetMessage(this.teamService.me.uuid, result);
         this.connectionService.sendMessage(message);

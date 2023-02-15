@@ -1,11 +1,12 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, Inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
 import { Card, HttpService } from '@shared';
 import { ECardSet, ICard, ICardSet } from '@shared-lib';
 import { CardSetService, ICardSetSelectItem } from '../../services/card-set.service';
+import { ICardSetDialogParams } from './card-set-dialog.params';
 
 interface ICardSelectItem {
   selected: boolean;
@@ -22,10 +23,11 @@ export class CardSetDialogComponent implements AfterViewInit {
   private readonly cardSetService: CardSetService;
   private readonly dialogRef: MatDialogRef<CardSetDialogComponent>;
   private readonly httpService: HttpService;
+  private readonly params: ICardSetDialogParams;
   private readonly translateService: TranslateService;
   private cardSets: Array<ICardSet>;
-  private _cardSetValues: Array<ICardSetSelectItem>;
-  private _cardValues: Array<ICardSelectItem>;
+  private _cardSetSelectItems: Array<ICardSetSelectItem>;
+  private _cardSelectItems: Array<ICardSelectItem>;
   private cardSetControl: FormControl;
   //#endregion
 
@@ -57,21 +59,23 @@ export class CardSetDialogComponent implements AfterViewInit {
 
   //#region value Getters -----------------------------------------------------
   public get selectableCards(): Array<ICardSelectItem> {
-    return this._cardValues;
+    return this._cardSelectItems;
   }
 
   public get cardSetValues(): Array<ICardSetSelectItem> {
-    return this._cardSetValues;
+    return this._cardSetSelectItems;
   }
 
   public get noCardsSelected(): boolean {
-    return this._cardValues.filter((card: ICardSelectItem) => !card.card.isIcon && card.selected && !card.card.isUnknownEstimation).length < 2
+    return this._cardSelectItems.length > 0 &&
+      this._cardSelectItems.filter((card: ICardSelectItem) => !card.card.isIcon && card.selected && !card.card.isUnknownEstimation).length < 2
   }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     cardSetService: CardSetService,
+    @Inject(MAT_DIALOG_DATA) params: ICardSetDialogParams,
     dialogRef: MatDialogRef<CardSetDialogComponent>,
     formBuilder: FormBuilder,
     httpService: HttpService,
@@ -79,11 +83,12 @@ export class CardSetDialogComponent implements AfterViewInit {
     this.cardSetService = cardSetService;
     this.dialogRef = dialogRef;
     this.httpService = httpService;
+    this.params = params;
     this.translateService = translateService;
     this.cardSets = new Array<ICardSet>();
-    this._cardSetValues = new Array<ICardSetSelectItem>();
-    this._cardValues = new Array<ICardSelectItem>();
-    this.cardSetControl = new FormControl(ECardSet.Cohn, [Validators.required]);
+    this._cardSetSelectItems = new Array<ICardSetSelectItem>();
+    this._cardSelectItems = new Array<ICardSelectItem>();
+    this.cardSetControl = new FormControl(this.params.currentCardSet || ECardSet.Cohn, [Validators.required]);
     this.cardSetControl.valueChanges.subscribe((value: ECardSet | null) => this.selectedCardSetChanged(value));
     this.formData = formBuilder.group({ cardSet: this.cardSetControl });
   }
@@ -92,9 +97,9 @@ export class CardSetDialogComponent implements AfterViewInit {
   //#region Angular lifecycle methods -----------------------------------------
   public ngAfterViewInit(): void {
     this.httpService.getAllCardSets().subscribe((cardSets: Array<ICardSet>) => {
-      this._cardSetValues = this.cardSetService.getCardSetSelectItems(...cardSets.map((cardSet: ICardSet) => cardSet.cardSet));
+      this._cardSetSelectItems = this.cardSetService.getCardSetSelectItems(...cardSets.map((cardSet: ICardSet) => cardSet.cardSet));
       this.cardSets = cardSets;
-      this.cardSetControl.patchValue(ECardSet.Cohn);
+      this.cardSetControl.patchValue(this.params.currentCardSet || ECardSet.Cohn);
     });
   }
   //#endregion
@@ -112,7 +117,7 @@ export class CardSetDialogComponent implements AfterViewInit {
 
   public save(): void {
     let unknownIndex = -1;
-    const cardsInUse = this._cardValues
+    const cardsInUse = this._cardSelectItems
       .filter((card: ICardSelectItem) => card.selected)
       .map((card: ICardSelectItem) => {
         if (card.card.isUnknownEstimation) {
@@ -126,7 +131,7 @@ export class CardSetDialogComponent implements AfterViewInit {
         };
       })
     const result: ICardSet = {
-      cardSet: ECardSet.Custom,
+      cardSet: this.cardSetControl.value,
       cards: cardsInUse,
       unknownEstimationIndex: unknownIndex
     }
@@ -146,7 +151,11 @@ export class CardSetDialogComponent implements AfterViewInit {
     if (value) {
       const selectedSet = this.cardSets.find((set: ICardSet) => set.cardSet === value);
       if (selectedSet) {
-        this._cardValues = selectedSet.cards.map((card: ICard) => { return { selected: true, card: new Card(card) }; });
+        this._cardSelectItems = selectedSet.cards.map((card: ICard) => {
+          const wasSelected = this.params.currentCards !== null && this.params.currentCardSet === value ?
+            this.params.currentCards.findIndex((c: ICard) => c.index === card.index) >= 0 : true;
+          return { selected: wasSelected, card: new Card(card) };
+        });
       }
     }
   }

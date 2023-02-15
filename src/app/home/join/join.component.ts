@@ -2,6 +2,7 @@ import { Component, Input, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/card-set-dialog.component';
+import { ICardSetDialogParams } from '@app/@shared/components/card-set-dialog/card-set-dialog.params';
 import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-set.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { ECardSet, ICardSet } from '@shared-lib';
@@ -119,7 +120,12 @@ export class JoinComponent implements OnDestroy {
     if (this.isCreate) {
       const cardSet = this.formData.get('cardSet')?.value;
       if (cardSet === ECardSet.Custom) {
-        const dialogRef = this.matDialog.open(CardSetDialogComponent);
+        const params: ICardSetDialogParams = {
+          cardSets: [ECardSet.Cohn, ECardSet.Fibonacci, ECardSet.TShirt],
+          currentCards: null,
+          currentCardSet: null
+        }
+        const dialogRef = this.matDialog.open(CardSetDialogComponent, {data: params});
         dialogRef.afterClosed().subscribe((result: ICardSet) => {
           if (result) {
             this.sessionService.create(
