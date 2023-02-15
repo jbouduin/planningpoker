@@ -12,7 +12,6 @@ export class ChangeNickDialogComponent {
 
   //#region private properties ------------------------------------------------
   private readonly dialogRef: MatDialogRef<ChangeNickDialogComponent>;
-  private readonly formBuilder: FormBuilder;
   private readonly translateService: TranslateService;
   //#endregion
 
@@ -45,9 +44,8 @@ export class ChangeNickDialogComponent {
   //#region Constructor & C° --------------------------------------------------
   public constructor(dialogRef: MatDialogRef<ChangeNickDialogComponent>, formBuilder: FormBuilder, translateService: TranslateService) {
     this.dialogRef = dialogRef;
-    this.formBuilder = formBuilder;
     this.translateService = translateService;
-    this.formData = this.formBuilder.group({
+    this.formData = formBuilder.group({
       nick: new FormControl('', [Validators.required])
     });
   }

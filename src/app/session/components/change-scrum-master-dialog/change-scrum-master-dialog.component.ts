@@ -14,7 +14,6 @@ export class ChangeScrumMasterDialogComponent {
 
   //#region private properties ------------------------------------------------
   private readonly dialogRef: MatDialogRef<ChangeScrumMasterDialogComponent>;
-  private readonly formBuilder: FormBuilder;
   private readonly translateService: TranslateService;
   private readonly teamMembers: Array<Member>;
   //#endregion
@@ -56,10 +55,9 @@ export class ChangeScrumMasterDialogComponent {
     @Inject(MAT_DIALOG_DATA) params: Array<Member>,
     translateService: TranslateService) {
     this.dialogRef = dialogRef;
-    this.formBuilder = formBuilder;
     this.teamMembers = params;
     this.translateService = translateService;
-    this.formData = this.formBuilder.group({
+    this.formData = formBuilder.group({
       nick: new FormControl('', [Validators.required])
     });
   }
