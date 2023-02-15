@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from '@app/material.module';
-import { CardComponent } from './components/card/card.component';
 import { ChangeNickDialogComponent } from './components/change-nick-dialog/change-nick-dialog.component';
 import { ChangeScrumMasterDialogComponent } from './components/change-scrum-master-dialog/change-scrum-master-dialog.component';
 import { ContainerComponent } from './components/container/container.component';
@@ -16,6 +15,7 @@ import { ScrumMasterButtonsComponent } from './components/scrum-master-buttons/s
 import { TeamHeaderComponent } from './components/team-header/team-header.component';
 import { GameRoutingModule } from './session-routing.module';
 import { ChangeCardSetDialogComponent } from './components/change-card-set-dialog/change-card-set-dialog.component';
+import { SharedModule } from '@app/@shared';
 
 @NgModule({
   imports: [
@@ -23,10 +23,10 @@ import { ChangeCardSetDialogComponent } from './components/change-card-set-dialo
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    GameRoutingModule
+    GameRoutingModule,
+    SharedModule
   ],
   declarations: [
-    CardComponent,
     ContainerComponent,
     MemberComponent,
     MemberPanelComponent,

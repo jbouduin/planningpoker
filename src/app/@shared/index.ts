@@ -1,3 +1,5 @@
+export * from './components/card/card.component';
+export * from './components/card/card';
 export * from './components/confirmation-dialog/confirmation-dialog.component';
 export * from './components/confirmation-dialog/confirmation-dialog.params';
 export * from './components/loader/loader.component';

@@ -5,17 +5,19 @@ import { MaterialModule } from '@app/material.module';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { SnackbarComponent } from './components/snackbar/snackbar.component';
+import { CardComponent } from './components/card/card.component';
 
 @NgModule({
-    imports: [
-        MaterialModule,
-        CommonModule
-    ],
-    declarations: [
-        ConfirmationDialogComponent,
-        LoaderComponent,
-        SnackbarComponent
-    ],
-    exports: []
+  imports: [
+    MaterialModule,
+    CommonModule
+  ],
+  declarations: [
+    ConfirmationDialogComponent,
+    LoaderComponent,
+    SnackbarComponent,
+    CardComponent
+  ],
+  exports: [CardComponent]
 })
-export class SharedModule {}
+export class SharedModule { }

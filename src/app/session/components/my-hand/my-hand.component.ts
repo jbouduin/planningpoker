@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { Card } from '@app/session/objects';
+
 import { CardService } from '@app/session/services/card.service';
 import { PokerService } from '@app/session/services/poker.service';
 import { TeamService } from '@app/session/services/team.service';
+import { Card } from '@shared';
 
 @Component({
   selector: 'session-my-hand',

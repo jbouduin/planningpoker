@@ -3,10 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ECardSet, EServerMessageType, ICard, ICardSetMessage, ServerMessage } from '@shared-lib';
 
-import { ConnectionService } from '../../@shared';
+import { Card, ConnectionService } from '@shared';
 import { ChangeCardSetDialogComponent } from '../components/change-card-set-dialog/change-card-set-dialog.component';
 import { ChangeCardSetMessage } from '../messages';
-import { Card } from '../objects';
 import { TeamService } from './team.service';
 
 @Injectable({
