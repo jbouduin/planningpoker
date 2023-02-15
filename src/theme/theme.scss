@@ -1,7 +1,9 @@
 @use "@angular/material" as mat;
 @include mat.core();
 
+/* stylelint-disable */
 @import "./palette.scss";
+/* stylelint-enable */
 
 .pp-theme {
   $pp-typography: mat.define-typography-config($font-family: "Philosopher, Roboto, 'Helvetica Neue', sans-serif",
