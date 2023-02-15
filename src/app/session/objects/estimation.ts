@@ -1,4 +1,4 @@
-import { Card } from './card';
+import { Card } from '../../@shared/components/card/card';
 import { Member } from './member';
 
 export class Estimation {

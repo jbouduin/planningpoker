@@ -28,10 +28,10 @@ export class MessageService implements IMessageService {
       .forEach(participant => this.sendEstimations(participant, team.status === EPokerStatus.Revealed, team.allEstimations));
   }
 
-  public broadcastCardSet(team: ITeam, cardSet: ICardSet): void {
+  public broadcastCardSet(team: ITeam): void {
     team
       .filterMembers(participant => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.sendCardSet(participant, cardSet));
+      .forEach(participant => this.sendCardSet(participant, team.cardSet));
   }
 
   public broadcastClearEstimations(team: ITeam): void {

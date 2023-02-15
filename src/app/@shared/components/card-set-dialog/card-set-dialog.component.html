@@ -1,0 +1,28 @@
+<h1 mat-dialog-title>{{title}}</h1>
+
+<mat-dialog-content [formGroup]="formData">
+  <mat-form-field appearance="fill">
+    <mat-label>{{cardSetLabel}}</mat-label>
+    <mat-select formControlName="cardSet">
+      <mat-option *ngFor="let cardSet of cardSetValues" [value]="cardSet.set">
+        {{cardSet.label}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <div class="cards-wrapper">
+    <div *ngFor="let card of selectableCards">
+      <shared-card [card]="card.card" [enabled]="true" [isAvailableCard]="false" [mine]="card.selected" [revealed]="true"
+      (cardClicked)="cardClicked(card)"
+      ></shared-card>
+    </div>
+  </div>
+  <mat-error *ngIf="noCardsSelected">
+    {{cardSelectionError}}
+  </mat-error>
+</mat-dialog-content>
+
+<div mat-dialog-actions>
+  <button mat-button (click)="cancel()">{{cancelButtonLabel}}</button>
+  <button mat-button [mat-dialog-close]="true" [disabled]="formData.invalid || noCardsSelected"
+    (click)="save()">{{saveButtonLabel}}</button>
+</div>

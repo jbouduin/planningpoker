@@ -4,7 +4,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-change-nick-dialog',
+  selector: 'session-change-nick-dialog',
   templateUrl: './change-nick-dialog.component.html',
   styleUrls: ['./change-nick-dialog.component.scss']
 })
@@ -12,7 +12,6 @@ export class ChangeNickDialogComponent {
 
   //#region private properties ------------------------------------------------
   private readonly dialogRef: MatDialogRef<ChangeNickDialogComponent>;
-  private readonly formBuilder: FormBuilder;
   private readonly translateService: TranslateService;
   //#endregion
 
@@ -22,7 +21,7 @@ export class ChangeNickDialogComponent {
 
   //#region label getters -----------------------------------------------------
   public get cancelButtonLabel(): string {
-    return this.translateService.instant('Dialog.ButtonLabel.Cancel');
+    return this.translateService.instant('Button.Generic.Label.Cancel');
   }
 
   public get nickNameLabel(): string {
@@ -34,7 +33,7 @@ export class ChangeNickDialogComponent {
   }
 
   public get saveButtonLabel(): string {
-    return this.translateService.instant('Dialog.ButtonLabel.Save');
+    return this.translateService.instant('Button.Generic.Label.Save');
   }
 
   public get title(): string {
@@ -45,9 +44,8 @@ export class ChangeNickDialogComponent {
   //#region Constructor & C° --------------------------------------------------
   public constructor(dialogRef: MatDialogRef<ChangeNickDialogComponent>, formBuilder: FormBuilder, translateService: TranslateService) {
     this.dialogRef = dialogRef;
-    this.formBuilder = formBuilder;
     this.translateService = translateService;
-    this.formData = this.formBuilder.group({
+    this.formData = formBuilder.group({
       nick: new FormControl('', [Validators.required])
     });
   }

@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Member } from '../../objects';
 
 @Component({
-  selector: 'app-change-scrum-master-dialog',
+  selector: 'session-change-scrum-master-dialog',
   templateUrl: './change-scrum-master-dialog.component.html',
   styleUrls: ['./change-scrum-master-dialog.component.scss']
 })
@@ -14,7 +14,6 @@ export class ChangeScrumMasterDialogComponent {
 
   //#region private properties ------------------------------------------------
   private readonly dialogRef: MatDialogRef<ChangeScrumMasterDialogComponent>;
-  private readonly formBuilder: FormBuilder;
   private readonly translateService: TranslateService;
   private readonly teamMembers: Array<Member>;
   //#endregion
@@ -25,7 +24,7 @@ export class ChangeScrumMasterDialogComponent {
 
   //#region label getters -----------------------------------------------------
   public get cancelButtonLabel(): string {
-    return this.translateService.instant('Dialog.ButtonLabel.Cancel');
+    return this.translateService.instant('Button.Generic.Label.Cancel');
   }
 
   public get otherMembers(): Array<Member> {
@@ -41,7 +40,7 @@ export class ChangeScrumMasterDialogComponent {
   }
 
   public get saveButtonLabel(): string {
-    return this.translateService.instant('Dialog.ButtonLabel.Save');
+    return this.translateService.instant('Button.Generic.Label.Save');
   }
 
   public get title(): string {
@@ -56,10 +55,9 @@ export class ChangeScrumMasterDialogComponent {
     @Inject(MAT_DIALOG_DATA) params: Array<Member>,
     translateService: TranslateService) {
     this.dialogRef = dialogRef;
-    this.formBuilder = formBuilder;
     this.teamMembers = params;
     this.translateService = translateService;
-    this.formData = this.formBuilder.group({
+    this.formData = formBuilder.group({
       nick: new FormControl('', [Validators.required])
     });
   }

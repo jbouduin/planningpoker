@@ -7,7 +7,7 @@ export interface ITeam {
   readonly allEstimations: Array<Estimation>;
   readonly allMembers: Array<Participant>;
   readonly status: EPokerStatus;
-  readonly cardSet: ICardSet;
+  cardSet: ICardSet;
   readonly idleTime: number;
   teamName: string
   reveal(): void;
@@ -37,7 +37,7 @@ export class Team implements ITeam {
   }
 
   public readonly teamName: string;
-  public readonly cardSet: ICardSet;
+  public cardSet: ICardSet;
   //#endregion
 
   //#region Public getters ----------------------------------------------------

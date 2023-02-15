@@ -2,19 +2,19 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ConfirmationDialogParams } from './confirmation-dialog.params';
+import { MessageBoxParams } from './message-box.params';
 
 @Component({
-  selector: 'common-confirmation-dialog',
-  templateUrl: './confirmation-dialog.component.html',
-  styleUrls: ['./confirmation-dialog.component.scss']
+  selector: 'shared-message-box',
+  templateUrl: './message-box.component.html',
+  styleUrls: ['./message-box.component.scss']
 })
-export class ConfirmationDialogComponent implements OnInit {
+export class MessageBoxComponent implements OnInit {
 
   //#region private properties ------------------------------------------------
   private readonly translateService: TranslateService;
-  private readonly dialogRef: MatDialogRef<ConfirmationDialogComponent>;
-  private readonly params: ConfirmationDialogParams;
+  private readonly dialogRef: MatDialogRef<MessageBoxComponent>;
+  private readonly params: MessageBoxParams;
   //#endregion
 
   //#region getters -----------------------------------------------------------
@@ -42,8 +42,8 @@ export class ConfirmationDialogComponent implements OnInit {
   //#region Constructor & C° --------------------------------------------------
   constructor(
     translateService: TranslateService,
-    dialogRef: MatDialogRef<ConfirmationDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) params: ConfirmationDialogParams) {
+    dialogRef: MatDialogRef<MessageBoxComponent>,
+    @Inject(MAT_DIALOG_DATA) params: MessageBoxParams) {
     this.translateService = translateService;
     this.dialogRef = dialogRef;
     this.params = params

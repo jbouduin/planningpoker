@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { Card } from '../../objects';
+import { Card } from './card';
 
 @Component({
-  selector: 'session-card',
+  selector: 'shared-card',
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss']
 })

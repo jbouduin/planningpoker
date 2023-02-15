@@ -1,8 +1,11 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/card-set-dialog.component';
+import { ICardSetDialogParams } from '@app/@shared/components/card-set-dialog/card-set-dialog.params';
 import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-set.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { ECardSet } from '@shared-lib';
+import { ECardSet, ICardSet } from '@shared-lib';
 import { Subscription } from 'rxjs';
 import { SessionService } from '../../session/services/session.service';
 
@@ -19,10 +22,11 @@ export class JoinComponent implements OnDestroy {
 
   //#region private properties ------------------------------------------------
   private readonly cardSetService: CardSetService;
-  private readonly translateService: TranslateService;
   private readonly formBuilder: FormBuilder;
   private readonly languageChangeSubscription: Subscription;
+  private readonly matDialog: MatDialog;
   private readonly sessionService: SessionService;
+  private readonly translateService: TranslateService;
   private _cardSetValues: Array<ICardSetSelectItem>;
   //#endregion
 
@@ -74,11 +78,17 @@ export class JoinComponent implements OnDestroy {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(cardSetService: CardSetService, translateService: TranslateService, formBuilder: FormBuilder, sessionService: SessionService) {
+  public constructor(
+    cardSetService: CardSetService,
+    formBuilder: FormBuilder,
+    matDialog: MatDialog,
+    sessionService: SessionService,
+    translateService: TranslateService) {
     this.cardSetService = cardSetService;
-    this.translateService = translateService;
     this.formBuilder = formBuilder;
+    this.matDialog = matDialog;
     this.sessionService = sessionService;
+    this.translateService = translateService;
     this._cardSetValues = this.cardSetService.getCardSetSelectItems();
     this.formData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
@@ -108,11 +118,33 @@ export class JoinComponent implements OnDestroy {
 
   public submit(): void {
     if (this.isCreate) {
-      this.sessionService.create(
-        this.formData.get('team')?.value,
-        this.formData.get('nick')?.value,
-        this.observer,
-        this.formData.get('cardSet')?.value);
+      const cardSet = this.formData.get('cardSet')?.value;
+      if (cardSet === ECardSet.Custom) {
+        const params: ICardSetDialogParams = {
+          cardSets: [ECardSet.Cohn, ECardSet.Fibonacci, ECardSet.TShirt],
+          currentCards: null,
+          currentCardSet: null
+        }
+        const dialogRef = this.matDialog.open(CardSetDialogComponent, {data: params});
+        dialogRef.afterClosed().subscribe((result: ICardSet) => {
+          if (result) {
+            this.sessionService.create(
+              this.formData.get('team')?.value,
+              this.formData.get('nick')?.value,
+              this.observer,
+              this.formData.get('cardSet')?.value,
+              result
+            );
+          }
+        });
+      } else {
+        this.sessionService.create(
+          this.formData.get('team')?.value,
+          this.formData.get('nick')?.value,
+          this.observer,
+          this.formData.get('cardSet')?.value,
+          undefined);
+      }
     } else {
       this.sessionService.join(
         this.formData.get('team')?.value,

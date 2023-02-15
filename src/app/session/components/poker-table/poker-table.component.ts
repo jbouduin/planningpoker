@@ -25,7 +25,7 @@ export class PokerTableComponent {
   }
 
   public get meLabel(): string {
-    return this.translateService.instant('Game.Card.Me_label');
+    return this.translateService.instant('Label.Generic.Me');
   }
 
   public get canWithdraw(): boolean {

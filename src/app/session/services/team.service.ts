@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ConfirmationDialogComponent, ConfirmationDialogParams, ConnectionService, LocalStorageService, SnackbarService } from '@app/@shared';
+import { MessageBoxComponent, MessageBoxParams, ConnectionService, LocalStorageService, SnackbarService } from '@app/@shared';
 import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
 import { ChangeNickDialogComponent } from '../components/change-nick-dialog/change-nick-dialog.component';
 import { ChangeScrumMasterDialogComponent } from '../components/change-scrum-master-dialog/change-scrum-master-dialog.component';
@@ -170,13 +170,13 @@ export class TeamService {
 
   public leave(): void {
     if (this.me.role === ERole.ScrumMaster) {
-      const params = new ConfirmationDialogParams();
-      params.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.No');
-      params.okButtonLabel = this.translateService.instant('Dialog.ButtonLabel.Yes');
+      const params = new MessageBoxParams();
+      params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
+      params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
       params.text = this.translateService.instant('Dialog.Confirm.Text.End_Session');
       params.title = this.translateService.instant('Dialog.Confirm.Title.End_session');
 
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      const dialogRef = this.dialog.open(MessageBoxComponent, {
         width: '250px',
         data: params
       });
@@ -193,13 +193,13 @@ export class TeamService {
 
   public pause(): void {
     if (this.me.role === ERole.ScrumMaster) {
-      const params = new ConfirmationDialogParams();
+      const params = new MessageBoxParams();
       params.showCancelButton = false;
-      params.okButtonLabel = this.translateService.instant('Dialog.ButtonLabel.OK');
+      params.okButtonLabel = this.translateService.instant('Button.Generic.Label.OK');
       params.text = this.translateService.instant('Dialog.Confirm.Text.Assign_another_scrum_master_first');
       params.title = this.translateService.instant('Dialog.Confirm.Title.Assign_another_scrum_master_first');
 
-      this.dialog.open(ConfirmationDialogComponent, {
+      this.dialog.open(MessageBoxComponent, {
         width: '350px',
         data: params
       });
@@ -292,12 +292,12 @@ export class TeamService {
 
   private handleEndSession(): void {
     if (this.me.role !== ERole.ScrumMaster) {
-      const params = new ConfirmationDialogParams();
+      const params = new MessageBoxParams();
       params.showCancelButton = false;
       params.title = this.translateService.instant('Dialog.Title.Session_ended');
       params.text = this.translateService.instant('Dialog.Text.The_scrummaster_has_ended_the_session');
 
-      this.dialog.open(ConfirmationDialogComponent, {
+      this.dialog.open(MessageBoxComponent, {
         width: '250px',
         data: params
       });
@@ -305,22 +305,22 @@ export class TeamService {
   }
 
   private handleServerReset(): void {
-    const params = new ConfirmationDialogParams();
+    const params = new MessageBoxParams();
     params.showCancelButton = false;
     params.title = this.translateService.instant('Dialog.Title.Server_reset');
     params.text = this.translateService.instant('Dialog.Text.The_server_has_been_reset.');
-    this.dialog.open(ConfirmationDialogComponent, {
+    this.dialog.open(MessageBoxComponent, {
       width: '250px',
       data: params
     });
   }
 
   private handleTeamIdle(): void {
-    const params = new ConfirmationDialogParams();
+    const params = new MessageBoxParams();
     params.showCancelButton = false;
     params.title = this.translateService.instant('Dialog.Title.Team_idle');
     params.text = this.translateService.instant('Dialog.Text.The_was_idle_for_to_long.');
-    this.dialog.open(ConfirmationDialogComponent, {
+    this.dialog.open(MessageBoxComponent, {
       width: '250px',
       data: params
     });

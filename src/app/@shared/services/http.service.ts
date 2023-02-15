@@ -1,5 +1,6 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ICardSet } from '@shared-lib';
 import { catchError, map, Observable, of } from 'rxjs';
 
 interface LooseObject {
@@ -29,6 +30,17 @@ export class HttpService {
         catchError((error: HttpResponse<LooseObject>) => of(error)),
         map((response: HttpResponse<LooseObject>) => {
           return response.status == 200 && response.body?.canRejoin == true ? true : false
+        })
+      );
+  }
+
+  public getAllCardSets(): Observable<Array<ICardSet>> {
+    return this.httpClient
+      .get<Array<ICardSet>>(`/api/cardsets`, { observe: 'response', responseType: 'json' })
+      .pipe(
+        catchError((error: HttpResponse<Array<ICardSet>>) => of(error)),
+        map((response: HttpResponse<Array<ICardSet>>) => {
+          return response.body || new Array<ICardSet>()
         })
       );
   }
