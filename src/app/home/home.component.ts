@@ -1,6 +1,6 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent, ConfirmationDialogParams, HttpService, LocalStorageService } from '@app/@shared';
+import { MessageBoxComponent, MessageBoxParams, HttpService, LocalStorageService } from '@app/@shared';
 import { TranslateService } from '@ngx-translate/core';
 
 import { SessionService } from '../session/services/session.service';
@@ -44,7 +44,7 @@ export class HomeComponent implements AfterViewInit {
     if (team &&  nick && myUuid) {
       this.httpService.checkCanRejoin(team, myUuid).subscribe((exists: boolean) => {
         if (exists) {
-          const params = new ConfirmationDialogParams();
+          const params = new MessageBoxParams();
           params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
           params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
           params.text = this.translateService.instant(
@@ -55,7 +55,7 @@ export class HomeComponent implements AfterViewInit {
             });
           params.title = this.translateService.instant('Dialog.Confirm.Title.Rejoin');
 
-          const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+          const dialogRef = this.dialog.open(MessageBoxComponent, {
             width: '350px',
             data: params
           });

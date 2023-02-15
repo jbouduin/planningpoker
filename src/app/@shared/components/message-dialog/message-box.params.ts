@@ -1,6 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 
-export class ConfirmationDialogParams {
+export class MessageBoxParams {
 
   //#region Public properties -------------------------------------------------
   public showCancelButton: boolean;
