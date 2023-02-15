@@ -7,10 +7,13 @@ import { LoaderComponent } from './components/loader/loader.component';
 import { SnackbarComponent } from './components/snackbar/snackbar.component';
 import { CardComponent } from './components/card/card.component';
 import { CardSetDialogComponent } from './components/card-set-dialog/card-set-dialog.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
     MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
     CommonModule
   ],
   declarations: [

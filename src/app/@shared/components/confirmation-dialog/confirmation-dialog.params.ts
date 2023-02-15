@@ -59,11 +59,11 @@ export class ConfirmationDialogParams {
     // we have to use a class property, otherwise nxg-translate-extract doesn't extract the keys
     this.translateService = translateService;
     if (!this.translatedCancelButtonLabel) {
-      this.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.Cancel');
+      this.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.Cancel');
     }
 
     if (!this.translatedOkButtonLabel) {
-      this.okButtonLabel = this.translateService.instant('Dialog.ButtonLabel.OK');
+      this.okButtonLabel = this.translateService.instant('Button.Generic.Label.OK');
     }
 
     if (!this.translatedText) {

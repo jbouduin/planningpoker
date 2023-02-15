@@ -30,7 +30,7 @@ export class ChangeCardSetDialogComponent implements OnDestroy{
 
   //#region label getters -----------------------------------------------------
   public get cancelButtonLabel(): string {
-    return this.translateService.instant('Dialog.ButtonLabel.Cancel');
+    return this.translateService.instant('Button.Generic.Label.Cancel');
   }
 
   public get cardSetValues(): Array<ICardSetSelectItem> {
@@ -46,7 +46,7 @@ export class ChangeCardSetDialogComponent implements OnDestroy{
   }
 
   public get saveButtonLabel(): string {
-    return this.translateService.instant('Dialog.ButtonLabel.Save');
+    return this.translateService.instant('Button.Generic.Label.Save');
   }
 
   public get title(): string {

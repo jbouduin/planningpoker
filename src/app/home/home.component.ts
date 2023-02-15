@@ -45,8 +45,8 @@ export class HomeComponent implements AfterViewInit {
       this.httpService.checkCanRejoin(team, myUuid).subscribe((exists: boolean) => {
         if (exists) {
           const params = new ConfirmationDialogParams();
-          params.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.No');
-          params.okButtonLabel = this.translateService.instant('Dialog.ButtonLabel.Yes');
+          params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
+          params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
           params.text = this.translateService.instant(
             'Home.Component.Question.Rejoin_$team_as_$nick',
             {

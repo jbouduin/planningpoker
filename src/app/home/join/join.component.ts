@@ -119,7 +119,7 @@ export class JoinComponent implements OnDestroy {
     if (this.isCreate) {
       const cardSet = this.formData.get('cardSet')?.value;
       if (cardSet === ECardSet.Custom) {
-        const dialogRef = this.matDialog.open(CardSetDialogComponent, { width: '350px' });
+        const dialogRef = this.matDialog.open(CardSetDialogComponent);
         dialogRef.afterClosed().subscribe((result: string) => {
           if (result) {
             this.sessionService.create(

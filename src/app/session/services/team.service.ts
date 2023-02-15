@@ -171,8 +171,8 @@ export class TeamService {
   public leave(): void {
     if (this.me.role === ERole.ScrumMaster) {
       const params = new ConfirmationDialogParams();
-      params.cancelButtonLabel = this.translateService.instant('Dialog.ButtonLabel.No');
-      params.okButtonLabel = this.translateService.instant('Dialog.ButtonLabel.Yes');
+      params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
+      params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
       params.text = this.translateService.instant('Dialog.Confirm.Text.End_Session');
       params.title = this.translateService.instant('Dialog.Confirm.Title.End_session');
 
@@ -195,7 +195,7 @@ export class TeamService {
     if (this.me.role === ERole.ScrumMaster) {
       const params = new ConfirmationDialogParams();
       params.showCancelButton = false;
-      params.okButtonLabel = this.translateService.instant('Dialog.ButtonLabel.OK');
+      params.okButtonLabel = this.translateService.instant('Button.Generic.Label.OK');
       params.text = this.translateService.instant('Dialog.Confirm.Text.Assign_another_scrum_master_first');
       params.title = this.translateService.instant('Dialog.Confirm.Title.Assign_another_scrum_master_first');
 
