@@ -1,12 +1,21 @@
 .container {
   text-align: center;
   padding: 1em;
+  display: flex;
+  flex-direction: column;
 }
 
 .logo {
   width: 25%;
   min-width: 130px;
   margin: 0 auto;
+}
+
+.join-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .card-wrapper {
