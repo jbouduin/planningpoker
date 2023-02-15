@@ -101,7 +101,9 @@ export class CardSetDialogComponent implements AfterViewInit {
 
   //#region UI triggers -------------------------------------------------------
   public cardClicked(card: ICardSelectItem) {
-    card.selected = !card.selected;
+    if (!card.card.isUnknownEstimation) {
+      card.selected = !card.selected;
+    }
   }
 
   public cancel(): void {
@@ -109,7 +111,26 @@ export class CardSetDialogComponent implements AfterViewInit {
   }
 
   public save(): void {
-    this.dialogRef.close('OK');
+    let unknownIndex = -1;
+    const cardsInUse = this._cardValues
+      .filter((card: ICardSelectItem) => card.selected)
+      .map((card: ICardSelectItem) => {
+        if (card.card.isUnknownEstimation) {
+          unknownIndex = card.card.index;
+        }
+        return {
+          index: card.card.index,
+          label: card.card.label,
+          isIcon: card.card.isIcon,
+          isUnknownEstimation: card.card.isUnknownEstimation
+        };
+      })
+    const result: ICardSet = {
+      cardSet: ECardSet.Custom,
+      cards: cardsInUse,
+      unknownEstimationIndex: unknownIndex
+    }
+    this.dialogRef.close(result);
   }
 
   public getErrorMessage(name: string): string | undefined {

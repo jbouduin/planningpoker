@@ -51,7 +51,7 @@ export class SnackbarService {
       SnackbarComponent,
       {
         data: params,
-        duration: 500000
+        duration: 5000
       });
     this.current.afterDismissed().subscribe( () => {
       this.current = undefined;

@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/card-set-dialog.component';
 import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-set.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { ECardSet } from '@shared-lib';
+import { ECardSet, ICardSet } from '@shared-lib';
 import { Subscription } from 'rxjs';
 import { SessionService } from '../../session/services/session.service';
 
@@ -120,13 +120,15 @@ export class JoinComponent implements OnDestroy {
       const cardSet = this.formData.get('cardSet')?.value;
       if (cardSet === ECardSet.Custom) {
         const dialogRef = this.matDialog.open(CardSetDialogComponent);
-        dialogRef.afterClosed().subscribe((result: string) => {
+        dialogRef.afterClosed().subscribe((result: ICardSet) => {
           if (result) {
             this.sessionService.create(
               this.formData.get('team')?.value,
               this.formData.get('nick')?.value,
               this.observer,
-              this.formData.get('cardSet')?.value);
+              this.formData.get('cardSet')?.value,
+              result
+            );
           }
         });
       } else {
@@ -134,7 +136,8 @@ export class JoinComponent implements OnDestroy {
           this.formData.get('team')?.value,
           this.formData.get('nick')?.value,
           this.observer,
-          this.formData.get('cardSet')?.value);
+          this.formData.get('cardSet')?.value,
+          undefined);
       }
     } else {
       this.sessionService.join(

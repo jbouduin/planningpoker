@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { ClientMessage, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
+import { ClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IMessageService } from "../interfaces";
@@ -239,7 +239,11 @@ export class HandlerService {
 
   private handleCreate(sender: Participant, message: ICreatemessage): void {
     console.log(`Create: '${sender.nick}' is creating '${message.data.team}'`);
-    const newGame = this.storage.createTeam(message.data.team, this.cardService.getCardSet(message.data.cardSet));
+    const newGame = this.storage.createTeam(
+      message.data.team,
+      message.data.cardSet === ECardSet.Custom ?
+        message.data.cards || this.cardService.getCardSet(ECardSet.Cohn) :
+        this.cardService.getCardSet(message.data.cardSet));
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
     sender.role = ERole.ScrumMaster;
