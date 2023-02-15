@@ -29,19 +29,23 @@ export class CardSetService {
       sets = [
         ECardSet.Cohn,
         ECardSet.Fibonacci,
-        ECardSet.TShirt
+        ECardSet.TShirt,
+        ECardSet.Custom
       ]
     }
     // TODO 2343 change this if marker works again
     const result: Array<ICardSetSelectItem> = new Array<ICardSetSelectItem>();
     if (sets.indexOf(ECardSet.Cohn) >= 0) {
-      result.push({ set: ECardSet.Cohn, label: this.translateService.instant('Home.Component.SelectItem.Cohn') });
+      result.push({ set: ECardSet.Cohn, label: this.translateService.instant('CardSet.SelectItem.Cohn') });
     }
     if (sets.indexOf(ECardSet.Fibonacci) >= 0) {
-      result.push({ set: ECardSet.Fibonacci, label: this.translateService.instant('Home.Component.SelectItem.Fibonacci') });
+      result.push({ set: ECardSet.Fibonacci, label: this.translateService.instant('CardSet.SelectItem.Fibonacci') });
     }
     if (sets.indexOf(ECardSet.TShirt) >= 0) {
-      result.push({ set: ECardSet.TShirt, label: this.translateService.instant('Home.Component.SelectItem.TShirt') });
+      result.push({ set: ECardSet.TShirt, label: this.translateService.instant('CardSet.SelectItem.TShirt') });
+    }
+    if (sets.indexOf(ECardSet.Custom) >= 0) {
+      result.push({ set: ECardSet.Custom, label: this.translateService.instant('CardSet.SelectItem.Custom') });
     }
     return result;
   }

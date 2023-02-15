@@ -6,6 +6,7 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog/co
 import { LoaderComponent } from './components/loader/loader.component';
 import { SnackbarComponent } from './components/snackbar/snackbar.component';
 import { CardComponent } from './components/card/card.component';
+import { CardSetDialogComponent } from './components/card-set-dialog/card-set-dialog.component';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { CardComponent } from './components/card/card.component';
     ConfirmationDialogComponent,
     LoaderComponent,
     SnackbarComponent,
-    CardComponent
+    CardComponent,
+    CardSetDialogComponent
   ],
   exports: [CardComponent]
 })
