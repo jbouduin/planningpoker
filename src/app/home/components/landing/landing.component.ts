@@ -4,6 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { MessageBoxComponent, MessageBoxParams, HttpService, LocalStorageService } from '@app/@shared';
 import { SessionService } from '../../../session/services/session.service';
+import { ActivatedRoute, Params } from '@angular/router';
 
 @Component({
   selector: 'home-landing',
@@ -18,6 +19,13 @@ export class LandingComponent implements AfterViewInit {
   private readonly localStorageService: LocalStorageService;
   private readonly sessionService: SessionService;
   private readonly translateService: TranslateService;
+  public teamParam?: string;
+  //#endregion
+
+  //#region public properties -------------------------------------------------
+  public get showCreate(): boolean {
+    return this.teamParam === undefined;
+  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -25,11 +33,17 @@ export class LandingComponent implements AfterViewInit {
     dialog: MatDialog,
     httpService: HttpService,
     localStorageService: LocalStorageService,
-    translateService: TranslateService,
-    sessionService: SessionService) {
+    route: ActivatedRoute,
+    sessionService: SessionService,
+    translateService: TranslateService) {
     this.dialog = dialog;
     this.httpService = httpService;
-    this.localStorageService = localStorageService
+    this.localStorageService = localStorageService;
+    route.queryParams.subscribe((params: Params) => {
+      if (params.team) {
+        this.teamParam = params.team;
+      }
+    }).unsubscribe();
     this.sessionService = sessionService;
     this.translateService = translateService;
   }
