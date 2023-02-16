@@ -62,12 +62,12 @@ export class LandingComponent implements AfterViewInit {
           params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
           params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
           params.text = this.translateService.instant(
-            'Home.Component.Question.Rejoin_$team_as_$nick',
+            'MessageBox.Rejoin_$team_as_$nick.Text',
             {
               team: team,
               nick: nick
             });
-          params.title = this.translateService.instant('Dialog.Confirm.Title.Rejoin');
+          params.title = this.translateService.instant('MessageBox.Rejoin_$team_as_$nick.Title');
 
           const dialogRef = this.dialog.open(MessageBoxComponent, {
             width: '350px',

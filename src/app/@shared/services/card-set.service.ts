@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
+import { enumMarker } from '@app/@core/marker';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ECardSet } from '@shared-lib';
+// required because of ngx-translate-extract
+import { ECardSet } from '../../../../projects/shared-lib/lib/interfaces/card-set.enum';
 
 export interface ICardSetSelectItem {
   set: ECardSet;
@@ -15,11 +17,13 @@ export class CardSetService {
 
   //#region private properties ------------------------------------------------
   private readonly translateService: TranslateService;
+  private readonly cardSetPrefix: string;
   //#endregion
 
   //#region Constructor -------------------------------------------------------
   constructor(translateService: TranslateService) {
     this.translateService = translateService;
+    this.cardSetPrefix = enumMarker("CardSet.DisplayName.", ECardSet);
   }
   //#endregion
 
@@ -33,21 +37,12 @@ export class CardSetService {
         ECardSet.Custom
       ]
     }
-    // TODO 2343 change this if marker works again
-    const result: Array<ICardSetSelectItem> = new Array<ICardSetSelectItem>();
-    if (sets.indexOf(ECardSet.Cohn) >= 0) {
-      result.push({ set: ECardSet.Cohn, label: this.translateService.instant('CardSet.SelectItem.Cohn') });
-    }
-    if (sets.indexOf(ECardSet.Fibonacci) >= 0) {
-      result.push({ set: ECardSet.Fibonacci, label: this.translateService.instant('CardSet.SelectItem.Fibonacci') });
-    }
-    if (sets.indexOf(ECardSet.TShirt) >= 0) {
-      result.push({ set: ECardSet.TShirt, label: this.translateService.instant('CardSet.SelectItem.TShirt') });
-    }
-    if (sets.indexOf(ECardSet.Custom) >= 0) {
-      result.push({ set: ECardSet.Custom, label: this.translateService.instant('CardSet.SelectItem.Custom') });
-    }
-    return result;
+    return sets.map((set: ECardSet) => {
+      return {
+        set: set,
+        label: this.translateService.instant(`${this.cardSetPrefix}${ECardSet[set]}`)
+      };
+    });
   }
   //#endregion
 }

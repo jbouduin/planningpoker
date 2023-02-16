@@ -23,19 +23,19 @@ export class ScrumMasterButtonsComponent {
 
   //#region getters -----------------------------------------------------------
   public get changeCardSetButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Change-card-set');
+    return this.translateService.instant('ScrumMasterButtons.Component.Button.ChangeCardSet.Label');
   }
 
   public get revealButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
+    return this.translateService.instant('ScrumMasterButtons.Component.Button.Reveal.Label');
   }
 
   public get forceRevealButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.ForceReveal');
+    return this.translateService.instant('ScrumMasterButtons.Component.Button.ForceReveal.Label');
   }
 
   public get startButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Start');
+    return this.translateService.instant('ScrumMasterButtons.Component.Button.Start.Label');
   }
 
   public get disableReveal(): boolean {

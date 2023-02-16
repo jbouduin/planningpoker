@@ -15,7 +15,7 @@
     "test:ci": "npm run lint -s && ng test --configuration=ci",
     "e2e": "ng e2e",
     "generate": "ng generate",
-    "translations": "npm run translations:extract:template && npm run translations:extract:us && npm run translations:extract:de",
+    "translations": "cd C:/temp/ngx-translate-extract-master && npm run extract-pp",
     "translations:extract:template": "ngx-translate-extract -i './src' --output './src/translations/template.json' -f=json --clean -s --marker extract",
     "translations:extract:us": "ngx-translate-extract -i './src' --output './src/translations/en-US.json' -f=json --clean -s --marker extract",
     "translations:extract:de": "ngx-translate-extract -i './src' --output './src/translations/de-DE.json' -f=json --clean -s --marker extract",

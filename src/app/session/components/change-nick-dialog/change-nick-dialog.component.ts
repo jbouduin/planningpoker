@@ -25,11 +25,11 @@ export class ChangeNickDialogComponent {
   }
 
   public get nickNameLabel(): string {
-    return this.translateService.instant('Home.Component.InputLabel.NickName');
+    return this.translateService.instant('Component.Input.Nick.Label');
   }
 
   public get nickNamePlaceHolder(): string {
-    return this.translateService.instant('Home.Component.InputPlaceholder.NickName');
+    return this.translateService.instant('Component.Input.Nick.PlaceHolder');
   }
 
   public get saveButtonLabel(): string {
@@ -37,7 +37,7 @@ export class ChangeNickDialogComponent {
   }
 
   public get title(): string {
-    return this.translateService.instant('Dialog.Change-nick.Title');
+    return this.translateService.instant('ChangeNickDialog.Component.Title');
   }
   //#endregion
 
@@ -63,7 +63,7 @@ export class ChangeNickDialogComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return this.translateService.instant('Input.Error.Mandatory');
+      return this.translateService.instant('Component.Error.Mandatory');
     }
     return undefined;
   }

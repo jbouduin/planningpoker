@@ -67,11 +67,11 @@ export class MessageBoxParams {
     }
 
     if (!this.translatedText) {
-      this.text = this.translateService.instant('Dialog.Text.Confirm.Are_you_sure');
+      this.text = this.translateService.instant('MessageBox.Generic_confirmation.Text');
     }
 
     if (!this.translatedText) {
-      this.text = this.translateService.instant('Dialog.Text.Title.Confirm.Confirm');
+      this.text = this.translateService.instant('MessageBox.Generic_confirmation.Title');
     }
   }
   //#endregion

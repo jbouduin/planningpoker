@@ -32,11 +32,11 @@ export class ChangeScrumMasterDialogComponent {
   }
 
   public get scrumMasterLabel(): string {
-    return this.translateService.instant('Dialog.Change-ScrumMaster.InputLabel.ScrumMaster');
+    return this.translateService.instant('ChangeScrumMasterDialog.Select.ScrumMaster.Label');
   }
 
   public get scrumMasterPlaceHolder(): string {
-    return this.translateService.instant('Dialog.Change-ScrumMaster.Placeholder.ScrumMaster');
+    return this.translateService.instant('ChangeScrumMasterDialog.Select.ScrumMaster.PlaceHolder');
   }
 
   public get saveButtonLabel(): string {
@@ -44,7 +44,7 @@ export class ChangeScrumMasterDialogComponent {
   }
 
   public get title(): string {
-    return this.translateService.instant('Dialog.Change-ScrumMaster.Title');
+    return this.translateService.instant('ChangeScrumMasterDialog.Component.Title');
   }
   //#endregion
 
@@ -75,7 +75,7 @@ export class ChangeScrumMasterDialogComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return this.translateService.instant('Input.Error.Mandatory');
+      return this.translateService.instant('Component.Error.Mandatory');
     }
     return undefined;
   }

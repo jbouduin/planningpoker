@@ -94,8 +94,8 @@ export class TeamService {
     const params = new MessageBoxParams();
     params.showCancelButton = false;
     params.okButtonLabel = this.translateService.instant('Button.Generic.Label.OK');
-    params.text = this.translateService.instant('MessageBox.Text.Link_to_team_is_copied_to_clipboard');
-    params.title = this.translateService.instant('MessageBox.Title.Link_to_team_is_copied_to_clipboard');
+    params.text = this.translateService.instant('MessageBox.Link_to_team_is_copied_to_clipboard.Text');
+    params.title = this.translateService.instant('MessageBox.Link_to_team_is_copied_to_clipboard.Title');
 
     this.dialog.open(MessageBoxComponent, {
       width: '350px',
@@ -189,8 +189,8 @@ export class TeamService {
       const params = new MessageBoxParams();
       params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
       params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
-      params.text = this.translateService.instant('Dialog.Confirm.Text.End_Session');
-      params.title = this.translateService.instant('Dialog.Confirm.Title.End_session');
+      params.text = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Text');
+      params.title = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Title');
 
       const dialogRef = this.dialog.open(MessageBoxComponent, {
         width: '250px',
@@ -212,8 +212,8 @@ export class TeamService {
       const params = new MessageBoxParams();
       params.showCancelButton = false;
       params.okButtonLabel = this.translateService.instant('Button.Generic.Label.OK');
-      params.text = this.translateService.instant('Dialog.Confirm.Text.Assign_another_scrum_master_first');
-      params.title = this.translateService.instant('Dialog.Confirm.Title.Assign_another_scrum_master_first');
+      params.text = this.translateService.instant('MessageBox.Assign_another_scrum_master_first.Text');
+      params.title = this.translateService.instant('MessageBox.Assign_another_scrum_master_first.Title');
 
       this.dialog.open(MessageBoxComponent, {
         width: '350px',
@@ -310,8 +310,8 @@ export class TeamService {
     if (this.me.role !== ERole.ScrumMaster) {
       const params = new MessageBoxParams();
       params.showCancelButton = false;
-      params.title = this.translateService.instant('Dialog.Title.Session_ended');
-      params.text = this.translateService.instant('Dialog.Text.The_scrummaster_has_ended_the_session');
+      params.title = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Title');
+      params.text = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Text');
 
       this.dialog.open(MessageBoxComponent, {
         width: '250px',
@@ -323,8 +323,8 @@ export class TeamService {
   private handleServerReset(): void {
     const params = new MessageBoxParams();
     params.showCancelButton = false;
-    params.title = this.translateService.instant('Dialog.Title.Server_reset');
-    params.text = this.translateService.instant('Dialog.Text.The_server_has_been_reset.');
+    params.title = this.translateService.instant('MessageBox.The_server_has_been_reset.Title');
+    params.text = this.translateService.instant('MessageBox.The_server_has_been_reset.Text');
     this.dialog.open(MessageBoxComponent, {
       width: '250px',
       data: params
@@ -334,8 +334,8 @@ export class TeamService {
   private handleTeamIdle(): void {
     const params = new MessageBoxParams();
     params.showCancelButton = false;
-    params.title = this.translateService.instant('Dialog.Title.Team_idle');
-    params.text = this.translateService.instant('Dialog.Text.The_was_idle_for_to_long.');
+    params.title = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Title');
+    params.text = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Text');
     this.dialog.open(MessageBoxComponent, {
       width: '250px',
       data: params
