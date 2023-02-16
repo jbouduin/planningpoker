@@ -1,12 +1,12 @@
-<div class="container">
+<div class="content-container">
   <mat-card appearance="outlined">
     <mat-card-content>
-      <div [innerHTML]="content | markdown"></div>
+      <div [innerHTML]="content[0] | markdown"></div>
     </mat-card-content>
   </mat-card>
   <mat-card appearance="outlined">
     <mat-card-content>
-      <div [innerHTML]="content | markdown"></div>
+      <div [innerHTML]="content[1] | markdown"></div>
     </mat-card-content>
   </mat-card>
 </div>

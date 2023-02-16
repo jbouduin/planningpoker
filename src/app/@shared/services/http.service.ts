@@ -13,16 +13,17 @@ interface LooseObject {
 export class HttpService {
 
   //#region private readonly properties ---------------------------------------
-  private readonly content: Subject<string>;
+  private readonly content: Subject<[number, string]>;
   private readonly httpClient: HttpClient;
-  private _currentPath: string | undefined;
+  private _currentPath: [number, string] | undefined;
   //#endregion
 
+  public getContent: Observable<[number, string]>;
   //#region Constructor & C° --------------------------------------------------
   public constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
     this._currentPath = undefined;
-    this.content = new Subject<string>();
+    this.content = new Subject<[number, string]>();
     this.getContent = from(this.content);
   }
   //#endregion
@@ -50,21 +51,21 @@ export class HttpService {
       );
   }
 
-  public set currentPath(value: string) {
+  public set currentPath(value: [number, string]) {
     this._currentPath = value;
-    this.loadContent();
+    this.loadContent(value);
   }
-  public getContent: Observable<string>;
+
 
   //#endregion
 
   //#region public methods ----------------------------------------------------
-  private loadContent(): void {
+  private loadContent(value: [number, string]): void {
     if (this._currentPath) {
       this.httpClient
-        .get(`assets/${this._currentPath}`,{ responseType: 'text'})
+        .get(`assets/${value[1]}`,{ responseType: 'text'})
         // .get<unknown>(`/api/site/page?content=${this._currentPath}`)
-        .subscribe((content) => this.content.next(content));
+        .subscribe((content) => this.content.next([value[0], content]));
     }
   }
   //#endregion

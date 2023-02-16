@@ -7,7 +7,7 @@ import { marked } from 'marked'
 export class MarkdownPipe implements PipeTransform {
 
   //#region PipeTransform interface methods -----------------------------------
-  public transform(value: unknown, ...args: unknown[]): unknown {
+  public transform(value: unknown, ..._args: unknown[]): unknown {
     if (typeof value === 'string') {
       return this.afterParse(marked(value, { gfm: true, smartLists: true, mangle: true }));
     }

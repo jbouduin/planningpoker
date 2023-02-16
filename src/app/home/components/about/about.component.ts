@@ -1,9 +1,9 @@
 import { Component, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Data, NavigationEnd, Router } from '@angular/router';
-import { untilDestroyed } from '@app/@core';
+import { ActivatedRoute, Data } from '@angular/router';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
+
 import { HttpService } from '@app/@shared';
-import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
-import { filter, map, merge, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'home-about',
@@ -15,17 +15,17 @@ export class AboutComponent implements OnDestroy{
   //#region private properties -----------------------------------------------
   private readonly langChangeSubscription: Subscription;
   private readonly routerSubscription: Subscription;
+  private readonly httpServiceSubscription: Subscription;
   private readonly httpService: HttpService;
   private currentContent: string;
   private currentLang: string;
-  private _content: string;
+  private _content: Array<string>;
   //#endregion
 
   //#region Public getter properties ------------------------------------------
-  public get content(): string {
+  public get content(): Array<string> {
     return this._content;
   }
-
   //#endregion
 
   //#region Constructor &C° ---------------------------------------------------
@@ -35,13 +35,17 @@ export class AboutComponent implements OnDestroy{
     translateService: TranslateService) {
     this.httpService = httpService;
     this.currentContent = '';
-    this._content = '';
+    this._content = new Array<string>;
     this.currentLang = translateService.currentLang;
     this.langChangeSubscription = translateService.onLangChange
       .subscribe((value: LangChangeEvent) => this.processSubscriptions(value.lang, this.currentContent));
     this.routerSubscription = activatedRoute.data
       .subscribe((data: Data) => this.processSubscriptions(this.currentLang, data.content));
-    this.httpService.getContent.subscribe((content: string) => this._content = content);
+    this.httpServiceSubscription = this.httpService.getContent
+      .subscribe((response: [number, string]) => {
+        console.log(response)
+        this._content[response[0]] = response[1];
+      });
   }
 
   public ngOnDestroy(): void {
@@ -52,6 +56,10 @@ export class AboutComponent implements OnDestroy{
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }
+
+    if (this.httpServiceSubscription) {
+      this.httpServiceSubscription.unsubscribe();
+    }
   }
   //#endregion
 
@@ -60,8 +68,16 @@ export class AboutComponent implements OnDestroy{
     if (lang !== this.currentLang || url !== this.currentContent) {
       this.currentLang = lang;
       this.currentContent = url;
+      this._content.splice(0);
 
-      this.httpService.currentPath = `${this.currentLang}/${this.currentContent === 'privacy' ? 'privacy-policy.md' : 'imprint.md'}`
+      if (this.currentContent == 'privacy') {
+        this.httpService.currentPath = [0, `${this.currentLang}/privacy-policy.md`];
+        this.httpService.currentPath = [1, `${this.currentLang}/cookies.md`];
+      } else if (this.currentContent == 'legal') {
+        this.httpService.currentPath = [0, `${this.currentLang}/imprint.md`];
+        this.httpService.currentPath = [1, `${this.currentLang}/caveat.md`];
+      }
+
       console.log(`${this.currentLang} ${this.currentContent}`);
     }
   }
