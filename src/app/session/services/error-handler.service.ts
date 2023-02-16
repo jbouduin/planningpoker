@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
+import { enumMarker } from '@app/@core/marker';
 import { SnackbarService } from '@app/@shared';
 import { TranslateService } from '@ngx-translate/core';
-import { EErrorCode, IErrorMessage, ServerMessage } from '@shared-lib';
+import { IErrorMessage, ServerMessage } from '@shared-lib';
+
+// required because of ngx-translate-extract
+import { EErrorCode } from '../../../../projects/shared-lib/lib/messages/error-code.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -11,21 +15,23 @@ export class ErrorHandlerService {
   //#region private properties ------------------------------------------------
   private readonly snackbarService: SnackbarService;
   private readonly translateService: TranslateService;
+  private readonly errorCodePrefix: string;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   constructor(snackbarService: SnackbarService, translateService: TranslateService) {
     this.snackbarService = snackbarService;
     this.translateService = translateService;
+    this.errorCodePrefix = enumMarker("ErrorCode.Message.", EErrorCode);
   }
   //#endregion
 
   //#region public methods ----------------------------------------------------
+
   public handleErrorMessage(message: ServerMessage): boolean {
     const code = (<IErrorMessage>message).data.code;
     this.snackbarService.showError(
-      // TODO 2343 ngx-translate-extract-marker does not work anymore
-      this.translateService.instant(`ErrorCode.${EErrorCode[code]}`)
+      this.translateService.instant(`${this.errorCodePrefix}${EErrorCode[code]}`)
     );
 
     const result =
