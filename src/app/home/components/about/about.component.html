@@ -1,11 +1,12 @@
 <div class="container">
   <mat-card appearance="outlined">
-    <h1>
-      <mat-card-title>{{applicationName}}</mat-card-title>
-    </h1>
     <mat-card-content>
-      <mat-icon>code</mat-icon>
-      <span>{{versionLabel}}</span> {{ version }}
+      <div [innerHTML]="content | markdown"></div>
+    </mat-card-content>
+  </mat-card>
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <div [innerHTML]="content | markdown"></div>
     </mat-card-content>
   </mat-card>
 </div>
