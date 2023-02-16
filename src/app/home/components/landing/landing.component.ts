@@ -1,16 +1,17 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MessageBoxComponent, MessageBoxParams, HttpService, LocalStorageService } from '@app/@shared';
 import { TranslateService } from '@ngx-translate/core';
 
-import { SessionService } from '../session/services/session.service';
+import { MessageBoxComponent, MessageBoxParams, HttpService, LocalStorageService } from '@app/@shared';
+import { SessionService } from '../../../session/services/session.service';
+import { ActivatedRoute, Params } from '@angular/router';
 
 @Component({
-  selector: 'home-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  selector: 'home-landing',
+  templateUrl: './landing.component.html',
+  styleUrls: ['./landing.component.scss']
 })
-export class HomeComponent implements AfterViewInit {
+export class LandingComponent implements AfterViewInit {
 
   //#region private properties ------------------------------------------------
   private readonly dialog: MatDialog;
@@ -18,6 +19,13 @@ export class HomeComponent implements AfterViewInit {
   private readonly localStorageService: LocalStorageService;
   private readonly sessionService: SessionService;
   private readonly translateService: TranslateService;
+  public teamParam?: string;
+  //#endregion
+
+  //#region public properties -------------------------------------------------
+  public get showCreate(): boolean {
+    return this.teamParam === undefined;
+  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -25,11 +33,17 @@ export class HomeComponent implements AfterViewInit {
     dialog: MatDialog,
     httpService: HttpService,
     localStorageService: LocalStorageService,
-    translateService: TranslateService,
-    sessionService: SessionService) {
+    route: ActivatedRoute,
+    sessionService: SessionService,
+    translateService: TranslateService) {
     this.dialog = dialog;
     this.httpService = httpService;
-    this.localStorageService = localStorageService
+    this.localStorageService = localStorageService;
+    route.queryParams.subscribe((params: Params) => {
+      if (params.team) {
+        this.teamParam = params.team;
+      }
+    }).unsubscribe();
     this.sessionService = sessionService;
     this.translateService = translateService;
   }

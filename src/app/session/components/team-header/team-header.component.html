@@ -1,7 +1,15 @@
 <mat-card>
   <div class="mat-card-inner-container">
     <mat-card-title>
-      {{teamName}}
+      <div class="title-container">
+      <span class="team-name-span">
+        {{teamName}}
+      </span>
+      <button mat-icon-button (click)="shareTeamClick()">
+        <mat-icon>share</mat-icon>
+      </button>
+
+      </div>
     </mat-card-title>
   </div>
 </mat-card>

@@ -1,23 +1,26 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
+
+import { ECardSet, ICardSet } from '@shared-lib';
+
 import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/card-set-dialog.component';
 import { ICardSetDialogParams } from '@app/@shared/components/card-set-dialog/card-set-dialog.params';
 import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-set.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { ECardSet, ICardSet } from '@shared-lib';
-import { Subscription } from 'rxjs';
-import { SessionService } from '../../session/services/session.service';
+import { SessionService } from '../../../session/services/session.service';
 
 @Component({
   selector: 'home-join',
   templateUrl: './join.component.html',
   styleUrls: ['./join.component.scss']
 })
-export class JoinComponent implements OnDestroy {
+export class JoinComponent implements OnInit, OnDestroy {
 
   //#region @Input ------------------------------------------------------------
   @Input() public isCreate!: boolean;
+  @Input() public teamParam?: string;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -100,9 +103,15 @@ export class JoinComponent implements OnDestroy {
     this.observer = false;
   }
 
-  public ngOnDestroy() {
+  public ngOnDestroy(): void {
     if (this.languageChangeSubscription) {
       this.languageChangeSubscription.unsubscribe();
+    }
+  }
+
+  public ngOnInit(): void {
+    if (this.teamParam) {
+      this.formData.get('team')?.patchValue(this.teamParam);
     }
   }
   //#endregion
@@ -125,7 +134,7 @@ export class JoinComponent implements OnDestroy {
           currentCards: null,
           currentCardSet: null
         }
-        const dialogRef = this.matDialog.open(CardSetDialogComponent, {data: params});
+        const dialogRef = this.matDialog.open(CardSetDialogComponent, { data: params });
         dialogRef.afterClosed().subscribe((result: ICardSet) => {
           if (result) {
             this.sessionService.create(
@@ -152,9 +161,5 @@ export class JoinComponent implements OnDestroy {
         this.observer);
     }
   }
-  //#endregion
-
-  //#region private methods ---------------------------------------------------
-
   //#endregion
 }

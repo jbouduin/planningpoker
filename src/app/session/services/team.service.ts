@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 import { MessageBoxComponent, MessageBoxParams, ConnectionService, LocalStorageService, SnackbarService } from '@app/@shared';
 import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
@@ -11,6 +12,7 @@ import { ChangeScrumMasterMessage } from '../messages/change-scrum-master.messag
 import { ObserveMessage } from '../messages/observe-message';
 import { PauseMessage } from '../messages/pause.message';
 import { Member } from '../objects';
+import { environment } from '@env/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +20,7 @@ import { Member } from '../objects';
 export class TeamService {
 
   //#region private methods ---------------------------------------------------
+  private readonly clipboard: Clipboard;
   private readonly connectionService: ConnectionService;
   private readonly dialog: MatDialog;
   private readonly localStorageService: LocalStorageService;
@@ -67,18 +70,18 @@ export class TeamService {
 
   //#region Constructor & C° --------------------------------------------------
   constructor(
+    clipboard: Clipboard,
     connectionService: ConnectionService,
     dialog: MatDialog,
     localStorageService: LocalStorageService,
     snackbarService: SnackbarService,
     translateService: TranslateService) {
-
+    this.clipboard = clipboard;
     this.connectionService = connectionService;
     this.dialog = dialog;
     this.localStorageService = localStorageService;
     this.snackbarService = snackbarService;
     this.translateService = translateService;
-
     this.allMembers = new Map<string, Member>();
     this.teamName = '';
     this._me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, uuid: '' }, true);
@@ -86,6 +89,19 @@ export class TeamService {
   //#endregion
 
   //#region public methods ----------------------------------------------------
+  public copyTeamLinkToClipBoard(): void {
+    this.clipboard.copy(`${environment.host}/home?team=${this.teamName}`);
+    const params = new MessageBoxParams();
+    params.showCancelButton = false;
+    params.okButtonLabel = this.translateService.instant('Button.Generic.Label.OK');
+    params.text = this.translateService.instant('MessageBox.Text.Link_to_team_is_copied_to_clipboard');
+    params.title = this.translateService.instant('MessageBox.Title.Link_to_team_is_copied_to_clipboard');
+
+    this.dialog.open(MessageBoxComponent, {
+      width: '350px',
+      data: params
+    });
+  }
   public changeNick(): void {
     const dialogRef = this.dialog.open(ChangeNickDialogComponent, {
       width: '350px'

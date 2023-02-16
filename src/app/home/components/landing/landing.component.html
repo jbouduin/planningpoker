@@ -3,11 +3,11 @@
     <img class="logo" src="assets/logo_text_bottom_512x512.png" alt="logo" />
   </div>
   <div class="join-wrapper">
-    <div class="card-wrapper">
+    <div *ngIf="showCreate" class="card-wrapper">
       <home-join [isCreate]="true"></home-join>
     </div>
     <div class="card-wrapper">
-      <home-join [isCreate]="false"></home-join>
+      <home-join [isCreate]="false" [teamParam]="teamParam"></home-join>
     </div>
   </div>
 </div>
