@@ -56,7 +56,7 @@ export class ConnectionService {
     rejoinCallBack: () => void): Subject<AMessage> {
 
     this.rejoinCallBack = rejoinCallBack;
-    const url = `ws://${environment.ws}/game/${encodeURI(teamName)}`
+    const url = `${environment.ws}/${encodeURI(teamName)}`
     if (!this.subject || this.webSocket?.readyState !== WebSocket.OPEN) {
       this.subject = this.create(url).pipe(map((response: MessageEvent): AMessage => {
         console.log(response.data);
