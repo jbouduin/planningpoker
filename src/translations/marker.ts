@@ -1,6 +1,8 @@
 // leave this file in place! It contains keys for translations that can not be extracted
 // TODO 2343 marker does not work anymore
-import { marker } from '@bartholomej/ngx-translate-extract-marker';
+export function marker<T extends string | string[]>(key: T): T {
+  return key;
+}
 
 marker('ErrorCode.TeamAlreadyExists');
 marker('ErrorCode.TeamDoesNotExist');
