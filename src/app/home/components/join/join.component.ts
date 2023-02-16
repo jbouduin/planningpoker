@@ -40,7 +40,7 @@ export class JoinComponent implements OnInit, OnDestroy {
 
   //#region Public getter methods ---------------------------------------------
   public get cardSetLabel(): string {
-    return this.translateService.instant('Home.Component.SelectLabel.CardSet');
+    return this.translateService.instant('Component.Select.CardSet.Label');
   }
 
   public get cardSetValues(): Array<ICardSetSelectItem> {
@@ -49,34 +49,34 @@ export class JoinComponent implements OnInit, OnDestroy {
 
   public get gameHeader(): string {
     return this.isCreate ?
-      this.translateService.instant('Home.Component.Header.Start_a_game') :
-      this.translateService.instant('Home.Component.Header.Join_a_game');
+      this.translateService.instant('Join.Component.Header.Start_a_team') :
+      this.translateService.instant('Join.Component.Header.Join_a_team');
   }
 
   public get nickNameLabel(): string {
-    return this.translateService.instant('Home.Component.InputLabel.NickName');
+    return this.translateService.instant('Component.Input.Nick.Label');
   }
 
   public get nickNamePlaceHolder(): string {
-    return this.translateService.instant('Home.Component.InputPlaceholder.NickName');
+    return this.translateService.instant('Component.Input.Nick.PlaceHolder');
   }
 
   public get observerLabel(): string {
-    return this.translateService.instant('Home.Component.CheckboxLabel.Observer');
+    return this.translateService.instant('Join.Component.Checkbox.Observer.Label');
   }
 
   public get submitButtonLabel(): string {
     return this.isCreate ?
-      this.translateService.instant('Home.Component.ButtonLabel.Start') :
-      this.translateService.instant('Home.Component.ButtonLabel.Join');
+      this.translateService.instant('Join.Component.Button.Start.Label') :
+      this.translateService.instant('Join.Component.Button.Join.Label');
   }
 
   public get teamNameLabel(): string {
-    return this.translateService.instant('Home.Component.InputLabel.TeamName.Label');
+    return this.translateService.instant('Join.Component.Input.Team.Label');
   }
 
   public get teamNamePlaceHolder(): string {
-    return this.translateService.instant('Home.Component.InputPlaceholder.TeamName');
+    return this.translateService.instant('Join.Component.Input.Team.PlaceHolder');
   }
   //#endregion
 
@@ -120,7 +120,7 @@ export class JoinComponent implements OnInit, OnDestroy {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return this.translateService.instant('Input.Error.Mandatory');
+      return this.translateService.instant('Component.Error.Mandatory');
     }
     return undefined;
   }

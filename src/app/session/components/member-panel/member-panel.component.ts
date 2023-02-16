@@ -17,15 +17,15 @@ export class MemberPanelComponent {
 
   //#region Label Getters -----------------------------------------------------
   public get developersHeader(): string {
-    return this.translateService.instant('Game.Component.Header.Developers');
+    return this.translateService.instant('MemberPanel.Component.Header.Developers');
   }
 
   public get observersHeader(): string {
-    return this.translateService.instant('Game.Component.Header.Observers');
+    return this.translateService.instant('MemberPanel.Component.Header.Observers');
   }
 
   public get scrumMasterHeader(): string {
-    return this.translateService.instant('Game.Component.Header.ScrumMaster');
+    return this.translateService.instant('MemberPanel.Component.Header.ScrumMaster');
   }
   //#endregion
 

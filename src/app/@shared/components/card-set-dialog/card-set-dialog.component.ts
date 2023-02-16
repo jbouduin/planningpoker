@@ -45,11 +45,11 @@ export class CardSetDialogComponent implements AfterViewInit {
   }
 
   public get title(): string {
-    return this.translateService.instant('Dialog.Customize-card-set.Title');
+    return this.translateService.instant('CardSetDialog.Component.Title');
   }
 
   public get cardSetLabel(): string {
-    return this.translateService.instant('Home.Component.SelectLabel.CardSet');
+    return this.translateService.instant('Component.Select.CardSet.Label');
   }
 
   public get cardSelectionError(): string {
@@ -142,7 +142,7 @@ export class CardSetDialogComponent implements AfterViewInit {
     console.log(`name ${name}`);
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return this.translateService.instant('Input.Error.Mandatory');
+      return this.translateService.instant('Component.Error.Mandatory');
     }
     return undefined;
   }

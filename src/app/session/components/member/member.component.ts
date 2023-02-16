@@ -35,19 +35,19 @@ export class MemberComponent {
   }
 
   public get startEstimatingLabel(): string {
-    return this.translateService.instant('Member.Menu.Label.Start_estimating');
+    return this.translateService.instant('Member.Component.MenuItem.Start_estimating');
   }
 
   public get stopEstimatingLabel(): string {
-    return this.translateService.instant('Member.Menu.Label.Stop_estimating');
+    return this.translateService.instant('Member.Component.MenuItem.Stop_estimating');
   }
 
   public get changeNickLabel(): string {
-    return this.translateService.instant('Member.Menu.Label.Change_nick');
+    return this.translateService.instant('Member.Component.MenuItem.Change_nick');
   }
 
   public get changeScrumMasterLabel(): string {
-    return this.translateService.instant('Member.Menu.Label.Change_scrummaster');
+    return this.translateService.instant('Member.Component.MenuItem.Change_scrummaster');
   }
   //#endregion
 

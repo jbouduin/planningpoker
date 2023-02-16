@@ -28,16 +28,16 @@ export class MemberButtonsComponent {
 
   public get leaveLabel(): string {
     return this.teamService.me.role === ERole.ScrumMaster ?
-      this.translateService.instant('Game.Component.ButtonLabel.End_session') :
-      this.translateService.instant('Game.Component.ButtonLabel.Leave_game');
+      this.translateService.instant('ScrumMasterButtons.Component.Button.EndSession.Label') :
+      this.translateService.instant('MemberButtons.Component.Button.Leave.Label');
   }
 
   public get pauseButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Pause');
+    return this.translateService.instant('MemberButtons.Component.Button.Pause.Label');
   }
 
   public get rejoinButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Rejoin');
+    return this.translateService.instant('MemberButtons.Component.Button.Rejoin.Label');
   }
   //#endregion
 
