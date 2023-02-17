@@ -25,9 +25,11 @@ export class SessionService {
   //#endregion
 
   //#region private properties ------------------------------------------------
+  // TODO this one apparently never gets assigned
   private currentRoute: string;
   //#endregion
 
+  public inSession: boolean;
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     cardService: CardService,
@@ -44,11 +46,13 @@ export class SessionService {
     this.router = router;
     this.teamService = teamService;
     this.currentRoute = '/';
+    this.inSession = false;
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd)) // eslint-disable-line
       .subscribe(event => this.currentRoute = event.urlAfterRedirect);
   }
   //#endregion
+
 
   //#region public connection related methods ---------------------------------
   public create(
@@ -127,6 +131,7 @@ export class SessionService {
         this.reset();
         break;
       case EServerMessageType.Init:
+        this.inSession = true;
         this.navigateTo('/game');
     }
   }
@@ -140,6 +145,7 @@ export class SessionService {
   }
 
   private reset() {
+    this.inSession = false;
     this.connectionService.disconnect();
     this.navigateTo('/home');
   }

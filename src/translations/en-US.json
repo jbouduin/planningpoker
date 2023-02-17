@@ -20,7 +20,7 @@
 	"Component.Input.Nick.Label": "Name",
 	"Component.Input.Nick.PlaceHolder": "Enter your name here",
 	"Component.Select.CardSet.Label": "Cardset",
-	"Connection.Component.ButtonLabel.Reconnect_now": "Reconnect now",
+	"Connection.Component.Text.Click_cloud_to_reconnect_now": "Click on the cloud symbol to reconnect now",
 	"Connection.Component.Text.Reconnect_in_$seconds_seconds": "Reconnect in {{seconds}} seconds",
 	"Connection.Component.Text.Reconnect_in_1_second": "Reconnect in 1 second",
 	"ErrorCode.Message.DeveloperRequired": "You must be a developer",

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { TeamService } from '@app/session/services/team.service';
+import { SessionService } from '@app/session/services/session.service';
 import { ConnectionService, EConnectionStatus } from '@shared';
 
 
@@ -15,7 +15,7 @@ export class ConnectionComponent {
   //#region private properties ------------------------------------------------
   private translateService: TranslateService;
   private connectionService: ConnectionService;
-  private teamService: TeamService;
+  private sessionService: SessionService;
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
@@ -33,7 +33,7 @@ export class ConnectionComponent {
     }
   }
 
-  public get reconnectingText(): string {
+  public get reconnectingTextLine1(): string {
     if (this.connectionService.reconnectIn > 1) {
       return this.translateService.instant(
         'Connection.Component.Text.Reconnect_in_$seconds_seconds',
@@ -44,12 +44,12 @@ export class ConnectionComponent {
     }
   }
 
-  public get reconnectNowButtonLabel(): string {
-    return this.translateService.instant('Connection.Component.ButtonLabel.Reconnect_now');
+  public get reconnectingTextLine2(): string {
+    return this.translateService.instant('Connection.Component.Text.Click_cloud_to_reconnect_now');
   }
 
   public get showConnection(): boolean {
-    return this.connectionService.connectionStatus !== EConnectionStatus.Disconnected;
+    return this.sessionService.inSession;
   }
 
   public get showReconnecting(): boolean {
@@ -58,9 +58,9 @@ export class ConnectionComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(connectionService: ConnectionService, teamService: TeamService, translateService: TranslateService) {
+  public constructor(connectionService: ConnectionService, sessionService: SessionService, translateService: TranslateService) {
     this.connectionService = connectionService;
-    this.teamService = teamService;
+    this.sessionService = sessionService;
     this.translateService = translateService;
   }
   //#endregion

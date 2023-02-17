@@ -1,14 +1,24 @@
 .connection-wrapper {
   display: flex;
   flex-direction: row;
-  margin-right: 15px;
+  height: 48px;
+  font-size: 14px;
 }
 
-.button-reconnect {
-  width: 120;
+.button-reconnect:disabled {
+  color: #FFF;
 }
 
-.span-reconnecting {
-  margin-left: 15px;
-  margin-right: 15px;
+.div-reconnecting {
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+  line-height: 1.5em;
+  text-align: end;
+  margin-right: 5px;
+}
+
+.connection-icon {
+  height: 48px;
+  width: 48px;
 }
