@@ -6,11 +6,11 @@ import { Subscription } from 'rxjs';
 import { HttpService } from '@app/@shared';
 
 @Component({
-  selector: 'home-about',
-  templateUrl: './about.component.html',
-  styleUrls: ['./about.component.scss']
+  selector: 'home-content-page',
+  templateUrl: './content-page.component.html',
+  styleUrls: ['./content-page.component.scss']
 })
-export class AboutComponent implements OnDestroy{
+export class ContentPageComponent implements OnDestroy{
 
   //#region private properties -----------------------------------------------
   private readonly langChangeSubscription: Subscription;

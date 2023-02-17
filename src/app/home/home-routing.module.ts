@@ -2,15 +2,15 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { Shell } from '@app/shell/shell.service';
-import { AboutComponent } from './components/about/about.component';
+import { ContentPageComponent } from './components/content-page/content-page.component';
 import { LandingComponent } from './components/landing/landing.component';
 
 const routes: Routes = [
   Shell.childRoutes([
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: LandingComponent },
-    { path: 'legal', component: AboutComponent, data: {content: 'legal'} },
-    { path: 'privacy', component: AboutComponent, data: { content: 'privacy' } },
+    { path: 'legal', component: ContentPageComponent, data: {content: 'legal'} },
+    { path: 'privacy', component: ContentPageComponent, data: { content: 'privacy' } },
   ])
 ];
 

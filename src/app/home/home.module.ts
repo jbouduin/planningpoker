@@ -7,7 +7,7 @@ import { MaterialModule } from '@app/material.module';
 import { HomeRoutingModule } from './home-routing.module';
 import { LandingComponent } from './components/landing/landing.component';
 import { JoinComponent } from './components/join/join.component';
-import { AboutComponent } from './components/about/about.component';
+import { ContentPageComponent } from './components/content-page/content-page.component';
 
 @NgModule({
   imports: [
@@ -22,7 +22,7 @@ import { AboutComponent } from './components/about/about.component';
   declarations: [
     LandingComponent,
     JoinComponent,
-    AboutComponent
+    ContentPageComponent
   ],
   providers: []
 })
