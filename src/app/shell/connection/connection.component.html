@@ -1,9 +1,9 @@
 <div class="connection-wrapper" *ngIf="showConnection">
-  <mat-icon>{{connectionIcon}}</mat-icon>
-  <div class="span-reconnecting" *ngIf="showReconnecting">
-    <span>{{reconnectingText}}</span>
-    <button class="button-reconnect" mat-stroked-button (click)="reconnectNow()">
-      {{reconnectNowButtonLabel}}
-    </button>
+  <div class="div-reconnecting" *ngIf="showReconnecting">
+    {{reconnectingTextLine1}}<br/>
+    {{reconnectingTextLine2}}
   </div>
+  <button mat-icon-button class="button-reconnect" (click)="reconnectNow()" disabled="true">
+    <mat-icon>{{connectionIcon}}</mat-icon>
+  </button>
 </div>

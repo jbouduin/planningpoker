@@ -31,7 +31,7 @@ export class ApiController implements IApiController {
     console.log(`check if ${uuid} can rejoin ${teamName}:`);
     const response: LooseObject = {};
     response.errorCode = this.storageService.canRejoin(uuid, teamName);
-    switch (response.canRejoin) {
+    switch (response.errorCode) {
       case EErrorCode.TeamDoesNotExist:
         response.canRejoin = false;
         response.message = 'team does not exist';

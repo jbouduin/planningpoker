@@ -20,7 +20,7 @@
 	"Component.Input.Nick.Label": "Name",
 	"Component.Input.Nick.PlaceHolder": "Geben Sie Ihren Namen ein",
 	"Component.Select.CardSet.Label": "Kartenset",
-	"Connection.Component.ButtonLabel.Reconnect_now": "Jetzt verbinden",
+	"Connection.Component.Text.Click_cloud_to_reconnect_now": "Klicken Sie das Cloud-Symbol um jetzt zu verbinden",
 	"Connection.Component.Text.Reconnect_in_$seconds_seconds": "Verbindungsversuch in {{seconds}} Sekunden",
 	"Connection.Component.Text.Reconnect_in_1_second": "Verbindungsversuch in einer Sekunde",
 	"ErrorCode.Message.DeveloperRequired": "Sie besitzen nicht die Entwickler-Rolle",
