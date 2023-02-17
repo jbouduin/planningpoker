@@ -40,7 +40,7 @@
 	"Game.Snackbar.$member_is_having_a_break": "{{member}} macht eine Pause",
 	"Game.Snackbar.$member_is_now_scrum-master": "{{member}} ist jetzt Scrum Master",
 	"Game.Snackbar.$member_was_disconnected": "{{member}} wurde vom Server getrennt",
-	"Game.Snackbar.CommunicationError": "Es ist ein Kommunikationsfehler aufgetreten",
+	"Socket.Error.Communication_error": "Es ist ein Kommunikationsfehler aufgetreten",
 	"Game.Snackbar.Disconnected": "Sie wurden vom Server getrennt",
 	"Game.Snackbar.You_are_now_scrum-master": "Sie sind jetzt Scrum Master",
 	"Join.Component.Button.Join.Label": "Beitreten",

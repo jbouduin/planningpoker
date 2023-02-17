@@ -1,13 +1,10 @@
 import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { TranslateService } from '@ngx-translate/core';
-import { ClientMessage, EServerMessageType, IInitMessage, ServerMessage } from '@shared-lib';
-import { map, Observable, Observer, Subject } from 'rxjs';
 
+import { ClientMessage, EServerMessageType, IInitMessage, ServerMessage } from '@shared-lib';
 import { EConnectionStatus } from './connection-status.enum';
 import { SnackbarService } from './snackbar.service';
-
-type AMessage = ServerMessage | ClientMessage;
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +17,9 @@ export class ConnectionService {
   private currentReconnectIn: number;
   private rejoinCallBack?: () => void;
   private reconnectTimer: number;
-  private subject?: Subject<AMessage>;
-  private webSocket?: WebSocket;
+  private webSocket: WebSocket | null;
+  private messageHandler?: (msg: ServerMessage) => void;
+  private initialMessage?: ClientMessage
   //#endregion
 
   //#region Public properties -------------------------------------------------
@@ -45,6 +43,7 @@ export class ConnectionService {
     this.connectionStatus = EConnectionStatus.Disconnected;
     this.currentReconnectIn = 0;
     this.reconnectTimer = 0;
+    this.webSocket = null;
   }
   //#endregion
 
@@ -53,64 +52,26 @@ export class ConnectionService {
     teamName: string,
     initialMessage: ClientMessage,
     messageHandler: (msg: ServerMessage) => void,
-    rejoinCallBack: () => void): Subject<AMessage> {
+    rejoinCallBack: () => void): void {
 
     this.rejoinCallBack = rejoinCallBack;
+    this.messageHandler = messageHandler;
+    this.initialMessage = initialMessage;
+    this.connectionStatus = EConnectionStatus.Connecting;
     const url = `${environment.ws}/${encodeURI(teamName)}`
-    if (!this.subject || this.webSocket?.readyState !== WebSocket.OPEN) {
-      this.subject = this.create(url).pipe(map((response: MessageEvent): AMessage => {
-        console.log(response.data);
-        const message: AMessage = JSON.parse(response.data);
-        return message;
-      })) as Subject<AMessage>;
-      this.subject.subscribe({
-        next: (msg: AMessage) => {
-          if (msg.type == EServerMessageType.Init) {
-            initialMessage.senderUuid = (<IInitMessage>msg).data.uuid;
-            this.sendMessage(initialMessage);
-          }
-          messageHandler(msg as ServerMessage);
-        },
-        error: (error) => {
-          // we pass here if the connection drops or if the socket connection fails
-          console.log('in error handle');
-          console.log(error);
-          if (error.target && error.target.readyState && error.target.readyState === 3) {
-            this.handleDisconnect();
-            this.initiateReconnectTimer();
-          } else {
-            this.handleSocketError(error);
-          }
-        },
-        complete: () => {
-          // this happens when the client or the server close the socket
-          // normally that happens only after 'leave'
-          // so we normally do not have to do anything here
-          console.log('gracefull disconnect');
-        }
-      });
-      this.connectionStatus = EConnectionStatus.Connected;
-      console.log(`Successfully connected to ${url}`);
-    }
-
-    return this.subject;
+    this.webSocket = new WebSocket(url);
+    this.webSocket.onopen = this.onOpen.bind(this);
+    this.webSocket.onmessage = this.onMessage.bind(this);
+    this.webSocket.onerror = this.onError.bind(this);
+    this.webSocket.onclose = this.onClose.bind(this);
   }
 
   public disconnect(): void {
-    if (this.subject) {
-      this.subject.unsubscribe();
-    }
-    this.subject = undefined;
-    if (this.webSocket) {
-      this.webSocket.close();
-    }
-    this.connectionStatus = EConnectionStatus.Disconnected;
+    this.webSocket?.close();
   }
 
   public sendMessage(message: ClientMessage): void {
-    if (this.subject) {
-      this.subject.next(message);
-    }
+    this.webSocket?.send(JSON.stringify(message));
   }
 
   public reconnectNow(): void {
@@ -129,27 +90,38 @@ export class ConnectionService {
     }
   }
 
-  private create(url: string): Subject<MessageEvent> {
-    const ws = new WebSocket(url);
-    const observable = new Observable(
-      (obs: Observer<MessageEvent>) => {
-        ws.onmessage = obs.next.bind(obs);
-        ws.onerror = obs.error.bind(obs);
-        ws.onclose = obs.complete.bind(obs);
-        return ws.close.bind(ws);
-      });
+  private onOpen(event: Event): void {
+    this.connectionStatus = EConnectionStatus.Connected;
+    console.log(`Successfully connected to ${this.webSocket?.url}`);
+  }
 
-    const observer = {
-      next: (data: object) => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify(data));
-        }
-      }
+  private onClose(event: CloseEvent): void {
+    console.log(event);
+    if (event.code == 1006) {
+      this.showMessage(this.translateService.instant('Socket.Error.Could_not_connect'));
     }
+    // else if (event.wasClean && this.connectionStatus !== EConnectionStatus.Disconnecting) {
+    //   this.showMessage(this.translateService.instant('Game.Snackbar.Disconnected'));
+    // }
+    this.connectionStatus = EConnectionStatus.Disconnected;
+    this.webSocket = null;
+  }
 
-    this.webSocket = ws;
-    // TODO: (#695) lint says to use new Subject
-    return Subject.create(observer, observable);
+  private onMessage(event: MessageEvent<string>): void {
+    const message: ServerMessage = JSON.parse(event.data);
+    if (message.type == EServerMessageType.Init && this.initialMessage) {
+      this.initialMessage.senderUuid = (<IInitMessage>message).data.uuid;
+      this.sendMessage(this.initialMessage);
+      this.initialMessage = undefined;
+    }
+    this.messageHandler!(message);
+  }
+
+  private onError(event: Event): void {
+    if (this.connectionStatus !== EConnectionStatus.Connecting) {
+      console.log(event);
+      this.showMessage(this.translateService.instant('Socket.Error.Communication_error'))
+    }
   }
 
   private reconnectTick(callback: () => void) {
@@ -160,16 +132,8 @@ export class ConnectionService {
     }
   }
 
-  private handleDisconnect(): void {
-    this.snackbarService.showError(
-      this.translateService.instant('Game.Snackbar.Disconnected')
-    );
-  }
-
-  private handleSocketError(_error: unknown): void {
-    this.snackbarService.showError(
-      this.translateService.instant('Game.Snackbar.CommunicationError')
-    );
+  private showMessage(message: string): void {
+    this.snackbarService.showError(message);
   }
   //#endregion
 }
