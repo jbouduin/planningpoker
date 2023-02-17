@@ -8,6 +8,10 @@
   right: 0;
 }
 
+.content-container {
+  overflow: auto;
+}
+
 /* Set z-index to make sure the toolbar will stay on top of the content as it scrolls past. */
 .is-mobile .main-toolbar {
   position: fixed;
@@ -16,4 +20,8 @@
 
 .header {
   width: 100%;
+}
+
+.mat-toolbar {
+  min-height: 64px;
 }
