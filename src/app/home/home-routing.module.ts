@@ -9,7 +9,8 @@ const routes: Routes = [
   Shell.childRoutes([
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: LandingComponent },
-    { path: 'about', component: AboutComponent }
+    { path: 'legal', component: AboutComponent, data: {content: 'legal'} },
+    { path: 'privacy', component: AboutComponent, data: { content: 'privacy' } },
   ])
 ];
 

@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ICardSet } from '@shared-lib';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, from, map, Observable, of, Subject } from 'rxjs';
 
 interface LooseObject {
   [key: string]: any  //eslint-disable-line
@@ -13,12 +13,18 @@ interface LooseObject {
 export class HttpService {
 
   //#region private readonly properties ---------------------------------------
+  private readonly content: Subject<[number, string]>;
   private readonly httpClient: HttpClient;
+  private _currentPath: [number, string] | undefined;
   //#endregion
 
+  public getContent: Observable<[number, string]>;
   //#region Constructor & C° --------------------------------------------------
   public constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
+    this._currentPath = undefined;
+    this.content = new Subject<[number, string]>();
+    this.getContent = from(this.content);
   }
   //#endregion
 
@@ -43,6 +49,24 @@ export class HttpService {
           return response.body || new Array<ICardSet>()
         })
       );
+  }
+
+  public set currentPath(value: [number, string]) {
+    this._currentPath = value;
+    this.loadContent(value);
+  }
+
+
+  //#endregion
+
+  //#region public methods ----------------------------------------------------
+  private loadContent(value: [number, string]): void {
+    if (this._currentPath) {
+      this.httpClient
+        .get(`assets/${value[1]}`,{ responseType: 'text'})
+        // .get<unknown>(`/api/site/page?content=${this._currentPath}`)
+        .subscribe((content) => this.content.next([value[0], content]));
+    }
   }
   //#endregion
 }
