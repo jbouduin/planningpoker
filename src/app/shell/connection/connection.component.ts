@@ -24,12 +24,11 @@ export class ConnectionComponent {
     switch (this.connectionService.connectionStatus) {
       case EConnectionStatus.Disconnected:
       case EConnectionStatus.Connecting:
-      case EConnectionStatus.Countdown: {
+      case EConnectionStatus.Countdown:
         return 'cloud_off';
-      }
-      case EConnectionStatus.Connected: {
+      case EConnectionStatus.Connected:
+      case EConnectionStatus.Reconnecting:
         return 'cloud';
-      }
     }
   }
 

@@ -57,7 +57,9 @@ export class ConnectionService {
     this.rejoinCallBack = rejoinCallBack;
     this.messageHandler = messageHandler;
     this.initialMessage = initialMessage;
-    this.connectionStatus = EConnectionStatus.Connecting;
+    if (this.connectionStatus !== EConnectionStatus.Reconnecting) {
+      this.connectionStatus = EConnectionStatus.Connecting;
+    }
     const url = `${environment.ws}/${encodeURI(teamName)}`
     this.webSocket = new WebSocket(url);
     this.webSocket.onopen = this.onOpen.bind(this);
@@ -67,14 +69,21 @@ export class ConnectionService {
   }
 
   public disconnect(): void {
-    this.webSocket?.close();
+    if (this.connectionStatus == EConnectionStatus.Reconnecting) {
+      window.clearInterval(this.reconnectTimer);
+    } else if (this.canPerformActionOnSocket()) {
+      this.webSocket?.close(1000);
+    }
   }
 
   public sendMessage(message: ClientMessage): void {
-    this.webSocket?.send(JSON.stringify(message));
+    if (this.canPerformActionOnSocket()) {
+      this.webSocket?.send(JSON.stringify(message));
+    }
   }
 
   public reconnectNow(): void {
+    this.connectionStatus = EConnectionStatus.Reconnecting;
     if (this.rejoinCallBack) {
       this.rejoinCallBack();
     }
@@ -86,24 +95,41 @@ export class ConnectionService {
     if (this.rejoinCallBack) {
       this.currentReconnectIn = 30;
       this.connectionStatus = EConnectionStatus.Countdown;
-      this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000, this.rejoinCallBack);
+      this.reconnectTimer = window.setInterval(this.reconnectTick.bind(this), 1000);
     }
   }
+  //#endregion
 
-  private onOpen(event: Event): void {
+  //#region Websocket events --------------------------------------------------
+  private onOpen(_event: Event): void {
     this.connectionStatus = EConnectionStatus.Connected;
     console.log(`Successfully connected to ${this.webSocket?.url}`);
   }
 
   private onClose(event: CloseEvent): void {
-    console.log(event);
     if (event.code == 1006) {
-      this.showMessage(this.translateService.instant('Socket.Error.Could_not_connect'));
+      switch (this.connectionStatus) {
+        case EConnectionStatus.Connecting:
+          console.log('in onClose case: connecting')
+          this.snackbarService.showError(this.translateService.instant('Socket.Error.Could_not_connect'));
+          this.connectionStatus = EConnectionStatus.Disconnected;
+          break;
+        case EConnectionStatus.Reconnecting:
+          console.log('in onClose case: reconnecting')
+          this.snackbarService.showError(this.translateService.instant('Socket.Error.Unable_to_reestablish_the_connection'));
+          this.initiateReconnectTimer();
+          break;
+        default:
+          console.log('in onClose case: default')
+          this.snackbarService.showError(this.translateService.instant('Socket.Error.You_Have_been_disconnected'));
+          this.initiateReconnectTimer();
+      }
+    } else if (event.code !== 1000) {
+      console.log(`in onClose event code: ${event.code}`)
+      this.snackbarService.showError(this.translateService.instant('Game.Snackbar.Disconnected_'));
+      console.log(event);
+      this.connectionStatus = EConnectionStatus.Disconnected
     }
-    // else if (event.wasClean && this.connectionStatus !== EConnectionStatus.Disconnecting) {
-    //   this.showMessage(this.translateService.instant('Game.Snackbar.Disconnected'));
-    // }
-    this.connectionStatus = EConnectionStatus.Disconnected;
     this.webSocket = null;
   }
 
@@ -118,22 +144,32 @@ export class ConnectionService {
   }
 
   private onError(event: Event): void {
-    if (this.connectionStatus !== EConnectionStatus.Connecting) {
-      console.log(event);
-      this.showMessage(this.translateService.instant('Socket.Error.Communication_error'))
+    // if (this.connectionStatus === EConnectionStatus.Reconnecting) {
+    //   console.log('in onError Socket.Error.Unable_to_reestablish_the_connection')
+    //   this.snackbarService.showError(this.translateService.instant('Socket.Error.Unable_to_reestablish_the_connection'));
+    //   this.initiateReconnectTimer();
+    // } else
+    if (this.connectionStatus !== EConnectionStatus.Connecting && this.connectionStatus !== EConnectionStatus.Reconnecting) {
+          console.log(`in onError not connecting and not reconnecting : ${this.connectionStatus}`);
+      this.snackbarService.showError(this.translateService.instant('Socket.Error.Communication_error'));
     }
   }
 
-  private reconnectTick(callback: () => void) {
+  private reconnectTick() {
     this.currentReconnectIn--;
     if (this.currentReconnectIn === 0) {
       window.clearInterval(this.reconnectTimer);
-      callback();
+      this.reconnectNow();
     }
   }
 
-  private showMessage(message: string): void {
-    this.snackbarService.showError(message);
+  private canPerformActionOnSocket(): boolean {
+    if (this.connectionStatus === EConnectionStatus.Connected && this.webSocket !== null) {
+      return true;
+    } else {
+      this.snackbarService.showError(this.translateService.instant('Socket.Error.There_is_no_connection_with_the_server'));
+      return false;
+    }
   }
   //#endregion
 }

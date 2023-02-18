@@ -3,7 +3,7 @@
     {{reconnectingTextLine1}}<br/>
     {{reconnectingTextLine2}}
   </div>
-  <button mat-icon-button class="button-reconnect" (click)="reconnectNow()" disabled="true">
+  <button mat-icon-button class="button-reconnect" (click)="reconnectNow()" (disabled)="!showReconnecting">
     <mat-icon>{{connectionIcon}}</mat-icon>
   </button>
 </div>

@@ -1,6 +1,7 @@
 export enum EConnectionStatus {
-  Disconnected, // outside of a game
-  Connected,
-  Connecting,
-  Countdown
+  Connected = 'connected',
+  Connecting = 'connecting',
+  Countdown = 'countdown',
+  Disconnected = 'disconnected',
+  Reconnecting = 'reconnecting'
 }

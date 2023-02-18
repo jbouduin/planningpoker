@@ -25,7 +25,6 @@ export class SessionService {
   //#endregion
 
   //#region private properties ------------------------------------------------
-  // TODO this one apparently never gets assigned
   private currentRoute: string;
   //#endregion
 
@@ -88,6 +87,7 @@ export class SessionService {
     this.startSession(team, message);
   }
 
+  // TODO NOW check if sessionservice could do the params
   public rejoin(team: string, uuid: string): void {
     console.log(`rejoining  ${team} as ${uuid}`);
     const message = new RejoinMessage('', uuid);
