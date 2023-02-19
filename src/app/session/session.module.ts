@@ -15,6 +15,7 @@ import { ScrumMasterButtonsComponent } from './components/scrum-master-buttons/s
 import { TeamHeaderComponent } from './components/team-header/team-header.component';
 import { GameRoutingModule } from './session-routing.module';
 import { SharedModule } from '@app/@shared';
+import { OverlayComponentComponent } from './components/overlay-component/overlay-component.component';
 
 @NgModule({
   imports: [
@@ -35,7 +36,8 @@ import { SharedModule } from '@app/@shared';
     MemberButtonsComponent,
     ScrumMasterButtonsComponent,
     ChangeNickDialogComponent,
-    ChangeScrumMasterDialogComponent
+    ChangeScrumMasterDialogComponent,
+    OverlayComponentComponent
 
   ]
 })
