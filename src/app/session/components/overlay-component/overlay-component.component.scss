@@ -1,8 +1,7 @@
 .overlay {
   display: flex;
-  flex-direction: column;
+  flex-flow: column nowrap;
   color: white;
-  flex-wrap: nowrap;
   height: 100%;
   align-items: center;
   justify-content: center;
@@ -20,11 +19,10 @@ mat-icon {
 
 .div-reconnecting {
   display: flex;
-    flex-direction: column;
-    color: white;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: center;
+  flex-flow: column nowrap;
+  color: white;
+  align-items: center;
+  justify-content: center;
 }
 
 .overlay-buttons {

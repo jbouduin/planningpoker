@@ -150,10 +150,12 @@ export class ConnectionService {
       this.sendMessage(this.initialMessage);
       this.initialMessage = undefined;
     }
-    this.messageHandler!(message);
+    if (this.messageHandler){
+      this.messageHandler(message);
+    }
   }
 
-  private onError(event: Event): void {
+  private onError(_event: Event): void {
     // if (this.connectionStatus === EConnectionStatus.Reconnecting) {
     //   console.log('in onError Socket.Error.Unable_to_reestablish_the_connection')
     //   this.snackbarService.showError(this.translateService.instant('Socket.Error.Unable_to_reestablish_the_connection'));
