@@ -83,6 +83,7 @@ export class ConnectionService {
   }
 
   public reconnectNow(): void {
+    window.clearInterval(this.reconnectTimer);
     this.connectionStatus = EConnectionStatus.Reconnecting;
     if (this.rejoinCallBack) {
       this.rejoinCallBack();
@@ -124,11 +125,13 @@ export class ConnectionService {
           this.snackbarService.showError(this.translateService.instant('Socket.Error.You_Have_been_disconnected'));
           this.initiateReconnectTimer();
       }
-    } else if (event.code !== 1000) {
-      console.log(`in onClose event code: ${event.code}`)
-      this.snackbarService.showError(this.translateService.instant('Game.Snackbar.Disconnected_'));
-      console.log(event);
-      this.connectionStatus = EConnectionStatus.Disconnected
+    } else {
+      if (event.code !== 1000) {
+        console.log(`in onClose event code: ${event.code}`)
+        this.snackbarService.showError(this.translateService.instant('Socket.Error.You_Have_been_disconnected'));
+        console.log(event);
+      }
+      this.connectionStatus = EConnectionStatus.Disconnected;
     }
     this.webSocket = null;
   }
@@ -150,7 +153,7 @@ export class ConnectionService {
     //   this.initiateReconnectTimer();
     // } else
     if (this.connectionStatus !== EConnectionStatus.Connecting && this.connectionStatus !== EConnectionStatus.Reconnecting) {
-          console.log(`in onError not connecting and not reconnecting : ${this.connectionStatus}`);
+      console.log(`in onError not connecting and not reconnecting : ${this.connectionStatus}`);
       this.snackbarService.showError(this.translateService.instant('Socket.Error.Communication_error'));
     }
   }
@@ -158,7 +161,6 @@ export class ConnectionService {
   private reconnectTick() {
     this.currentReconnectIn--;
     if (this.currentReconnectIn === 0) {
-      window.clearInterval(this.reconnectTimer);
       this.reconnectNow();
     }
   }

@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { MatSidenav } from '@angular/material/sidenav';
+import { SessionService } from '@app/session/services/session.service';
 
 @Component({
   selector: 'shell-header',
@@ -9,43 +9,35 @@ import { MatSidenav } from '@angular/material/sidenav';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
-
-  //#region  @Input
-  @Input() sidenav!: MatSidenav;
+  //#region Private properties ------------------------------------------------
+  private readonly sessionService: SessionService;
+  private readonly translateService: TranslateService;
   //#endregion
 
-  //#region  Private properties
-  private _headerLogoStyle: object;
-  //#endregion
-
-  //#region  Public getter methods
-  public get headerLogoStyle(): object {
-    return this._headerLogoStyle;
+  //#region Allowed actions getter --------------------------------------------
+  public get canNavigate(): boolean {
+    return !this.sessionService.inSession;
   }
+  //#endregion
+
+  //#region Label getter methods ----------------------------------------------
   public get routeLabelHome(): string {
     return this.translateService.instant('Navigation.RouteLabel.Home');
   }
 
-  public get routeLabelAbout(): string {
-    return this.translateService.instant('Navigation.RouteLabel.About');
+  public get routeLabelPrivacy(): string {
+    return this.translateService.instant('Navigation.RouteLabel.Privacy');
+  }
+
+  public get routeLabelLegal(): string {
+    return this.translateService.instant('Navigation.RouteLabel.Legal');
   }
   //#endregion
 
-  //#region  Constructor and C°
-  constructor(private translateService: TranslateService) {
-    this._headerLogoStyle = {
-      'background-image': `url('assets/logo_40x40.png')`,
-      'background-position': 'center center',
-      'background-size': '40px 40px',
-      'background-repeat': 'no-repeat'
-      // 'margin-left': '-5px'
-    };
+  //#region Constructor and C° ------------------------------------------------
+  constructor(sessionService: SessionService, translateService: TranslateService) {
+    this.sessionService = sessionService;
+    this.translateService = translateService;
   }
   //#endregion
-
-  //#region  Angular interface methods
-  // ngOnInit() { }
-  //#endregion
-
-
 }
