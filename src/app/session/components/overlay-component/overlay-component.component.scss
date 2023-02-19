@@ -1,0 +1,30 @@
+.overlay {
+  display: flex;
+  flex-flow: column nowrap;
+  color: white;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+
+}
+
+mat-icon {
+  font-weight: bolder;
+  font-size: 48px;
+  height: auto;
+  width: auto;
+  margin: 10px;
+  padding: 10px;
+}
+
+.div-reconnecting {
+  display: flex;
+  flex-flow: column nowrap;
+  color: white;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-buttons {
+  margin: 10px;
+}

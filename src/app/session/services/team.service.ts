@@ -133,6 +133,10 @@ export class TeamService {
     return this.allMembers.get(uuid);
   }
 
+  public giveUpReconnecting(): void {
+    this.resetMe();
+  }
+
   public handleServerMessage(message: ServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Self:
@@ -237,7 +241,7 @@ export class TeamService {
 
   //#region private methods -----------------------------------------
   private sendLeaveMessage(uuid: string): void {
-    const message = new LeaveMessage(uuid);
+    const message = new LeaveMessage(uuid, uuid);
     this.connectionService.sendMessage(message);
   }
 
@@ -303,7 +307,6 @@ export class TeamService {
         );
         break;
     }
-
   }
 
   private handleEndSession(): void {

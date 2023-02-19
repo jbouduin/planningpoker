@@ -23,7 +23,15 @@ export class MemberComponent {
 
   //#region Public getter methods labels --------------------------------------
   public get connectionStatusIcon(): string {
-    return this.member?.status === EParticipantStatus.Connected ? 'cloud' : 'cloud_off';
+    switch (this.member?.status) {
+      case EParticipantStatus.Connected:
+        return 'cloud';
+      case EParticipantStatus.Paused:
+        return 'notifications_paused';
+      case EParticipantStatus.Disconnected:
+      default:
+        return 'cloud_off';
+    }
   }
 
   public get nick(): string {

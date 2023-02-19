@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { ClientMessage, EClientMessageType, EErrorCode, ERole, IRejoinMessage } from "../../../../shared-lib/lib";
+import { ClientMessage, EClientMessageType, EErrorCode, ERole, ILeaveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { IStorageService } from "../../storage/interfaces";
 import { IPreflightService } from "../interfaces";
 
@@ -21,7 +21,9 @@ export class PreflightService implements IPreflightService {
       } else if (this.messageTypeRequiresTeam(message.type) && !team) {
         result = EErrorCode.TeamDoesNotExist;
       } else if (this.messageTypeRequiresMembership(message.type)) {
-        const membership = storageService.getTeamOfParticipant(message.senderUuid);
+        const uuidToUse = message.type === EClientMessageType.Leave ?
+          (<ILeaveMessage>message).data : message.senderUuid;
+        const membership = storageService.getTeamOfParticipant(uuidToUse);
         if (!membership || membership !== team) {
           result = EErrorCode.ParticipantNotInTeam
         }
@@ -55,6 +57,7 @@ export class PreflightService implements IPreflightService {
       messageType === EClientMessageType.Join ||
       messageType === EClientMessageType.Leave ||
       messageType === EClientMessageType.Reveal ||
+      messageType === EClientMessageType.Rejoin ||
       messageType === EClientMessageType.Start;
     return result;
   }

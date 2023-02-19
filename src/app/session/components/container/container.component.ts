@@ -1,8 +1,26 @@
 import { Component } from '@angular/core';
+import { ConnectionService, EConnectionStatus } from '@app/@shared';
 
 @Component({
   selector: 'session-container',
   templateUrl: './container.component.html',
   styleUrls: ['./container.component.scss']
 })
-export class ContainerComponent { }
+export class ContainerComponent {
+
+  //#region private properties ------------------------------------------------
+  private readonly connectionService: ConnectionService;
+  //#endregion
+
+  //#region getters -----------------------------------------------------------
+  public get showOverlay(): boolean {
+    return this.connectionService.connectionStatus !== EConnectionStatus.Connected;
+  }
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(connectionService: ConnectionService) {
+    this.connectionService = connectionService;
+  }
+  //#endregion
+}

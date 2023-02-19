@@ -62,9 +62,6 @@ export class HandlerService {
         }
       }
     }
-    else {
-      console.log('disconnected participant is unknown');
-    }
   }
 
   public handleConnect(ws: IWebSocket): Participant {
@@ -293,13 +290,19 @@ export class HandlerService {
       // aknowledge to the scrum master
       this.messageService.sendSessionEnded(sender);
     } else {
-      console.log(`Leave: '${sender.nick}' is leaving '${team.teamName}'`);
-      team.removeMember(sender.uuid);
-      this.storage.deleteParticipant(sender.uuid);
-      // tell the others someone left
-      sender.status = EParticipantStatus.Left;
-      this.messageService.broadcastMemberChange(team, sender, EMemberStatusChange.Left);
-      this.messageService.sendLeft(sender);
+
+      const leaving = sender.uuid !== _message.data ?
+        this.storage.getParticipant(_message.data) :
+        sender;
+      if (leaving) {
+        console.log(`Leave: '${leaving.nick}' is leaving '${team.teamName}'`);
+        team.removeMember(leaving.uuid);
+        this.storage.deleteParticipant(leaving.uuid);
+        // tell the others someone left
+        leaving.status = EParticipantStatus.Left;
+        this.messageService.broadcastMemberChange(team, leaving, EMemberStatusChange.Left);
+        this.messageService.sendLeft(sender);
+      }
     }
 
   }

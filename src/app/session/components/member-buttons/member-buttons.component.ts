@@ -22,10 +22,6 @@ export class MemberButtonsComponent {
     return this.teamService.me.status === EParticipantStatus.Connected;
   }
 
-  public get canRejoin(): boolean {
-    return this.teamService.me.status === EParticipantStatus.Paused;
-  }
-
   public get leaveLabel(): string {
     return this.teamService.me.role === ERole.ScrumMaster ?
       this.translateService.instant('ScrumMasterButtons.Component.Button.EndSession.Label') :
@@ -34,10 +30,6 @@ export class MemberButtonsComponent {
 
   public get pauseButtonLabel(): string {
     return this.translateService.instant('MemberButtons.Component.Button.Pause.Label');
-  }
-
-  public get rejoinButtonLabel(): string {
-    return this.translateService.instant('MemberButtons.Component.Button.Rejoin.Label');
   }
   //#endregion
 
@@ -56,10 +48,6 @@ export class MemberButtonsComponent {
 
   public leave(): void {
     this.teamService.leave();
-  }
-
-  public rejoin(): void {
-    this.sessionService.rejoin(this.teamService.teamName, this.teamService.me.uuid);
   }
   //#endregion
 }

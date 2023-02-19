@@ -106,6 +106,11 @@ export class PokerService {
     const message = new StartMessage(this.myUuid);
     this.connectionService.sendMessage(message);
   }
+
+  public giveUpReconnecting(): void {
+    this.givenEstimations.clear();
+    this.pokerStatus = EPokerStatus.Cleared;
+  }
   //#endregion
 
   //#region private methods ---------------------------------------------------

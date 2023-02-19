@@ -1,3 +1,19 @@
+.container-wrapper {
+  display: grid;
+}
+
+.container-content {
+  grid-area: 1 / 1;
+
+}
+
+.overlay-container {
+  background-color: rgb(0 0 0 / 75%);
+  height: 100%;
+  z-index: 1000;
+  position: relative;
+}
+
 // Toggling the side-nav
 .toggle-container {
   width: fit-content;

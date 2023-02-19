@@ -25,7 +25,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private titleService: Title,
     private translateService: TranslateService,
     private i18nService: I18nService
-  ) {}
+  ) {
+  }
   //#endregion
 
   //#region  Angular interface methods
