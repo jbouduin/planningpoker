@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ConnectionService, EConnectionStatus } from '@app/@shared';
 import { SessionService } from '@app/session/services/session.service';
+import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -10,9 +11,10 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class OverlayComponentComponent {
   //#region private properties ------------------------------------------------
-  private readonly translateService: TranslateService;
   private readonly connectionService: ConnectionService;
   private readonly sessionService: SessionService;
+  private readonly teamService: TeamService;
+  private readonly translateService: TranslateService;
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
@@ -78,9 +80,14 @@ export class OverlayComponentComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(connectionService: ConnectionService, sessionService: SessionService, translateService: TranslateService) {
+  public constructor(
+    connectionService: ConnectionService,
+    sessionService: SessionService,
+    teamService: TeamService,
+    translateService: TranslateService) {
     this.connectionService = connectionService;
     this.sessionService = sessionService;
+    this.teamService = teamService;
     this.translateService = translateService;
   }
   //#endregion
@@ -91,11 +98,12 @@ export class OverlayComponentComponent {
   }
 
   public giveUpReconnectingButtonClick(): void {
-    // TODO NOW
+    this.connectionService.giveUpReconnecting();
+    this.sessionService.giveUpReconnecting();
   }
 
   public doNotRejoinButtonClick(): void {
-    // TODO NOW
+    this.sessionService.leave(this.teamService.teamName, this.teamService.me.uuid);
   }
   //#endregion
 }

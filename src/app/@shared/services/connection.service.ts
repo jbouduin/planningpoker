@@ -15,7 +15,7 @@ export class ConnectionService {
   private readonly snackbarService: SnackbarService;
   private readonly translateService: TranslateService;
   private currentReconnectIn: number;
-  private rejoinCallBack?: () => void;
+  private rejoinCallBack: (() => void) | null;
   private reconnectTimer: number;
   private webSocket: WebSocket | null;
   private messageHandler?: (msg: ServerMessage) => void;
@@ -43,6 +43,7 @@ export class ConnectionService {
     this.connectionStatus = EConnectionStatus.Disconnected;
     this.currentReconnectIn = 0;
     this.reconnectTimer = 0;
+    this.rejoinCallBack = null;
     this.webSocket = null;
   }
   //#endregion
@@ -88,6 +89,12 @@ export class ConnectionService {
     if (this.rejoinCallBack) {
       this.rejoinCallBack();
     }
+  }
+
+  public giveUpReconnecting(): void {
+    window.clearInterval(this.reconnectTimer);
+    this.rejoinCallBack = null;
+    this.connectionStatus = EConnectionStatus.Disconnected;
   }
   //#endregion
 

@@ -78,5 +78,9 @@ export class CardService {
         this._cards = new Array<Card>();
     }
   }
+
+  public giveUpReconnecting(): void {
+    this._cards = new Array<Card>();
+  }
   //#endregion
 }

@@ -28,7 +28,12 @@ export class SessionService {
   private currentRoute: string;
   //#endregion
 
+  //#region public properties -------------------------------------------------
   public inSession: boolean;
+  //#endregion
+
+  // TODO 2359 because the session service is injected in homecomponent, everything injected here is also in main
+  // make message handler register themselves in the connection service or something similar
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     cardService: CardService,
@@ -87,7 +92,6 @@ export class SessionService {
     this.startSession(team, message);
   }
 
-  // TODO NOW check if sessionservice could do the params
   public rejoin(team: string, uuid: string): void {
     console.log(`rejoining  ${team} as ${uuid}`);
     const message = new RejoinMessage('', uuid);
@@ -97,7 +101,7 @@ export class SessionService {
 
   // this one is called from home component
   public leave(team: string, myUuid: string): void {
-    const message = new LeaveMessage(myUuid);
+    const message = new LeaveMessage(myUuid, myUuid);
 
     // if we are connected, we are just leaving the game
     // if not we are leaving a game we have been disconnected from before
@@ -106,6 +110,14 @@ export class SessionService {
     } else {
       this.startSession(team, message);
     }
+  }
+
+  public giveUpReconnecting(): void {
+    this.inSession = false;
+    this.cardService.giveUpReconnecting();
+    this.pokerService.giveUpReconnecting();
+    this.teamService.giveUpReconnecting();
+    this.navigateTo('/home');
   }
   //#endregion
 
