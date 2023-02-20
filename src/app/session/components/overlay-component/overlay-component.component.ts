@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { ConnectionService, EConnectionStatus } from '@app/@shared';
-import { SessionService } from '@shared/services/session.service';
-import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
+
+import { TeamService } from '@app/session/services/team.service';
+import { ConnectionService, EConnectionStatus } from '@shared';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'session-overlay-component',

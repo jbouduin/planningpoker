@@ -12,6 +12,7 @@ import { ErrorHandlerService } from './error-handler.service';
 })
 export class SessionService {
 
+  // TODO NOW: the session service is the one that should know "ME"
   //#region private readonly properties ---------------------------------------
   // private readonly cardService: CardService;
   private readonly connectionService: ConnectionService;
@@ -27,7 +28,6 @@ export class SessionService {
   public inSession: boolean;
   //#endregion
 
-  // TODO 2359 because the session service is injected in homecomponent, everything injected here is also in main
   // make message handler register themselves in the connection service or something similar
   //#region Constructor & C° --------------------------------------------------
   public constructor(

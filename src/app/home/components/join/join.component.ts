@@ -1,14 +1,14 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
 import { ECardSet, ICardSet } from '@shared-lib';
 
-import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/card-set-dialog.component';
-import { ICardSetDialogParams } from '@app/@shared/components/card-set-dialog/card-set-dialog.params';
-import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-set.service';
-import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { CardSetDialogComponent } from '@shared/components/card-set-dialog/card-set-dialog.component';
+import { ICardSetDialogParams } from '@shared/components/card-set-dialog/card-set-dialog.params';
+import { CardSetService, ICardSetSelectItem } from '@shared/services/card-set.service';
 import { SessionService } from '@shared/services/session.service';
 
 @Component({

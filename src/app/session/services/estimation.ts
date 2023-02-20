@@ -1,5 +1,5 @@
-import { Card } from '../../@shared/components/card/card';
-import { Member } from './member';
+import { Card } from '@shared/components/card/card';
+import { Member } from '@shared/services/member';
 
 export class Estimation {
 

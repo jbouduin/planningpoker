@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ConnectionService, EConnectionStatus } from '@app/@shared';
+import { ConnectionService, EConnectionStatus } from '@shared';
 
 @Component({
   selector: 'session-container',

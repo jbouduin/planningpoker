@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
-import { ConnectionService } from '@app/@shared';
+
 import { EPokerStatus, EServerMessageType, IEstimation, IEstimationsMessage, IInitMessage, IPokerStatusChangedMessage, ISelfMessage, ServerMessage } from '@shared-lib';
-import { EstimateMessage, RevealMessage, StartMessage } from '../../@shared/messages';
-import { Estimation, Member } from '../objects';
+
+import { ConnectionService } from '@shared';
+import { EstimateMessage, RevealMessage, StartMessage } from '@shared/messages';
+import {  Member } from '@shared/services/member';
+import { Estimation } from './estimation';
 import { CardService } from './card.service';
 import { TeamService } from './team.service';
 

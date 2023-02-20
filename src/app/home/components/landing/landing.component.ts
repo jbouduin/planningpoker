@@ -1,10 +1,10 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Params } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
-import { MessageBoxComponent, MessageBoxParams, HttpService, LocalStorageService } from '@app/@shared';
+import { HttpService, LocalStorageService, MessageBoxComponent, MessageBoxParams } from '@shared';
 import { SessionService } from '@shared/services/session.service';
-import { ActivatedRoute, Params } from '@angular/router';
 
 @Component({
   selector: 'home-landing',

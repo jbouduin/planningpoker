@@ -1,18 +1,18 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
-import { Clipboard } from '@angular/cdk/clipboard';
 
-import { MessageBoxComponent, MessageBoxParams, ConnectionService, LocalStorageService, SnackbarService } from '@app/@shared';
+import { ConnectionService, LocalStorageService, MessageBoxComponent, MessageBoxParams, SnackbarService } from '@shared';
+import { environment } from '@env/environment';
 import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
+import { ChangeNickMessage, LeaveMessage } from '@shared/messages';
+import { ChangeScrumMasterMessage } from '@shared/messages/change-scrum-master.message';
+import { ObserveMessage } from '@shared/messages/observe-message';
+import { PauseMessage } from '@shared/messages/pause.message';
+import { Member } from '@shared/services/member';
 import { ChangeNickDialogComponent } from '../components/change-nick-dialog/change-nick-dialog.component';
 import { ChangeScrumMasterDialogComponent } from '../components/change-scrum-master-dialog/change-scrum-master-dialog.component';
-import { ChangeNickMessage, LeaveMessage } from '../../@shared/messages';
-import { ChangeScrumMasterMessage } from '../../@shared/messages/change-scrum-master.message';
-import { ObserveMessage } from '../../@shared/messages/observe-message';
-import { PauseMessage } from '../../@shared/messages/pause.message';
-import { Member } from '../objects';
-import { environment } from '@env/environment';
 
 @Injectable({
   providedIn: 'root'

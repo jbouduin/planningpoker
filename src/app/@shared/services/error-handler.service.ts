@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { enumMarker } from '@app/@core/marker';
-import { SnackbarService } from '@app/@shared';
 import { TranslateService } from '@ngx-translate/core';
+
 import { IErrorMessage, ServerMessage } from '@shared-lib';
+
+import { enumMarker } from '@core/marker';
+import { SnackbarService } from '@shared';
 
 // required because of ngx-translate-extract
 import { EErrorCode } from '../../../../projects/shared-lib/lib/messages/error-code.enum';

@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
-import { EParticipantStatus, ERole } from '@shared-lib';
-import { Member } from '../../objects/member';
 
+import { EParticipantStatus, ERole } from '@shared-lib';
+
+import { TeamService } from '@app/session/services/team.service';
+import { Member } from '@shared/services/member';
 
 @Component({
   selector: 'session-member',
