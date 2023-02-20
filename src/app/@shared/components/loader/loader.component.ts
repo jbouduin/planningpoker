@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'common-loader',
+  selector: 'shared-loader',
   templateUrl: './loader.component.html',
   styleUrls: ['./loader.component.scss']
 })

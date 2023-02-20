@@ -2,8 +2,8 @@ import { inject, injectable } from "inversify";
 
 import SERVICETYPES from "../service.types";
 
-import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, IEstimation, IMemberStatusChange, IParticipant, ServerMessage } from "../../../../shared-lib/lib";
-import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamNameMessage } from "../../messages";
+import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ICardSet, IEstimation, IMemberStatusChange, IParticipant, AServerMessage } from "../../../../shared-lib/lib";
+import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
 import { Estimation, ITeam, Participant } from "../../objects";
 import { IMessageService, ISenderService } from "../interfaces";
 import { IWebSocket } from "../websocket";
@@ -26,6 +26,12 @@ export class MessageService implements IMessageService {
     team
       .filterMembers(participant => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.sendEstimations(participant, team.status === EPokerStatus.Revealed, team.allEstimations));
+  }
+
+  public broadcastCardSet(team: ITeam): void {
+    team
+      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
+      .forEach(participant => this.sendCardSet(participant, team.cardSet));
   }
 
   public broadcastClearEstimations(team: ITeam): void {
@@ -61,47 +67,52 @@ export class MessageService implements IMessageService {
 
   //#region IMessageService send message methods ------------------------------
   public sendSessionEnded(to: Participant): void {
-    const message: ServerMessage = new EndSessionMessage();
+    const message: AServerMessage = new EndSessionMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
   public sendErrorMessageToParticipant(to: Participant, code: EErrorCode): void {
-    const message: ServerMessage = new ErrorMessage(code);
+    const message: AServerMessage = new ErrorMessage(code);
     this.senderService.sendToParticipant(to, message);
   }
 
   public sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void {
-    const message: ServerMessage = new ErrorMessage(code);
+    const message: AServerMessage = new ErrorMessage(code);
     this.senderService.sendToSocket(ws, message);
   }
 
   public sendInit(to: Participant): void {
-    const message: ServerMessage = new InitMessage(this.prepareParticipantsData([to])[0]);
+    const message: AServerMessage = new InitMessage(this.prepareParticipantsData([to])[0]);
     this.senderService.sendToParticipant(to, message);
   }
 
   public sendLeft(to: Participant): void {
-    const message: ServerMessage = new LeftMessage();
+    const message: AServerMessage = new LeftMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
   public sendPing(to: Participant): void {
-    const message: ServerMessage = new PingMessage();
+    const message: AServerMessage = new PingMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
   public sendReset(to: Participant): void {
-    const message: ServerMessage = new ServerResetMessage();
+    const message: AServerMessage = new ServerResetMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
   public sendSelf(to: Participant): void {
-    const message: ServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
+    const message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  public sendTeamIdleMessage(to: Participant): void {
+    const message: AServerMessage = new TeamIdleMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
   public sendTeamInfo(to: Participant, team: ITeam): void {
-    let message: ServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0])
+    let message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0])
     this.senderService.sendToParticipant(to, message);
     message = new TeamNameMessage(team.teamName);
     this.senderService.sendToParticipant(to, message);
@@ -114,18 +125,23 @@ export class MessageService implements IMessageService {
   }
 
   public sendException(socket: IWebSocket, errorMessage: string): void {
-    const message: ServerMessage = new ErrorMessage(EErrorCode.ServerError, errorMessage);
+    const message: AServerMessage = new ErrorMessage(EErrorCode.ServerError, errorMessage);
     this.senderService.sendToSocket(socket, message);
   }
 
   //#region private send methods ----------------------------------------------
+  private sendCardSet(to: Participant, cardSet: ICardSet): void {
+    const message: AServerMessage = new CardSetMessage(cardSet);
+    this.senderService.sendToParticipant(to, message);
+  }
+
   private sendClearEstimations(to: Participant): void {
-    const message: ServerMessage = new ClearEstimationsMessage();
+    const message: AServerMessage = new ClearEstimationsMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
   private sendEstimations(to: Participant, revealed: boolean, estimations: Array<Estimation>): void {
-    const message: ServerMessage = new EstimationListMessage(this.prepareEstimationsData(to, revealed, estimations));
+    const message: AServerMessage = new EstimationListMessage(this.prepareEstimationsData(to, revealed, estimations));
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -140,12 +156,12 @@ export class MessageService implements IMessageService {
         observer: changedMember.observer
       }
     }
-    const message: ServerMessage = new MemberChangedMessage(data);
+    const message: AServerMessage = new MemberChangedMessage(data);
     this.senderService.sendToParticipant(to, message);
   }
 
   private sendPokerStatusChanged(to: Participant, game: ITeam): void {
-    const message: ServerMessage = new PokerStatusChangedMessage(game.status);
+    const message: AServerMessage = new PokerStatusChangedMessage(game.status);
     this.senderService.sendToParticipant(to, message);
   }
   //#endregion

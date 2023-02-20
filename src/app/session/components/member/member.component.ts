@@ -1,6 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { EParticipantStatus } from '@shared-lib';
-import { Member } from '../../objects/member';
+import { TranslateService } from '@ngx-translate/core';
+
+import { EParticipantStatus, ERole } from '@shared-lib';
+
+import { Member, SessionService } from '@shared/services';
+import { TeamService } from '../../services';
 
 @Component({
   selector: 'session-member',
@@ -13,9 +17,23 @@ export class MemberComponent {
   @Input() public member: Member | undefined;
   //#endregion
 
-  //#region Public getter methods ---------------------------------------------
+  //#region Private properties ------------------------------------------------
+  private readonly sessionService: SessionService;
+  private readonly teamService: TeamService;
+  private readonly translateService: TranslateService;
+  //#endregion
+
+  //#region Public getter methods labels --------------------------------------
   public get connectionStatusIcon(): string {
-    return this.member?.status === EParticipantStatus.Connected ? 'cloud' : 'cloud_off';
+    switch (this.member?.status) {
+      case EParticipantStatus.Connected:
+        return 'cloud';
+      case EParticipantStatus.Paused:
+        return 'notifications_paused';
+      case EParticipantStatus.Disconnected:
+      default:
+        return 'cloud_off';
+    }
   }
 
   public get nick(): string {
@@ -24,6 +42,80 @@ export class MemberComponent {
 
   public get person(): string {
     return this.member?.observer ? "person_outline" : "person";
+  }
+
+  public get startEstimatingLabel(): string {
+    return this.translateService.instant('Member.Component.MenuItem.Start_estimating');
+  }
+
+  public get stopEstimatingLabel(): string {
+    return this.translateService.instant('Member.Component.MenuItem.Stop_estimating');
+  }
+
+  public get changeNickLabel(): string {
+    return this.translateService.instant('Member.Component.MenuItem.Change_nick');
+  }
+
+  public get changeScrumMasterLabel(): string {
+    return this.translateService.instant('Member.Component.MenuItem.Change_scrummaster');
+  }
+  //#endregion
+
+  //#region public getter methods authorization -------------------------------
+  public get canChangeNick(): boolean {
+    return this.member?.me || false;
+  }
+
+  public get canChangeScrumMaster(): boolean {
+    return this.member?.role === ERole.ScrumMaster;
+  }
+
+  public get canStartEstimating(): boolean {
+    if (this.member) {
+      return this.sessionService.scrumMaster ?
+        this.member.observer :
+        this.member.observer && this.member.me;
+    }
+    else {
+      return false;
+    }
+  }
+
+  public get canStopEstimating(): boolean {
+    if (this.member) {
+      return this.sessionService.scrumMaster ?
+        !this.member.observer :
+        !this.member.observer && this.member.me;
+    }
+    else {
+      return false;
+    }
+  }
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(sessionService: SessionService, teamService: TeamService, translateService: TranslateService) {
+    this.sessionService = sessionService;
+    this.teamService = teamService;
+    this.translateService = translateService;
+  }
+  //#endregion
+
+  //#region UI triggered methods ----------------------------------------------
+  public changeNickClick(): void {
+    this.teamService.changeNick();
+  }
+
+  public changeScrumMasterClick(): void {
+    this.teamService.changeScrumMaster();
+  }
+
+  public startObserverClick(): void {
+    this.teamService.switchObserving(true, this.member?.uuid || '');
+  }
+
+  public stopObserverClick(): void {
+    this.teamService.switchObserving(false, this.member?.uuid || '');
   }
   //#endregion
 }

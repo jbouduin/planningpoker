@@ -14,4 +14,9 @@
       {{forceRevealButtonLabel}}
     </button>
   </div>
+  <div *ngIf="!showReveal" class="game-button">
+    <button mat-stroked-button color="primary" (click)="changeCardSet()">
+      {{changeCardSetButtonLabel}}
+    </button>
+  </div>
 </div>

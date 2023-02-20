@@ -2,7 +2,8 @@ export const environment = {
   production: false,
   defaultLanguage: 'en-US',
   supportedLanguages: ['de-DE', 'en-US'],
-  ws: 'localhost:3001',
+  ws: 'ws://localhost:3001/game',
+  host: 'http://localhost:4200'
 };
 
 /*

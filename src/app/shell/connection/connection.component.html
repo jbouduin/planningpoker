@@ -1,9 +1,0 @@
-<div class="connection-wrapper flex-row" *ngIf="showConnection">
-  <mat-icon>{{connectionIcon}}</mat-icon>
-  <div class="span-reconnecting" *ngIf="showReconnecting">
-    <span>{{reconnectingText}}</span>
-    <button class="button-reconnect" mat-stroked-button (click)="reconnectNow()">
-      {{reconnectNowButtonLabel}}
-    </button>
-  </div>
-</div>

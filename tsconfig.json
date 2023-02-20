@@ -24,23 +24,20 @@
       "@shared-lib": [
         "projects/shared-lib/lib"
       ],
-      "@shared-lib/*": [
-        "projects/shared-lib/lib/*"
-      ],
-      "@app/*": [
-        "src/app/*"
-      ],
-      "@core": [
-        "src/app/@core"
-      ],
       "@core/*": [
         "src/app/@core/*"
       ],
-      "@shared": [
-        "src/app/@shared"
-      ],
       "@shared/*": [
         "src/app/@shared/*"
+      ],
+      "@home/*": [
+        "src/app/home/*"
+      ],
+      "@session/*": [
+        "src/app/session/*"
+      ],
+      "@shell/*": [
+        "src/app/shell/*"
       ],
       "@env/*": [
         "src/environments/*"

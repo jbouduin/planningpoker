@@ -1,19 +1,19 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { TranslateModule } from '@ngx-translate/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MaterialModule } from './material.module';
-import { environment } from '@env/environment';
-import { CoreModule } from '@core';
-import { SharedModule } from '@shared';
 
-import { HomeModule } from './home/home.module';
-import { ShellModule } from './shell/shell.module';
-import { AppComponent } from './app.component';
+import { CoreModule } from '@core/core.module';
+import { environment } from '@env/environment';
+import { HomeModule } from '@home/home.module';
+import { SharedModule } from '@shared/shared.module';
+import { ShellModule } from '@shell/shell.module';
 import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { MaterialModule } from './material.module';
 
 @NgModule({
   imports: [

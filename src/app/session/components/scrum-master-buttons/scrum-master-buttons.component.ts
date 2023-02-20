@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { PokerService } from '@app/session/services/poker.service';
-import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
-import { ERole } from '@shared-lib';
+
+import { SessionService } from '@shared/services';
+import { CardService } from '../../services/card.service';
+import { PokerService } from '../../services/poker.service';
 
 @Component({
   selector: 'session-scrum-master-buttons',
@@ -12,22 +13,27 @@ import { ERole } from '@shared-lib';
 export class ScrumMasterButtonsComponent {
 
   //#region Private Properties ------------------------------------------------
+  private readonly cardService: CardService
   private readonly pokerService: PokerService;
-  private readonly teamService: TeamService;
+  private readonly sessionService: SessionService;
   private readonly translateService: TranslateService;
   //#endregion
 
   //#region getters -----------------------------------------------------------
+  public get changeCardSetButtonLabel(): string {
+    return this.translateService.instant('ScrumMasterButtons.Component.Button.ChangeCardSet.Label');
+  }
+
   public get revealButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Reveal');
+    return this.translateService.instant('ScrumMasterButtons.Component.Button.Reveal.Label');
   }
 
   public get forceRevealButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.ForceReveal');
+    return this.translateService.instant('ScrumMasterButtons.Component.Button.ForceReveal.Label');
   }
 
   public get startButtonLabel(): string {
-    return this.translateService.instant('Game.Component.ButtonLabel.Start');
+    return this.translateService.instant('ScrumMasterButtons.Component.Button.Start.Label');
   }
 
   public get disableReveal(): boolean {
@@ -35,7 +41,7 @@ export class ScrumMasterButtonsComponent {
   }
 
   public get showMe(): boolean {
-    return this.teamService.me.role === ERole.ScrumMaster;
+    return this.sessionService.scrumMaster;
   }
 
   public get showReveal(): boolean {
@@ -48,9 +54,10 @@ export class ScrumMasterButtonsComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(pokerService: PokerService, teamService: TeamService, translateService: TranslateService) {
+  public constructor(cardService: CardService, pokerService: PokerService, sessionService: SessionService, translateService: TranslateService) {
+    this.cardService = cardService;
     this.pokerService = pokerService;
-    this.teamService = teamService;
+    this.sessionService = sessionService;
     this.translateService = translateService;
   }
   //#endregion
@@ -62,6 +69,10 @@ export class ScrumMasterButtonsComponent {
 
   public start(): void {
     this.pokerService.start();
+  }
+
+  public changeCardSet(): void {
+    this.cardService.changeCardSet();
   }
   //#endregion
 }

@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
-import { PokerService } from '@app/session/services/poker.service';
 import { TranslateService } from '@ngx-translate/core';
-import { Estimation, Member } from '../../../session/objects';
+
+import { Member } from '@shared/services';
+import { Estimation } from '../../services/estimation';
+import { PokerService } from '../../services/poker.service';
 
 @Component({
   selector: 'session-poker-table',
@@ -25,7 +27,7 @@ export class PokerTableComponent {
   }
 
   public get meLabel(): string {
-    return this.translateService.instant('Game.Card.Me_label');
+    return this.translateService.instant('Label.Generic.Me');
   }
 
   public get canWithdraw(): boolean {

@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { ClientMessage, EClientMessageType, EErrorCode, ERole, IRejoinMessage } from "../../../../shared-lib/lib";
+import { AClientMessage, EClientMessageType, EErrorCode, ERole, ILeaveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { IStorageService } from "../../storage/interfaces";
 import { IPreflightService } from "../interfaces";
 
@@ -8,7 +8,7 @@ import { IPreflightService } from "../interfaces";
 export class PreflightService implements IPreflightService {
 
   //#region IPreflightService methods -----------------------------------------
-  public preflight(storageService: IStorageService, message: ClientMessage, teamName: string): EErrorCode {
+  public preflight(storageService: IStorageService, message: AClientMessage, teamName: string): EErrorCode {
     let result = EErrorCode.NoError;
 
     const participant = storageService.getParticipant(message.senderUuid);
@@ -21,7 +21,9 @@ export class PreflightService implements IPreflightService {
       } else if (this.messageTypeRequiresTeam(message.type) && !team) {
         result = EErrorCode.TeamDoesNotExist;
       } else if (this.messageTypeRequiresMembership(message.type)) {
-        const membership = storageService.getTeamOfParticipant(message.senderUuid);
+        const uuidToUse = message.type === EClientMessageType.Leave ?
+          (<ILeaveMessage>message).data : message.senderUuid;
+        const membership = storageService.getTeamOfParticipant(uuidToUse);
         if (!membership || membership !== team) {
           result = EErrorCode.ParticipantNotInTeam
         }
@@ -49,18 +51,24 @@ export class PreflightService implements IPreflightService {
   //#region private methods ---------------------------------------------------
   private messageTypeRequiresTeam(messageType: EClientMessageType): boolean {
     const result =
+      messageType === EClientMessageType.ChangeCardSet ||
+      messageType === EClientMessageType.ChangeScrumMaster ||
       messageType === EClientMessageType.Estimate ||
       messageType === EClientMessageType.Join ||
       messageType === EClientMessageType.Leave ||
       messageType === EClientMessageType.Reveal ||
+      messageType === EClientMessageType.Rejoin ||
       messageType === EClientMessageType.Start;
     return result;
   }
 
   private messageTypeRequiresMembership(messageType: EClientMessageType): boolean {
     const result =
+      messageType === EClientMessageType.ChangeCardSet ||
+      messageType === EClientMessageType.ChangeScrumMaster ||
       messageType === EClientMessageType.Estimate ||
       messageType === EClientMessageType.Leave ||
+      messageType === EClientMessageType.Observe ||
       messageType === EClientMessageType.Pause ||
       messageType === EClientMessageType.Reveal ||
       messageType === EClientMessageType.Start;
@@ -78,12 +86,15 @@ export class PreflightService implements IPreflightService {
     let result = EErrorCode.NoError;
 
     switch (messageType) {
+      // TODO is this correct ???
       case (EClientMessageType.Estimate): {
         if (role !== ERole.ScrumMaster && role !== ERole.Developer) {
           result = EErrorCode.DeveloperRequired;
         }
         break;
       }
+      case (EClientMessageType.ChangeCardSet):
+      case (EClientMessageType.ChangeScrumMaster):
       case (EClientMessageType.Reveal):
       case (EClientMessageType.Start): {
         if (role !== ERole.ScrumMaster) {

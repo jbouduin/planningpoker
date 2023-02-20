@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { ConnectionService } from '@app/@shared';
-import { EPokerStatus, EServerMessageType, IEstimation, IEstimationsMessage, IInitMessage, IPokerStatusChangedMessage, ISelfMessage, ServerMessage } from '@shared-lib';
-import { EstimateMessage, RevealMessage, StartMessage } from '../messages';
-import { Estimation, Member } from '../objects';
+
+import { EPokerStatus, EServerMessageType, IEstimation, IEstimationsMessage, IInitMessage, IPokerStatusChangedMessage, AServerMessage } from '@shared-lib';
+
+import { EstimateMessage, RevealMessage, StartMessage } from '@shared/messages';
+import { Member, SessionService } from '@shared/services';
 import { CardService } from './card.service';
+import { Estimation } from './estimation';
 import { TeamService } from './team.service';
 
 @Injectable({
@@ -12,7 +14,7 @@ import { TeamService } from './team.service';
 export class PokerService {
   //#region private properties ------------------------------------------------
   private readonly cardService: CardService;
-  private readonly connectionService: ConnectionService;
+  private readonly sessionService: SessionService;
   private readonly teamService: TeamService;
   private myUuid: string;
   private pokerStatus: EPokerStatus;
@@ -46,32 +48,32 @@ export class PokerService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  constructor(cardService: CardService, connectionService: ConnectionService, teamService: TeamService) {
+  constructor(cardService: CardService, sessionService: SessionService, teamService: TeamService) {
     this.cardService = cardService;
-    this.connectionService = connectionService;
+    this.sessionService = sessionService;
     this.teamService = teamService;
     this.givenEstimations = new Map<string, Estimation>;
     this.myUuid = '';
     this.pokerStatus = EPokerStatus.Cleared;
+    this.sessionService.incomingMessage.subscribe((serverMessage: AServerMessage) => this.handleServerMessage(serverMessage));
+    this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
 
   //#region public methods ----------------------------------------------------
-  public handleServerMessage(message: ServerMessage): void {
+  public handleServerMessage(message: AServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Init:
-        this.myUuid = (<IInitMessage>message).data.uuid;
-        break;
       case EServerMessageType.Self:
-        this.myUuid = (<ISelfMessage>message).data.uuid;
+        this.myUuid = (<IInitMessage>message).data.uuid;
         break;
       case EServerMessageType.ClearEstimations:
         this.givenEstimations.clear();
         break;
       case EServerMessageType.EndSession:
-      case EServerMessageType.Reset:
-        this.givenEstimations.clear();
-        this.pokerStatus = EPokerStatus.Cleared;
+      case EServerMessageType.ServerReset:
+      case EServerMessageType.TeamIdle:
+        this.resetService();
         break;
       case EServerMessageType.EstimationList:
         this.handleEstimations((<IEstimationsMessage>message).data);
@@ -85,25 +87,30 @@ export class PokerService {
   public withDraw(): void {
     console.log('withdrawing estimation');
     const message = new EstimateMessage(this.myUuid, -1);
-    this.connectionService.sendMessage(message);
+    this.sessionService.sendMessage(message);
   }
 
   public estimate(index: number): void {
     console.log(`estimated ${index}`);
     const message = new EstimateMessage(this.myUuid, index);
-    this.connectionService.sendMessage(message);
+    this.sessionService.sendMessage(message);
   }
 
   public reveal(): void {
     console.log('reveal');
     const message = new RevealMessage(this.myUuid);
-    this.connectionService.sendMessage(message);
+    this.sessionService.sendMessage(message);
   }
 
   public start(): void {
     console.log('starting');
     const message = new StartMessage(this.myUuid);
-    this.connectionService.sendMessage(message);
+    this.sessionService.sendMessage(message);
+  }
+
+  private resetService(): void {
+    this.givenEstimations.clear();
+    this.pokerStatus = EPokerStatus.Cleared;
   }
   //#endregion
 

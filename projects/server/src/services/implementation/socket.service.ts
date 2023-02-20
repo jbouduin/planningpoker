@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify';
 
 import SERVICETYPES from '../service.types';
 
-import { ClientMessage } from '../../../../shared-lib/lib';
+import { AClientMessage } from '../../../../shared-lib/lib';
 import { ISocketService, IHandlerService } from '../interfaces';
 
 
@@ -18,7 +18,7 @@ export class SocketService implements ISocketService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(@inject(SERVICETYPES.HandlerService) handlerService: IHandlerService) {
-    console.log(`${new Date().toISOString()}: gameservice constructor`);
+    console.log(`${new Date().toISOString()}: SocketService constructor`);
     this.handlerService = handlerService;
     this.pingInterval = 0;
   }
@@ -41,7 +41,7 @@ export class SocketService implements ISocketService {
       (ws, req, _next) => {
         ws.on('message', (msg: string) => {
           try {
-            const message: ClientMessage = JSON.parse(msg);
+            const message: AClientMessage = JSON.parse(msg);
             console.log(`${new Date().toISOString()}: <= ${message.type}: ${JSON.stringify(message)}`);
             this.handlerService.handleMessage(message, req.params.team, ws);
           } catch (err) {

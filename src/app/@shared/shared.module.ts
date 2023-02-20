@@ -1,21 +1,25 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@app/material.module';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
-import { LoaderComponent } from './components/loader/loader.component';
-import { SnackbarComponent } from './components/snackbar/snackbar.component';
+import { MaterialModule } from '../material.module';
+import { CardComponent, CardSetDialogComponent, MessageBoxComponent, SnackbarComponent } from './components';
+import { LoaderComponent } from './components/';
 
 @NgModule({
-    imports: [
-        MaterialModule,
-        CommonModule
-    ],
-    declarations: [
-        ConfirmationDialogComponent,
-        LoaderComponent,
-        SnackbarComponent
-    ],
-    exports: []
+  imports: [
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule
+  ],
+  declarations: [
+    MessageBoxComponent,
+    LoaderComponent,
+    SnackbarComponent,
+    CardComponent,
+    CardSetDialogComponent
+  ],
+  exports: [CardComponent]
 })
-export class SharedModule {}
+export class SharedModule { }

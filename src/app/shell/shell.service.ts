@@ -1,6 +1,6 @@
 import { Routes, Route } from '@angular/router';
 
-import { MainComponent } from './main/main.component';
+import { MainComponent } from './components';
 
 /**
  * Provides helper methods to create routes.

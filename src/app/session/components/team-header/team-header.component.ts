@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { TeamService } from '@app/session/services/team.service';
+
+import { TeamService } from '../../services/team.service';
 
 @Component({
   selector: 'session-team-header',
@@ -21,6 +22,12 @@ export class TeamHeaderComponent {
   //#region Constructor & C° --------------------------------------------------
   public constructor(teamService: TeamService) {
     this.teamService = teamService;
+  }
+  //#endregion
+
+  //#region UI triggered methods ----------------------------------------------
+  public shareTeamClick(): void {
+    this.teamService.copyTeamLinkToClipBoard();
   }
   //#endregion
 

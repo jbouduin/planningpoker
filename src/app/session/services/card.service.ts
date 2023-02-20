@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
-import { EServerMessageType, ICard, ICardSetMessage, ServerMessage } from '@shared-lib';
-import { Card } from '../objects';
+import { MatDialog } from '@angular/material/dialog';
+
+import { ECardSet, EServerMessageType, ICard, ICardSet, ICardSetMessage, AServerMessage } from '@shared-lib';
+
+import { Card, CardSetDialogComponent, ICardSetDialogParams } from '@shared/components';
+import { ChangeCardSetMessage } from '@shared/messages';
+import { SessionService } from '@shared/services';
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +13,9 @@ import { Card } from '../objects';
 export class CardService {
 
   //#region private properties ------------------------------------------------
+  private readonly sessionService: SessionService;
+  private readonly dialog: MatDialog;
+  private currentCardSet: ECardSet;
   private _cards: Array<Card>;
   //#endregion
 
@@ -18,8 +26,13 @@ export class CardService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  constructor() {
+  constructor(dialog: MatDialog, sessionService: SessionService) {
+    this.dialog = dialog;
+    this.sessionService = sessionService;
+    this.currentCardSet = ECardSet.Cohn;
     this._cards = new Array<Card>();
+    this.sessionService.incomingMessage.subscribe((serverMessage: AServerMessage) => this.handleServerMessage(serverMessage));
+    this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
 
@@ -28,15 +41,48 @@ export class CardService {
     return this._cards.find((card: Card) => card.index === index);
   }
 
-  public handleServerMessage(message: ServerMessage): void {
+  public changeCardSet(): void {
+    const data: ICardSetDialogParams = {
+      cardSets: [ECardSet.Cohn, ECardSet.Fibonacci, ECardSet.TShirt],
+      currentCards: this._cards.map((card: Card) => {
+        return {
+          index: card.index,
+          label: card.label,
+          isIcon: card.isIcon,
+          isUnknownEstimation: card.isUnknownEstimation
+        }
+      }),
+      currentCardSet: this.currentCardSet
+    }
+    const dialogRef = this.dialog.open(CardSetDialogComponent, { data: data });
+
+    dialogRef.afterClosed().subscribe((result: ICardSet) => {
+      if (result) {
+        const message = new ChangeCardSetMessage(this.sessionService.myUuid, result);
+        this.sessionService.sendMessage(message);
+      }
+    });
+  }
+
+  public handleServerMessage(message: AServerMessage): void {
     switch (message.type) {
       case EServerMessageType.CardList:
         this._cards = (<ICardSetMessage>message).data.cards.map((card: ICard) => new Card(card));
+        this.currentCardSet = (<ICardSetMessage>message).data.cardSet;
         break;
       case EServerMessageType.EndSession:
-      case EServerMessageType.Reset:
-        this._cards = new Array<Card>();
+      case EServerMessageType.ServerReset:
+      case EServerMessageType.TeamIdle:
+        this.resetService();
     }
   }
+
+  public giveUpReconnecting(): void {
+    this._cards = new Array<Card>();
+  }
   //#endregion
+
+  private resetService(): void {
+    this._cards = new Array<Card>();
+  }
 }

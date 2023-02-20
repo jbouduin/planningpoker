@@ -1,0 +1,7 @@
+# Disclaimer
+
+## Liability for content
+The contents of my pages have been created with the utmost care. However, I cannot guarantee the contents' accuracy, completeness or topicality. According to statutory provisions (§ 7 Abs.1 TMG) , I am furthermore responsible for my own content on these web pages. Opinions expressed here are my own and may not reflect those of people I work with, my customers, my mates, my wife, the kids etc. Unless I'm quoting someone, they're just my own views. In this matter, please note that I am not obliged to monitor the transmitted or saved information of third parties, or investigate circumstances pointing to illegal activity. My obligations to remove or block the use of information under generally applicable laws remain unaffected by this as per §§ 8 to 10 of the Telemedia Act (TMG).
+
+## Liability for links
+My site includes links to external third party web sites. I have no influence on the contents of those pages. Therefore we cannot take over a warranty for the contents of those pages. Providers or administrators of linked pages are always responsible for their own contents. The linked pages have been checked for possible violations of law at the time of the establishment of the link. A permanent inspection of linked pages cannot be imposed without reasonable indications that there has been a violation of law. Illegal links will be removed immediately at the time I get knowledge of them.

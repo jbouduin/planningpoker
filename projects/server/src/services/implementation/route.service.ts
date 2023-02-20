@@ -137,6 +137,20 @@ export class RouteService implements IRouteService {
         }
       }
     );
+
+    router.get(
+      '/cardsets',
+      (_request: Request, response: Response) => {
+        try {
+          response
+            .type('application/json')
+            .send(JSON.stringify(this.apiController.availableCardSets()));
+        } catch (error) {
+          console.log(error);
+          response.sendStatus(500);
+        }
+      }
+    )
   }
   //#endregion
 }

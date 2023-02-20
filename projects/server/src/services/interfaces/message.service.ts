@@ -4,6 +4,7 @@ import { Estimation, ITeam, Participant } from "../../objects";
 
 export interface IMessageService {
   broadcastAllEstimations(team: ITeam): void;
+  broadcastCardSet(team: ITeam): void;
   broadcastClearEstimations(team: ITeam): void;
   broadcastEstimation(team: ITeam, estimation: Estimation): void;
   broadcastPokerStatus(team: ITeam): void;
@@ -15,8 +16,9 @@ export interface IMessageService {
   sendInit(to: Participant): void;
   sendLeft(to: Participant): void;
   sendPing(to: Participant): void;
-  sendReset(to: Participant): void
+  sendReset(to: Participant): void;
   sendSelf(to: Participant): void;
   sendSessionEnded(to: Participant): void;
+  sendTeamIdleMessage(to: Participant): void;
   sendTeamInfo(to: Participant, game: ITeam): void;
 }

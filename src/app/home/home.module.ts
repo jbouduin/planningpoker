@@ -1,12 +1,12 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CoreModule } from '@core';
-import { SharedModule } from '@shared';
-import { MaterialModule } from '@app/material.module';
+
+import { CoreModule } from '@core/core.module';
+import { SharedModule } from '@shared/shared.module';
+import { MaterialModule } from '../material.module';
+import { ContentPageComponent, JoinComponent, LandingComponent } from './components';
 import { HomeRoutingModule } from './home-routing.module';
-import { HomeComponent } from './home.component';
-import { JoinComponent } from './join/join.component';
 
 @NgModule({
   imports: [
@@ -19,8 +19,9 @@ import { JoinComponent } from './join/join.component';
     HomeRoutingModule
   ],
   declarations: [
-    HomeComponent,
-    JoinComponent
+    LandingComponent,
+    JoinComponent,
+    ContentPageComponent
   ],
   providers: []
 })

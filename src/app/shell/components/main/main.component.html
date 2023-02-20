@@ -1,0 +1,8 @@
+<div class="main-container">
+  <mat-toolbar color="primary" class="main-toolbar" [class.is-mobile]="mobileQuery.matches">
+    <shell-header class="header"></shell-header>
+  </mat-toolbar>
+  <div class="content-container">
+    <router-outlet></router-outlet>
+  </div>
+</div>
