@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { ClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
+import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IMessageService } from "../interfaces";
@@ -93,7 +93,7 @@ export class HandlerService {
     }
   }
 
-  public handleMessage(message: ClientMessage, teamName: string, ws: IWebSocket): void {
+  public handleMessage(message: AClientMessage, teamName: string, ws: IWebSocket): void {
     const preflight = this.preflightService.preflight(this.storage, message, teamName);
     if (preflight !== EErrorCode.NoError) {
       this.messageService.sendErrorMessageToSocket(ws, preflight);
@@ -139,7 +139,7 @@ export class HandlerService {
   //#endregion
 
   //#region private methods ---------------------------------------------------
-  private processMessage(sender: Participant, message: ClientMessage, teamName: string, ws: IWebSocket): void {
+  private processMessage(sender: Participant, message: AClientMessage, teamName: string, ws: IWebSocket): void {
     if (message.type === EClientMessageType.Create) {
       this.handleCreate(sender, <ICreatemessage>message);
     }

@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { ServerMessage } from "../../../../shared-lib/lib";
+import { AServerMessage } from "../../../../shared-lib/lib";
 import { Participant } from "../../objects";
 import { ISenderService } from "../interfaces";
 import { IWebSocket, ReadyState } from "../websocket";
@@ -8,17 +8,17 @@ import { IWebSocket, ReadyState } from "../websocket";
 @injectable()
 export class SenderService implements ISenderService{
 
-  public sendToParticipant(to: Participant, message: ServerMessage): void {
+  public sendToParticipant(to: Participant, message: AServerMessage): void {
     console.log(`${new Date().toISOString()}: => to '${to.nick}': ${message.type} - ${JSON.stringify(message)}`);
     this.send(to.socket, message);
   }
 
-  public sendToSocket(socket: IWebSocket, message: ServerMessage): void {
+  public sendToSocket(socket: IWebSocket, message: AServerMessage): void {
     console.log(`${new Date().toISOString()}: => to socket: ${message.type} - ${JSON.stringify(message)}`);
     this.send(socket, message);
   }
 
-  private send(socket: IWebSocket, message: ServerMessage): void {
+  private send(socket: IWebSocket, message: AServerMessage): void {
     if (socket.readyState === ReadyState.OPEN) {
       try {
         socket.send(JSON.stringify(message));

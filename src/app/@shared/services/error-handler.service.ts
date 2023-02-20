@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { IErrorMessage, ServerMessage } from '@shared-lib';
+import { IErrorMessage, AServerMessage } from '@shared-lib';
 
 import { enumMarker } from '@core/marker';
 import { SnackbarService } from '../services';
@@ -30,7 +30,7 @@ export class ErrorHandlerService {
 
   //#region public methods ----------------------------------------------------
 
-  public handleErrorMessage(message: ServerMessage): boolean {
+  public handleErrorMessage(message: AServerMessage): boolean {
     const code = (<IErrorMessage>message).data.code;
     this.snackbarService.showError(
       this.translateService.instant(`${this.errorCodePrefix}${EErrorCode[code]}`)

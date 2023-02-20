@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { ClientMessage, EClientMessageType, EErrorCode, ERole, ILeaveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
+import { AClientMessage, EClientMessageType, EErrorCode, ERole, ILeaveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { IStorageService } from "../../storage/interfaces";
 import { IPreflightService } from "../interfaces";
 
@@ -8,7 +8,7 @@ import { IPreflightService } from "../interfaces";
 export class PreflightService implements IPreflightService {
 
   //#region IPreflightService methods -----------------------------------------
-  public preflight(storageService: IStorageService, message: ClientMessage, teamName: string): EErrorCode {
+  public preflight(storageService: IStorageService, message: AClientMessage, teamName: string): EErrorCode {
     let result = EErrorCode.NoError;
 
     const participant = storageService.getParticipant(message.senderUuid);

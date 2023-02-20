@@ -1,4 +1,4 @@
-import { ClientMessage } from "../../../../shared-lib/lib";
+import { AClientMessage } from "../../../../shared-lib/lib";
 import { LooseObject, Participant } from "../../objects";
 import { IWebSocket } from "../websocket";
 
@@ -7,7 +7,7 @@ export interface IHandlerService {
   handleConnect(ws: IWebSocket): Participant;
   handleCronTick(maxIdleTime: number): void;
   handleError(ws: IWebSocket, err: unknown): void;
-  handleMessage(message: ClientMessage, team: string, ws: IWebSocket): void;
+  handleMessage(message: AClientMessage, team: string, ws: IWebSocket): void;
   handlePing(): void;
   handleReset(): LooseObject;
 }

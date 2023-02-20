@@ -4,7 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, map, Observable, ReplaySubject, Subject } from 'rxjs';
 
-import { ClientMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IInitMessage, ISelfMessage, ServerMessage } from '@shared-lib';
+import { AClientMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IInitMessage, ISelfMessage, AServerMessage } from '@shared-lib';
 
 import { environment } from '@env/environment';
 import { MessageBoxComponent, MessageBoxParams } from '../components';
@@ -34,14 +34,14 @@ export class SessionService {
 
   //#region private properties ------------------------------------------------
   private currentRoute: string;
-  private initialMessage?: ClientMessage;
+  private initialMessage?: AClientMessage;
   private me: Member;
   private resumeTimer?: number;
   private webSocket: WebSocket | null;
   //#endregion
 
   //#region public properties -------------------------------------------------
-  public readonly incomingMessage: ReplaySubject<ServerMessage>;
+  public readonly incomingMessage: ReplaySubject<AServerMessage>;
   public readonly reset: Subject<void>;
   public resumeIn: number;
   public status: ESessionStatus;
@@ -83,7 +83,7 @@ export class SessionService {
     this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, uuid: '' }, true);
     this.webSocket = null;
     // assign the public readonly properties
-    this.incomingMessage = new ReplaySubject<ServerMessage>();
+    this.incomingMessage = new ReplaySubject<AServerMessage>();
     this.reset = new Subject<void>();
     // assign the public properties
     this.resumeIn = 0;
@@ -246,7 +246,7 @@ export class SessionService {
   //#endregion
 
   //#region Private message handling methods ----------------------------------
-  private handleServerMessage(message: ServerMessage): void {
+  private handleServerMessage(message: AServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Error:
         if (this.errorHandlerService.handleErrorMessage(message)) {
@@ -387,7 +387,7 @@ export class SessionService {
     }
   }
 
-  public sendMessage(message: ClientMessage): void {
+  public sendMessage(message: AClientMessage): void {
     if (this.canPerformActionOnSocket()) {
       this.webSocket?.send(JSON.stringify(message));
     }
@@ -429,7 +429,7 @@ export class SessionService {
 
   private onMessage(event: MessageEvent<string>): void {
     console.log(event.data);
-    const message: ServerMessage = JSON.parse(event.data);
+    const message: AServerMessage = JSON.parse(event.data);
     this.handleServerMessage(message)
     this.incomingMessage.next(message);
   }

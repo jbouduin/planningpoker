@@ -1,4 +1,4 @@
-import { ECardSet, ICardSet, ICreate, IJoin, IObserverChange } from '../interfaces';
+import { ICardSet, ICreate, IJoin, IObserverChange } from '../interfaces';
 import { EClientMessageType } from './client-message-type.enum';
 
 export interface IClientMessage<T> {
@@ -20,7 +20,7 @@ export type IPauseMessage = IClientMessage<void>;
 export type IRejoinMessage = IClientMessage<string>;
 export type IRevealMessage = IClientMessage<void>;
 export type IStartMessage = IClientMessage<void>;
-export type ClientMessage =
+export type AClientMessage =
   IChangeCardSetMessage |
   IChangeNickMessage |
   IChangeScrumMasterMessage |

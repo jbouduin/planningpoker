@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
-import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
+import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, AServerMessage } from '@shared-lib';
 
 import { environment } from '@env/environment';
 import { MessageBoxComponent, MessageBoxParams } from '@shared/components';
@@ -75,7 +75,7 @@ export class TeamService {
     this.allMembers = new Map<string, Member>();
     this.teamName = '';
     this.myUuid = '';
-    this.sessionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+    this.sessionService.incomingMessage.subscribe((serverMessage: AServerMessage) => this.handleServerMessage(serverMessage));
    this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
@@ -126,7 +126,7 @@ export class TeamService {
     return this.allMembers.get(uuid);
   }
 
-  public handleServerMessage(message: ServerMessage): void {
+  public handleServerMessage(message: AServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Self:
         this.handleSelf(new Member((<ISelfMessage>message).data, true));
