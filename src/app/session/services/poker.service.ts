@@ -85,25 +85,21 @@ export class PokerService {
   }
 
   public withDraw(): void {
-    console.log('withdrawing estimation');
     const message = new EstimateMessage(this.myUuid, -1);
     this.sessionService.sendMessage(message);
   }
 
   public estimate(index: number): void {
-    console.log(`estimated ${index}`);
     const message = new EstimateMessage(this.myUuid, index);
     this.sessionService.sendMessage(message);
   }
 
   public reveal(): void {
-    console.log('reveal');
     const message = new RevealMessage(this.myUuid);
     this.sessionService.sendMessage(message);
   }
 
   public start(): void {
-    console.log('starting');
     const message = new StartMessage(this.myUuid);
     this.sessionService.sendMessage(message);
   }
@@ -124,7 +120,6 @@ export class PokerService {
           this.givenEstimations.set(estimation.participantUuid, new Estimation(member, card, estimation.revealed));
         }
       } else {
-        console.log(`Removing estimation '${estimation.participantUuid}'`);
         this.givenEstimations.delete(estimation.participantUuid);
       }
     });
