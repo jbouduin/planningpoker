@@ -103,7 +103,7 @@ export class OverlayComponentComponent {
   }
 
   public doNotRejoinButtonClick(): void {
-    this.sessionService.leave(this.teamService.teamName, this.teamService.me.uuid);
+    this.sessionService.leave(this.teamService.teamName, this.sessionService.myUuid);
   }
   //#endregion
 }

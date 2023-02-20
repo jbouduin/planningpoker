@@ -3,11 +3,11 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ECardSet, EServerMessageType, ICard, ICardSet, ICardSetMessage, ServerMessage } from '@shared-lib';
 
+import { SessionService } from '@shared/services/session.service';
 import { Card, ConnectionService } from '@shared';
 import { CardSetDialogComponent } from '@shared/components/card-set-dialog/card-set-dialog.component';
 import { ICardSetDialogParams } from '@shared/components/card-set-dialog/card-set-dialog.params';
 import { ChangeCardSetMessage } from '@shared/messages';
-import { TeamService } from './team.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,7 @@ export class CardService {
   //#region private properties ------------------------------------------------
   private readonly connectionService: ConnectionService;
   private readonly dialog: MatDialog;
-  private readonly teamService: TeamService;
+  private readonly sessionService: SessionService;
   private currentCardSet: ECardSet;
   private _cards: Array<Card>;
   //#endregion
@@ -29,10 +29,10 @@ export class CardService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  constructor(connectionService: ConnectionService, dialog: MatDialog, teamService: TeamService) {
+  constructor(connectionService: ConnectionService, dialog: MatDialog, sessionService: SessionService) {
     this.connectionService = connectionService;
     this.dialog = dialog;
-    this.teamService = teamService;
+    this.sessionService = sessionService;
     this.currentCardSet = ECardSet.Cohn;
     this._cards = new Array<Card>();
     this.connectionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
@@ -62,7 +62,7 @@ export class CardService {
 
     dialogRef.afterClosed().subscribe((result: ICardSet) => {
       if (result) {
-        const message = new ChangeCardSetMessage(this.teamService.me.uuid, result);
+        const message = new ChangeCardSetMessage(this.sessionService.myUuid, result);
         this.connectionService.sendMessage(message);
       }
     });

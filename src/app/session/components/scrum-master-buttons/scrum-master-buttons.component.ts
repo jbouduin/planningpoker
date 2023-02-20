@@ -3,9 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { CardService } from '@app/session/services/card.service';
 import { PokerService } from '@app/session/services/poker.service';
-import { TeamService } from '@app/session/services/team.service';
-
-import { ERole } from '@shared-lib';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'session-scrum-master-buttons',
@@ -17,7 +15,7 @@ export class ScrumMasterButtonsComponent {
   //#region Private Properties ------------------------------------------------
   private readonly cardService: CardService
   private readonly pokerService: PokerService;
-  private readonly teamService: TeamService;
+  private readonly sessionService: SessionService;
   private readonly translateService: TranslateService;
   //#endregion
 
@@ -43,7 +41,7 @@ export class ScrumMasterButtonsComponent {
   }
 
   public get showMe(): boolean {
-    return this.teamService.me.role === ERole.ScrumMaster;
+    return this.sessionService.scrumMaster;
   }
 
   public get showReveal(): boolean {
@@ -56,10 +54,10 @@ export class ScrumMasterButtonsComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(cardService: CardService, pokerService: PokerService, teamService: TeamService, translateService: TranslateService) {
+  public constructor(cardService: CardService, pokerService: PokerService, sessionService: SessionService, translateService: TranslateService) {
     this.cardService = cardService;
     this.pokerService = pokerService;
-    this.teamService = teamService;
+    this.sessionService = sessionService;
     this.translateService = translateService;
   }
   //#endregion

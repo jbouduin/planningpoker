@@ -3,9 +3,9 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ConnectionService, LocalStorageService, MessageBoxComponent, MessageBoxParams, SnackbarService } from '@shared';
 import { environment } from '@env/environment';
-import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
+import { ConnectionService, LocalStorageService, MessageBoxComponent, MessageBoxParams, SnackbarService } from '@shared';
+import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
 import { ChangeNickMessage, LeaveMessage } from '@shared/messages';
 import { ChangeScrumMasterMessage } from '@shared/messages/change-scrum-master.message';
 import { ObserveMessage } from '@shared/messages/observe-message';
@@ -27,7 +27,7 @@ export class TeamService {
   private readonly snackbarService: SnackbarService;
   private readonly translateService: TranslateService;
   private allMembers: Map<string, Member>;
-  private _me: Member;
+  private myUuid: string;
   //#endregion
 
   //#region public properties -------------------------------------------------
@@ -35,15 +35,6 @@ export class TeamService {
   //#endregion
 
   //#region getters/setters ---------------------------------------------------
-  public get me(): Member {
-    return this._me;
-  }
-
-  private set me(value: Member) {
-    this._me = value;
-    this.allMembers.set(value.uuid, value);
-  }
-
   public get developers(): Array<Member> {
     return Array.from(this.allMembers.values())
       .filter((m: Member) => !m.observer && (m.role !== ERole.ScrumMaster) && (m.role !== ERole.Unknown));
@@ -60,7 +51,8 @@ export class TeamService {
   }
 
   public get canPoker(): boolean {
-    return this.me !== null && !this.me.observer;
+    const me = this.allMembers.get(this.myUuid);
+    return me !== undefined && !me.observer;
   }
 
   public get scrumMaster(): Member | undefined {
@@ -84,9 +76,9 @@ export class TeamService {
     this.translateService = translateService;
     this.allMembers = new Map<string, Member>();
     this.teamName = '';
-    this._me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, uuid: '' }, true);
+    this.myUuid = '';
     this.connectionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
-    this.connectionService.reset.subscribe(() => this.resetMe());
+    this.connectionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
 
@@ -104,6 +96,7 @@ export class TeamService {
       data: params
     });
   }
+
   public changeNick(): void {
     const dialogRef = this.dialog.open(ChangeNickDialogComponent, {
       width: '350px'
@@ -111,7 +104,7 @@ export class TeamService {
 
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
-        const message = new ChangeNickMessage(this.me.uuid, result);
+        const message = new ChangeNickMessage(this.myUuid, result);
         this.connectionService.sendMessage(message);
       }
     });
@@ -125,7 +118,7 @@ export class TeamService {
 
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
-        const message = new ChangeScrumMasterMessage(this.me.uuid, result);
+        const message = new ChangeScrumMasterMessage(this.myUuid, result);
         this.connectionService.sendMessage(message);
       }
     });
@@ -138,46 +131,27 @@ export class TeamService {
   public handleServerMessage(message: ServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Self:
-        if (this.me.role === ERole.Developer && (<ISelfMessage>message).data.role === ERole.ScrumMaster) {
-          this.snackbarService.showInfo(
-            this.translateService.instant('Game.Snackbar.You_are_now_scrum-master')
-          );
-        }
-        this.me = new Member((<ISelfMessage>message).data, true);
-        this.localStorageService.nick = this.me.nick;
-        this.localStorageService.uuid = this.me.uuid;
-        if (this.me.status === EParticipantStatus.Paused) {
-          this.connectionService.disconnect();
-        }
-        break;
-      case EServerMessageType.Init:
-        this.me = new Member((<IInitMessage>message).data, true);
-        this.localStorageService.uuid = this.me.uuid;
+        this.handleSelf(new Member((<ISelfMessage>message).data, true));
         break;
       case EServerMessageType.EndSession:
-        this.handleEndSession();
-        this.resetMe();
-        break;
       case EServerMessageType.Left:
-        this.resetMe();
-        break;
       case EServerMessageType.ServerReset:
-        this.handleServerReset();
-        this.resetMe();
+      case EServerMessageType.TeamIdle:
+        this.resetService();
         break;
+        ;
       case EServerMessageType.MemberChanged:
         this.handleMemberChanged((<IMemberChangedMessage>message).data);
         break;
       case EServerMessageType.MemberList:
+        const me = this.allMembers.get(this.myUuid);
         this.allMembers.clear();
-        this.allMembers.set(this.me.uuid, this.me);
+        if (me) {
+          this.allMembers.set(this.myUuid, me);
+        }
         (<IMemberListMessage>message).data.forEach(
-          (participant: IParticipant) => this.allMembers.set(participant.uuid, new Member(participant, participant.uuid === this.me?.uuid))
+          (participant: IParticipant) => this.allMembers.set(participant.uuid, new Member(participant, participant.uuid === this.myUuid))
         );
-        break;
-      case EServerMessageType.TeamIdle:
-        this.handleTeamIdle();
-        this.resetMe();
         break;
       case EServerMessageType.TeamName:
         this.teamName = (<ITeamNameMessage>message).data;
@@ -186,8 +160,10 @@ export class TeamService {
     }
   }
 
+  // TODO now move this to session
   public leave(): void {
-    if (this.me.role === ERole.ScrumMaster) {
+    const me = this.allMembers.get(this.myUuid);
+    if (me && me.role === ERole.ScrumMaster) {
       const params = new MessageBoxParams();
       params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
       params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
@@ -201,16 +177,18 @@ export class TeamService {
 
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.sendLeaveMessage(this.me.uuid);
+          this.sendLeaveMessage(this.myUuid);
         }
       });
     } else {
-      this.sendLeaveMessage(this.me.uuid);
+      this.sendLeaveMessage(this.myUuid);
     }
   }
 
+  // TODO now move this to session
   public pause(): void {
-    if (this.me.role === ERole.ScrumMaster) {
+    const me = this.allMembers.get(this.myUuid);
+    if (me && me.role === ERole.ScrumMaster) {
       const params = new MessageBoxParams();
       params.showCancelButton = false;
       params.okButtonLabel = this.translateService.instant('Button.Generic.Label.OK');
@@ -222,7 +200,7 @@ export class TeamService {
         data: params
       });
     } else {
-      const message = new PauseMessage(this.me.uuid)
+      const message = new PauseMessage(this.myUuid)
       this.connectionService.sendMessage(message);
     }
   }
@@ -232,7 +210,7 @@ export class TeamService {
       member: member,
       observer: observe
     };
-    const message = new ObserveMessage(this.me.uuid, data);
+    const message = new ObserveMessage(this.myUuid, data);
     this.connectionService.sendMessage(message);
   }
   //#endregion
@@ -241,6 +219,11 @@ export class TeamService {
   private sendLeaveMessage(uuid: string): void {
     const message = new LeaveMessage(uuid, uuid);
     this.connectionService.sendMessage(message);
+  }
+
+  private handleSelf(me: Member): void {
+    this.myUuid = me.uuid;
+    this.allMembers.set(me.uuid, me);
   }
 
   private handleMemberChanged(memberChange: IMemberStatusChange): void {
@@ -307,47 +290,11 @@ export class TeamService {
     }
   }
 
-  private handleEndSession(): void {
-    if (this.me.role !== ERole.ScrumMaster) {
-      const params = new MessageBoxParams();
-      params.showCancelButton = false;
-      params.title = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Title');
-      params.text = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Text');
-
-      this.dialog.open(MessageBoxComponent, {
-        width: '250px',
-        data: params
-      });
-    }
-  }
-
-  private handleServerReset(): void {
-    const params = new MessageBoxParams();
-    params.showCancelButton = false;
-    params.title = this.translateService.instant('MessageBox.The_server_has_been_reset.Title');
-    params.text = this.translateService.instant('MessageBox.The_server_has_been_reset.Text');
-    this.dialog.open(MessageBoxComponent, {
-      width: '250px',
-      data: params
-    });
-  }
-
-  private handleTeamIdle(): void {
-    const params = new MessageBoxParams();
-    params.showCancelButton = false;
-    params.title = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Title');
-    params.text = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Text');
-    this.dialog.open(MessageBoxComponent, {
-      width: '250px',
-      data: params
-    });
-  }
-
-  private resetMe(): void {
-    this._me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, uuid: '' }, true);
+  private resetService(): void {
     this.localStorageService.clear();
     this.allMembers.clear();
     this.teamName = '';
+    this.myUuid = '';
   }
   //#endregion
 }

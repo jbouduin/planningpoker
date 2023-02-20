@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ClientMessage, EServerMessageType, IInitMessage, IServerMessage, ServerMessage } from '@shared-lib';
+import { ClientMessage, EServerMessageType, IInitMessage, ServerMessage } from '@shared-lib';
 import { ReplaySubject, Subject } from 'rxjs';
 import { EConnectionStatus } from './connection-status.enum';
 import { SnackbarService } from './snackbar.service';
 
+// TODO NOW move reconnection logic to session, call session Opened, closed, suspended, etc...
 @Injectable({
   providedIn: 'root'
 })

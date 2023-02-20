@@ -5,6 +5,7 @@ import { EParticipantStatus, ERole } from '@shared-lib';
 
 import { TeamService } from '@app/session/services/team.service';
 import { Member } from '@shared/services/member';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'session-member',
@@ -18,6 +19,7 @@ export class MemberComponent {
   //#endregion
 
   //#region Private properties ------------------------------------------------
+  private readonly sessionService: SessionService;
   private readonly teamService: TeamService;
   private readonly translateService: TranslateService;
   //#endregion
@@ -71,7 +73,7 @@ export class MemberComponent {
 
   public get canStartEstimating(): boolean {
     if (this.member) {
-      return this.teamService.me.role === ERole.ScrumMaster ?
+      return this.sessionService.scrumMaster ?
         this.member.observer :
         this.member.observer && this.member.me;
     }
@@ -82,7 +84,7 @@ export class MemberComponent {
 
   public get canStopEstimating(): boolean {
     if (this.member) {
-      return this.teamService.me.role === ERole.ScrumMaster ?
+      return this.sessionService.scrumMaster ?
         !this.member.observer :
         !this.member.observer && this.member.me;
     }
@@ -93,7 +95,8 @@ export class MemberComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(teamService: TeamService, translateService: TranslateService) {
+  public constructor(sessionService: SessionService, teamService: TeamService, translateService: TranslateService) {
+    this.sessionService = sessionService;
     this.teamService = teamService;
     this.translateService = translateService;
   }

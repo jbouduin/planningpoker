@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 
-import { EPokerStatus, EServerMessageType, IEstimation, IEstimationsMessage, IInitMessage, IPokerStatusChangedMessage, ISelfMessage, ServerMessage } from '@shared-lib';
+import { EPokerStatus, EServerMessageType, IEstimation, IEstimationsMessage, IInitMessage, IPokerStatusChangedMessage, ServerMessage } from '@shared-lib';
 
 import { ConnectionService } from '@shared';
 import { EstimateMessage, RevealMessage, StartMessage } from '@shared/messages';
-import {  Member } from '@shared/services/member';
-import { Estimation } from './estimation';
+import { Member } from '@shared/services/member';
 import { CardService } from './card.service';
+import { Estimation } from './estimation';
 import { TeamService } from './team.service';
 
 @Injectable({
@@ -65,10 +65,8 @@ export class PokerService {
   public handleServerMessage(message: ServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Init:
-        this.myUuid = (<IInitMessage>message).data.uuid;
-        break;
       case EServerMessageType.Self:
-        this.myUuid = (<ISelfMessage>message).data.uuid;
+        this.myUuid = (<IInitMessage>message).data.uuid;
         break;
       case EServerMessageType.ClearEstimations:
         this.givenEstimations.clear();
