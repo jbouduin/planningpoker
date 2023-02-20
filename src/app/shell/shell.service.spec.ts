@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { MainComponent } from './main/main.component';
+import { MainComponent } from './components/main/main.component';
 import { Shell } from './shell.service';
 
 describe('Shell', () => {

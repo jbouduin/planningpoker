@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
-import { ECardSet, EServerMessageType, ICard, ICardSet, ICardSetMessage, ServerMessage } from '@shared-lib';
+import { ECardSet, EServerMessageType, ICard, ICardSet, ICardSetMessage, AServerMessage } from '@shared-lib';
 
-import { SessionService } from '@shared/services/session.service';
-import { Card } from '@shared';
-import { CardSetDialogComponent } from '@shared/components/card-set-dialog/card-set-dialog.component';
-import { ICardSetDialogParams } from '@shared/components/card-set-dialog/card-set-dialog.params';
+import { Card, CardSetDialogComponent, ICardSetDialogParams } from '@shared/components';
 import { ChangeCardSetMessage } from '@shared/messages';
+import { SessionService } from '@shared/services';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +31,7 @@ export class CardService {
     this.sessionService = sessionService;
     this.currentCardSet = ECardSet.Cohn;
     this._cards = new Array<Card>();
-    this.sessionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+    this.sessionService.incomingMessage.subscribe((serverMessage: AServerMessage) => this.handleServerMessage(serverMessage));
     this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
@@ -66,7 +64,7 @@ export class CardService {
     });
   }
 
-  public handleServerMessage(message: ServerMessage): void {
+  public handleServerMessage(message: AServerMessage): void {
     switch (message.type) {
       case EServerMessageType.CardList:
         this._cards = (<ICardSetMessage>message).data.cards.map((card: ICard) => new Card(card));

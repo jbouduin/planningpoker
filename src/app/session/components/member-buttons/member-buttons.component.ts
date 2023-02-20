@@ -3,7 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { EParticipantStatus } from '@shared-lib';
 
-import { SessionService } from '@shared/services/session.service';
+import { SessionService } from '@shared/services';
 
 @Component({
   selector: 'session-member-buttons',

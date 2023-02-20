@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { SessionService } from '@app/@shared/services/session.service';
 
-import { EPokerStatus, EServerMessageType, IEstimation, IEstimationsMessage, IInitMessage, IPokerStatusChangedMessage, ServerMessage } from '@shared-lib';
+import { EPokerStatus, EServerMessageType, IEstimation, IEstimationsMessage, IInitMessage, IPokerStatusChangedMessage, AServerMessage } from '@shared-lib';
 
 import { EstimateMessage, RevealMessage, StartMessage } from '@shared/messages';
-import { Member } from '@shared/services/member';
+import { Member, SessionService } from '@shared/services';
 import { CardService } from './card.service';
 import { Estimation } from './estimation';
 import { TeamService } from './team.service';
@@ -56,13 +55,13 @@ export class PokerService {
     this.givenEstimations = new Map<string, Estimation>;
     this.myUuid = '';
     this.pokerStatus = EPokerStatus.Cleared;
-    this.sessionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+    this.sessionService.incomingMessage.subscribe((serverMessage: AServerMessage) => this.handleServerMessage(serverMessage));
     this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
 
   //#region public methods ----------------------------------------------------
-  public handleServerMessage(message: ServerMessage): void {
+  public handleServerMessage(message: AServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Init:
       case EServerMessageType.Self:

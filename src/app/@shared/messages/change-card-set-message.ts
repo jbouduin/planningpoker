@@ -1,5 +1,6 @@
 import { EClientMessageType, ICardSet, IChangeCardSetMessage } from "@shared-lib";
-import { BaseClientMessage } from "./base-client.message";
+
+import { BaseClientMessage } from "./base-client-message";
 
 export class ChangeCardSetMessage extends BaseClientMessage<ICardSet> implements IChangeCardSetMessage {
   //#region Constructor & C° --------------------------------------------------

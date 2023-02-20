@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { TeamService } from '@app/session/services/team.service';
+import { TeamService } from '../../services/team.service';
 
 @Component({
   selector: 'session-team-header',

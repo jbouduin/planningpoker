@@ -6,10 +6,8 @@ import { Subscription } from 'rxjs';
 
 import { ECardSet, ICardSet } from '@shared-lib';
 
-import { CardSetDialogComponent } from '@shared/components/card-set-dialog/card-set-dialog.component';
-import { ICardSetDialogParams } from '@shared/components/card-set-dialog/card-set-dialog.params';
-import { CardSetService, ICardSetSelectItem } from '@shared/services/card-set.service';
-import { SessionService } from '@shared/services/session.service';
+import { CardSetDialogComponent, ICardSetDialogParams } from '@shared/components';
+import { CardSetService, ICardSetSelectItem, SessionService } from '@shared/services';
 
 @Component({
   selector: 'home-join',

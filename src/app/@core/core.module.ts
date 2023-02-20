@@ -3,9 +3,8 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { RouteReuseStrategy, RouterModule } from '@angular/router';
 
-import { ErrorHandlerInterceptor } from './http/error-handler.interceptor';
 import { MarkdownPipe } from './pipes/markdown.pipe';
-import { RouteReusableStrategy } from './route-reusable-strategy';
+import { ErrorHandlerInterceptor, RouteReusableStrategy } from './services';
 
 @NgModule({
   declarations: [

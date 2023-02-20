@@ -1,13 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { merge } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
+import { I18nService, Logger } from '@core/services';
 import { environment } from '@env/environment';
-import { Logger, untilDestroyed } from '@core';
-import { I18nService } from '@core';
+import { untilDestroyed } from './@core';
 
 // const log = new Logger('App');
 

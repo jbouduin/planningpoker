@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { TeamService } from '@app/session/services/team.service';
-import { Member } from '@shared/services/member';
+import { Member } from '@shared/services';
+import { TeamService } from '../../services';
 
 @Component({
   selector: 'session-member-panel',

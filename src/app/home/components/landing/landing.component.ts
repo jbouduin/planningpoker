@@ -1,11 +1,11 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params } from '@angular/router';
-import { ICanRejoinResult } from '@app/@shared/services/can-rejoin-result';
+import { ICanRejoinResult } from '@shared/services';
 import { TranslateService } from '@ngx-translate/core';
 
-import { MessageBoxComponent, MessageBoxParams } from '@shared';
-import { SessionService } from '@shared/services/session.service';
+import { MessageBoxComponent, MessageBoxParams } from '@shared/components';
+import { SessionService } from '@shared/services';
 
 @Component({
   selector: 'home-landing',

@@ -1,5 +1,6 @@
 import { EClientMessageType, IDisconnectMessage } from "@shared-lib";
-import { BaseClientMessage } from "./base-client.message";
+
+import { BaseClientMessage } from "./base-client-message";
 
 export class DisconnectMessage extends BaseClientMessage<void> implements IDisconnectMessage {
   //#region Constructor & C° --------------------------------------------------

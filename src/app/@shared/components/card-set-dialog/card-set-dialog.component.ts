@@ -3,10 +3,12 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
-import { Card, HttpService } from '@shared';
 import { ECardSet, ICard, ICardSet } from '@shared-lib';
-import { CardSetService, ICardSetSelectItem } from '../../services/card-set.service';
+
+import { CardSetService, HttpService, ICardSetSelectItem } from '../../services';
+import { Card } from '../card/card';
 import { ICardSetDialogParams } from './card-set-dialog.params';
+
 
 interface ICardSelectItem {
   selected: boolean;
