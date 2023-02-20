@@ -15,7 +15,10 @@ export class ContainerComponent {
 
   //#region getters -----------------------------------------------------------
   public get showOverlay(): boolean {
-    return this.sessionService.status === ESessionStatus.Disconnected || this.sessionService.status === ESessionStatus.ResumePending;
+    return this.sessionService.status === ESessionStatus.Reconnecting ||
+      this.sessionService.status === ESessionStatus.ReconnectPending ||
+      this.sessionService.status === ESessionStatus.Initiating ||
+      this.sessionService.status === ESessionStatus.Suspended;
   }
   //#endregion
 

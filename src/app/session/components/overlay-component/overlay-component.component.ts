@@ -19,14 +19,15 @@ export class OverlayComponentComponent {
   public get connectionIcon(): string {
     switch (this.sessionService.status) {
       case ESessionStatus.Active:
-        return 'cloud';
-      case ESessionStatus.Starting:
+      case ESessionStatus.Initiating:
       case ESessionStatus.Stopping:
+        return 'cloud';
+      case ESessionStatus.Connecting:
       case ESessionStatus.Resuming:
+      case ESessionStatus.Reconnecting:
         return 'cloud_queue';
-      case ESessionStatus.ResumePending:
+      case ESessionStatus.ReconnectPending:
       case ESessionStatus.Suspended:
-      case ESessionStatus.Disconnected:
       case ESessionStatus.Inactive:
         return 'cloud_off';
     }
@@ -56,7 +57,7 @@ export class OverlayComponentComponent {
   }
 
   public get showCountdown(): boolean {
-    return this.sessionService.status === ESessionStatus.ResumePending;
+    return this.sessionService.status === ESessionStatus.ReconnectPending;
   }
 
   public get showBreak(): boolean {

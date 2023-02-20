@@ -22,7 +22,6 @@ import { environment } from '@env/environment';
 export class SessionService {
 
   //#region private readonly properties ---------------------------------------
-  // private readonly connectionService: ConnectionService;
   private readonly dialog: MatDialog;
   private readonly errorHandlerService: ErrorHandlerService;
   private readonly httpService: HttpService;
@@ -41,9 +40,9 @@ export class SessionService {
   //#endregion
 
   //#region public properties -------------------------------------------------
-  public incomingMessage: ReplaySubject<ServerMessage>;
+  public readonly incomingMessage: ReplaySubject<ServerMessage>;
+  public readonly reset: Subject<void>;
   public resumeIn: number;
-  public reset: Subject<void>;
   public status: ESessionStatus;
   //#endregion
 
@@ -70,6 +69,7 @@ export class SessionService {
     router: Router,
     snackbarService: SnackbarService,
     translateService: TranslateService) {
+    // assign the private readonly properties
     this.dialog = dialog;
     this.errorHandlerService = errorHandlerService;
     this.httpService = httpService;
@@ -77,23 +77,27 @@ export class SessionService {
     this.router = router;
     this.snackbarService = snackbarService;
     this.translateService = translateService;
+    // assign the private properties
     this.currentRoute = '/';
+    this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, uuid: '' }, true);
+    this.webSocket = null;
+    // assign the public readonly properties
     this.incomingMessage = new ReplaySubject<ServerMessage>();
     this.reset = new Subject<void>();
+    // assign the public properties
     this.resumeIn = 0;
     this.status = ESessionStatus.Inactive;
-    this.webSocket = null;
+    // subscribe to router
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd)) // eslint-disable-line
       .subscribe(event => this.currentRoute = event.urlAfterRedirect);
-    this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, uuid: '' }, true);
   }
   //#endregion
 
   //#region public session related methods ---------------------------------
   public createSession(team: string, nick: string, observer: boolean, cardSet: ECardSet, cards: ICardSet | undefined): void {
     console.log(`creating: ${nick}@${team}`);
-    this.status = ESessionStatus.Starting;
+    this.status = ESessionStatus.Connecting;
     this.initialMessage = new CreateMessage(
       '',
       {
@@ -109,7 +113,7 @@ export class SessionService {
 
   public joinSession(team: string, nick: string, observer: boolean): void {
     console.log(`joining: ${nick}@${team}`);
-    this.status = ESessionStatus.Starting;
+    this.status = ESessionStatus.Connecting;
     this.initialMessage = new JoinMessage(
       '',
       {
@@ -127,13 +131,17 @@ export class SessionService {
     const uuid = this.localStorage.uuid;
     if (team && uuid) {
       console.log(`rejoining  ${team} as ${uuid}`);
-      if (this.status !== ESessionStatus.ResumePending) {
+      if (this.status !== ESessionStatus.ReconnectPending) {
+        this.status = ESessionStatus.Reconnecting;
+      } else {
         this.status = ESessionStatus.Resuming;
       }
       this.initialMessage = new RejoinMessage('', uuid);
       this.connect(team);
     } else {
       // TODO NOW give a message
+      this.snackbarService.showWarning(this.translateService.instant('Session.Service.Warning.Can_not_rejoin'));
+      this.resetServices();
     }
   }
 
@@ -167,11 +175,10 @@ export class SessionService {
             this.status = ESessionStatus.Stopping;
             this.sendMessage(message);
             break;
-          case ESessionStatus.ResumePending:
+          case ESessionStatus.ReconnectPending:
             // TODO now
             break;
           case ESessionStatus.Suspended:
-          case ESessionStatus.Disconnected:
             this.initialMessage = message;
             this.status = ESessionStatus.Resuming;
             this.connect(team);
@@ -196,7 +203,7 @@ export class SessionService {
         data: params
       });
     } else {
-      const message = new PauseMessage(this.myUuid)
+      const message = new PauseMessage(this.myUuid);
       this.sendMessage(message);
     }
   }
@@ -206,6 +213,7 @@ export class SessionService {
     const team = this.localStorage.team;
     const uuid = this.localStorage.uuid;
     if (team && nick && uuid) {
+      this.status = ESessionStatus.Suspended;
       return this.httpService.checkCanRejoin(team, uuid).pipe(map((can: boolean) => {
         const result: ICanRejoinResult = {
           nick: nick,
@@ -227,7 +235,7 @@ export class SessionService {
 
   public clearSessionData(): void {
     this.localStorage.clear();
-    this.status = ESessionStatus.Inactive;
+    this.resetServices();
   }
 
   public stopReconnecting(): void {
@@ -235,7 +243,6 @@ export class SessionService {
     this.navigateTo('/home');
   }
   //#endregion
-
 
   //#region Private message handling methods ----------------------------------
   private handleServerMessage(message: ServerMessage): void {
@@ -249,7 +256,9 @@ export class SessionService {
         this.handleEndSession();
         break;
       case EServerMessageType.Left:
-        this.resetServices();
+        this.status = ESessionStatus.Inactive;
+        this.disconnect();
+        this.navigateTo('/home');
         break;
       case EServerMessageType.ServerReset:
         this.handleServerReset();
@@ -258,7 +267,6 @@ export class SessionService {
         this.handleTeamIdle();
         break;
       case EServerMessageType.Init:
-        debugger;
         if (this.initialMessage) {
           this.initialMessage.senderUuid = (<IInitMessage>message).data.uuid;
           this.sendMessage(this.initialMessage);
@@ -279,6 +287,7 @@ export class SessionService {
         this.localStorage.nick = this.me.nick;
         this.localStorage.uuid = this.me.uuid;
         if (this.me.status === EParticipantStatus.Paused) {
+          this.status = ESessionStatus.Suspended;
           this.disconnect();
         }
     }
@@ -329,7 +338,7 @@ export class SessionService {
   //#region private automatic reconnect related methods -----------------------
   private initiateAutomaticReconnect(): void {
     this.resumeIn = 30;
-    this.status = ESessionStatus.ResumePending;
+    this.status = ESessionStatus.ReconnectPending;
     this.resumeTimer = window.setInterval(this.reconnectTick.bind(this), 1000);
   }
 
@@ -384,12 +393,13 @@ export class SessionService {
 
   private onOpen(_event: Event): void {
     console.log(`Successfully connected to ${this.webSocket?.url}`);
+    this.status = ESessionStatus.Initiating;
   }
 
   private onClose(event: CloseEvent): void {
     if (event.code == 1006) {
       switch (this.status) {
-        case ESessionStatus.Starting:
+        case ESessionStatus.Connecting:
           console.log('in onClose case: Starting')
           this.snackbarService.showError(this.translateService.instant('Socket.Error.Could_not_connect'));
           this.status = ESessionStatus.Inactive;
@@ -423,7 +433,7 @@ export class SessionService {
   }
 
   private onError(_event: Event): void {
-    if (this.status !== ESessionStatus.Resuming && this.status != ESessionStatus.Starting) {
+    if (this.status !== ESessionStatus.Resuming && this.status != ESessionStatus.Connecting) {
       console.log(`in onError not connecting and not reconnecting : ${this.status}`);
       this.snackbarService.showError(this.translateService.instant('Socket.Error.Communication_error'));
     }
