@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ConnectionService, EConnectionStatus } from '@app/@shared';
-import { SessionService } from '@app/session/services/session.service';
+import { SessionService } from '@shared/services/session.service';
 import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -99,7 +99,6 @@ export class OverlayComponentComponent {
 
   public giveUpReconnectingButtonClick(): void {
     this.connectionService.giveUpReconnecting();
-    this.sessionService.giveUpReconnecting();
   }
 
   public doNotRejoinButtonClick(): void {

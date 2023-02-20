@@ -149,6 +149,7 @@ export class ConnectionService {
 
   private onMessage(event: MessageEvent<string>): void {
     const message: ServerMessage = JSON.parse(event.data);
+    // TODO NOW this logic should go to session service
     if (message.type == EServerMessageType.Init && this.initialMessage) {
       this.initialMessage.senderUuid = (<IInitMessage>message).data.uuid;
       this.sendMessage(this.initialMessage);
@@ -175,7 +176,9 @@ export class ConnectionService {
       this.reconnectNow();
     }
   }
+  //#endregion
 
+  //#region private methods ---------------------------------------------------
   private canPerformActionOnSocket(): boolean {
     if (this.connectionStatus === EConnectionStatus.Connected && this.webSocket !== null) {
       return true;

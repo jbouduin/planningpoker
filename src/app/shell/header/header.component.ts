@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { SessionService } from '@app/session/services/session.service';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'shell-header',

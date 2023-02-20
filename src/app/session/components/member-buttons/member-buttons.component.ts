@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SessionService } from '@app/session/services/session.service';
+import { SessionService } from '@shared/services/session.service';
 import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EParticipantStatus, ERole } from '@shared-lib';

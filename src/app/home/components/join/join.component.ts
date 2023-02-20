@@ -9,7 +9,7 @@ import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/
 import { ICardSetDialogParams } from '@app/@shared/components/card-set-dialog/card-set-dialog.params';
 import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-set.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { SessionService } from '../../../session/services/session.service';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'home-join',

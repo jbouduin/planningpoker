@@ -7,10 +7,10 @@ import { MessageBoxComponent, MessageBoxParams, ConnectionService, LocalStorageS
 import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
 import { ChangeNickDialogComponent } from '../components/change-nick-dialog/change-nick-dialog.component';
 import { ChangeScrumMasterDialogComponent } from '../components/change-scrum-master-dialog/change-scrum-master-dialog.component';
-import { ChangeNickMessage, LeaveMessage } from '../messages';
-import { ChangeScrumMasterMessage } from '../messages/change-scrum-master.message';
-import { ObserveMessage } from '../messages/observe-message';
-import { PauseMessage } from '../messages/pause.message';
+import { ChangeNickMessage, LeaveMessage } from '../../@shared/messages';
+import { ChangeScrumMasterMessage } from '../../@shared/messages/change-scrum-master.message';
+import { ObserveMessage } from '../../@shared/messages/observe-message';
+import { PauseMessage } from '../../@shared/messages/pause.message';
 import { Member } from '../objects';
 import { environment } from '@env/environment';
 

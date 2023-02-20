@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
 import { MessageBoxComponent, MessageBoxParams, HttpService, LocalStorageService } from '@app/@shared';
-import { SessionService } from '../../../session/services/session.service';
+import { SessionService } from '@shared/services/session.service';
 import { ActivatedRoute, Params } from '@angular/router';
 
 @Component({

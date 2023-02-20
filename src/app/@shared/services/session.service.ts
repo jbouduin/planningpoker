@@ -3,7 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { ConnectionService, EConnectionStatus } from '@shared';
 import { ClientMessage, ECardSet, EServerMessageType, ICardSet, ServerMessage } from '@shared-lib';
 import { filter } from 'rxjs/operators';
-import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../messages';
+import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '@shared/messages';
 
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -31,25 +31,19 @@ export class SessionService {
   // make message handler register themselves in the connection service or something similar
   //#region Constructor & C° --------------------------------------------------
   public constructor(
-
     connectionService: ConnectionService,
-
     router: Router,
-    errorHandlerService: ErrorHandlerService,
-    ) {
-
-
+    errorHandlerService: ErrorHandlerService) {
     this.connectionService = connectionService;
-
     this.errorHandlerService = errorHandlerService;
     this.router = router;
-
     this.currentRoute = '/';
     this.inSession = false;
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd)) // eslint-disable-line
       .subscribe(event => this.currentRoute = event.urlAfterRedirect);
     this.connectionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+    this.connectionService.reset.subscribe(() => this.resetMe());
   }
   //#endregion
 
@@ -59,7 +53,7 @@ export class SessionService {
     team: string,
     nick: string,
     observer: boolean,
-    cardSet: ECardSet.Cohn,
+    cardSet: ECardSet,
     cards: ICardSet | undefined): void {
     console.log(`creating: ${nick}@${team}`);
     const message = new CreateMessage(
@@ -119,14 +113,14 @@ export class SessionService {
     switch (message.type) {
       case EServerMessageType.Error:
         if (this.errorHandlerService.handleErrorMessage(message)) {
-          this.reset();
+          this.resetMe();
         }
         break;
       case EServerMessageType.EndSession:
       case EServerMessageType.Left:
       case EServerMessageType.ServerReset:
       case EServerMessageType.TeamIdle:
-        this.reset();
+        this.resetMe();
         break;
       case EServerMessageType.Init:
         this.inSession = true;
@@ -141,7 +135,7 @@ export class SessionService {
       this.rejoinCallBack.bind(this));
   }
 
-  private reset() {
+  private resetMe() {
     this.inSession = false;
     this.connectionService.disconnect();
     this.navigateTo('/home');
