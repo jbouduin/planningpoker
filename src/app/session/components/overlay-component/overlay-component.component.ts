@@ -14,7 +14,6 @@ export class OverlayComponentComponent {
   //#region private properties ------------------------------------------------
   private readonly connectionService: ConnectionService;
   private readonly sessionService: SessionService;
-  private readonly teamService: TeamService;
   private readonly translateService: TranslateService;
   //#endregion
 
@@ -84,11 +83,9 @@ export class OverlayComponentComponent {
   public constructor(
     connectionService: ConnectionService,
     sessionService: SessionService,
-    teamService: TeamService,
     translateService: TranslateService) {
     this.connectionService = connectionService;
     this.sessionService = sessionService;
-    this.teamService = teamService;
     this.translateService = translateService;
   }
   //#endregion
@@ -103,7 +100,7 @@ export class OverlayComponentComponent {
   }
 
   public doNotRejoinButtonClick(): void {
-    this.sessionService.leave(this.teamService.teamName, this.sessionService.myUuid);
+    this.sessionService.quitSession();
   }
   //#endregion
 }

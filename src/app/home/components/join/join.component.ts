@@ -137,7 +137,7 @@ export class JoinComponent implements OnInit, OnDestroy {
         const dialogRef = this.matDialog.open(CardSetDialogComponent, { data: params });
         dialogRef.afterClosed().subscribe((result: ICardSet) => {
           if (result) {
-            this.sessionService.create(
+            this.sessionService.createSession(
               this.formData.get('team')?.value,
               this.formData.get('nick')?.value,
               this.observer,
@@ -147,7 +147,7 @@ export class JoinComponent implements OnInit, OnDestroy {
           }
         });
       } else {
-        this.sessionService.create(
+        this.sessionService.createSession(
           this.formData.get('team')?.value,
           this.formData.get('nick')?.value,
           this.observer,
@@ -155,7 +155,7 @@ export class JoinComponent implements OnInit, OnDestroy {
           undefined);
       }
     } else {
-      this.sessionService.join(
+      this.sessionService.joinSession(
         this.formData.get('team')?.value,
         this.formData.get('nick')?.value,
         this.observer);

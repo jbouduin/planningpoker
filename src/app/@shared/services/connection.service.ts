@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ClientMessage, ServerMessage } from '@shared-lib';
 import { ReplaySubject, Subject } from 'rxjs';
 import { EConnectionStatus } from './connection-status.enum';
+import { ICanRejoinResult } from './can-rejoin-result';
 import { SnackbarService } from './snackbar.service';
 
 @Injectable({

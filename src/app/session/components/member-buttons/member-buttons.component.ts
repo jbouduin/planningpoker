@@ -47,7 +47,7 @@ export class MemberButtonsComponent {
   }
 
   public leave(): void {
-    this.sessionService.quit();
+    this.sessionService.quitSession();
   }
   //#endregion
 }

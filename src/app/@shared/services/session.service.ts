@@ -2,15 +2,17 @@ import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 
 import { ClientMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IInitMessage, ISelfMessage, ServerMessage } from '@shared-lib';
 
-import { ConnectionService, EConnectionStatus, LocalStorageService, MessageBoxComponent, MessageBoxParams, SnackbarService } from '@shared';
+import { ConnectionService, EConnectionStatus, HttpService, LocalStorageService, MessageBoxComponent, MessageBoxParams, SnackbarService } from '@shared';
 import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../messages';
 import { ErrorHandlerService } from './error-handler.service';
 import { Member } from './member';
 import { PauseMessage } from '../messages/pause.message';
+import { ICanRejoinResult } from './can-rejoin-result';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +23,7 @@ export class SessionService {
   private readonly connectionService: ConnectionService;
   private readonly dialog: MatDialog;
   private readonly errorHandlerService: ErrorHandlerService;
+  private readonly httpService: HttpService;
   private readonly localStorage: LocalStorageService;
   private readonly router: Router;
   private readonly snackbarService: SnackbarService;
@@ -56,6 +59,7 @@ export class SessionService {
     connectionService: ConnectionService,
     dialog: MatDialog,
     errorHandlerService: ErrorHandlerService,
+    httpService: HttpService,
     localStorage: LocalStorageService,
     router: Router,
     snackbarService: SnackbarService,
@@ -63,6 +67,7 @@ export class SessionService {
     this.connectionService = connectionService;
     this.dialog = dialog;
     this.errorHandlerService = errorHandlerService;
+    this.httpService = httpService;
     this.localStorage = localStorage;
     this.router = router;
     this.snackbarService = snackbarService;
@@ -78,13 +83,8 @@ export class SessionService {
   }
   //#endregion
 
-  //#region public connection related methods ---------------------------------
-  public create(
-    team: string,
-    nick: string,
-    observer: boolean,
-    cardSet: ECardSet,
-    cards: ICardSet | undefined): void {
+  //#region public session related methods ---------------------------------
+  public createSession(team: string, nick: string, observer: boolean, cardSet: ECardSet, cards: ICardSet | undefined): void {
     console.log(`creating: ${nick}@${team}`);
     this.initialMessage = new CreateMessage(
       '',
@@ -99,7 +99,7 @@ export class SessionService {
     this.startSession(team);
   }
 
-  public join(team: string, nick: string, observer: boolean): void {
+  public joinSession(team: string, nick: string, observer: boolean): void {
     console.log(`joining: ${nick}@${team}`);
     this.initialMessage = new JoinMessage(
       '',
@@ -112,40 +112,63 @@ export class SessionService {
     this.startSession(team);
   }
 
-  public rejoin(team: string, uuid: string): void {
-    console.log(`rejoining  ${team} as ${uuid}`);
-    this.initialMessage = new RejoinMessage('', uuid);
-    this.startSession(team);
+  public rejoin(): void {
+    const team = this.localStorage.team;
+    const uuid = this.localStorage.uuid;
+    if (team && uuid) {
+      console.log(`rejoining  ${team} as ${uuid}`);
+      this.initialMessage = new RejoinMessage('', uuid);
+      this.startSession(team);
+    } else {
+      // TODO NOW give a message
+    }
   }
 
+  public quitSession(): void {
+    const team = this.localStorage.team;
+    const uuid = this.localStorage.uuid;
+    if (uuid && team) {
+      const message = new LeaveMessage(uuid, uuid);
+      if (this.scrumMaster) {
+        const params = new MessageBoxParams();
+        params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
+        params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
+        params.text = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Text');
+        params.title = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Title');
 
-  public quit(): void {
-    const message = new LeaveMessage(this.myUuid, this.myUuid);
-    if (this.scrumMaster) {
-      const params = new MessageBoxParams();
-      params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
-      params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
-      params.text = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Text');
-      params.title = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Title');
+        const dialogRef = this.dialog.open(MessageBoxComponent, {
+          width: '250px',
+          data: params
+        });
 
-      const dialogRef = this.dialog.open(MessageBoxComponent, {
-        width: '250px',
-        data: params
-      });
-
-
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.connectionService.sendMessage(message);
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.connectionService.sendMessage(message);
+            // TODO check if required this.localStorage.clear();
+          }
+        });
+      } else {
+        switch (this.connectionService.connectionStatus)
+        {
+          case EConnectionStatus.Connected:
+            this.connectionService.sendMessage(message);
+            break;
+          case EConnectionStatus.Reconnecting:
+          case EConnectionStatus.Countdown:
+            // TODO now
+            break;
+          case EConnectionStatus.Disconnected:
+            this.initialMessage = message;
+            this.startSession(team);
         }
-      });
+        // TODO check if required this.localStorage.clear();
+      }
     } else {
-      this.connectionService.sendMessage(message);
+      this.localStorage.clear();
     }
   }
 
   public suspendSession(): void {
-
     if (this.scrumMaster) {
       const params = new MessageBoxParams();
       params.showCancelButton = false;
@@ -163,20 +186,35 @@ export class SessionService {
     }
   }
 
-  //#endregion
-
-  // this one is called from home component
-  public leave(team: string, myUuid: string): void {
-    const message = new LeaveMessage(myUuid, myUuid);
-    // if we are connected, we are just leaving the game
-    // if not we are leaving a game we have been disconnected from before
-    if (this.connectionService.connectionStatus == EConnectionStatus.Connected) {
-      this.connectionService.sendMessage(message);
-    } else {
-      this.initialMessage = message;
-      this.startSession(team);
+  public canRejoin(): Observable<ICanRejoinResult> {
+    const nick = this.localStorage.nick;
+    const team = this.localStorage.team;
+    const uuid = this.localStorage.uuid;
+    if (team && nick && uuid) {
+      return this.httpService.checkCanRejoin(team, uuid).pipe(map((can: boolean) => {
+        const result: ICanRejoinResult = {
+          nick: nick,
+          team: team,
+          canRejoin: can
+        };
+        return result;
+      }));
+    }
+    else {
+      const result: ICanRejoinResult = {
+        nick: nick,
+        team: team,
+        canRejoin: false
+      };
+      return new Observable((subscriber) => { subscriber.next(result)});
     }
   }
+
+  public clearSessionData(): void {
+    this.localStorage.clear();
+  }
+  //#endregion
+
 
   public giveUpReconnecting(): void {
     this.inSession = false;
