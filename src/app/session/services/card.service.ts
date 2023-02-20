@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ECardSet, EServerMessageType, ICard, ICardSet, ICardSetMessage, ServerMessage } from '@shared-lib';
 
 import { SessionService } from '@shared/services/session.service';
-import { Card, ConnectionService } from '@shared';
+import { Card } from '@shared';
 import { CardSetDialogComponent } from '@shared/components/card-set-dialog/card-set-dialog.component';
 import { ICardSetDialogParams } from '@shared/components/card-set-dialog/card-set-dialog.params';
 import { ChangeCardSetMessage } from '@shared/messages';
@@ -15,9 +15,8 @@ import { ChangeCardSetMessage } from '@shared/messages';
 export class CardService {
 
   //#region private properties ------------------------------------------------
-  private readonly connectionService: ConnectionService;
-  private readonly dialog: MatDialog;
   private readonly sessionService: SessionService;
+  private readonly dialog: MatDialog;
   private currentCardSet: ECardSet;
   private _cards: Array<Card>;
   //#endregion
@@ -29,14 +28,13 @@ export class CardService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  constructor(connectionService: ConnectionService, dialog: MatDialog, sessionService: SessionService) {
-    this.connectionService = connectionService;
+  constructor(dialog: MatDialog, sessionService: SessionService) {
     this.dialog = dialog;
     this.sessionService = sessionService;
     this.currentCardSet = ECardSet.Cohn;
     this._cards = new Array<Card>();
-    this.connectionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
-    this.connectionService.reset.subscribe(() => this.resetMe());
+    this.sessionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+    this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
 
@@ -63,7 +61,7 @@ export class CardService {
     dialogRef.afterClosed().subscribe((result: ICardSet) => {
       if (result) {
         const message = new ChangeCardSetMessage(this.sessionService.myUuid, result);
-        this.connectionService.sendMessage(message);
+        this.sessionService.sendMessage(message);
       }
     });
   }
@@ -77,7 +75,7 @@ export class CardService {
       case EServerMessageType.EndSession:
       case EServerMessageType.ServerReset:
       case EServerMessageType.TeamIdle:
-        this.resetMe();
+        this.resetService();
     }
   }
 
@@ -86,7 +84,7 @@ export class CardService {
   }
   //#endregion
 
-  private resetMe(): void {
+  private resetService(): void {
     this._cards = new Array<Card>();
   }
 }

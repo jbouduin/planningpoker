@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { TeamService } from '@app/session/services/team.service';
-import { ConnectionService, EConnectionStatus } from '@shared';
+import { ESessionStatus } from '@shared/services/session-status.enum';
 import { SessionService } from '@shared/services/session.service';
 
 @Component({
@@ -12,34 +11,36 @@ import { SessionService } from '@shared/services/session.service';
 })
 export class OverlayComponentComponent {
   //#region private properties ------------------------------------------------
-  private readonly connectionService: ConnectionService;
   private readonly sessionService: SessionService;
   private readonly translateService: TranslateService;
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
   public get connectionIcon(): string {
-    switch (this.connectionService.connectionStatus) {
-      case EConnectionStatus.Disconnected:
-      case EConnectionStatus.Countdown:
-        return 'cloud_off';
-      case EConnectionStatus.Connected:
+    switch (this.sessionService.status) {
+      case ESessionStatus.Active:
         return 'cloud';
-      case EConnectionStatus.Reconnecting:
-      case EConnectionStatus.Connecting:
+      case ESessionStatus.Starting:
+      case ESessionStatus.Stopping:
+      case ESessionStatus.Resuming:
         return 'cloud_queue';
+      case ESessionStatus.ResumePending:
+      case ESessionStatus.Suspended:
+      case ESessionStatus.Disconnected:
+      case ESessionStatus.Inactive:
+        return 'cloud_off';
     }
   }
 
   public get showOverlay(): boolean {
-    return this.connectionService.connectionStatus !== EConnectionStatus.Connected;
+    return this.sessionService.status != ESessionStatus.Active;
   }
 
   public get reconnectingTextLine(): string {
-    if (this.connectionService.reconnectIn > 1) {
+    if (this.sessionService.resumeIn > 1) {
       return this.translateService.instant(
         'Overlay.Component.Text.Reconnect_in_$seconds_seconds',
-        { seconds: this.connectionService.reconnectIn });
+        { seconds: this.sessionService.resumeIn });
 
     } else {
       return this.translateService.instant('Overlay.Component.Text.Reconnect_in_1_second');
@@ -55,15 +56,11 @@ export class OverlayComponentComponent {
   }
 
   public get showCountdown(): boolean {
-    return this.connectionService.connectionStatus === EConnectionStatus.Countdown;
-  }
-
-  public get showReconnecting(): boolean {
-    return this.connectionService.connectionStatus === EConnectionStatus.Countdown;
+    return this.sessionService.status === ESessionStatus.ResumePending;
   }
 
   public get showBreak(): boolean {
-    return this.connectionService.connectionStatus === EConnectionStatus.Disconnected;
+    return this.sessionService.status === ESessionStatus.Suspended;
   }
 
   public get havingABreakTextLine(): string {
@@ -80,11 +77,7 @@ export class OverlayComponentComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    connectionService: ConnectionService,
-    sessionService: SessionService,
-    translateService: TranslateService) {
-    this.connectionService = connectionService;
+  public constructor(sessionService: SessionService, translateService: TranslateService) {
     this.sessionService = sessionService;
     this.translateService = translateService;
   }
@@ -92,11 +85,11 @@ export class OverlayComponentComponent {
 
   //#region UI triggered methods ----------------------------------------------
   public reconnectNowButtonClick(): void {
-    this.connectionService.reconnectNow();
+    this.sessionService.rejoin();
   }
 
   public giveUpReconnectingButtonClick(): void {
-    this.connectionService.giveUpReconnecting();
+    this.sessionService.stopReconnecting();
   }
 
   public doNotRejoinButtonClick(): void {

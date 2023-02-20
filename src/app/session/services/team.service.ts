@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '@env/environment';
-import { ConnectionService, LocalStorageService, MessageBoxComponent, MessageBoxParams, SnackbarService } from '@shared';
+import { LocalStorageService, MessageBoxComponent, MessageBoxParams, SnackbarService } from '@shared';
 import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
 import { ChangeNickMessage } from '@shared/messages';
 import { ChangeScrumMasterMessage } from '@shared/messages/change-scrum-master.message';
@@ -12,6 +12,7 @@ import { ObserveMessage } from '@shared/messages/observe-message';
 import { Member } from '@shared/services/member';
 import { ChangeNickDialogComponent } from '../components/change-nick-dialog/change-nick-dialog.component';
 import { ChangeScrumMasterDialogComponent } from '../components/change-scrum-master-dialog/change-scrum-master-dialog.component';
+import { SessionService } from '@app/@shared/services/session.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class TeamService {
 
   //#region private methods ---------------------------------------------------
   private readonly clipboard: Clipboard;
-  private readonly connectionService: ConnectionService;
+  private readonly sessionService: SessionService;
   private readonly dialog: MatDialog;
   private readonly localStorageService: LocalStorageService;
   private readonly snackbarService: SnackbarService;
@@ -62,13 +63,13 @@ export class TeamService {
   //#region Constructor & C° --------------------------------------------------
   constructor(
     clipboard: Clipboard,
-    connectionService: ConnectionService,
+    sessionService: SessionService,
     dialog: MatDialog,
     localStorageService: LocalStorageService,
     snackbarService: SnackbarService,
     translateService: TranslateService) {
     this.clipboard = clipboard;
-    this.connectionService = connectionService;
+    this.sessionService = sessionService;
     this.dialog = dialog;
     this.localStorageService = localStorageService;
     this.snackbarService = snackbarService;
@@ -76,8 +77,8 @@ export class TeamService {
     this.allMembers = new Map<string, Member>();
     this.teamName = '';
     this.myUuid = '';
-    this.connectionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
-    this.connectionService.reset.subscribe(() => this.resetService());
+    this.sessionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+   this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
 
@@ -104,7 +105,7 @@ export class TeamService {
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
         const message = new ChangeNickMessage(this.myUuid, result);
-        this.connectionService.sendMessage(message);
+        this.sessionService.sendMessage(message);
       }
     });
   }
@@ -118,7 +119,7 @@ export class TeamService {
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
         const message = new ChangeScrumMasterMessage(this.myUuid, result);
-        this.connectionService.sendMessage(message);
+        this.sessionService.sendMessage(message);
       }
     });
   }
@@ -165,7 +166,7 @@ export class TeamService {
       observer: observe
     };
     const message = new ObserveMessage(this.myUuid, data);
-    this.connectionService.sendMessage(message);
+    this.sessionService.sendMessage(message);
   }
   //#endregion
 

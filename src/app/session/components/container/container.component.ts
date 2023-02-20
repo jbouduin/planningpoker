@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { ConnectionService, EConnectionStatus } from '@shared';
+import { ESessionStatus } from '@app/@shared/services/session-status.enum';
+import { SessionService } from '@app/@shared/services/session.service';
 
 @Component({
   selector: 'session-container',
@@ -9,19 +10,18 @@ import { ConnectionService, EConnectionStatus } from '@shared';
 export class ContainerComponent {
 
   //#region private properties ------------------------------------------------
-  private readonly connectionService: ConnectionService;
+  private readonly sessionService: SessionService;
   //#endregion
 
   //#region getters -----------------------------------------------------------
   public get showOverlay(): boolean {
-    return this.connectionService.connectionStatus !== EConnectionStatus.Connected;
+    return this.sessionService.status === ESessionStatus.Disconnected || this.sessionService.status === ESessionStatus.ResumePending;
   }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(connectionService: ConnectionService) {
-    // TODO NOW use session status suspended
-    this.connectionService = connectionService;
+  public constructor(sessionService: SessionService) {
+    this.sessionService = sessionService;
   }
   //#endregion
 }

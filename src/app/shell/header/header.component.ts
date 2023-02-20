@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ESessionStatus } from '@app/@shared/services/session-status.enum';
 import { TranslateService } from '@ngx-translate/core';
 
 import { SessionService } from '@shared/services/session.service';
@@ -16,7 +17,7 @@ export class HeaderComponent {
 
   //#region Allowed actions getter --------------------------------------------
   public get canNavigate(): boolean {
-    return !this.sessionService.inSession;
+    return this.sessionService.status === ESessionStatus.Inactive;
   }
   //#endregion
 
