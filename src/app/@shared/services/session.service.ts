@@ -10,6 +10,7 @@ import { ConnectionService, EConnectionStatus, LocalStorageService, MessageBoxCo
 import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../messages';
 import { ErrorHandlerService } from './error-handler.service';
 import { Member } from './member';
+import { PauseMessage } from '../messages/pause.message';
 
 @Injectable({
   providedIn: 'root'
@@ -116,6 +117,52 @@ export class SessionService {
     this.initialMessage = new RejoinMessage('', uuid);
     this.startSession(team);
   }
+
+
+  public quit(): void {
+    const message = new LeaveMessage(this.myUuid, this.myUuid);
+    if (this.scrumMaster) {
+      const params = new MessageBoxParams();
+      params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
+      params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
+      params.text = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Text');
+      params.title = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Title');
+
+      const dialogRef = this.dialog.open(MessageBoxComponent, {
+        width: '250px',
+        data: params
+      });
+
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.connectionService.sendMessage(message);
+        }
+      });
+    } else {
+      this.connectionService.sendMessage(message);
+    }
+  }
+
+  public suspendSession(): void {
+
+    if (this.scrumMaster) {
+      const params = new MessageBoxParams();
+      params.showCancelButton = false;
+      params.okButtonLabel = this.translateService.instant('Button.Generic.Label.OK');
+      params.text = this.translateService.instant('MessageBox.Assign_another_scrum_master_first.Text');
+      params.title = this.translateService.instant('MessageBox.Assign_another_scrum_master_first.Title');
+
+      this.dialog.open(MessageBoxComponent, {
+        width: '350px',
+        data: params
+      });
+    } else {
+      const message = new PauseMessage(this.myUuid)
+      this.connectionService.sendMessage(message);
+    }
+  }
+
   //#endregion
 
   // this one is called from home component

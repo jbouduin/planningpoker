@@ -15,7 +15,6 @@ export class MemberButtonsComponent {
 
   //#region Private Properties ------------------------------------------------
   private readonly sessionService: SessionService;
-  private readonly teamService: TeamService;
   private readonly translateService: TranslateService;
   //#endregion
 
@@ -36,20 +35,19 @@ export class MemberButtonsComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(sessionService: SessionService, teamService: TeamService, translateService: TranslateService) {
-    this.sessionService = sessionService
-    this.teamService = teamService;
+  public constructor(sessionService: SessionService, translateService: TranslateService) {
+    this.sessionService = sessionService;
     this.translateService = translateService;
   }
   //#endregion
 
   //#region UI triggered methods ----------------------------------------------
   public pause(): void{
-    this.teamService.pause();
+    this.sessionService.suspendSession();
   }
 
   public leave(): void {
-    this.teamService.leave();
+    this.sessionService.quit();
   }
   //#endregion
 }

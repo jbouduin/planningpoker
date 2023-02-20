@@ -6,10 +6,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from '@env/environment';
 import { ConnectionService, LocalStorageService, MessageBoxComponent, MessageBoxParams, SnackbarService } from '@shared';
 import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, ServerMessage } from '@shared-lib';
-import { ChangeNickMessage, LeaveMessage } from '@shared/messages';
+import { ChangeNickMessage } from '@shared/messages';
 import { ChangeScrumMasterMessage } from '@shared/messages/change-scrum-master.message';
 import { ObserveMessage } from '@shared/messages/observe-message';
-import { PauseMessage } from '@shared/messages/pause.message';
 import { Member } from '@shared/services/member';
 import { ChangeNickDialogComponent } from '../components/change-nick-dialog/change-nick-dialog.component';
 import { ChangeScrumMasterDialogComponent } from '../components/change-scrum-master-dialog/change-scrum-master-dialog.component';
@@ -160,51 +159,6 @@ export class TeamService {
     }
   }
 
-  // TODO now move this to session
-  public leave(): void {
-    const me = this.allMembers.get(this.myUuid);
-    if (me && me.role === ERole.ScrumMaster) {
-      const params = new MessageBoxParams();
-      params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
-      params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
-      params.text = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Text');
-      params.title = this.translateService.instant('MessageBox.Do_you_want_to_end_the_session.Title');
-
-      const dialogRef = this.dialog.open(MessageBoxComponent, {
-        width: '250px',
-        data: params
-      });
-
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.sendLeaveMessage(this.myUuid);
-        }
-      });
-    } else {
-      this.sendLeaveMessage(this.myUuid);
-    }
-  }
-
-  // TODO now move this to session
-  public pause(): void {
-    const me = this.allMembers.get(this.myUuid);
-    if (me && me.role === ERole.ScrumMaster) {
-      const params = new MessageBoxParams();
-      params.showCancelButton = false;
-      params.okButtonLabel = this.translateService.instant('Button.Generic.Label.OK');
-      params.text = this.translateService.instant('MessageBox.Assign_another_scrum_master_first.Text');
-      params.title = this.translateService.instant('MessageBox.Assign_another_scrum_master_first.Title');
-
-      this.dialog.open(MessageBoxComponent, {
-        width: '350px',
-        data: params
-      });
-    } else {
-      const message = new PauseMessage(this.myUuid)
-      this.connectionService.sendMessage(message);
-    }
-  }
-
   public switchObserving(observe: boolean, member: string): void {
     const data: IObserverChange = {
       member: member,
@@ -216,11 +170,6 @@ export class TeamService {
   //#endregion
 
   //#region private methods -----------------------------------------
-  private sendLeaveMessage(uuid: string): void {
-    const message = new LeaveMessage(uuid, uuid);
-    this.connectionService.sendMessage(message);
-  }
-
   private handleSelf(me: Member): void {
     this.myUuid = me.uuid;
     this.allMembers.set(me.uuid, me);
