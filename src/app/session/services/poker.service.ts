@@ -53,6 +53,8 @@ export class PokerService {
     this.givenEstimations = new Map<string, Estimation>;
     this.myUuid = '';
     this.pokerStatus = EPokerStatus.Cleared;
+    this.connectionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+    this.connectionService.reset.subscribe(() => this.resetMe());
   }
   //#endregion
 
@@ -71,8 +73,7 @@ export class PokerService {
       case EServerMessageType.EndSession:
       case EServerMessageType.ServerReset:
       case EServerMessageType.TeamIdle:
-        this.givenEstimations.clear();
-        this.pokerStatus = EPokerStatus.Cleared;
+        this.resetMe();
         break;
       case EServerMessageType.EstimationList:
         this.handleEstimations((<IEstimationsMessage>message).data);
@@ -107,7 +108,7 @@ export class PokerService {
     this.connectionService.sendMessage(message);
   }
 
-  public giveUpReconnecting(): void {
+  private resetMe(): void {
     this.givenEstimations.clear();
     this.pokerStatus = EPokerStatus.Cleared;
   }

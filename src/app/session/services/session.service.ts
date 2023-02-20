@@ -5,10 +5,7 @@ import { ClientMessage, ECardSet, EServerMessageType, ICardSet, ServerMessage } 
 import { filter } from 'rxjs/operators';
 import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../messages';
 
-import { CardService } from './card.service';
 import { ErrorHandlerService } from './error-handler.service';
-import { PokerService } from './poker.service';
-import { TeamService } from './team.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +13,9 @@ import { TeamService } from './team.service';
 export class SessionService {
 
   //#region private readonly properties ---------------------------------------
-  private readonly cardService: CardService;
+  // private readonly cardService: CardService;
   private readonly connectionService: ConnectionService;
   private readonly errorHandlerService: ErrorHandlerService;
-  private readonly teamService: TeamService;
-  private readonly pokerService: PokerService;
   private readonly router: Router;
   //#endregion
 
@@ -36,24 +31,25 @@ export class SessionService {
   // make message handler register themselves in the connection service or something similar
   //#region Constructor & C° --------------------------------------------------
   public constructor(
-    cardService: CardService,
+
     connectionService: ConnectionService,
-    pokerService: PokerService,
+
     router: Router,
     errorHandlerService: ErrorHandlerService,
-    teamService: TeamService) {
+    ) {
 
-    this.cardService = cardService;
+
     this.connectionService = connectionService;
-    this.pokerService = pokerService;
+
     this.errorHandlerService = errorHandlerService;
     this.router = router;
-    this.teamService = teamService;
+
     this.currentRoute = '/';
     this.inSession = false;
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd)) // eslint-disable-line
       .subscribe(event => this.currentRoute = event.urlAfterRedirect);
+    this.connectionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
   }
   //#endregion
 
@@ -114,21 +110,11 @@ export class SessionService {
 
   public giveUpReconnecting(): void {
     this.inSession = false;
-    this.cardService.giveUpReconnecting();
-    this.pokerService.giveUpReconnecting();
-    this.teamService.giveUpReconnecting();
     this.navigateTo('/home');
   }
   //#endregion
 
   //#region Private methods ---------------------------------------------------
-  private serverMessageHandler(message: ServerMessage): void {
-    this.cardService.handleServerMessage(message);
-    this.pokerService.handleServerMessage(message);
-    this.teamService.handleServerMessage(message);
-    this.handleServerMessage(message);
-  }
-
   private handleServerMessage(message: ServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Error:
@@ -152,7 +138,6 @@ export class SessionService {
     this.connectionService.connect(
       team,
       message,
-      this.serverMessageHandler.bind(this),
       this.rejoinCallBack.bind(this));
   }
 
@@ -170,7 +155,7 @@ export class SessionService {
   }
 
   private rejoinCallBack(): void {
-    this.rejoin(this.teamService.teamName, this.teamService.me.uuid);
+    // TODO NOW this.rejoin(this.teamService.teamName, this.teamService.me.uuid);
   }
   //#endregion
 }

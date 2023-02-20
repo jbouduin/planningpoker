@@ -85,6 +85,8 @@ export class TeamService {
     this.allMembers = new Map<string, Member>();
     this.teamName = '';
     this._me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, uuid: '' }, true);
+    this.connectionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+    this.connectionService.reset.subscribe(() => this.resetMe());
   }
   //#endregion
 
@@ -131,10 +133,6 @@ export class TeamService {
 
   public getMember(uuid: string): Member | undefined {
     return this.allMembers.get(uuid);
-  }
-
-  public giveUpReconnecting(): void {
-    this.resetMe();
   }
 
   public handleServerMessage(message: ServerMessage): void {

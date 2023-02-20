@@ -35,6 +35,8 @@ export class CardService {
     this.teamService = teamService;
     this.currentCardSet = ECardSet.Cohn;
     this._cards = new Array<Card>();
+    this.connectionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+    this.connectionService.reset.subscribe(() => this.resetMe());
   }
   //#endregion
 
@@ -75,7 +77,7 @@ export class CardService {
       case EServerMessageType.EndSession:
       case EServerMessageType.ServerReset:
       case EServerMessageType.TeamIdle:
-        this._cards = new Array<Card>();
+        this.resetMe();
     }
   }
 
@@ -83,4 +85,8 @@ export class CardService {
     this._cards = new Array<Card>();
   }
   //#endregion
+
+  private resetMe(): void {
+    this._cards = new Array<Card>();
+  }
 }

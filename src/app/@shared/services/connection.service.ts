@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ClientMessage, EServerMessageType, IInitMessage, ServerMessage } from '@shared-lib';
+import { ClientMessage, EServerMessageType, IInitMessage, IServerMessage, ServerMessage } from '@shared-lib';
+import { ReplaySubject, Subject } from 'rxjs';
 import { EConnectionStatus } from './connection-status.enum';
 import { SnackbarService } from './snackbar.service';
 
@@ -18,12 +19,14 @@ export class ConnectionService {
   private rejoinCallBack: (() => void) | null;
   private reconnectTimer: number;
   private webSocket: WebSocket | null;
-  private messageHandler?: (msg: ServerMessage) => void;
-  private initialMessage?: ClientMessage
+  // private messageHandler?: (msg: ServerMessage) => void;
+  private initialMessage?: ClientMessage;
   //#endregion
 
   //#region Public properties -------------------------------------------------
   public connectionStatus: EConnectionStatus;
+  public incomingMessage: ReplaySubject<ServerMessage>;
+  public reset: Subject<void>;
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
@@ -45,6 +48,8 @@ export class ConnectionService {
     this.reconnectTimer = 0;
     this.rejoinCallBack = null;
     this.webSocket = null;
+    this.incomingMessage = new ReplaySubject<ServerMessage>(100);
+    this.reset = new Subject<void>();
   }
   //#endregion
 
@@ -52,11 +57,9 @@ export class ConnectionService {
   public connect(
     teamName: string,
     initialMessage: ClientMessage,
-    messageHandler: (msg: ServerMessage) => void,
     rejoinCallBack: () => void): void {
 
     this.rejoinCallBack = rejoinCallBack;
-    this.messageHandler = messageHandler;
     this.initialMessage = initialMessage;
     if (this.connectionStatus !== EConnectionStatus.Reconnecting) {
       this.connectionStatus = EConnectionStatus.Connecting;
@@ -95,6 +98,7 @@ export class ConnectionService {
     window.clearInterval(this.reconnectTimer);
     this.rejoinCallBack = null;
     this.connectionStatus = EConnectionStatus.Disconnected;
+    this.reset.next();
   }
   //#endregion
 
@@ -150,9 +154,7 @@ export class ConnectionService {
       this.sendMessage(this.initialMessage);
       this.initialMessage = undefined;
     }
-    if (this.messageHandler){
-      this.messageHandler(message);
-    }
+    this.incomingMessage.next(message);
   }
 
   private onError(_event: Event): void {
