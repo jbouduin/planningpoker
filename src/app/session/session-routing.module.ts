@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { ContainerComponent } from './components/container/container.component';
+import { ContainerComponent } from './components';
 
 const routes: Routes = [
   // Module is lazy loaded, see app-routing.module.ts

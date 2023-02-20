@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ESessionStatus } from '@shared/services/session-status.enum';
-import { SessionService } from '@shared/services/session.service';
+import { ESessionStatus, SessionService } from '@shared/services';
 
 @Component({
   selector: 'session-overlay-component',

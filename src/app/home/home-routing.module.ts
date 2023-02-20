@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { Shell } from '@app/shell/shell.service';
+import { Shell } from '@shell/shell.service';
 import { ContentPageComponent } from './components/content-page/content-page.component';
 import { LandingComponent } from './components/landing/landing.component';
 

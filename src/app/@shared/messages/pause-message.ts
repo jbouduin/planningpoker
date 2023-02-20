@@ -1,5 +1,6 @@
 import { EClientMessageType, IPauseMessage } from "@shared-lib";
-import { BaseClientMessage } from "./base-client.message";
+
+import { BaseClientMessage } from "./base-client-message";
 
 export class PauseMessage extends BaseClientMessage<void> implements IPauseMessage {
   //#region Constructor & C° --------------------------------------------------

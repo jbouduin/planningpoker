@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { I18nService } from '@core';
+import { I18nService } from '@core/services';
 
 @Component({
   selector: 'shell-language-selector',

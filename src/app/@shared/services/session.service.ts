@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { MatDialog } from '@angular/material/dialog';
-import { filter, map } from 'rxjs/operators';
+import { filter, map, Observable, ReplaySubject, Subject } from 'rxjs';
 
 import { ClientMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IInitMessage, ISelfMessage, ServerMessage } from '@shared-lib';
 
-import { HttpService, LocalStorageService, MessageBoxComponent, MessageBoxParams, SnackbarService } from '@shared';
-import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../messages';
-import { ErrorHandlerService } from './error-handler.service';
-import { Member } from './member';
-import { PauseMessage } from '../messages/pause.message';
-import { ICanRejoinResult } from './can-rejoin-result';
-import { Observable, ReplaySubject, Subject } from 'rxjs';
-import { ESessionStatus } from './session-status.enum';
 import { environment } from '@env/environment';
+import { MessageBoxComponent, MessageBoxParams } from '../components';
+import { CreateMessage, JoinMessage, LeaveMessage, PauseMessage, RejoinMessage } from '../messages';
+import { ICanRejoinResult } from './can-rejoin-result';
+import { ErrorHandlerService } from './error-handler.service';
+import { HttpService } from './http.service';
+import { LocalStorageService } from './local-storage.service';
+import { Member } from './member';
+import { ESessionStatus } from './session-status.enum';
+import { SnackbarService } from './snackbar.service';
 
 @Injectable({
   providedIn: 'root'

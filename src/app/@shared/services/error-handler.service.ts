@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { IErrorMessage, ServerMessage } from '@shared-lib';
 
 import { enumMarker } from '@core/marker';
-import { SnackbarService } from '@shared';
+import { SnackbarService } from '../services';
 
 // required because of ngx-translate-extract
 import { EErrorCode } from '../../../../projects/shared-lib/lib/messages/error-code.enum';

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ESessionStatus } from '@app/@shared/services/session-status.enum';
-import { SessionService } from '@app/@shared/services/session.service';
+
+import { ESessionStatus, SessionService } from '@shared/services';
 
 @Component({
   selector: 'session-container',

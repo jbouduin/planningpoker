@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { CardService } from '@app/session/services/card.service';
-import { PokerService } from '@app/session/services/poker.service';
-import { SessionService } from '@shared/services/session.service';
+import { SessionService } from '@shared/services';
+import { CardService } from '../../services/card.service';
+import { PokerService } from '../../services/poker.service';
 
 @Component({
   selector: 'session-scrum-master-buttons',

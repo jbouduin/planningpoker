@@ -1,5 +1,6 @@
 import { EClientMessageType, IStartMessage } from "@shared-lib";
-import { BaseClientMessage } from "./base-client.message";
+
+import { BaseClientMessage } from "./base-client-message";
 
 export class StartMessage extends BaseClientMessage<void> implements IStartMessage {
   //#region Constructor & C° --------------------------------------------------
