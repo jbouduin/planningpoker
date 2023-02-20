@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
-import { PokerService } from '@app/session/services/poker.service';
 import { TranslateService } from '@ngx-translate/core';
-import { Estimation, Member } from '../../../session/objects';
+
+import { PokerService } from '@app/session/services/poker.service';
+import { Member } from '@shared/services/member';
+import { Estimation } from '../../services/estimation';
 
 @Component({
   selector: 'session-poker-table',

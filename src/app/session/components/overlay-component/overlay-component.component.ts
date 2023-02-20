@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ConnectionService, EConnectionStatus } from '@app/@shared';
-import { SessionService } from '@app/session/services/session.service';
-import { TeamService } from '@app/session/services/team.service';
 import { TranslateService } from '@ngx-translate/core';
+
+import { ESessionStatus } from '@shared/services/session-status.enum';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'session-overlay-component',
@@ -11,35 +11,37 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class OverlayComponentComponent {
   //#region private properties ------------------------------------------------
-  private readonly connectionService: ConnectionService;
   private readonly sessionService: SessionService;
-  private readonly teamService: TeamService;
   private readonly translateService: TranslateService;
   //#endregion
 
   //#region Public getter methods ---------------------------------------------
   public get connectionIcon(): string {
-    switch (this.connectionService.connectionStatus) {
-      case EConnectionStatus.Disconnected:
-      case EConnectionStatus.Countdown:
-        return 'cloud_off';
-      case EConnectionStatus.Connected:
+    switch (this.sessionService.status) {
+      case ESessionStatus.Active:
+      case ESessionStatus.Initiating:
+      case ESessionStatus.Stopping:
         return 'cloud';
-      case EConnectionStatus.Reconnecting:
-      case EConnectionStatus.Connecting:
+      case ESessionStatus.Connecting:
+      case ESessionStatus.Resuming:
+      case ESessionStatus.Reconnecting:
         return 'cloud_queue';
+      case ESessionStatus.ReconnectPending:
+      case ESessionStatus.Suspended:
+      case ESessionStatus.Inactive:
+        return 'cloud_off';
     }
   }
 
   public get showOverlay(): boolean {
-    return this.connectionService.connectionStatus !== EConnectionStatus.Connected;
+    return this.sessionService.status != ESessionStatus.Active;
   }
 
   public get reconnectingTextLine(): string {
-    if (this.connectionService.reconnectIn > 1) {
+    if (this.sessionService.resumeIn > 1) {
       return this.translateService.instant(
         'Overlay.Component.Text.Reconnect_in_$seconds_seconds',
-        { seconds: this.connectionService.reconnectIn });
+        { seconds: this.sessionService.resumeIn });
 
     } else {
       return this.translateService.instant('Overlay.Component.Text.Reconnect_in_1_second');
@@ -55,15 +57,11 @@ export class OverlayComponentComponent {
   }
 
   public get showCountdown(): boolean {
-    return this.connectionService.connectionStatus === EConnectionStatus.Countdown;
-  }
-
-  public get showReconnecting(): boolean {
-    return this.connectionService.connectionStatus === EConnectionStatus.Countdown;
+    return this.sessionService.status === ESessionStatus.ReconnectPending;
   }
 
   public get showBreak(): boolean {
-    return this.connectionService.connectionStatus === EConnectionStatus.Disconnected;
+    return this.sessionService.status === ESessionStatus.Suspended;
   }
 
   public get havingABreakTextLine(): string {
@@ -80,30 +78,23 @@ export class OverlayComponentComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    connectionService: ConnectionService,
-    sessionService: SessionService,
-    teamService: TeamService,
-    translateService: TranslateService) {
-    this.connectionService = connectionService;
+  public constructor(sessionService: SessionService, translateService: TranslateService) {
     this.sessionService = sessionService;
-    this.teamService = teamService;
     this.translateService = translateService;
   }
   //#endregion
 
   //#region UI triggered methods ----------------------------------------------
   public reconnectNowButtonClick(): void {
-    this.connectionService.reconnectNow();
+    this.sessionService.rejoin();
   }
 
   public giveUpReconnectingButtonClick(): void {
-    this.connectionService.giveUpReconnecting();
-    this.sessionService.giveUpReconnecting();
+    this.sessionService.stopReconnecting();
   }
 
   public doNotRejoinButtonClick(): void {
-    this.sessionService.leave(this.teamService.teamName, this.teamService.me.uuid);
+    this.sessionService.quitSession();
   }
   //#endregion
 }

@@ -1,15 +1,15 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
 import { ECardSet, ICardSet } from '@shared-lib';
 
-import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/card-set-dialog.component';
-import { ICardSetDialogParams } from '@app/@shared/components/card-set-dialog/card-set-dialog.params';
-import { CardSetService, ICardSetSelectItem } from '@app/@shared/services/card-set.service';
-import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { SessionService } from '../../../session/services/session.service';
+import { CardSetDialogComponent } from '@shared/components/card-set-dialog/card-set-dialog.component';
+import { ICardSetDialogParams } from '@shared/components/card-set-dialog/card-set-dialog.params';
+import { CardSetService, ICardSetSelectItem } from '@shared/services/card-set.service';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'home-join',
@@ -137,7 +137,7 @@ export class JoinComponent implements OnInit, OnDestroy {
         const dialogRef = this.matDialog.open(CardSetDialogComponent, { data: params });
         dialogRef.afterClosed().subscribe((result: ICardSet) => {
           if (result) {
-            this.sessionService.create(
+            this.sessionService.createSession(
               this.formData.get('team')?.value,
               this.formData.get('nick')?.value,
               this.observer,
@@ -147,7 +147,7 @@ export class JoinComponent implements OnInit, OnDestroy {
           }
         });
       } else {
-        this.sessionService.create(
+        this.sessionService.createSession(
           this.formData.get('team')?.value,
           this.formData.get('nick')?.value,
           this.observer,
@@ -155,7 +155,7 @@ export class JoinComponent implements OnInit, OnDestroy {
           undefined);
       }
     } else {
-      this.sessionService.join(
+      this.sessionService.joinSession(
         this.formData.get('team')?.value,
         this.formData.get('nick')?.value,
         this.observer);

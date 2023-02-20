@@ -3,11 +3,11 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ECardSet, EServerMessageType, ICard, ICardSet, ICardSetMessage, ServerMessage } from '@shared-lib';
 
-import { Card, ConnectionService } from '@shared';
-import { ChangeCardSetMessage } from '../messages';
-import { TeamService } from './team.service';
-import { ICardSetDialogParams } from '@app/@shared/components/card-set-dialog/card-set-dialog.params';
-import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/card-set-dialog.component';
+import { SessionService } from '@shared/services/session.service';
+import { Card } from '@shared';
+import { CardSetDialogComponent } from '@shared/components/card-set-dialog/card-set-dialog.component';
+import { ICardSetDialogParams } from '@shared/components/card-set-dialog/card-set-dialog.params';
+import { ChangeCardSetMessage } from '@shared/messages';
 
 @Injectable({
   providedIn: 'root'
@@ -15,9 +15,8 @@ import { CardSetDialogComponent } from '@app/@shared/components/card-set-dialog/
 export class CardService {
 
   //#region private properties ------------------------------------------------
-  private readonly connectionService: ConnectionService;
+  private readonly sessionService: SessionService;
   private readonly dialog: MatDialog;
-  private readonly teamService: TeamService;
   private currentCardSet: ECardSet;
   private _cards: Array<Card>;
   //#endregion
@@ -29,12 +28,13 @@ export class CardService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  constructor(connectionService: ConnectionService, dialog: MatDialog, teamService: TeamService) {
-    this.connectionService = connectionService;
+  constructor(dialog: MatDialog, sessionService: SessionService) {
     this.dialog = dialog;
-    this.teamService = teamService;
+    this.sessionService = sessionService;
     this.currentCardSet = ECardSet.Cohn;
     this._cards = new Array<Card>();
+    this.sessionService.incomingMessage.subscribe((serverMessage: ServerMessage) => this.handleServerMessage(serverMessage));
+    this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
 
@@ -60,8 +60,8 @@ export class CardService {
 
     dialogRef.afterClosed().subscribe((result: ICardSet) => {
       if (result) {
-        const message = new ChangeCardSetMessage(this.teamService.me.uuid, result);
-        this.connectionService.sendMessage(message);
+        const message = new ChangeCardSetMessage(this.sessionService.myUuid, result);
+        this.sessionService.sendMessage(message);
       }
     });
   }
@@ -75,7 +75,7 @@ export class CardService {
       case EServerMessageType.EndSession:
       case EServerMessageType.ServerReset:
       case EServerMessageType.TeamIdle:
-        this._cards = new Array<Card>();
+        this.resetService();
     }
   }
 
@@ -83,4 +83,8 @@ export class CardService {
     this._cards = new Array<Card>();
   }
   //#endregion
+
+  private resetService(): void {
+    this._cards = new Array<Card>();
+  }
 }

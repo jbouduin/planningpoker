@@ -1,10 +1,11 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Params } from '@angular/router';
+import { ICanRejoinResult } from '@app/@shared/services/can-rejoin-result';
 import { TranslateService } from '@ngx-translate/core';
 
-import { MessageBoxComponent, MessageBoxParams, HttpService, LocalStorageService } from '@app/@shared';
-import { SessionService } from '../../../session/services/session.service';
-import { ActivatedRoute, Params } from '@angular/router';
+import { MessageBoxComponent, MessageBoxParams } from '@shared';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'home-landing',
@@ -15,8 +16,6 @@ export class LandingComponent implements AfterViewInit {
 
   //#region private properties ------------------------------------------------
   private readonly dialog: MatDialog;
-  private readonly httpService: HttpService;
-  private readonly localStorageService: LocalStorageService;
   private readonly sessionService: SessionService;
   private readonly translateService: TranslateService;
   public teamParam?: string;
@@ -31,14 +30,10 @@ export class LandingComponent implements AfterViewInit {
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     dialog: MatDialog,
-    httpService: HttpService,
-    localStorageService: LocalStorageService,
     route: ActivatedRoute,
     sessionService: SessionService,
     translateService: TranslateService) {
     this.dialog = dialog;
-    this.httpService = httpService;
-    this.localStorageService = localStorageService;
     route.queryParams.subscribe((params: Params) => {
       if (params.team) {
         this.teamParam = params.team;
@@ -51,41 +46,35 @@ export class LandingComponent implements AfterViewInit {
 
   //#region Angular interface members -----------------------------------------
   public ngAfterViewInit() {
-    console.log('afterviewinit');
-    const myUuid = this.localStorageService.uuid;
-    const team = this.localStorageService.team;
-    const nick = this.localStorageService.nick
-    if (team &&  nick && myUuid) {
-      this.httpService.checkCanRejoin(team, myUuid).subscribe((exists: boolean) => {
-        if (exists) {
-          const params = new MessageBoxParams();
-          params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
-          params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
-          params.text = this.translateService.instant(
-            'MessageBox.Rejoin_$team_as_$nick.Text',
-            {
-              team: team,
-              nick: nick
-            });
-          params.title = this.translateService.instant('MessageBox.Rejoin_$team_as_$nick.Title');
+    console.log('afterviewinit landing component');
+    this.sessionService.canRejoin().subscribe((result: ICanRejoinResult) => {
+      if (result.canRejoin) {
+        const params = new MessageBoxParams();
+        params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
+        params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
+        params.text = this.translateService.instant(
+          'MessageBox.Rejoin_$team_as_$nick.Text',
+          {
+            team: result.team,
+            nick: result.nick
+          });
+        params.title = this.translateService.instant('MessageBox.Rejoin_$team_as_$nick.Title');
 
-          const dialogRef = this.dialog.open(MessageBoxComponent, {
-            width: '350px',
-            data: params
-          });
-          dialogRef.afterClosed().subscribe(result => {
-            if (result) {
-              this.sessionService.rejoin(team, myUuid);
-            } else {
-              this.sessionService.leave(team, myUuid);
-              this.localStorageService.clear();
-            }
-          });
-        } else {
-          this.localStorageService.clear();
-        }
-      });
-    }
+        const dialogRef = this.dialog.open(MessageBoxComponent, {
+          width: '350px',
+          data: params
+        });
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.sessionService.rejoin();
+          } else {
+            this.sessionService.quitSession();
+          }
+        });
+      } else {
+        this.sessionService.clearSessionData();
+      }
+    });
   }
   //#endregion
 }
