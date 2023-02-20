@@ -28,6 +28,7 @@ export class SessionService {
 
   //#region private properties ------------------------------------------------
   private currentRoute: string;
+  private initialMessage?: ClientMessage;
   private me: Member;
   //#endregion
 
@@ -76,7 +77,6 @@ export class SessionService {
   }
   //#endregion
 
-
   //#region public connection related methods ---------------------------------
   public create(
     team: string,
@@ -85,7 +85,7 @@ export class SessionService {
     cardSet: ECardSet,
     cards: ICardSet | undefined): void {
     console.log(`creating: ${nick}@${team}`);
-    const message = new CreateMessage(
+    this.initialMessage = new CreateMessage(
       '',
       {
         team: team,
@@ -95,12 +95,12 @@ export class SessionService {
         cards: cards
       }
     );
-    this.startSession(team, message);
+    this.startSession(team);
   }
 
   public join(team: string, nick: string, observer: boolean): void {
     console.log(`joining: ${nick}@${team}`);
-    const message = new JoinMessage(
+    this.initialMessage = new JoinMessage(
       '',
       {
         team: team,
@@ -108,26 +108,26 @@ export class SessionService {
         nick: nick
       }
     );
-    this.startSession(team, message);
+    this.startSession(team);
   }
 
   public rejoin(team: string, uuid: string): void {
     console.log(`rejoining  ${team} as ${uuid}`);
-    const message = new RejoinMessage('', uuid);
-    this.startSession(team, message);
+    this.initialMessage = new RejoinMessage('', uuid);
+    this.startSession(team);
   }
   //#endregion
 
   // this one is called from home component
   public leave(team: string, myUuid: string): void {
     const message = new LeaveMessage(myUuid, myUuid);
-
     // if we are connected, we are just leaving the game
     // if not we are leaving a game we have been disconnected from before
     if (this.connectionService.connectionStatus == EConnectionStatus.Connected) {
       this.connectionService.sendMessage(message);
     } else {
-      this.startSession(team, message);
+      this.initialMessage = message;
+      this.startSession(team);
     }
   }
 
@@ -158,6 +158,11 @@ export class SessionService {
         this.handleTeamIdle();
         break;
       case EServerMessageType.Init:
+        if (this.initialMessage) {
+          this.initialMessage.senderUuid = (<IInitMessage>message).data.uuid;
+          this.connectionService.sendMessage(this.initialMessage);
+          this.initialMessage = undefined;
+        }
         this.me = new Member((<IInitMessage>message).data, true);
         this.localStorage.uuid = this.me.uuid;
         this.inSession = true;
@@ -217,10 +222,9 @@ export class SessionService {
     this.resetMe();
   }
 
-  private startSession(team: string, message: ClientMessage) {
+  private startSession(team: string) {
     this.connectionService.connect(
       team,
-      message,
       this.rejoinCallBack.bind(this));
   }
 

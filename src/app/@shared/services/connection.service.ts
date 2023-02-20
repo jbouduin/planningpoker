@@ -2,12 +2,11 @@ import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ClientMessage, EServerMessageType, IInitMessage, ServerMessage } from '@shared-lib';
+import { ClientMessage, ServerMessage } from '@shared-lib';
 import { ReplaySubject, Subject } from 'rxjs';
 import { EConnectionStatus } from './connection-status.enum';
 import { SnackbarService } from './snackbar.service';
 
-// TODO NOW move reconnection logic to session, call session Opened, closed, suspended, etc...
 @Injectable({
   providedIn: 'root'
 })
@@ -20,8 +19,6 @@ export class ConnectionService {
   private rejoinCallBack: (() => void) | null;
   private reconnectTimer: number;
   private webSocket: WebSocket | null;
-  // private messageHandler?: (msg: ServerMessage) => void;
-  private initialMessage?: ClientMessage;
   //#endregion
 
   //#region Public properties -------------------------------------------------
@@ -57,11 +54,8 @@ export class ConnectionService {
   //#region Public methods ----------------------------------------------------
   public connect(
     teamName: string,
-    initialMessage: ClientMessage,
     rejoinCallBack: () => void): void {
-
     this.rejoinCallBack = rejoinCallBack;
-    this.initialMessage = initialMessage;
     if (this.connectionStatus !== EConnectionStatus.Reconnecting) {
       this.connectionStatus = EConnectionStatus.Connecting;
     }
@@ -149,22 +143,10 @@ export class ConnectionService {
   }
 
   private onMessage(event: MessageEvent<string>): void {
-    const message: ServerMessage = JSON.parse(event.data);
-    // TODO NOW this logic should go to session service
-    if (message.type == EServerMessageType.Init && this.initialMessage) {
-      this.initialMessage.senderUuid = (<IInitMessage>message).data.uuid;
-      this.sendMessage(this.initialMessage);
-      this.initialMessage = undefined;
-    }
-    this.incomingMessage.next(message);
+    this.incomingMessage.next(JSON.parse(event.data));
   }
 
   private onError(_event: Event): void {
-    // if (this.connectionStatus === EConnectionStatus.Reconnecting) {
-    //   console.log('in onError Socket.Error.Unable_to_reestablish_the_connection')
-    //   this.snackbarService.showError(this.translateService.instant('Socket.Error.Unable_to_reestablish_the_connection'));
-    //   this.initiateReconnectTimer();
-    // } else
     if (this.connectionStatus !== EConnectionStatus.Connecting && this.connectionStatus !== EConnectionStatus.Reconnecting) {
       console.log(`in onError not connecting and not reconnecting : ${this.connectionStatus}`);
       this.snackbarService.showError(this.translateService.instant('Socket.Error.Communication_error'));

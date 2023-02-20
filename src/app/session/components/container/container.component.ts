@@ -20,6 +20,7 @@ export class ContainerComponent {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(connectionService: ConnectionService) {
+    // TODO NOW use session status suspended
     this.connectionService = connectionService;
   }
   //#endregion
