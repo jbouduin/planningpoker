@@ -12,7 +12,8 @@ import { ObserveMessage } from '@shared/messages/observe-message';
 import { Member } from '@shared/services/member';
 import { ChangeNickDialogComponent } from '../components/change-nick-dialog/change-nick-dialog.component';
 import { ChangeScrumMasterDialogComponent } from '../components/change-scrum-master-dialog/change-scrum-master-dialog.component';
-import { SessionService } from '@app/@shared/services/session.service';
+import { SessionService } from '@shared/services/session.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -139,19 +140,11 @@ export class TeamService {
       case EServerMessageType.TeamIdle:
         this.resetService();
         break;
-        ;
       case EServerMessageType.MemberChanged:
         this.handleMemberChanged((<IMemberChangedMessage>message).data);
         break;
       case EServerMessageType.MemberList:
-        const me = this.allMembers.get(this.myUuid);
-        this.allMembers.clear();
-        if (me) {
-          this.allMembers.set(this.myUuid, me);
-        }
-        (<IMemberListMessage>message).data.forEach(
-          (participant: IParticipant) => this.allMembers.set(participant.uuid, new Member(participant, participant.uuid === this.myUuid))
-        );
+        this.handleMemberList((<IMemberListMessage>message).data);
         break;
       case EServerMessageType.TeamName:
         this.teamName = (<ITeamNameMessage>message).data;
@@ -240,6 +233,16 @@ export class TeamService {
     }
   }
 
+  private handleMemberList(members: Array<IParticipant>): void {
+    const me = this.allMembers.get(this.myUuid);
+    this.allMembers.clear();
+    if (me) {
+      this.allMembers.set(this.myUuid, me);
+    }
+    members.forEach(
+      (participant: IParticipant) => this.allMembers.set(participant.uuid, new Member(participant, participant.uuid === this.myUuid))
+    );
+  }
   private resetService(): void {
     this.localStorageService.clear();
     this.allMembers.clear();

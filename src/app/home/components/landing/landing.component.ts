@@ -4,7 +4,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { ICanRejoinResult } from '@app/@shared/services/can-rejoin-result';
 import { TranslateService } from '@ngx-translate/core';
 
-import { HttpService, LocalStorageService, MessageBoxComponent, MessageBoxParams } from '@shared';
+import { MessageBoxComponent, MessageBoxParams } from '@shared';
 import { SessionService } from '@shared/services/session.service';
 
 @Component({
@@ -69,7 +69,6 @@ export class LandingComponent implements AfterViewInit {
             this.sessionService.rejoin();
           } else {
             this.sessionService.quitSession();
-            // TODO NOW check if required this.localStorage.clear(); this.localStorageService.clear();
           }
         });
       } else {

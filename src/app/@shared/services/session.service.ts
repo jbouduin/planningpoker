@@ -139,7 +139,6 @@ export class SessionService {
       this.initialMessage = new RejoinMessage('', uuid);
       this.connect(team);
     } else {
-      // TODO NOW give a message
       this.snackbarService.showWarning(this.translateService.instant('Session.Service.Warning.Can_not_rejoin'));
       this.resetServices();
     }
@@ -166,7 +165,6 @@ export class SessionService {
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
             this.sendMessage(message);
-            // TODO NOW check if required this.localStorage.clear();
           }
         });
       } else {
@@ -176,14 +174,16 @@ export class SessionService {
             this.sendMessage(message);
             break;
           case ESessionStatus.ReconnectPending:
-            // TODO now
+            this.status = ESessionStatus.Inactive;
+            this.resetServices();
+            this.localStorage.clear();
             break;
           case ESessionStatus.Suspended:
             this.initialMessage = message;
             this.status = ESessionStatus.Resuming;
             this.connect(team);
         }
-        // TODO NOW check if required this.localStorage.clear();
+
       }
     } else {
       this.localStorage.clear();
@@ -258,6 +258,7 @@ export class SessionService {
       case EServerMessageType.Left:
         this.status = ESessionStatus.Inactive;
         this.disconnect();
+        this.localStorage.clear();
         this.navigateTo('/home');
         break;
       case EServerMessageType.ServerReset:
