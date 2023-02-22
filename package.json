@@ -1,9 +1,10 @@
 {
   "name": "planningpoker",
-  "version": "1.0.0",
+  "version": "0.0.4",
   "private": true,
   "scripts": {
-    "build": "ng build --configuration production",
+    "build": "npm run prebuild && ng build --configuration production",
+    "prebuild": "node prebuild.js",
     "start:site": "ng serve",
     "start:server": "cd projects/server && npm run dev",
     "deploy": "ng deploy",
