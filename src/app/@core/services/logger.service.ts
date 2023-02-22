@@ -1,41 +1,4 @@
-/* eslint-disable */
-/**
- * Simple logger system with the possibility of registering custom outputs.
- *
- * 4 different log levels are provided, with corresponding methods:
- * - debug   : for debug information
- * - info    : for informative status of the application (success, ...)
- * - warning : for non-critical errors that do not prevent normal application behavior
- * - error   : for critical errors that prevent normal application behavior
- *
- * Example usage:
- * ```
- * import { Logger } from 'app/core/logger.service';
- *
- * const log = new Logger('myFile');
- * ...
- * log.debug('something happened');
- * ```
- *
- * To disable debug and info logs in production, add this snippet to your root component:
- * ```
- * export class AppComponent implements OnInit {
- *   ngOnInit() {
- *     if (environment.production) {
- *       Logger.enableProductionMode();
- *     }
- *     ...
- *   }
- * }
- *
- * If you want to process logs through other outputs than console, you can add LogOutput functions to Logger.outputs.
- */
-
-/**
- * The possible log levels.
- * LogLevel.Off is never emitted and only used with Logger.level property to disable logs.
- */
-export enum LogLevel {
+enum LogLevel {
   Off = 0,
   Error,
   Warning,
@@ -43,72 +6,65 @@ export enum LogLevel {
   Debug
 }
 
-/**
- * Log output handler function.
- */
-export type LogOutput = (source: string | undefined, level: LogLevel, ...objects: Array<any>) => void;
-
 export class Logger {
+  //#region static ------------------------------------------------------------
   /**
    * Current logging level.
    * Set it to LogLevel.Off to disable logs completely.
    */
-  static level = LogLevel.Debug;
+  private static level = LogLevel.Debug;
 
   /**
    * Additional log outputs.
    */
-  static outputs: Array<LogOutput> = new Array<LogOutput>();
 
   /**
    * Enables production mode.
    * Sets logging level to LogLevel.Warning.
    */
-  static enableProductionMode() {
+  public static enableProductionMode() {
     Logger.level = LogLevel.Warning;
   }
+  //#endregion
 
-  constructor(private source?: string) {
+  //#region private properties ------------------------------------------------
+  private readonly source: string;
+  //#endregion
 
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(source: string) {
+    this.source = source;
   }
+  //#endregion
 
-  /**
-   * Logs messages or objects  with the debug level.
-   * Works the same as console.log().
-   */
-  debug(...objects: Array<any>) {
+  //#region Logging methods ----------------------------------------------------
+  /* eslint-disable @typescript-eslint/no-explicit-any,  no-console */
+  public debug(...objects: Array<any>) {
     this.log(console.log, LogLevel.Debug, objects);
   }
 
-  /**
-   * Logs messages or objects  with the info level.
-   * Works the same as console.log().
-   */
-  info(...objects: Array<any>) {
+  public info(...objects: Array<any>) {
     this.log(console.info, LogLevel.Info, objects);
   }
 
-  /**
-   * Logs messages or objects  with the warning level.
-   * Works the same as console.log().
-   */
-  warn(...objects: Array<any>) {
+  public warn(...objects: Array<any>) {
     this.log(console.warn, LogLevel.Warning, objects);
   }
 
-  /**
-   * Logs messages or objects  with the error level.
-   * Works the same as console.log().
-   */
-  error(...objects: Array<any>) {
+  public error(...objects: Array<any>) {
     this.log(console.error, LogLevel.Error, objects);
   }
 
+  //#endregion
+
+  //#region Private methods ---------------------------------------------------
   private log(func: (...args: Array<any>) => void, level: LogLevel, objects: Array<any>) {
     if (level <= Logger.level) {
-      const log = this.source ? ['[' + this.source + ']'].concat(objects) : objects;
+      const log = ['[' + this.source + ']'].concat(objects.map(x => JSON.stringify(x)));
       func.apply(console, log);
-      Logger.outputs.forEach( output => output.apply(output, [this.source, level, ...objects]));
     }
   }
+  //#endregion
+
+  /* eslint-enable @typescript-eslint/no-explicit-any,  no-console */
 }

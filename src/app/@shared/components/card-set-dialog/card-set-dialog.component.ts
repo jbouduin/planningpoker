@@ -141,7 +141,6 @@ export class CardSetDialogComponent implements AfterViewInit {
   }
 
   public getErrorMessage(name: string): string | undefined {
-    console.log(`name ${name}`);
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
       return this.translateService.instant('Component.Error.Mandatory');

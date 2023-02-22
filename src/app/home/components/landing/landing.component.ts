@@ -46,7 +46,6 @@ export class LandingComponent implements AfterViewInit {
 
   //#region Angular interface members -----------------------------------------
   public ngAfterViewInit() {
-    console.log('afterviewinit landing component');
     this.sessionService.canRejoin().subscribe((result: ICanRejoinResult) => {
       if (result.canRejoin) {
         const params = new MessageBoxParams();
