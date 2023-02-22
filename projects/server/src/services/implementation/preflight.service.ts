@@ -57,6 +57,7 @@ export class PreflightService implements IPreflightService {
       messageType === EClientMessageType.Join ||
       messageType === EClientMessageType.Leave ||
       messageType === EClientMessageType.Reveal ||
+      messageType === EClientMessageType.Remove ||
       messageType === EClientMessageType.Rejoin ||
       messageType === EClientMessageType.Start;
     return result;
@@ -71,6 +72,7 @@ export class PreflightService implements IPreflightService {
       messageType === EClientMessageType.Observe ||
       messageType === EClientMessageType.Pause ||
       messageType === EClientMessageType.Reveal ||
+      messageType === EClientMessageType.Remove ||
       messageType === EClientMessageType.Start;
     return result;
   }

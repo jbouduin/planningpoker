@@ -134,7 +134,7 @@ export class MemberComponent {
   }
 
   public removeParticipantClick(): void {
-    // TODO NOW
+    this.teamService.removeParticipant(this.member?.uuid || '');
   }
   //#endregion
 }

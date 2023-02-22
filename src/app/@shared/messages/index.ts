@@ -2,13 +2,13 @@ export * from './change-card-set-message';
 export * from './change-nick-message';
 export * from './change-scrum-master-message';
 export * from './create-message';
-export * from './disconnect-message';
 export * from './estimate-message';
 export * from './join-message';
 export * from './leave-message';
 export * from './observe-message';
 export * from './pause-message';
 export * from './rejoin-message';
+export * from './remove-message';
 export * from './reveal-message';
 export * from './start-message';
 
