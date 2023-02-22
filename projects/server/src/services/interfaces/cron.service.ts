@@ -1,3 +1,3 @@
 export interface ICronService {
-  initialize(interval: number): void;
+  initialize(): void;
 }

@@ -134,7 +134,7 @@ export class SessionService {
     const team = this.localStorage.team;
     const uuid = this.localStorage.uuid;
     if (team && uuid) {
-      this.log.debug(`rejoining  ${team} as ${uuid}`);
+      this.log.debug(`rejoining ${team} as ${uuid}`);
       if (this.status !== ESessionStatus.ReconnectPending) {
         this.status = ESessionStatus.Reconnecting;
       } else {
@@ -373,9 +373,6 @@ export class SessionService {
 
   //#region Websocket related methods -----------------------------------------
   public connect(teamName: string): void {
-    // if (this.connectionStatus !== EConnectionStatus.Reconnecting) {
-    //   this.connectionStatus = EConnectionStatus.Connecting;
-    // }
     const url = `${environment.ws}/${encodeURI(teamName)}`
     this.webSocket = new WebSocket(url);
     this.webSocket.onopen = this.onOpen.bind(this);
@@ -392,6 +389,7 @@ export class SessionService {
 
   public sendMessage(message: AClientMessage): void {
     if (this.canPerformActionOnSocket()) {
+      this.log.debug(`=> ${message.type}`, message.data)
       this.webSocket?.send(JSON.stringify(message));
     }
   }
@@ -421,9 +419,9 @@ export class SessionService {
       }
     } else {
       if (event.code !== 1000) {
-        this.log.debug(`in onClose event code: ${event.code}`)
+        this.log.debug('in onClose event code', event);
         this.snackbarService.showError(this.translateService.instant('Socket.Error.You_Have_been_disconnected'));
-        this.log.debug(event);
+
       }
       // this.connectionStatus = EConnectionStatus.Disconnected;
     }
@@ -431,8 +429,8 @@ export class SessionService {
   }
 
   private onMessage(event: MessageEvent<string>): void {
-    this.log.debug(event.data);
     const message: AServerMessage = JSON.parse(event.data);
+    this.log.debug(`<= ${message.type}`, message.data);
     this.handleServerMessage(message)
     this.incomingMessage.next(message);
   }

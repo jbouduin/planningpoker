@@ -1,10 +1,10 @@
 import * as cors from 'cors';
 import * as express from 'express';
 import * as expressWs from 'express-ws';
-import { env } from 'process';
+import { logger } from 'express-winston';
 
 import container from './inversify.config';
-import { ICronService, IRouteService, ISocketService } from './services/interfaces';
+import { ICronService, ILoggerService, IRouteService, ISocketService } from './services/interfaces';
 import SERVICETYPES from './services/service.types';
 
 class App {
@@ -12,11 +12,20 @@ class App {
   public expressWS: expressWs.Instance;
 
   public constructor() {
-    this.expressWS = expressWs(express());
+    const loggerService = container.get<ILoggerService>(SERVICETYPES.LoggerService);
+    const app = express();
+    app.use(logger({
+      transports: loggerService.transports,
+      format: loggerService.getDefaultLogFormat('Express'),
+      meta: false,
+      msg: 'HTTP {{res.statusCode}} {{req.method}} {{req.url}} {{res.responseTime}}ms',
+      colorize: false
+    }))
+    this.expressWS = expressWs(app);
 
     container.get<ISocketService>(SERVICETYPES.SocketService).initializeService(this.expressWS);
     container.get<IRouteService>(SERVICETYPES.RouteService).setRoutes(this.expressWS);
-    container.get<ICronService>(SERVICETYPES.CronService).initialize(Number.parseInt(env.TEAM_IDLETIME || '3600000'));
+    container.get<ICronService>(SERVICETYPES.CronService).initialize();
     this.config(this.expressWS.app);
   }
 

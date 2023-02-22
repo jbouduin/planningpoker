@@ -39,32 +39,29 @@ export class Logger {
 
   //#region Logging methods ----------------------------------------------------
   /* eslint-disable @typescript-eslint/no-explicit-any,  no-console */
-  public debug(...objects: Array<any>) {
-    this.log(console.log, LogLevel.Debug, objects);
+  public debug(message: string, ...objects: Array<any>) {
+    this.log(console.log, LogLevel.Debug,  message, objects);
   }
 
-  public info(...objects: Array<any>) {
-    this.log(console.info, LogLevel.Info, objects);
+  public info(message: string, ...objects: Array<any>) {
+    this.log(console.info, LogLevel.Info,  message, objects);
   }
 
-  public warn(...objects: Array<any>) {
-    this.log(console.warn, LogLevel.Warning, objects);
+  public warn(message: string, ...objects: Array<any>) {
+    this.log(console.warn, LogLevel.Warning,  message, objects);
   }
 
-  public error(...objects: Array<any>) {
-    this.log(console.error, LogLevel.Error, objects);
+  public error(message: string, ...objects: Array<any>) {
+    this.log(console.error, LogLevel.Error,  message, objects);
   }
-
   //#endregion
 
   //#region Private methods ---------------------------------------------------
-  private log(func: (...args: Array<any>) => void, level: LogLevel, objects: Array<any>) {
-    if (level <= Logger.level) {
-      const log = ['[' + this.source + ']'].concat(objects.map(x => JSON.stringify(x)));
-      func.apply(console, log);
+  private log(func: (message: any, ...args: Array<any>) => void, level: LogLevel,  msg: string, objects: Array<any>) {
+    if (level <= Logger.level && objects.length > 0) {
+      func.apply(console, [`[${this.source}] ${msg}`, ...objects]);
     }
   }
-  //#endregion
-
   /* eslint-enable @typescript-eslint/no-explicit-any,  no-console */
+  //#endregion
 }
