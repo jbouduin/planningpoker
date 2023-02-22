@@ -46,6 +46,7 @@
 	"Label.Generic.Me": "Ich",
 	"Member.Component.MenuItem.Change_nick": "Namen ändern",
 	"Member.Component.MenuItem.Change_scrummaster": "Scrum Master ändern",
+	"Member.Component.MenuItem.Remove_participant": "Entfernen",
 	"Member.Component.MenuItem.Start_estimating": "Schätzungen abgeben",
 	"Member.Component.MenuItem.Stop_estimating": "Keine Schätzungen abgeben",
 	"MemberButtons.Component.Button.Leave.Label": "Team verlassen",

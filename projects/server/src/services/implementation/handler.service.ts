@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
+import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/lib";
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IHandlerService, ILoggerService, IMessageService } from "../interfaces";
@@ -167,10 +167,6 @@ export class HandlerService implements IHandlerService{
             this.handleJoin(sender, <IJoinMessage>message, team);
             break;
           }
-          case (EClientMessageType.Disconnect): {
-            this.handleKillMe(sender);
-            break;
-          }
           case (EClientMessageType.Leave): {
             this.handleLeave(sender, <ILeaveMessage>message, team);
             break;
@@ -181,6 +177,10 @@ export class HandlerService implements IHandlerService{
           }
           case (EClientMessageType.Pause): {
             this.handlePause(sender, team);
+            break;
+          }
+          case (EClientMessageType.Remove): {
+            this.handleRemove(sender, <IRemoveMessage>message, team);
             break;
           }
           case (EClientMessageType.Reveal): {
@@ -274,12 +274,18 @@ export class HandlerService implements IHandlerService{
     this.messageService.broadcastMemberChange(team, sender, EMemberStatusChange.Joined);
   }
 
-  private handleKillMe(sender: Participant): void {
-    this.loggerService.info('Server', `Kill: '${sender.nick}' asked to be disconnected`);
-    sender.socket.close();
+  private handleRemove(sender: Participant, message: IRemoveMessage, team: ITeam): void {
+    const toRemove = this.storage.getParticipant(message.data);
+    if (toRemove) {
+      team.removeMember(toRemove.uuid);
+      this.storage.deleteParticipant(toRemove.uuid);
+      // tell the others someone left
+      toRemove.status = EParticipantStatus.Left;
+      this.messageService.broadcastMemberChange(team, toRemove, EMemberStatusChange.Left);
+    }
   }
 
-  private handleLeave(sender: Participant, _message: ILeaveMessage, team: ITeam): void {
+  private handleLeave(sender: Participant, message: ILeaveMessage, team: ITeam): void {
     if (sender.role === ERole.ScrumMaster) {
       this.loggerService.info('Server', `End game: '${sender.nick}' is ending '${team.teamName}'`);
       this.messageService.broadcastSessionEnded(team, sender);
@@ -291,8 +297,8 @@ export class HandlerService implements IHandlerService{
       this.messageService.sendSessionEnded(sender);
     } else {
 
-      const leaving = sender.uuid !== _message.data ?
-        this.storage.getParticipant(_message.data) :
+      const leaving = sender.uuid !== message.data ?
+        this.storage.getParticipant(message.data) :
         sender;
       if (leaving) {
         this.loggerService.info('Server', `Leave: '${leaving.nick}' is leaving '${team.teamName}'`);

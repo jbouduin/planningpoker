@@ -46,6 +46,7 @@
 	"Label.Generic.Me": "Me",
 	"Member.Component.MenuItem.Change_nick": "Change name",
 	"Member.Component.MenuItem.Change_scrummaster": "Change Scrum Master",
+	"Member.Component.MenuItem.Remove_participant": "Remove",
 	"Member.Component.MenuItem.Start_estimating": "Participate in estimations",
 	"Member.Component.MenuItem.Stop_estimating": "Stop giving estimations",
 	"MemberButtons.Component.Button.Leave.Label": "Leave",

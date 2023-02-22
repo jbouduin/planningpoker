@@ -7,7 +7,7 @@ import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IMe
 
 import { environment } from '@env/environment';
 import { MessageBoxComponent, MessageBoxParams } from '@shared/components';
-import { ChangeNickMessage, ChangeScrumMasterMessage, ObserveMessage } from '@shared/messages';
+import { ChangeNickMessage, ChangeScrumMasterMessage, ObserveMessage, RemoveMessage } from '@shared/messages';
 import { LocalStorageService, Member, SessionService, SnackbarService } from '@shared/services';
 import { ChangeNickDialogComponent, ChangeScrumMasterDialogComponent } from '../components';
 
@@ -126,7 +126,23 @@ export class TeamService {
     return this.allMembers.get(uuid);
   }
 
-  public handleServerMessage(message: AServerMessage): void {
+  public removeParticipant(uuid: string): void {
+    const message = new RemoveMessage(this.myUuid,uuid);
+    this.sessionService.sendMessage(message);
+  }
+
+  public switchObserving(observe: boolean, member: string): void {
+    const data: IObserverChange = {
+      member: member,
+      observer: observe
+    };
+    const message = new ObserveMessage(this.myUuid, data);
+    this.sessionService.sendMessage(message);
+  }
+  //#endregion
+
+  //#region private methods -----------------------------------------
+  private handleServerMessage(message: AServerMessage): void {
     switch (message.type) {
       case EServerMessageType.Self:
         this.handleSelf(new Member((<ISelfMessage>message).data, true));
@@ -150,17 +166,6 @@ export class TeamService {
     }
   }
 
-  public switchObserving(observe: boolean, member: string): void {
-    const data: IObserverChange = {
-      member: member,
-      observer: observe
-    };
-    const message = new ObserveMessage(this.myUuid, data);
-    this.sessionService.sendMessage(message);
-  }
-  //#endregion
-
-  //#region private methods -----------------------------------------
   private handleSelf(me: Member): void {
     this.myUuid = me.uuid;
     this.allMembers.set(me.uuid, me);
@@ -240,6 +245,7 @@ export class TeamService {
       (participant: IParticipant) => this.allMembers.set(participant.uuid, new Member(participant, participant.uuid === this.myUuid))
     );
   }
+
   private resetService(): void {
     this.localStorageService.clear();
     this.allMembers.clear();
