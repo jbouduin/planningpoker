@@ -1,13 +1,13 @@
 import { Request, Response, Router } from 'express';
 import * as expressWs from 'express-ws';
 import { inject, injectable } from 'inversify';
-import { env } from 'process';
 import 'reflect-metadata';
 
 import CONTROLLERTYPES from '../../controllers/controller.types';
+import SERVICETYPES from '../service.types';
 
 import { IApiController, ISystemController } from '../../controllers/interfaces';
-import { IRouteService } from '../interfaces';
+import { IEnvironmentService, IRouteService } from '../interfaces';
 
 @injectable()
 export class RouteService implements IRouteService {
@@ -15,20 +15,17 @@ export class RouteService implements IRouteService {
   //#region private properties ------------------------------------------------
   private readonly apiController: IApiController
   private readonly systemController: ISystemController;
-  //#endregion
-
-  //#region private getters ---------------------------------------------------
-  private get systemPath(): string {
-    return `/${env.SYSTEMPATH || "82b52f20-24e6-44c0-a87d-701c150858a0"}`;
-  }
+  private readonly systemPath: string;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     @inject(CONTROLLERTYPES.ApiController) apiController: IApiController,
+    @inject(SERVICETYPES.EnvironmentService) environmentService: IEnvironmentService,
     @inject(CONTROLLERTYPES.SystemController) systemController: ISystemController) {
     this.apiController = apiController;
     this.systemController = systemController;
+    this.systemPath = environmentService.systemPath;
   }
   //#endregion
 

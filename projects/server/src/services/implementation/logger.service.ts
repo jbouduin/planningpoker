@@ -3,10 +3,9 @@ import { Writable } from 'stream';
 import * as winston from 'winston';
 import { format, transports } from 'winston';
 
-import { ILoggerService, LogType } from '../interfaces';
-// TODO NOW import { INJECTABLETYPES } from '../../ioc/injectable-types';
-// TODO NOW import { IEnvironmentService } from './environment.service';
+import SERVICETYPES from '../service.types';
 
+import { IEnvironmentService, ILoggerService, LogType } from '../interfaces';
 
 @injectable()
 export class LoggerService implements ILoggerService {
@@ -29,12 +28,12 @@ export class LoggerService implements ILoggerService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  // TODO NOW public constructor(@inject(INJECTABLETYPES.EnvironmentService) environmentService: IEnvironmentService) {
-  public constructor() {
-    this.suppressAlwaysLog = false;  //environmentService.isCi;
+  public constructor(@inject(SERVICETYPES.EnvironmentService) environmentService: IEnvironmentService) {
+
+    this.suppressAlwaysLog = environmentService.isCi;
     this.buffer = new Array<string>();
-    this.consoleTransport = new transports.Console({ level: 'debug' /* environmentService.logLevel.toLowerCase()*/ });
-    this.defaultStreamTransport = this.initializeStreamTransport('debug' /* environmentService.logLevel.toLowerCase() */);
+    this.consoleTransport = new transports.Console({ level: environmentService.logLevel.toLowerCase() });
+    this.defaultStreamTransport = this.initializeStreamTransport(environmentService.logLevel.toLowerCase() );
 
     this.defaultLogger = this.initializeDefaultLogger();
 

@@ -1,5 +1,6 @@
 export * from './card.service';
 export * from './cron.service';
+export * from './environment.service';
 export * from './handler.service';
 export * from './logger.service';
 export * from './message.service';
