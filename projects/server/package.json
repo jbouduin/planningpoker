@@ -17,11 +17,13 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "express-winston": "^4.2.0",
     "express-ws": "^5.0.2",
     "inversify": "^6.0.1",
     "reflect-metadata": "^0.1.13",
     "typescript": "^4.9.4",
     "uuid": "^9.0.0",
+    "winston": "^3.8.2",
     "ws": "^8.11.0"
   },
   "devDependencies": {

@@ -3,6 +3,7 @@ const SERVICETYPES = {
   CronService: Symbol('CronService'),
   FactoryService: Symbol('FactoryService'),
   HandlerService: Symbol('HandlerService'),
+  LoggerService: Symbol('LoggerService,'),
   MessageService: Symbol('MessageService'),
   PreflightService: Symbol('PreflightService'),
   RouteService: Symbol('RouteService'),

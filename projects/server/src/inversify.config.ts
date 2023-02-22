@@ -6,8 +6,8 @@ import STORAGETYPES from './storage/storage.types';
 
 import { ApiController, SystemController } from './controllers/implementation';
 import { IApiController, ISystemController } from './controllers/interfaces';
-import { CardService, CronService, SocketService, HandlerService, MessageService, PreflightService, RouteService, SenderService } from './services/implementation';
-import { ICardService, ISocketService, IHandlerService, IMessageService, IPreflightService, IRouteService, ISenderService, ICronService } from './services/interfaces';
+import { CardService, CronService, SocketService, HandlerService, MessageService, PreflightService, RouteService, SenderService, LoggerService } from './services/implementation';
+import { ICardService, ISocketService, IHandlerService, IMessageService, IPreflightService, IRouteService, ISenderService, ICronService, ILoggerService } from './services/interfaces';
 import { StorageService } from './storage/implementation';
 import { IStorageService } from './storage/interfaces';
 import {  } from 'services/implementation/cron.service';
@@ -23,6 +23,7 @@ container.bind<ISystemController>(CONTROLLERTYPES.SystemController).to(SystemCon
 container.bind<ICardService>(SERVICETYPES.CardService).to(CardService).inSingletonScope();
 container.bind<ICronService>(SERVICETYPES.CronService).to(CronService).inSingletonScope();
 container.bind<IHandlerService>(SERVICETYPES.HandlerService).to(HandlerService);
+container.bind<ILoggerService>(SERVICETYPES.LoggerService).to(LoggerService).inSingletonScope();
 container.bind<IMessageService>(SERVICETYPES.MessageService).to(MessageService);
 container.bind<IPreflightService>(SERVICETYPES.PreflightService).to(PreflightService);
 container.bind<IRouteService>(SERVICETYPES.RouteService).to(RouteService);
