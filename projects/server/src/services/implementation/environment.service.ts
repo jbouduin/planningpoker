@@ -12,10 +12,6 @@ export class EnvironmentService implements IEnvironmentService {
   //#endregion
 
   //#region public getters ----------------------------------------------------
-  public get isCi(): boolean {
-    return process.env.JEST_WORKER_ID ? true : false
-  }
-
   public get isDevelopment(): boolean {
     return this.environment === 'development';
   }
@@ -30,6 +26,10 @@ export class EnvironmentService implements IEnvironmentService {
 
   public get systemPath(): string {
     return `/${process.env.SYSTEMPATH || "82b52f20-24e6-44c0-a87d-701c150858a0"}`;
+  }
+
+  public get teamIdleTime(): number {
+    return Number.parseInt(process.env.TEAM_IDLE_TIME || "3600000");
   }
   //#endregion
 

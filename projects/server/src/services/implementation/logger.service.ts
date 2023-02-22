@@ -11,14 +11,12 @@ import { IEnvironmentService, ILoggerService, LogType } from '../interfaces';
 export class LoggerService implements ILoggerService {
 
   //#region private properties ------------------------------------------------
-  private readonly defaultLogger: winston.Logger;
-  private readonly alwaysLogger: winston.Logger;
-  private readonly unformattedLogger: winston.Logger;
+  private readonly serverLogger: winston.Logger;
+  private readonly socketLogger: winston.Logger;
   private readonly buffer: Array<string>;
   private readonly maxBufferSize = 250;
   private readonly consoleTransport: winston.transport;
   private readonly defaultStreamTransport: winston.transport;
-  private readonly suppressAlwaysLog: boolean;
   //#endregion
 
   //#region public properties -------------------------------------------------
@@ -29,53 +27,68 @@ export class LoggerService implements ILoggerService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(@inject(SERVICETYPES.EnvironmentService) environmentService: IEnvironmentService) {
-
-    this.suppressAlwaysLog = environmentService.isCi;
     this.buffer = new Array<string>();
     this.consoleTransport = new transports.Console({ level: environmentService.logLevel.toLowerCase() });
-    this.defaultStreamTransport = this.initializeStreamTransport(environmentService.logLevel.toLowerCase() );
-
-    this.defaultLogger = this.initializeDefaultLogger();
-
-    this.alwaysLogger = this.initializeAlwaysLogger();
-
-    this.unformattedLogger = winston.createLogger({
-      transports: [
-        new transports.Console({ level: 'info' })
-      ],
-      format: format.combine(format.printf((info: winston.Logform.TransformableInfo) => {
-        //eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        return `${info.message}`;
-      }))
-    })
+    this.defaultStreamTransport = this.initializeStreamTransport(environmentService.logLevel.toLowerCase());
+    this.serverLogger = this.initializeDefaultLogger('Server');
+    this.socketLogger = this.initializeDefaultLogger('Socket');
   }
   //#endregion
 
   //#region ILoggerService members --------------------------------------------
-  public debug(message: string): void {
-    this.defaultLogger.debug(message);
-  }
-
-  public error(message: string): void {
-    this.defaultLogger.error(message);
-  }
-
-  public info(message: string): void {
-    this.defaultLogger.info(message);
-  }
-
-  public warning(message: string): void {
-    this.defaultLogger.warn(message);
-  }
-
-  public alwaysLog(message: string, level = 'info'): void {
-    if (!this.suppressAlwaysLog) {
-      this.alwaysLogger.log(level, message);
+  public debug(logType: LogType, message: string): void {
+    switch (logType) {
+      case 'Server':
+        this.serverLogger.debug(message);
+        break;
+      case 'Socket':
+        this.socketLogger.debug(message);
+        break;
     }
   }
 
-  public unformatted(message: string): void {
-    this.unformattedLogger.info(message);
+  public error(logType: LogType, message: string): void {
+    switch (logType) {
+      case 'Server':
+        this.serverLogger.error(message);
+        break;
+      case 'Socket':
+        this.socketLogger.error(message);
+        break;
+    }
+  }
+
+  public info(logType: LogType, message: string): void {
+    switch (logType) {
+      case 'Server':
+        this.serverLogger.info(message);
+        break;
+      case 'Socket':
+        this.socketLogger.info(message);
+        break;
+    }
+  }
+
+  public warning(logType: LogType, message: string): void {
+    switch (logType) {
+      case 'Server':
+        this.serverLogger.warn(message);
+        break;
+      case 'Socket':
+        this.socketLogger.warn(message);
+        break;
+    }
+  }
+
+  public logError(logType: LogType, error: Error): void {
+    switch (logType) {
+      case 'Server':
+        this.serverLogger.error(error.stack);
+        break;
+      case 'Socket':
+        this.socketLogger.warn(error.stack);
+        break;
+    }
   }
 
   public getDefaultLogFormat(label: string): winston.Logform.Format {
@@ -90,7 +103,7 @@ export class LoggerService implements ILoggerService {
   public getLog(logType?: LogType, size?: number): Array<string> {
     let result: Array<string>;
     switch (logType) {
-      case 'API':
+      case 'Server':
       case 'Express': {
         const filter = `[${logType}]`;
         result = this.buffer.slice().filter((entry: string) => entry.indexOf(filter) > 0);
@@ -106,20 +119,10 @@ export class LoggerService implements ILoggerService {
   //#endregion
 
   //#region private methods ---------------------------------------------------
-  private initializeDefaultLogger(): winston.Logger {
+  private initializeDefaultLogger(logType: LogType): winston.Logger {
     return winston.createLogger({
       transports: this.transports,
-      format: this.getDefaultLogFormat('API')
-    });
-  }
-
-  private initializeAlwaysLogger(): winston.Logger {
-    return winston.createLogger({
-      transports: [
-        new transports.Console({ level: 'silly' }),
-        this.initializeStreamTransport('silly')
-      ],
-      format: this.getDefaultLogFormat('API')
+      format: this.getDefaultLogFormat(logType)
     });
   }
 

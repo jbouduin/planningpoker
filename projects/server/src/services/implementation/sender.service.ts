@@ -1,32 +1,49 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 import { AServerMessage } from "../../../../shared-lib/lib";
+
+import SERVICETYPES from "../service.types";
+
 import { Participant } from "../../objects";
-import { ISenderService } from "../interfaces";
+import { ILoggerService, ISenderService } from "../interfaces";
 import { IWebSocket, ReadyState } from "../websocket";
 
 @injectable()
 export class SenderService implements ISenderService{
 
+  //#region private properties ------------------------------------------------
+  private readonly loggerService: ILoggerService;
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(@inject(SERVICETYPES.LoggerService) loggerService: ILoggerService) {
+    this.loggerService = loggerService;
+  }
+  //#endregion
+
+  //#region ISenderService methods --------------------------------------------
   public sendToParticipant(to: Participant, message: AServerMessage): void {
-    console.log(`${new Date().toISOString()}: => to '${to.nick}': ${message.type} - ${JSON.stringify(message)}`);
+    this.loggerService.info('Socket', `${to.nick} => ${message.type} - ${JSON.stringify(message)}`);
     this.send(to.socket, message);
   }
 
   public sendToSocket(socket: IWebSocket, message: AServerMessage): void {
-    console.log(`${new Date().toISOString()}: => to socket: ${message.type} - ${JSON.stringify(message)}`);
+    this.loggerService.info('Socket', `socket => ${message.type} - ${JSON.stringify(message)}`);
     this.send(socket, message);
   }
+  //#endregion
 
+  //#region private methods ---------------------------------------------------
   private send(socket: IWebSocket, message: AServerMessage): void {
     if (socket.readyState === ReadyState.OPEN) {
       try {
         socket.send(JSON.stringify(message));
       } catch (err: unknown) {
-        console.log(`${new Date().toISOString()}: => error sending: ${err}`); // eslint-disable-line
+        this.loggerService.error('Socket', `${err}`); // eslint-disable-line
       }
     } else {
-      console.log(`Can not send, Readystate is ${ReadyState[socket.readyState]} ${socket.readyState}`);
+      this.loggerService.error('Socket', `Readystate is ${ ReadyState[socket.readyState]}`);
     }
   }
+  //#endregion
 }

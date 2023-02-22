@@ -6,16 +6,17 @@ import SERVICETYPES from "../service.types";
 import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
-import { ICardService, IMessageService } from "../interfaces";
+import { ICardService, IHandlerService, ILoggerService, IMessageService } from "../interfaces";
 import { IPreflightService } from "../interfaces/preflight.service";
 import { IWebSocket } from '../websocket';
 
 
 @injectable()
-export class HandlerService {
+export class HandlerService implements IHandlerService{
 
   //#region Private properties ------------------------------------------------
   private readonly cardService: ICardService;
+  private readonly loggerService: ILoggerService;
   private readonly messageService: IMessageService;
   private readonly preflightService: IPreflightService;
   private readonly storage: IStorageService;
@@ -24,10 +25,12 @@ export class HandlerService {
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     @inject(SERVICETYPES.CardService) cardService: ICardService,
+    @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService,
     @inject(SERVICETYPES.MessageService) messageService: IMessageService,
     @inject(SERVICETYPES.PreflightService) preflightService: IPreflightService,
     @inject(STORAGETYPES.StorageService) storage: IStorageService) {
     this.cardService = cardService;
+    this.loggerService = loggerService;
     this.messageService = messageService;
     this.preflightService = preflightService;
     this.storage = storage;
@@ -42,11 +45,11 @@ export class HandlerService {
     const closed = this.storage.filterParticipants((participant: Participant) => participant.socket == ws)[0];
     if (closed) {
       if (closed.status !== EParticipantStatus.Paused) {
-        console.log(`${new Date().toISOString()}: '${closed.nick}'' has been disconnected`);
+        this.loggerService.info('Server', `'${closed.nick}'' has been disconnected`);
         closed.status = EParticipantStatus.Disconnected;
         const team = this.storage.getTeamOfParticipant(closed.uuid);
         if (team) {
-          console.log('sending disconnection to other participants');
+          this.loggerService.info('Server', 'sending disconnection to other participants');
           this.messageService.broadcastMemberChange(team, closed, EMemberStatusChange.Disconnected);
           if (closed.role === ERole.ScrumMaster) {
             // assign some random participant the scrum master role
@@ -72,9 +75,9 @@ export class HandlerService {
   }
 
   public handleCronTick(maxIdleTime: number): void {
-    console.log(`${new Date().toISOString()}: Cron tick`);
+    this.loggerService.info('Server', `Cron tick`);
     for (const team of this.storage.filterTeams((team: ITeam) => team.idleTime > maxIdleTime)) {
-      console.log(`Cron Tick: deleting '${team.teamName}'`);
+      this.loggerService.info('Server', `Cron Tick: deleting '${team.teamName}'`);
       team.allMembers.forEach((participant: Participant) => {
         this.messageService.sendTeamIdleMessage(participant);
         this.storage.deleteParticipant(participant.uuid);
@@ -83,14 +86,11 @@ export class HandlerService {
     }
   }
 
-  public handleError(ws: IWebSocket, err: unknown): void {
-    console.log(`${new Date().toISOString()}: ERROR ${err}`);  //eslint-disable-line
+  public handleError(ws: IWebSocket, error: Error): void {
 
-    if (err instanceof Error) {
-      this.messageService.sendException(ws, err.message);
-    } else {
-      this.messageService.sendException(ws, JSON.stringify(err));
-    }
+      this.loggerService.logError('Server', error)
+      this.messageService.sendException(ws, error.message);
+
   }
 
   public handleMessage(message: AClientMessage, teamName: string, ws: IWebSocket): void {
@@ -106,7 +106,7 @@ export class HandlerService {
   }
 
   public handlePing(): void {
-    console.log(`${new Date().toISOString()}: ping`);
+    this.loggerService.info('Server', `ping`);
     this.storage
       .filterParticipants((participant: Participant) => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.messageService.sendPing(participant));
@@ -119,7 +119,7 @@ export class HandlerService {
     response.removedTeams = new Array<LooseObject>();
     for (const team of this.storage.filterTeams((_team: ITeam) => true)) {
       const removedTeam: LooseObject = {};
-      console.log(`System reset: removing '${team.teamName}'`);
+      this.loggerService.info('Server', `System reset: removing '${team.teamName}'`);
       removedTeam.team = team.teamName;
       removedTeam.members = 0;
       removedTeam.removedMembers = new Array<string>();
@@ -197,7 +197,7 @@ export class HandlerService {
           }
           default: {
             this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.UnknownVerb);
-            console.log('unexpected messagetype');
+            this.loggerService.error('Server', 'unexpected messagetype');
           }
         } // end switch
       }
@@ -235,7 +235,7 @@ export class HandlerService {
   }
 
   private handleCreate(sender: Participant, message: ICreatemessage): void {
-    console.log(`Create: '${sender.nick}' is creating '${message.data.team}'`);
+    this.loggerService.info('Server', `Create: '${sender.nick}' is creating '${message.data.team}'`);
     const newGame = this.storage.createTeam(
       message.data.team,
       message.data.cardSet === ECardSet.Custom ?
@@ -262,7 +262,7 @@ export class HandlerService {
   }
 
   private handleJoin(sender: Participant, message: IJoinMessage, team: ITeam): void {
-    console.log(`Join: '${sender.nick}' is joining '${message.data.team}'`);
+    this.loggerService.info('Server', `Join: '${sender.nick}' is joining '${message.data.team}'`);
     sender.role = ERole.Developer;
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
@@ -275,13 +275,13 @@ export class HandlerService {
   }
 
   private handleKillMe(sender: Participant): void {
-    console.log(`Kill: '${sender.nick}' asked to be disconnected`);
+    this.loggerService.info('Server', `Kill: '${sender.nick}' asked to be disconnected`);
     sender.socket.close();
   }
 
   private handleLeave(sender: Participant, _message: ILeaveMessage, team: ITeam): void {
     if (sender.role === ERole.ScrumMaster) {
-      console.log(`End game: '${sender.nick}' is ending '${team.teamName}'`);
+      this.loggerService.info('Server', `End game: '${sender.nick}' is ending '${team.teamName}'`);
       this.messageService.broadcastSessionEnded(team, sender);
       team
         .filterMembers(_participant => true)
@@ -295,7 +295,7 @@ export class HandlerService {
         this.storage.getParticipant(_message.data) :
         sender;
       if (leaving) {
-        console.log(`Leave: '${leaving.nick}' is leaving '${team.teamName}'`);
+        this.loggerService.info('Server', `Leave: '${leaving.nick}' is leaving '${team.teamName}'`);
         team.removeMember(leaving.uuid);
         this.storage.deleteParticipant(leaving.uuid);
         // tell the others someone left
@@ -317,7 +317,7 @@ export class HandlerService {
   }
 
   private handlePause(sender: Participant, game: ITeam): void {
-    console.log(`Pause: '${sender.nick}'`);
+    this.loggerService.info('Server', `Pause: '${sender.nick}'`);
     // send the data back as aknowledgment
     sender.status = EParticipantStatus.Paused;
     this.messageService.sendSelf(sender);
@@ -325,7 +325,7 @@ export class HandlerService {
   }
 
   private handleRejoin(sender: Participant, message: IRejoinMessage, ws: any): void {
-    console.log(`Rejoin: '${message.senderUuid}' => '${message.data}' `);
+    this.loggerService.info('Server', `Rejoin: '${message.senderUuid}' => '${message.data}' `);
     // find the original participant and the game he was in
     const oldParticipant = this.storage.getParticipant(message.data);
     const teamToRejoin = this.storage.getTeamOfParticipant(message.data);

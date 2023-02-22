@@ -7,13 +7,14 @@ import CONTROLLERTYPES from '../../controllers/controller.types';
 import SERVICETYPES from '../service.types';
 
 import { IApiController, ISystemController } from '../../controllers/interfaces';
-import { IEnvironmentService, IRouteService } from '../interfaces';
+import { IEnvironmentService, ILoggerService, IRouteService } from '../interfaces';
 
 @injectable()
 export class RouteService implements IRouteService {
 
   //#region private properties ------------------------------------------------
   private readonly apiController: IApiController
+  private readonly loggerService: ILoggerService;
   private readonly systemController: ISystemController;
   private readonly systemPath: string;
   //#endregion
@@ -22,8 +23,10 @@ export class RouteService implements IRouteService {
   public constructor(
     @inject(CONTROLLERTYPES.ApiController) apiController: IApiController,
     @inject(SERVICETYPES.EnvironmentService) environmentService: IEnvironmentService,
+    @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService,
     @inject(CONTROLLERTYPES.SystemController) systemController: ISystemController) {
     this.apiController = apiController;
+    this.loggerService = loggerService;
     this.systemController = systemController;
     this.systemPath = environmentService.systemPath;
   }
@@ -39,7 +42,6 @@ export class RouteService implements IRouteService {
     router.all(
       '*',
       (_request: Request, response: Response) => {
-        console.log(`404: ${_request.url}`);
         response.sendStatus(404);
       });
 
@@ -57,7 +59,7 @@ export class RouteService implements IRouteService {
             .type('application/json')
             .send(this.systemController.resetServer());
         } catch (error) {
-          console.log(error);
+          this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);
         }
       }
@@ -67,11 +69,12 @@ export class RouteService implements IRouteService {
       `${this.systemPath}/team`,
       (_request: Request, response: Response) => {
         try {
+          throw new RangeError('test');
           response
             .type('application/json')
             .send(this.systemController.getAllTeams());
         } catch (error) {
-          console.log(error);
+          this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);
         }
       }
@@ -85,7 +88,7 @@ export class RouteService implements IRouteService {
             .type('application/json')
             .send(this.systemController.getTeam(request.params.name));
         } catch (error) {
-          console.log(error);
+          this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);
         }
       }
@@ -99,7 +102,7 @@ export class RouteService implements IRouteService {
             .type('application/json')
             .send(this.systemController.getParticipants());
         } catch (error) {
-          console.log(error);
+          this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);
         }
       }
@@ -113,7 +116,7 @@ export class RouteService implements IRouteService {
             .type('application/json')
             .send(this.systemController.disconnectParticipant(request.params.uuid));
         } catch (error) {
-          console.log(error);
+          this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);
         }
       }
@@ -129,7 +132,7 @@ export class RouteService implements IRouteService {
             .type('application/json')
             .send(JSON.stringify(this.apiController.canRejoin(request.params.name, request.params.uuid)));
         } catch (error) {
-          console.log(error);
+          this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);
         }
       }
@@ -143,7 +146,7 @@ export class RouteService implements IRouteService {
             .type('application/json')
             .send(JSON.stringify(this.apiController.availableCardSets()));
         } catch (error) {
-          console.log(error);
+          this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);
         }
       }

@@ -6,7 +6,7 @@ export interface IHandlerService {
   handleClose(ws: IWebSocket): void;
   handleConnect(ws: IWebSocket): Participant;
   handleCronTick(maxIdleTime: number): void;
-  handleError(ws: IWebSocket, err: unknown): void;
+  handleError(ws: IWebSocket, err: Error): void;
   handleMessage(message: AClientMessage, team: string, ws: IWebSocket): void;
   handlePing(): void;
   handleReset(): LooseObject;

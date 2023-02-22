@@ -7,28 +7,30 @@ import { IStorageService } from "../../storage/interfaces";
 import { ECardSet, EErrorCode, ICardSet } from "../../../../shared-lib/lib";
 import { LooseObject } from "../../objects";
 import { IApiController } from "../interfaces";
-import { ICardService } from "services/interfaces";
+import { ICardService, ILoggerService } from "../../services/interfaces";
 
 @injectable()
 export class ApiController implements IApiController {
 
   //#region Private properties ------------------------------------------------
   private readonly cardService: ICardService;
+  private readonly loggerService: ILoggerService;
   private readonly storageService: IStorageService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     @inject(SERVICETYPES.CardService) cardService: ICardService,
+    @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService,
     @inject(STORAGETYPES.StorageService) storageService: IStorageService) {
     this.cardService = cardService;
+    this.loggerService = loggerService;
     this.storageService = storageService;
   }
   //#endregion
 
   //#region IApiController methods --------------------------------------------
   public canRejoin(teamName: string, uuid: string): LooseObject {
-    console.log(`check if ${uuid} can rejoin ${teamName}:`);
     const response: LooseObject = {};
     response.errorCode = this.storageService.canRejoin(uuid, teamName);
     switch (response.errorCode) {
@@ -47,7 +49,7 @@ export class ApiController implements IApiController {
       default:
         response.canRejoin = true
     }
-    console.log(JSON.stringify(response));
+    this.loggerService.info('Server', `check if ${uuid} can rejoin ${teamName}: ${JSON.stringify(response)}`);
     return response;
   }
 

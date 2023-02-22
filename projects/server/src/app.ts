@@ -1,7 +1,6 @@
 import * as cors from 'cors';
 import * as express from 'express';
 import * as expressWs from 'express-ws';
-import { env } from 'process';
 import { logger } from 'express-winston';
 
 import container from './inversify.config';
@@ -26,7 +25,7 @@ class App {
 
     container.get<ISocketService>(SERVICETYPES.SocketService).initializeService(this.expressWS);
     container.get<IRouteService>(SERVICETYPES.RouteService).setRoutes(this.expressWS);
-    container.get<ICronService>(SERVICETYPES.CronService).initialize(Number.parseInt(env.TEAM_IDLETIME || '3600000'));
+    container.get<ICronService>(SERVICETYPES.CronService).initialize();
     this.config(this.expressWS.app);
   }
 
