@@ -9,7 +9,7 @@
     "strict": true,
     "baseUrl": "./src",
     "lib": [ "es6", "dom" ],
-    "types": [ "reflect-metadata", "node" ],
+    "types": [ "reflect-metadata", "node", "jest" ],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },

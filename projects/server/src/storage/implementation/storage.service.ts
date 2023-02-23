@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { v4 as Uuid } from 'uuid';
 
-import { EErrorCode, ERole, ICardSet } from "../../../../shared-lib/lib";
+import { EErrorCode, ERole, ICardSet, IParticipant } from "../../../../shared-lib/lib";
 import { ITeam, LooseObject, Team } from "../../objects";
 import { Participant } from "../../objects/participant";
 import { IWebSocket } from "../../services/websocket";
@@ -93,8 +93,15 @@ export class StorageService implements IStorageService {
     return gameName ? this.teams.get(gameName) : undefined;
   }
 
-  public joinTeam(participantUuid: string, teamName: string): void {
-    this.memberTeamMap.set(participantUuid, teamName);
+  // TODO why do we not have a leave team? when we only call leave on the team, the map is not modified
+  public joinTeam(team: ITeam, participant: Participant): void {
+    this.memberTeamMap.set(participant.uuid, team.teamName);
+    team.upsertMember(participant);
+  }
+
+  public leaveTeam(team: ITeam, participant: IParticipant): void {
+    this.memberTeamMap.delete(participant.uuid);
+    team.removeMember(participant.uuid);
   }
 
   public participantExists(uuid: string): boolean {

@@ -244,8 +244,7 @@ export class HandlerService implements IHandlerService{
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
     sender.role = ERole.ScrumMaster;
-    newGame.upsertMember(sender);
-    this.storage.joinTeam(message.senderUuid, message.data.team);
+    this.storage.joinTeam(newGame, sender);
     // provide the sender with the current game state
     this.messageService.sendTeamInfo(sender, newGame);
   }
@@ -266,8 +265,7 @@ export class HandlerService implements IHandlerService{
     sender.role = ERole.Developer;
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
-    team.upsertMember(sender);
-    this.storage.joinTeam(message.senderUuid, message.data.team);
+    this.storage.joinTeam(team, sender);
     // provide the sender with the curren game state
     this.messageService.sendTeamInfo(sender, team);
     // tell the others someone joined
@@ -277,7 +275,7 @@ export class HandlerService implements IHandlerService{
   private handleRemove(sender: Participant, message: IRemoveMessage, team: ITeam): void {
     const toRemove = this.storage.getParticipant(message.data);
     if (toRemove) {
-      team.removeMember(toRemove.uuid);
+      this.storage.leaveTeam(team, toRemove);
       this.storage.deleteParticipant(toRemove.uuid);
       // tell the others someone left
       toRemove.status = EParticipantStatus.Left;
@@ -295,19 +293,22 @@ export class HandlerService implements IHandlerService{
       this.storage.deleteTeam(team.teamName);
       // aknowledge to the scrum master
       this.messageService.sendSessionEnded(sender);
+      // TODO NOW check if everything is cleaned up at this moment
     } else {
-
       const leaving = sender.uuid !== message.data ?
         this.storage.getParticipant(message.data) :
         sender;
       if (leaving) {
         this.loggerService.info('Server', `Leave: '${leaving.nick}' is leaving '${team.teamName}'`);
-        team.removeMember(leaving.uuid);
+        this.storage.leaveTeam(team, leaving);
         this.storage.deleteParticipant(leaving.uuid);
         // tell the others someone left
         leaving.status = EParticipantStatus.Left;
         this.messageService.broadcastMemberChange(team, leaving, EMemberStatusChange.Left);
         this.messageService.sendLeft(sender);
+      }
+      if (sender.uuid !== message.data) {
+        this.storage.deleteParticipant(sender.uuid);
       }
     }
 
