@@ -52,11 +52,19 @@ export class StorageService implements IStorageService {
   }
 
   public deleteParticipant(participantUuid: string): void {
+    const team = this.getTeamOfParticipant(participantUuid);
+    if (team) {
+      team.removeMember(participantUuid);
+    }
     this.memberTeamMap.delete(participantUuid);
     this.participants.delete(participantUuid);
   }
 
   public deleteTeam(teamName: string): void {
+    const team = this.getTeam(teamName)
+    if (team){
+      team.allMembers.forEach((m: Participant) => this.leaveTeam(team, m))
+    }
     this.teams.delete(teamName);
   }
 

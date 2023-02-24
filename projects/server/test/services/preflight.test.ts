@@ -5,19 +5,18 @@ import STORAGETYPES from '../../src/storage/storage.types';
 
 import { ECardSet, EClientMessageType, EErrorCode, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreate, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IObserverChange, IPauseMessage, IRejoinMessage, IRemoveMessage, IRevealMessage, IStartMessage } from '../../../shared-lib/lib';
 
-import { CardService, PreflightService } from '../../src/services/implementation';
-import { ICardService, IPreflightService } from '../../src/services/interfaces';
+import { PreflightService } from '../../src/services/implementation';
+import { IPreflightService } from '../../src/services/interfaces';
 import { IWebSocket, ReadyState } from '../../src/services/websocket';
 import { StorageService } from '../../src/storage/implementation';
 import { IStorageService } from '../../src/storage/interfaces';
 
 describe("preflight team message", () => {
   const container = new Container();
-  container.bind<ICardService>(SERVICETYPES.CardService).to(CardService).inSingletonScope();
   container.bind<IPreflightService>(SERVICETYPES.PreflightService).to(PreflightService);
   container.bind<IStorageService>(STORAGETYPES.StorageService).to(StorageService).inSingletonScope();
   const preflighService = container.get<IPreflightService>(SERVICETYPES.PreflightService);
-  const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
+  const cardSet = { cardSet: ECardSet.Cohn, cards: [], unknownEstimationIndex: 0 };
   const socket: IWebSocket = {
     readyState: ReadyState.OPEN,
     close: jest.fn().mockImplementation(() => { }),
@@ -34,7 +33,7 @@ describe("preflight team message", () => {
       nick: ""
     };
     const sender = storageService.createParticipant(socket);
-    sender.role = ERole.Developer;
+    sender.role = ERole.ScrumMaster;
 
     const message: ICreatemessage = { type: EClientMessageType.Create, senderUuid: '', data: data };
     // participant must exist
@@ -204,11 +203,11 @@ describe("preflight team message", () => {
 
 describe("preflight poker messages", () => {
   const container = new Container();
-  container.bind<ICardService>(SERVICETYPES.CardService).to(CardService).inSingletonScope();
+
   container.bind<IPreflightService>(SERVICETYPES.PreflightService).to(PreflightService);
   container.bind<IStorageService>(STORAGETYPES.StorageService).to(StorageService).inSingletonScope();
   const preflighService = container.get<IPreflightService>(SERVICETYPES.PreflightService);
-  const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
+  const cardSet = { cardSet: ECardSet.Cohn, cards: [], unknownEstimationIndex: 0 };
   const socket: IWebSocket = {
     readyState: 1,
     close: jest.fn().mockImplementation(() => { }),
@@ -335,11 +334,10 @@ describe("preflight poker messages", () => {
 
 describe("preflight member messages", () => {
   const container = new Container();
-  container.bind<ICardService>(SERVICETYPES.CardService).to(CardService).inSingletonScope();
   container.bind<IPreflightService>(SERVICETYPES.PreflightService).to(PreflightService);
   container.bind<IStorageService>(STORAGETYPES.StorageService).to(StorageService).inSingletonScope();
   const preflighService = container.get<IPreflightService>(SERVICETYPES.PreflightService);
-  const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
+  const cardSet = { cardSet: ECardSet.Cohn, cards: [], unknownEstimationIndex: 0 };
   const socket: IWebSocket = {
     readyState: 1,
     close: jest.fn().mockImplementation(() => { }),
