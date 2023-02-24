@@ -11,11 +11,11 @@ const jestConfig: JestConfigWithTsJest = {
   ],
   transform: {
     // "^.+\\.(ts|tsx)$":
-      '^.+\\.m?[tj]sx?$':
+    '^.+\\.m?[tj]sx?$':
       [
-      "ts-jest",
-      { tsconfig: 'tsconfig.json' }
-    ]
+        "ts-jest",
+        { tsconfig: 'tsconfig.json' }
+      ]
   },
   "transformIgnorePatterns": [
     "node_modules/(?!moq\.ts)"
@@ -34,6 +34,18 @@ const jestConfig: JestConfigWithTsJest = {
     "!**/*.types.*",
     "!**/index.ts",
     "!**/do-not-commit*"
+  ],
+  reporters: [
+    "default",
+    [
+      "./node_modules/jest-html-reporter",
+      {
+        "pageTitle": "Planning poker server test suite",
+        "outputPath": "test-report/index.html",
+        "includeFailureMsg": true,
+        // "styleOverridePath": "src/teststyle.css"
+      }
+    ]
   ]
 };
 
