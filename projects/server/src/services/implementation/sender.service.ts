@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 
-import { AServerMessage } from "../../../../shared-lib/lib";
+import { AServerMessage } from "../../../../shared-lib/src";
 
 import SERVICETYPES from "../service.types";
 

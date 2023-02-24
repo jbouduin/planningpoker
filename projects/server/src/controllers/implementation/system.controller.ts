@@ -4,7 +4,7 @@ import 'reflect-metadata';
 import SERVICETYPES from '../../services/service.types';
 import STORAGETYPES from '../../storage/storage.types';
 
-import { EErrorCode } from '../../../../shared-lib/lib';
+import { EErrorCode } from '../../../../shared-lib/src';
 import { LooseObject } from '../../objects';
 import { IHandlerService } from '../../services/interfaces';
 import { IStorageService } from '../../storage/interfaces';

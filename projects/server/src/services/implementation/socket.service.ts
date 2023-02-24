@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify';
 
 import SERVICETYPES from '../service.types';
 
-import { AClientMessage } from '../../../../shared-lib/lib';
+import { AClientMessage } from '../../../../shared-lib/src';
 import { ISocketService, IHandlerService, ILoggerService } from '../interfaces';
 
 

@@ -4,7 +4,7 @@ import STORAGETYPES from "../../storage/storage.types";
 import SERVICETYPES from "../../services/service.types";
 
 import { IStorageService } from "../../storage/interfaces";
-import { ECardSet, EErrorCode, ICardSet } from "../../../../shared-lib/lib";
+import { ECardSet, EErrorCode, ICardSet } from "../../../../shared-lib/src";
 import { LooseObject } from "../../objects";
 import { IApiController } from "../interfaces";
 import { ICardService, ILoggerService } from "../../services/interfaces";

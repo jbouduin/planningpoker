@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { enumMarker } from '@core/marker';
 
 // required because of ngx-translate-extract
-import { ECardSet } from '../../../../projects/shared-lib/lib/interfaces/card-set.enum';
+import { ECardSet } from '../../../../projects/shared-lib/src/interfaces/card-set.enum';
 
 export interface ICardSetSelectItem {
   set: ECardSet;

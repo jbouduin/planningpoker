@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { AClientMessage, EClientMessageType, EErrorCode, ERole, IChangeScrumMasterMessage, ILeaveMessage, IObserveMessage, IParticipant, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/lib";
+import { AClientMessage, EClientMessageType, EErrorCode, ERole, IChangeScrumMasterMessage, ILeaveMessage, IObserveMessage, IParticipant, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { IStorageService } from "../../storage/interfaces";
 import { IPreflightService } from "../interfaces";
 

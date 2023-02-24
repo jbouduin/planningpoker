@@ -1,4 +1,4 @@
-import { AClientMessage } from "../../../../shared-lib/lib";
+import { AClientMessage } from "../../../../shared-lib/src";
 import { LooseObject, Participant } from "../../objects";
 import { IWebSocket } from "../websocket";
 

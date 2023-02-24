@@ -1,7 +1,7 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, EErrorCode, ERole, ICreate, ICreatemessage, IJoin, IJoinMessage, ILeaveMessage, IPauseMessage, IRejoinMessage } from '../../../shared-lib/lib';
+import { ECardSet, EClientMessageType, EErrorCode, ERole, ICreate, ICreatemessage, IJoin, IJoinMessage, ILeaveMessage, IPauseMessage, IRejoinMessage } from '../../../shared-lib/src';
 
 import { Participant } from '../../src/objects';
 import { PreflightService } from '../../src/services/implementation/preflight.service';
@@ -11,9 +11,9 @@ import { IStorageService } from '../../src/storage/interfaces';
 
 const socket: IWebSocket = {
   readyState: ReadyState.OPEN,
-  close: jest.fn().mockImplementation(() => { }),
-  send: jest.fn().mockImplementation(() => { })
-}
+  close: jest.fn(undefined),
+  send: jest.fn(undefined)
+};
 const participant1Name = 'participant1';
 const participant1 = new Participant(participant1Name, participant1Name, ERole.Unknown, socket);
 const participant2Name = 'participant2';

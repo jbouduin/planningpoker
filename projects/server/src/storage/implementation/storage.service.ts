@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { v4 as Uuid } from 'uuid';
 
-import { EErrorCode, ERole, ICardSet, IParticipant } from "../../../../shared-lib/lib";
+import { EErrorCode, ERole, ICardSet } from "../../../../shared-lib/src";
 import { ITeam, LooseObject, Team } from "../../objects";
 import { Participant } from "../../objects/participant";
 import { IWebSocket } from "../../services/websocket";
@@ -111,7 +111,7 @@ export class StorageService implements IStorageService {
     team.upsertMember(participant);
   }
 
-  public leaveTeam(team: ITeam, participant: IParticipant): void {
+  public leaveTeam(team: ITeam, participant: Participant): void {
     this.memberTeamMap.delete(participant.uuid);
     team.removeMember(participant.uuid);
   }

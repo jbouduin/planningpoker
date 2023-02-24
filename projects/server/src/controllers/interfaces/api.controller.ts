@@ -1,4 +1,4 @@
-import { ICardSet } from "../../../../shared-lib/lib";
+import { ICardSet } from "../../../../shared-lib/src";
 import { LooseObject } from "../../objects";
 
 export interface IApiController {

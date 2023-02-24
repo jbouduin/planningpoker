@@ -1,17 +1,18 @@
 import { jest, describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EErrorCode } from "../../../shared-lib/lib";
+import { ECardSet, EErrorCode } from "../../../shared-lib/src";
 import { ITeam, Participant } from "../../src/objects";
 import { IWebSocket, ReadyState } from "../../src/services/websocket";
 import { StorageService } from "../../src/storage/implementation";
 import { IStorageService } from "../../src/storage/interfaces";
 
+const socket: IWebSocket = {
+  readyState: ReadyState.OPEN,
+  close: jest.fn(undefined),
+  send: jest.fn(undefined)
+}
+
 describe('Manage participants', () => {
-  const socket: IWebSocket = {
-    readyState: ReadyState.OPEN,
-    close: jest.fn().mockImplementation(() => { }),
-    send: jest.fn().mockImplementation(() => { })
-  }
 
   test('Create', () => {
     const storage: IStorageService = new StorageService();
@@ -77,11 +78,6 @@ describe('Manage Teams', () => {
 });
 
 describe('Team membership', () => {
-  const socket: IWebSocket = {
-    readyState: ReadyState.OPEN,
-    close: jest.fn().mockImplementation(() => { }),
-    send: jest.fn().mockImplementation(() => { })
-  }
 
   test('canRejoin', () => {
     const storage: IStorageService = new StorageService();
@@ -128,11 +124,6 @@ describe('Team membership', () => {
 });
 
 describe('Serialization', () => {
-  const socket: IWebSocket = {
-    readyState: ReadyState.OPEN,
-    close: jest.fn().mockImplementation(() => { }),
-    send: jest.fn().mockImplementation(() => { })
-  }
 
   test('Team Serialization', () => {
     const storage: IStorageService = new StorageService();
@@ -151,7 +142,6 @@ describe('Serialization', () => {
 
   test('Participant serialization', () => {
     const storage: IStorageService = new StorageService();
-    const cardSet = { cardSet: ECardSet.Cohn, cards: [], unknownEstimationIndex: 0 };
     storage.createParticipant(socket);
     storage.createParticipant(socket);
     const participants = storage.serializeParticipants();

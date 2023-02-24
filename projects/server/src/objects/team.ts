@@ -1,4 +1,4 @@
-import { EParticipantStatus, EPokerStatus, ICardSet } from '../../../shared-lib/lib';
+import { EParticipantStatus, EPokerStatus, ICardSet } from '../../../shared-lib/src';
 
 import { Estimation } from './estimation';
 import { Participant } from './participant';

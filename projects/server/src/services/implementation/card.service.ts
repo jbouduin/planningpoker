@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 
-import { ECardSet, ICard, ICardSet } from '../../../../shared-lib/lib';
+import { ECardSet, ICard, ICardSet } from '../../../../shared-lib/src';
 import { ICardService } from '../interfaces';
 
 @injectable()

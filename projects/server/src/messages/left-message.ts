@@ -1,4 +1,4 @@
-import { EServerMessageType, ILeftMessage } from "../../../shared-lib/lib";
+import { EServerMessageType, ILeftMessage } from "../../../shared-lib/src";
 import { ServerMessage } from "./server-message";
 
 export class LeftMessage extends ServerMessage<void> implements ILeftMessage {

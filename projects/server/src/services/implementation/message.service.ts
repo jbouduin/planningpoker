@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 
 import SERVICETYPES from "../service.types";
 
-import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ICardSet, IEstimation, IMemberStatusChange, IParticipant, AServerMessage } from "../../../../shared-lib/lib";
+import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ICardSet, IEstimation, IMemberStatusChange, IParticipant, AServerMessage } from "../../../../shared-lib/src";
 import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
 import { Estimation, ITeam, Participant } from "../../objects";
 import { IMessageService, ISenderService } from "../interfaces";

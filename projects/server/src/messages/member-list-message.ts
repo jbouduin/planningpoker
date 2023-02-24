@@ -1,4 +1,4 @@
-import { EServerMessageType, IMemberListMessage, IParticipant } from "../../../shared-lib/lib";
+import { EServerMessageType, IMemberListMessage, IParticipant } from "../../../shared-lib/src";
 import { ServerMessage } from "./server-message";
 
 export class MemberListMessage extends ServerMessage<Array<IParticipant>> implements IMemberListMessage {

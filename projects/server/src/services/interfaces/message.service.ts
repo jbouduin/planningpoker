@@ -1,5 +1,5 @@
 import { IWebSocket } from "../websocket";
-import { EErrorCode, EMemberStatusChange } from "../../../../shared-lib/lib";
+import { EErrorCode, EMemberStatusChange } from "../../../../shared-lib/src";
 import { Estimation, ITeam, Participant } from "../../objects";
 
 export interface IMessageService {

@@ -1,4 +1,4 @@
-import { EServerMessageType, ITeamIdleMessage } from "../../../shared-lib/lib";
+import { EServerMessageType, ITeamIdleMessage } from "../../../shared-lib/src";
 import { ServerMessage } from "./server-message";
 
 export class TeamIdleMessage extends ServerMessage<void> implements ITeamIdleMessage {

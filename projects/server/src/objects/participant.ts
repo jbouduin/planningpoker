@@ -1,4 +1,4 @@
-import { IParticipant, EParticipantStatus, ERole } from '../../../shared-lib/lib';
+import { IParticipant, EParticipantStatus, ERole } from '../../../shared-lib/src';
 import { IWebSocket } from '../services/websocket';
 
 export class Participant implements IParticipant {

@@ -1,4 +1,4 @@
-import { AServerMessage } from "../../../../shared-lib/lib";
+import { AServerMessage } from "../../../../shared-lib/src";
 import { Participant } from "../../objects";
 import { IWebSocket } from "../websocket";
 
