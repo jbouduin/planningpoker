@@ -26,6 +26,7 @@ const jestConfig: JestConfigWithTsJest = {
   testPathIgnorePatterns: [
     "do-not-commit.*"
   ],
+  coverageDirectory: "reports/coverage",
   collectCoverageFrom: [
     "**/objects/team.ts",
     "**/services/implementation/handler.service.ts",
@@ -41,7 +42,7 @@ const jestConfig: JestConfigWithTsJest = {
       "./node_modules/jest-html-reporter",
       {
         "pageTitle": "Planning poker server test suite",
-        "outputPath": "test-report/index.html",
+        "outputPath": "reports/jest/index.html",
         "includeFailureMsg": true,
         // "styleOverridePath": "src/teststyle.css"
       }
