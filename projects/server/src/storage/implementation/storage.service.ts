@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { v4 as Uuid } from 'uuid';
 
-import { EErrorCode, ERole, ICardSet } from "../../../../shared-lib/lib";
+import { EErrorCode, ERole, ICardSet, IParticipant } from "../../../../shared-lib/lib";
 import { ITeam, LooseObject, Team } from "../../objects";
 import { Participant } from "../../objects/participant";
 import { IWebSocket } from "../../services/websocket";
@@ -52,11 +52,19 @@ export class StorageService implements IStorageService {
   }
 
   public deleteParticipant(participantUuid: string): void {
+    const team = this.getTeamOfParticipant(participantUuid);
+    if (team) {
+      team.removeMember(participantUuid);
+    }
     this.memberTeamMap.delete(participantUuid);
     this.participants.delete(participantUuid);
   }
 
   public deleteTeam(teamName: string): void {
+    const team = this.getTeam(teamName)
+    if (team){
+      team.allMembers.forEach((m: Participant) => this.leaveTeam(team, m))
+    }
     this.teams.delete(teamName);
   }
 
@@ -93,8 +101,19 @@ export class StorageService implements IStorageService {
     return gameName ? this.teams.get(gameName) : undefined;
   }
 
-  public joinTeam(participantUuid: string, teamName: string): void {
-    this.memberTeamMap.set(participantUuid, teamName);
+  // TODO 2364 get rid of this method
+  getTeamNameOfParticipant(participantUuid: string): string | undefined {
+    return this.getTeamOfParticipant(participantUuid)?.teamName;
+  }
+
+  public joinTeam(team: ITeam, participant: Participant): void {
+    this.memberTeamMap.set(participant.uuid, team.teamName);
+    team.upsertMember(participant);
+  }
+
+  public leaveTeam(team: ITeam, participant: IParticipant): void {
+    this.memberTeamMap.delete(participant.uuid);
+    team.removeMember(participant.uuid);
   }
 
   public participantExists(uuid: string): boolean {

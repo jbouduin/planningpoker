@@ -5,8 +5,9 @@ export enum EErrorCode {
   ParticipantNotFound = 200,
   ParticipantNotInTeam = 201,
   ParticipantAllReadyInTeam = 202,
+  ParticipantHasNoRole = 300,
   ScrumMasterRequired = 301,
-  DeveloperRequired = 302,
+  ObserverCanNotEstimate = 302,
   ServerError = 500,
   NotImplemented = 501,
   UnknownVerb = 502

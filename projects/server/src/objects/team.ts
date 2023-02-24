@@ -3,13 +3,16 @@ import { EParticipantStatus, EPokerStatus, ICardSet } from '../../../shared-lib/
 import { Estimation } from './estimation';
 import { Participant } from './participant';
 
+
+// TODO 2364 split team as object and storage service
 export interface ITeam {
   readonly allEstimations: Array<Estimation>;
   readonly allMembers: Array<Participant>;
   readonly status: EPokerStatus;
   cardSet: ICardSet;
   readonly idleTime: number;
-  teamName: string
+  teamName: string;
+
   reveal(): void;
   startEstimating(): void;
 

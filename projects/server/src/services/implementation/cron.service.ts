@@ -9,29 +9,22 @@ import { setInterval } from 'timers';
 export class CronService implements ICronService {
 
   //#region Private properties ------------------------------------------------
-  private readonly environmentService: IEnvironmentService;
   private readonly handlerService: IHandlerService;
-  private readonly loggerService: ILoggerService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    @inject(SERVICETYPES.EnvironmentService) environmentService: IEnvironmentService,
-    @inject(SERVICETYPES.HandlerService) handlerService: IHandlerService,
-    @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService) {
-    this.environmentService = environmentService;
-    this.loggerService = loggerService;
+  public constructor(@inject(SERVICETYPES.HandlerService) handlerService: IHandlerService) {
     this.handlerService = handlerService;
   }
   //#endregion
 
   //#region ICronService methods ----------------------------------------------
-  public initialize(): void {
-    this.loggerService.info('Server', `Setting team idle-time to ${this.environmentService.teamIdleTime / 1000} seconds`)
+  public initialize(environmentService: IEnvironmentService, loggerService: ILoggerService): void {
+    loggerService.info('Server', `Setting team idle-time to ${environmentService.teamIdleTime / 1000} seconds`)
 
     setInterval(
       () => {
-        this.handlerService.handleCronTick(this.environmentService.teamIdleTime);
+        this.handlerService.handleCronTick(environmentService.teamIdleTime);
       },
       60000
     );

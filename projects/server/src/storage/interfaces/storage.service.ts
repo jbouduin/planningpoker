@@ -1,4 +1,4 @@
-import { EErrorCode, ICardSet } from "../../../../shared-lib/lib";
+import { EErrorCode, ICardSet, IParticipant } from "../../../../shared-lib/lib";
 import { ITeam, LooseObject, Participant } from "../../objects";
 import { IWebSocket } from "../../services/websocket";
 
@@ -13,7 +13,10 @@ export interface IStorageService {
   getParticipant(uuid: string): Participant | undefined;
   getTeam(teamName: string): ITeam | undefined;
   getTeamOfParticipant(participantUuid: string): ITeam | undefined;
-  joinTeam(participantUuid: string, teamName: string): void;
+  // TODO 2364 get rid of this method
+  getTeamNameOfParticipant(participantUuid: string): string | undefined;
+  joinTeam(team: ITeam, participant: IParticipant): void;
+  leaveTeam(team: ITeam, Participant: IParticipant): void;
   participantExists(uuid: string): boolean;
   participantInTeam(uuid: string, teamName: string): boolean;
   serializeAllTeams(): LooseObject;
