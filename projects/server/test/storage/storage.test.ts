@@ -1,3 +1,5 @@
+import { jest, describe, expect, test } from '@jest/globals';
+
 import { ECardSet, EErrorCode } from "../../../shared-lib/lib";
 import { ITeam, Participant } from "../../src/objects";
 import { IWebSocket, ReadyState } from "../../src/services/websocket";
@@ -8,7 +10,7 @@ describe('Manage participants', () => {
   const socket: IWebSocket = {
     readyState: ReadyState.OPEN,
     close: jest.fn().mockImplementation(() => { }),
-    send: jest.fn().mockImplementation((_message: string) => { })
+    send: jest.fn().mockImplementation(() => { })
   }
 
   test('Create', () => {
@@ -78,11 +80,10 @@ describe('Team membership', () => {
   const socket: IWebSocket = {
     readyState: ReadyState.OPEN,
     close: jest.fn().mockImplementation(() => { }),
-    send: jest.fn().mockImplementation((_message: string) => { })
+    send: jest.fn().mockImplementation(() => { })
   }
 
   test('canRejoin', () => {
-
     const storage: IStorageService = new StorageService();
     const cardSet = { cardSet: ECardSet.Cohn, cards: [], unknownEstimationIndex: 0 };
     const participant = storage.createParticipant(socket);
@@ -101,11 +102,13 @@ describe('Team membership', () => {
     storage.joinTeam(team, participant);
     expect(storage.getTeamOfParticipant(participant.uuid)).not.toBeUndefined();
     expect(storage.getTeamOfParticipant(participant.uuid)?.teamName).toBe('team');
+    expect(storage.getTeamNameOfParticipant(participant.uuid)).toBe('team');
     expect(team.allMembers.length).toBe(1);
     storage.deleteTeam('team');
     expect(team.allMembers.length).toBe(0);
     expect(storage.getTeam('team')).toBeUndefined();
     expect(storage.getTeamOfParticipant(participant.uuid)).toBeUndefined();
+    expect(storage.getTeamNameOfParticipant(participant.uuid)).toBeUndefined();
   });
 
   test('join and delete participant', () => {
@@ -121,13 +124,14 @@ describe('Team membership', () => {
     expect(team.allMembers.length).toBe(0);
     expect(storage.getParticipant(participant.uuid)).toBeUndefined();
   });
+
 });
 
 describe('Serialization', () => {
   const socket: IWebSocket = {
     readyState: ReadyState.OPEN,
     close: jest.fn().mockImplementation(() => { }),
-    send: jest.fn().mockImplementation((_message: string) => { })
+    send: jest.fn().mockImplementation(() => { })
   }
 
   test('Team Serialization', () => {
@@ -148,8 +152,8 @@ describe('Serialization', () => {
   test('Participant serialization', () => {
     const storage: IStorageService = new StorageService();
     const cardSet = { cardSet: ECardSet.Cohn, cards: [], unknownEstimationIndex: 0 };
-    let participant = storage.createParticipant(socket);
-    participant = storage.createParticipant(socket);
+    storage.createParticipant(socket);
+    storage.createParticipant(socket);
     const participants = storage.serializeParticipants();
     expect(participants.length).toBe(2);
   });

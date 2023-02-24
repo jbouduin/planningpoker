@@ -1,24 +1,32 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
-  "roots": [
+import type { JestConfigWithTsJest } from 'ts-jest'
+
+const jestConfig: JestConfigWithTsJest = {
+  preset: 'ts-jest/presets/js-with-ts-esm',
+  roots: [
     "./test"
   ],
-  "testMatch": [
+  testEnvironment: "node",
+  testMatch: [
     "**/?(*.)+(spec|test).+(ts|tsx|js)"
   ],
-  "transform": {
-    "^.+\\.(ts|tsx)$": [
+  transform: {
+    // "^.+\\.(ts|tsx)$":
+      '^.+\\.m?[tj]sx?$':
+      [
       "ts-jest",
       { tsconfig: 'tsconfig.json' }
     ]
   },
-  "setupFiles": [
+  "transformIgnorePatterns": [
+    "node_modules/(?!moq\.ts)"
+  ],
+  setupFiles: [
     './test/init.ts'
   ],
-  "testPathIgnorePatterns": [
+  testPathIgnorePatterns: [
     "do-not-commit.*"
   ],
-  "collectCoverageFrom": [
+  collectCoverageFrom: [
     "**/objects/team.ts",
     "**/services/implementation/handler.service.ts",
     "**/services/implementation/preflight.service.ts",
@@ -28,3 +36,5 @@ module.exports = {
     "!**/do-not-commit*"
   ]
 };
+
+export default jestConfig;

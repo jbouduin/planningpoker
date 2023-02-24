@@ -1,10 +1,10 @@
-import * as cors from 'cors';
-import * as express from 'express';
-import * as expressWs from 'express-ws';
+import cors from 'cors';
+import express from 'express';
+import expressWs from 'express-ws';
 import { logger } from 'express-winston';
 
 import container from './inversify.config';
-import { ICronService, ILoggerService, IRouteService, ISocketService } from './services/interfaces';
+import { ICronService, IEnvironmentService, ILoggerService, IRouteService, ISocketService } from './services/interfaces';
 import SERVICETYPES from './services/service.types';
 
 class App {
@@ -25,7 +25,9 @@ class App {
 
     container.get<ISocketService>(SERVICETYPES.SocketService).initializeService(this.expressWS);
     container.get<IRouteService>(SERVICETYPES.RouteService).setRoutes(this.expressWS);
-    container.get<ICronService>(SERVICETYPES.CronService).initialize();
+    container.get<ICronService>(SERVICETYPES.CronService).initialize(
+      container.get<IEnvironmentService>(SERVICETYPES.EnvironmentService),
+      loggerService);
     this.config(this.expressWS.app);
   }
 

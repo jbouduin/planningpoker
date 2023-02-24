@@ -15,25 +15,38 @@ export class PreflightService implements IPreflightService {
       return EErrorCode.ParticipantNotFound;
     }
 
-    const team = storageService.getTeam(teamName);
-    if (message.type === EClientMessageType.Create && team) {
+    const teamExists = storageService.teamExists(teamName);
+    if (message.type === EClientMessageType.Create && teamExists) {
       return EErrorCode.TeamAlreadyExists;
     }
 
-    if (this.messageTypeRequiresTeam(message.type) && !team) {
+    if (this.messageTypeRequiresTeam(message.type) && !teamExists) {
       return EErrorCode.TeamDoesNotExist;
     }
 
     if (this.messageTypeRequiresMembership(message.type)) {
-      const membership = storageService.getTeamOfParticipant(message.senderUuid);
-      if (!membership || membership !== team) {
+      const membership = storageService.getTeamNameOfParticipant(message.senderUuid);
+      if (!membership || teamName !== membership) {
         return EErrorCode.ParticipantNotInTeam;
       }
     }
 
     if (this.messageTypeForbidsMembership(message.type)) {
-      if (storageService.getTeamOfParticipant(message.senderUuid)) {
+      if (storageService.getTeamNameOfParticipant(message.senderUuid)) {
         return EErrorCode.ParticipantAllReadyInTeam;
+      }
+    }
+
+    if (message.type === EClientMessageType.Leave) {
+      const membership = storageService.getTeamNameOfParticipant(message.senderUuid);
+      if (message.senderUuid === (<ILeaveMessage>message).data) {
+        if (!membership || teamName !== membership) {
+          return EErrorCode.ParticipantNotInTeam;
+        }
+      } else {
+        if (membership) {
+          return EErrorCode.ParticipantAllReadyInTeam;
+        }
       }
     }
 
@@ -57,12 +70,12 @@ export class PreflightService implements IPreflightService {
           break;
       }
       if (otherParticipantUuid !== null) {
-        const otherParticipant = storageService.getParticipant(otherParticipantUuid);
+        const otherParticipant = storageService.participantExists(otherParticipantUuid);
         if (!otherParticipant) {
           return EErrorCode.ParticipantNotFound;
         }
-        const teamOfOtherParticipant = storageService.getTeamOfParticipant(otherParticipantUuid);
-        if (!teamOfOtherParticipant || teamOfOtherParticipant.teamName != teamName) {
+        const teamNameOfOtherParticipant = storageService.getTeamNameOfParticipant(otherParticipantUuid);
+        if (!teamNameOfOtherParticipant || teamNameOfOtherParticipant != teamName) {
           return EErrorCode.ParticipantNotInTeam;
         }
       }
@@ -73,23 +86,24 @@ export class PreflightService implements IPreflightService {
       if (!storageService.participantExists(oldUuid)) {
         return EErrorCode.ParticipantNotFound;
       } else {
-        const oldTeam = storageService.getTeamOfParticipant(oldUuid);
-        if (!oldTeam) {
+        const oldTeamName = storageService.getTeamNameOfParticipant(oldUuid);
+        if (!oldTeamName) {
           return EErrorCode.ParticipantNotInTeam;
         }
-        else if (oldTeam.teamName !== teamName) {
+        else if (oldTeamName !== teamName) {
           return EErrorCode.ParticipantNotInTeam;
         }
       }
     }
-    if (message.type === EClientMessageType.Observe) {
-      if (message.senderUuid !== (<IObserveMessage>message).data.member &&
-        sender.role !== ERole.ScrumMaster) {
-        return EErrorCode.ScrumMasterRequired;
-      }
 
+    if (message.type === EClientMessageType.Observe &&
+      message.senderUuid !== (<IObserveMessage>message).data.member &&
+      sender.role !== ERole.ScrumMaster) {
+      return EErrorCode.ScrumMasterRequired;
     }
-    return this.checkAuthorization(message.type, sender);
+    else {
+      return this.checkAuthorization(message.type, sender);
+    }
   }
   //#endregion
 
@@ -115,7 +129,6 @@ export class PreflightService implements IPreflightService {
       messageType === EClientMessageType.ChangeCardSet ||
       messageType === EClientMessageType.ChangeScrumMaster ||
       messageType === EClientMessageType.Estimate ||
-      messageType === EClientMessageType.Leave ||
       messageType === EClientMessageType.Observe ||
       messageType === EClientMessageType.Pause ||
       messageType === EClientMessageType.Reveal ||
@@ -132,23 +145,25 @@ export class PreflightService implements IPreflightService {
   }
 
   private checkAuthorization(messageType: EClientMessageType, participant: IParticipant): EErrorCode {
-    let result = EErrorCode.NoError;
+    let result: EErrorCode;
 
     switch (messageType) {
       case EClientMessageType.Estimate:
-        if (participant.observer) {
-          result = EErrorCode.ObserverCanNotEstimate;
-        }
+        result = participant.observer ?
+          EErrorCode.ObserverCanNotEstimate :
+          EErrorCode.NoError;
         break;
       case EClientMessageType.ChangeCardSet:
       case EClientMessageType.ChangeScrumMaster:
       case EClientMessageType.Remove:
       case EClientMessageType.Reveal:
       case EClientMessageType.Start:
-        if (participant.role !== ERole.ScrumMaster) {
-          result = EErrorCode.ScrumMasterRequired;
-        }
+        result = participant.role === ERole.ScrumMaster ?
+          EErrorCode.NoError :
+          EErrorCode.ScrumMasterRequired;
         break;
+      default:
+        result = EErrorCode.NoError;
     }
     return result;
   }

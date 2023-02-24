@@ -293,7 +293,6 @@ export class HandlerService implements IHandlerService{
       this.storage.deleteTeam(team.teamName);
       // aknowledge to the scrum master
       this.messageService.sendSessionEnded(sender);
-      // TODO NOW check if everything is cleaned up at this moment
     } else {
       const leaving = sender.uuid !== message.data ?
         this.storage.getParticipant(message.data) :

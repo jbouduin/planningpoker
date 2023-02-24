@@ -101,7 +101,11 @@ export class StorageService implements IStorageService {
     return gameName ? this.teams.get(gameName) : undefined;
   }
 
-  // TODO why do we not have a leave team? when we only call leave on the team, the map is not modified
+  // TODO 2364 get rid of this method
+  getTeamNameOfParticipant(participantUuid: string): string | undefined {
+    return this.getTeamOfParticipant(participantUuid)?.teamName;
+  }
+
   public joinTeam(team: ITeam, participant: Participant): void {
     this.memberTeamMap.set(participant.uuid, team.teamName);
     team.upsertMember(participant);
