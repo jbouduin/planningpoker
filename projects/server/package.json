@@ -8,7 +8,8 @@
     "start": "ts-node ./src/server.ts",
     "dev": "nodemon",
     "prod": "npm run build && npm run start",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "lint": "eslint  -c ./.eslintrc src/**/*.ts test/**/*.ts"
   },
   "author": "Johan Bouduin",
   "license": "UNLICENSED",
