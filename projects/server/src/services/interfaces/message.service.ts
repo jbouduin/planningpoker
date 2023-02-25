@@ -1,15 +1,15 @@
-import { IWebSocket } from "../websocket";
-import { EErrorCode, EMemberStatusChange } from "../../../../shared-lib/src";
+import { EErrorCode, EMemberStatusChange, EPokerStatus, ICardSet } from "../../../../shared-lib/src";
 import { Estimation, ITeam, Participant } from "../../objects";
+import { IWebSocket } from "../websocket";
 
 export interface IMessageService {
-  broadcastAllEstimations(team: ITeam): void;
-  broadcastCardSet(team: ITeam): void;
-  broadcastClearEstimations(team: ITeam): void;
-  broadcastEstimation(team: ITeam, estimation: Estimation): void;
-  broadcastPokerStatus(team: ITeam): void;
-  broadcastMemberChange(team: ITeam, changedMember: Participant, change: EMemberStatusChange): void;
-  broadcastSessionEnded(team: ITeam, participant: Participant): void;
+  broadcastAllEstimations(members: Array<Participant>, estimations: Array<Estimation>, teamStatus: EPokerStatus): void;
+  broadcastCardSet(members: Array<Participant>, cardSet: ICardSet): void;
+  broadcastClearEstimations(members: Array<Participant>): void;
+  broadcastEstimation(members: Array<Participant>, estimation: Estimation, teamStatus: EPokerStatus): void;
+  broadcastPokerStatus(members: Array<Participant>, status: EPokerStatus): void;
+  broadcastMemberChange(members: Array<Participant>, changedMember: Participant, change: EMemberStatusChange): void;
+  broadcastSessionEnded(members: Array<Participant>): void;
   sendErrorMessageToParticipant(to: Participant, code: EErrorCode): void;
   sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void;
   sendException(socket: IWebSocket, errorMessage: string): void;
@@ -20,5 +20,5 @@ export interface IMessageService {
   sendSelf(to: Participant): void;
   sendSessionEnded(to: Participant): void;
   sendTeamIdleMessage(to: Participant): void;
-  sendTeamInfo(to: Participant, game: ITeam): void;
+  sendAllInfo(to: Participant, team: ITeam, members: Array<Participant>, cardSet: ICardSet,estimations: Array<Estimation>): void;
 }

@@ -6,6 +6,7 @@ export class Participant implements IParticipant {
   //#region Public properties -------------------------------------------------
   public status: EParticipantStatus;
   public observer: boolean;
+  public team: string | undefined;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------

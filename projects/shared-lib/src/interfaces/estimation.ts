@@ -1,5 +1,5 @@
 export interface IEstimation {
-  card: number,
+  cardIndex: number,
   revealed: boolean,
   participantUuid: string
 }
