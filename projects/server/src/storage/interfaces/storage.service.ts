@@ -24,9 +24,7 @@ export interface IStorageService {
   canRejoin(uuid: string, teamName: string): EErrorCode;
   getFirstConnectedTeamMember(teamName: string): Participant | undefined;
   getConnectedTeamMembers(teamName: string): Array<Participant>;
-  getTeamMembers(teamName: string): Array<Participant>
-  // TODO 2364 get rid of this method
-  getTeamNameOfParticipant(participantUuid: string): string | undefined;
+  getTeamMembers(teamName: string): Array<Participant>;
   getTeamOfParticipant(participantUuid: string): ITeam | undefined;
   joinTeam(teamName: string, participantUuid: string): void;
   leaveTeam(teamName: string, participantUuid: string): void;

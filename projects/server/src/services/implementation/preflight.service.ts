@@ -25,22 +25,22 @@ export class PreflightService implements IPreflightService {
     }
 
     if (this.messageTypeRequiresMembership(message.type)) {
-      const membership = storageService.getTeamNameOfParticipant(message.senderUuid);
-      if (!membership || teamName !== membership) {
+      const membership = storageService.getTeamOfParticipant(message.senderUuid);
+      if (!membership || teamName !== membership.teamName) {
         return EErrorCode.ParticipantNotInTeam;
       }
     }
 
     if (this.messageTypeForbidsMembership(message.type)) {
-      if (storageService.getTeamNameOfParticipant(message.senderUuid)) {
+      if (storageService.getTeamOfParticipant(message.senderUuid)) {
         return EErrorCode.ParticipantAllReadyInTeam;
       }
     }
 
     if (message.type === EClientMessageType.Leave) {
-      const membership = storageService.getTeamNameOfParticipant(message.senderUuid);
+      const membership = storageService.getTeamOfParticipant(message.senderUuid);
       if (message.senderUuid === (<ILeaveMessage>message).data) {
-        if (!membership || teamName !== membership) {
+        if (!membership || teamName !== membership.teamName) {
           return EErrorCode.ParticipantNotInTeam;
         }
       } else {
@@ -74,8 +74,8 @@ export class PreflightService implements IPreflightService {
         if (!otherParticipant) {
           return EErrorCode.ParticipantNotFound;
         }
-        const teamNameOfOtherParticipant = storageService.getTeamNameOfParticipant(otherParticipantUuid);
-        if (!teamNameOfOtherParticipant || teamNameOfOtherParticipant != teamName) {
+        const teamOfOtherParticipant = storageService.getTeamOfParticipant(otherParticipantUuid);
+        if (!teamOfOtherParticipant || teamOfOtherParticipant.teamName != teamName) {
           return EErrorCode.ParticipantNotInTeam;
         }
       }
@@ -86,11 +86,11 @@ export class PreflightService implements IPreflightService {
       if (!storageService.participantExists(oldUuid)) {
         return EErrorCode.ParticipantNotFound;
       } else {
-        const oldTeamName = storageService.getTeamNameOfParticipant(oldUuid);
+        const oldTeamName = storageService.getTeamOfParticipant(oldUuid);
         if (!oldTeamName) {
           return EErrorCode.ParticipantNotInTeam;
         }
-        else if (oldTeamName !== teamName) {
+        else if (oldTeamName.teamName !== teamName) {
           return EErrorCode.ParticipantNotInTeam;
         }
       }

@@ -140,11 +140,6 @@ export class StorageService implements IStorageService {
     return this.membershipRepository.getTeamMembers(teamName);
   }
 
-  // TODO 2364 get rid of this method
-  public getTeamNameOfParticipant(participantUuid: string): string | undefined {
-    return this.getTeamOfParticipant(participantUuid)?.teamName;
-  }
-
   public joinTeam(teamName: string, participantUuid: string): void {
 
     this.membershipRepository.joinTeam(teamName, participantUuid);
