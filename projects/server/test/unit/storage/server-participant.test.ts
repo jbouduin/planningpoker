@@ -10,22 +10,24 @@ const socket: IWebSocket = {
   send: jest.fn(undefined)
 };
 
-test('create participant', () => {
-  const repository: IServerParticipantRepository = new ServerParticipantRepository();
-  const participant1 = repository.createParticipant(socket);
-  expect(participant1.nick).toBe('participant 1');
-  expect(participant1.participantId).not.toBeNull();
-  expect(participant1.participantId.length).toBeGreaterThan(0);
+describe('IServerParticipantRepository', () => {
+  test('create participant', () => {
+    const repository: IServerParticipantRepository = new ServerParticipantRepository();
+    const participant1 = repository.createParticipant(socket);
+    expect(participant1.nick).toBe('participant 1');
+    expect(participant1.participantId).not.toBeNull();
+    expect(participant1.participantId.length).toBeGreaterThan(0);
 
-  const participant2 = repository.createParticipant(socket);
-  expect(participant2.nick).toBe('participant 2');
-  expect(participant2.participantId).not.toBeNull();
-  expect(participant2.participantId.length).toBeGreaterThan(0);
+    const participant2 = repository.createParticipant(socket);
+    expect(participant2.nick).toBe('participant 2');
+    expect(participant2.participantId).not.toBeNull();
+    expect(participant2.participantId.length).toBeGreaterThan(0);
 
-  expect(participant1.participantId).not.toBe(participant2.participantId);
+    expect(participant1.participantId).not.toBe(participant2.participantId);
+  });
 });
 
-test('CRUD', () => {
+test('BaseRepository CR-D', () => {
   const repository: IServerParticipantRepository = new ServerParticipantRepository();
   const participant1 = repository.createParticipant(socket);
   const participant1Id = participant1.participantId;

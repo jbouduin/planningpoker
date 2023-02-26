@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from "../storage.types";
 
 import { EErrorCode, EPokerStatus, ICardSet, IEstimation } from "../../../../shared-lib/src";
-import { IServerParticipant, ITeam, Team } from "../../objects";
+import { IServerParticipant, ITeam } from "../../objects";
 import { IWebSocket } from "../../services/websocket";
 import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
 
@@ -68,7 +68,7 @@ export class StorageService implements IStorageService {
   }
 
   public createTeam(teamName: string, cardSet: ICardSet): ITeam {
-    const result = new Team(teamName);
+    const result = this.teamRepository.createTeam(teamName);
     this.cardSetRepository.setCardSet(teamName, cardSet);
     this.teamRepository.add(result);
     return result;

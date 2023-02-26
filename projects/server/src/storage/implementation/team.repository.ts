@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { EPokerStatus } from "../../../../shared-lib/src";
 
-import { ITeam } from "../../objects";
+import { ITeam, Team } from "../../objects";
 import { ITeamRepository } from "../../storage/interfaces";
 
 @injectable()
@@ -40,6 +40,10 @@ export class TeamRepository implements ITeamRepository{
   //#endregion
 
   //#region ITeamRepository methods -------------------------------------------
+  public createTeam(teamName: string): ITeam {
+    return new Team(teamName);
+  }
+
   public setLastAccessTime(teamName: string): void {
     const team = this.teams.get(teamName);
     if (team) {
