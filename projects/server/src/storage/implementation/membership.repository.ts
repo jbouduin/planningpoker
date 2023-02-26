@@ -51,7 +51,6 @@ export class MembershipRepository implements IMembershipRepository {
   }
 
   public joinTeam(teamName: string, participant: string): void {
-    this.teamRepository.setLastAccessTime(teamName);
     const teamMembers = this.getTeamMemberships(teamName);
     if (teamMembers.indexOf(participant) < 0) {
       teamMembers.push(participant);
@@ -60,7 +59,6 @@ export class MembershipRepository implements IMembershipRepository {
   }
 
   public leaveTeam(teamName: string, participant: string): void {
-    this.teamRepository.setLastAccessTime(teamName);
     const teamMembers = this.getTeamMemberships(teamName);
     const index = teamMembers.indexOf(participant);
     if (index >= 0) {

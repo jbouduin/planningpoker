@@ -44,9 +44,11 @@ export class StorageService implements IStorageService {
     return result;
   }
 
+  // TODO NOW pass teamname as optional parameter
   public deleteParticipant(participantUuid: string): void {
     const team = this.getTeamOfParticipant(participantUuid);
     if (team) {
+      this.teamRepository.setLastAccessTime(team.teamName);
       this.membershipRepository.leaveTeam(team.teamName, participantUuid);
       this.estimationRepository.removeParticipant(team.teamName, participantUuid);
     }
@@ -137,17 +139,19 @@ export class StorageService implements IStorageService {
   }
 
   public joinTeam(teamName: string, participantUuid: string): void {
-
+    this.teamRepository.setLastAccessTime(teamName);
     this.membershipRepository.joinTeam(teamName, participantUuid);
   }
 
   public leaveTeam(teamName: string, participantUuid: string): void {
+    this.teamRepository.setLastAccessTime(teamName);
     this.membershipRepository.leaveTeam(teamName, participantUuid);
   }
   //#endregion
 
   //#region estimations -------------------------------------------------------
   public deleteEstimation(teamName: string, participantUuid: string): Estimation {
+    this.teamRepository.setLastAccessTime(teamName);
     return this.estimationRepository.deleteEstimation(teamName, participantUuid);
   }
 
@@ -157,7 +161,8 @@ export class StorageService implements IStorageService {
 
   public reveal(teamName: string): Array<Estimation> {
     const cardSet = this.cardSetRepository.getCardSet(teamName);
-    if (cardSet){
+    if (cardSet) {
+      this.teamRepository.setLastAccessTime(teamName);
       return this.estimationRepository.reveal(teamName, cardSet.unknownEstimationIndex);
     } else {
       return new Array<Estimation>();
@@ -165,10 +170,12 @@ export class StorageService implements IStorageService {
   }
 
   public startEstimating(teamName: string): void {
+    this.teamRepository.setLastAccessTime(teamName);
     return this.estimationRepository.startEstimating(teamName);
   }
 
   public upsertEstimation(teamName: string, participantUuid: string, cardIndex: number): Estimation {
+    this.teamRepository.setLastAccessTime(teamName);
     return this.estimationRepository.upsertEstimation(teamName, participantUuid, cardIndex);
   }
   //#endregion

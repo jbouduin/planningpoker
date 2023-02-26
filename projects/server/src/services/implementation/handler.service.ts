@@ -67,8 +67,6 @@ export class HandlerService implements IHandlerService {
                 EMemberStatusChange.ChangedRole
               );
               this.messageService.sendSelf(newScrumMaster);
-            } else {
-              // TODO consider deleting the team
             }
           }
         }
