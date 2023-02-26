@@ -42,6 +42,8 @@ export class MembershipRepository implements IMembershipRepository {
   }
 
   public removeTeam(teamName: string): void {
+    const teamMembers = this.getTeamMemberships(teamName, false);
+    teamMembers.forEach((id: string) => this.participantTeamMap.delete(id));
     this.memberships.delete(teamName);
   }
 
@@ -51,7 +53,7 @@ export class MembershipRepository implements IMembershipRepository {
   }
 
   public joinTeam(teamName: string, participant: string): void {
-    const teamMembers = this.getTeamMemberships(teamName);
+    const teamMembers = this.getTeamMemberships(teamName, true);
     if (teamMembers.indexOf(participant) < 0) {
       teamMembers.push(participant);
     }
@@ -59,7 +61,7 @@ export class MembershipRepository implements IMembershipRepository {
   }
 
   public leaveTeam(teamName: string, participant: string): void {
-    const teamMembers = this.getTeamMemberships(teamName);
+    const teamMembers = this.getTeamMemberships(teamName, false);
     const index = teamMembers.indexOf(participant);
     if (index >= 0) {
       teamMembers.splice(index, 1);
@@ -69,7 +71,7 @@ export class MembershipRepository implements IMembershipRepository {
 
   public getTeamMembers(teamName: string): Array<IServerParticipant> {
     const result = new Array<IServerParticipant>()
-    this.getTeamMemberships(teamName).forEach((participantId: string) => {
+    this.getTeamMemberships(teamName, false).forEach((participantId: string) => {
       const participant = this.participantRepository.get(participantId);
       if (participant) {
         result.push(participant);
@@ -80,9 +82,9 @@ export class MembershipRepository implements IMembershipRepository {
   //#endregion
 
   //#region private methods ---------------------------------------------------
-  private getTeamMemberships(teamName: string): Array<string    > {
+  private getTeamMemberships(teamName: string, createList: boolean): Array<string    > {
     const result = this.memberships.get(teamName) || new Array<string>();
-    if (!this.memberships.has(teamName)) {
+    if (!this.memberships.has(teamName) && createList) {
       this.memberships.set(teamName, result);
     }
     return result;
