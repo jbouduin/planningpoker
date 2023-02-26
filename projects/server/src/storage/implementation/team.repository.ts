@@ -37,4 +37,13 @@ export class TeamRepository implements ITeamRepository{
     return this.teams.has(id);
   }
   //#endregion
+
+  //#region ITeamRepository methods -------------------------------------------
+  public setLastAccessTime(teamName: string): void {
+    const team = this.teams.get(teamName);
+    if (team) {
+      team.lastAccessTime = Date.now();
+    }
+  }
+  //#endregion
 }

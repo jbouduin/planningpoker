@@ -1,12 +1,12 @@
 import { IParticipant, EParticipantStatus, ERole } from '../../../shared-lib/src';
 import { IWebSocket } from '../services/websocket';
 
+// TODO NOW differentiate between IParticipant (the dto and the one used on the server)
 export class Participant implements IParticipant {
 
   //#region Public properties -------------------------------------------------
   public status: EParticipantStatus;
   public observer: boolean;
-  public team: string | undefined;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------

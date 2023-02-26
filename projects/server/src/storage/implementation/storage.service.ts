@@ -47,8 +47,8 @@ export class StorageService implements IStorageService {
   public deleteParticipant(participantUuid: string): void {
     const team = this.getTeamOfParticipant(participantUuid);
     if (team) {
-      team.teamMembers.delete(participantUuid);
-      this.membershipRepository.leaveTeam(team.teamName, participantUuid)
+      this.membershipRepository.leaveTeam(team.teamName, participantUuid);
+      // TODO NOW remove estimations from participant
     }
     this.participantRepository.remove(participantUuid);
   }
@@ -79,12 +79,13 @@ export class StorageService implements IStorageService {
   }
 
   public deleteTeam(teamName: string): Array<Participant> {
-    this.teamRepository.remove(teamName);
     this.cardSetRepository.removeCardSet(teamName);
     this.estimationRepository.removeTeam(teamName);
+    const members = this.membershipRepository.getTeamMembers(teamName);
     const result = this.membershipRepository.removeTeam(teamName);
-    result.forEach((p: Participant) => this.participantRepository.remove(p.uuid));
-    return result;
+    members.forEach((p: Participant) => this.participantRepository.remove(p.uuid));
+    this.teamRepository.remove(teamName);
+    return members;
   }
 
   public filterTeams(filter: (team: ITeam) => boolean): Array<ITeam> {
@@ -110,7 +111,7 @@ export class StorageService implements IStorageService {
     } else {
       const member = this.participantRepository.get(uuid);
       if (member) {
-        result = member.team === teamName ? EErrorCode.NoError : EErrorCode.ParticipantNotInTeam
+        result = this.membershipRepository.isMemberOf(uuid, teamName) ? EErrorCode.NoError : EErrorCode.ParticipantNotInTeam
       } else {
         result = EErrorCode.ParticipantNotFound;
       }
@@ -128,12 +129,7 @@ export class StorageService implements IStorageService {
   }
 
   public getTeamOfParticipant(participantUuid: string): ITeam | undefined {
-    const participant = this.participantRepository.get(participantUuid);
-    if (participant && participant.team) {
-      return this.teamRepository.get(participant.team);
-    } else {
-      return undefined;
-    }
+    return this.membershipRepository.getTeamOfParticipant(participantUuid);
   }
 
   public getTeamMembers(teamName: string): Array<Participant> {
@@ -205,7 +201,7 @@ export class StorageService implements IStorageService {
         status: team.status,
         members: new Array<LooseObject>()
       }
-      Array.from(team.teamMembers.values()).forEach((menber: Participant) => gameDump.members.push({
+      this.membershipRepository.getTeamMembers(team.teamName).forEach((menber: Participant) => gameDump.members.push({
         name: menber.nick,
         role: menber.role,
         status: menber.status,
@@ -225,7 +221,7 @@ export class StorageService implements IStorageService {
         status: team.status,
         members: new Array<LooseObject>()
       }
-      Array.from(team.teamMembers.values()).forEach((member: Participant) => result.members.push({
+      this.membershipRepository.getTeamMembers(team.teamName).forEach((member: Participant) => result.members.push({
         name: member.nick,
         role: member.role,
         status: member.status,

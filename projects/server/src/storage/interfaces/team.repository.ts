@@ -1,4 +1,6 @@
 import { ITeam } from "../../objects";
 import { IBaseRepository } from "./base.repository";
 
-export type ITeamRepository = IBaseRepository<ITeam>;
+export interface ITeamRepository extends IBaseRepository<ITeam> {
+  setLastAccessTime(teamName: string): void;
+}
