@@ -120,7 +120,7 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
     message = new MemberListMessage(this.prepareParticipantsData(members));
     this.senderService.sendToParticipant(to, message);
-    message = new EstimationListMessage(this.prepareEstimationsData(to, team.status === EPokerStatus.Revealed, estimations));
+    message = new EstimationListMessage(estimations);
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -142,7 +142,7 @@ export class MessageService implements IMessageService {
   }
 
   private sendEstimations(to: Participant, revealed: boolean, estimations: Array<Estimation>): void {
-    const message: AServerMessage = new EstimationListMessage(this.prepareEstimationsData(to, revealed, estimations));
+    const message: AServerMessage = new EstimationListMessage(estimations);
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -168,16 +168,6 @@ export class MessageService implements IMessageService {
   //#endregion
 
   //#region Private prepare message data methods ------------------------------
-  // TODO NOW this logic should not be here
-  private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<IEstimation> {
-    return estimations.map(estimation => {
-      const index = estimation.cardIndex < 0 ?
-        estimation.cardIndex :
-        revealed || estimation.participantUuid === to.uuid ? estimation.cardIndex : 0
-      return new Estimation(estimation.participantUuid, index, revealed || estimation.participantUuid === to.uuid);
-    });
-  }
-
   private prepareParticipantsData(participants: Array<Participant>): Array<IParticipant> {
     return participants.map(participant => {
       return {

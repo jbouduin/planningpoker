@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
+import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IHandlerService, ILoggerService, IMessageService } from "../interfaces";
@@ -284,7 +284,7 @@ export class HandlerService implements IHandlerService {
         team,
         this.storage.getTeamMembers(teamName),
         this.storage.getCardSet(teamName),
-        this.storage.getEstimations(teamName)
+        this.prepareEstimationsData(sender, team.status === EPokerStatus.Revealed, this.storage.getEstimations(teamName))
       );
       // tell the others someone joined
       this.messageService.broadcastMemberChange(
@@ -307,7 +307,6 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  // TODO different message ILeave and IEND
   private handleLeave(sender: Participant, message: ILeaveMessage, teamName: string): void {
     if (sender.role === ERole.ScrumMaster) {
       this.loggerService.info('Server', `End game: '${sender.nick}' is ending '${teamName}'`);
@@ -378,7 +377,7 @@ export class HandlerService implements IHandlerService {
         team,
         this.storage.getTeamMembers(teamName),
         this.storage.getCardSet(teamName),
-        this.storage.getEstimations(teamName)
+        this.prepareEstimationsData(sender, team.status === EPokerStatus.Revealed, this.storage.getEstimations(teamName))
       );
       // tell the others that participant rejoined
       this.messageService.broadcastMemberChange(
@@ -409,6 +408,17 @@ export class HandlerService implements IHandlerService {
       this.storage.getConnectedTeamMembers(teamName),
       result
     );
+  }
+  //#endregion
+
+  //#region private helpers ---------------------------------------------------
+  private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<IEstimation> {
+    return estimations.map(estimation => {
+      const index = estimation.cardIndex < 0 ?
+        estimation.cardIndex :
+        revealed || estimation.participantUuid === to.uuid ? estimation.cardIndex : 0
+      return new Estimation(estimation.participantUuid, index, revealed || estimation.participantUuid === to.uuid);
+    });
   }
   //#endregion
 }
