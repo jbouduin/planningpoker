@@ -12,7 +12,7 @@ export class Participant implements IParticipant {
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     public nick: string,
-    public uuid: string,
+    public participantId: string,
     public role: ERole,
     public socket: IWebSocket) {
     this.status = EParticipantStatus.Connected;

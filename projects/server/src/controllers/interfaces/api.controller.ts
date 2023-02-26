@@ -3,5 +3,5 @@ import { LooseObject } from "../../objects";
 
 export interface IApiController {
   availableCardSets(): Array<ICardSet>;
-  canRejoin(teamName: string, uuid: string): LooseObject;
+  canRejoin(teamName: string, participantId: string): LooseObject;
 }

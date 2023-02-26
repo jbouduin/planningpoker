@@ -4,15 +4,15 @@ export class Estimation implements IEstimation {
 
   //#region public properties ----------------------------------------
   public revealed: boolean;
-  public participantUuid: string;
+  public participantId: string;
   public cardIndex: number;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(uuid: string, card: number, revealed = true) {
+  public constructor(participantId: string, cardIndex: number, revealed = true) {
+    this.participantId = participantId;
+    this.cardIndex = cardIndex;
     this.revealed = revealed;
-    this.participantUuid = uuid;
-    this.cardIndex = card;
   }
   //#endregion
 }

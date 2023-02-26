@@ -1,7 +1,7 @@
 import { LooseObject } from '../../objects';
 
 export interface ISystemController {
-  disconnectParticipant(uuid: string): LooseObject;
+  disconnectParticipant(participantId: string): LooseObject;
   resetServer(): LooseObject;
   getTeam(teamName: string): LooseObject;
   getAllTeams(): LooseObject;

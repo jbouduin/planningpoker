@@ -4,7 +4,7 @@
   <mat-form-field appearance="fill">
     <mat-label>{{scrumMasterLabel}}</mat-label>
     <mat-select formControlName="nick" appearance="fill">
-      <mat-option *ngFor="let member of otherMembers" [value]="member.uuid">
+      <mat-option *ngFor="let member of otherMembers" [value]="member.participantId">
         {{member.nick}}
       </mat-option>
     </mat-select>

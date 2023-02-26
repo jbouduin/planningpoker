@@ -28,7 +28,7 @@ const service: IPreflightService = new PreflightService();
 
 describe('preflight Start', () => {
   test('OK', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderUuid: scrummasterName, data: undefined };
+    const message: IStartMessage = { type: EClientMessageType.Start, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -40,7 +40,7 @@ describe('preflight Start', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderUuid: scrummasterName, data: undefined };
+    const message: IStartMessage = { type: EClientMessageType.Start, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(undefined)
@@ -52,7 +52,7 @@ describe('preflight Start', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderUuid: scrummasterName, data: undefined };
+    const message: IStartMessage = { type: EClientMessageType.Start, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -64,7 +64,7 @@ describe('preflight Start', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderUuid: scrummasterName, data: undefined };
+    const message: IStartMessage = { type: EClientMessageType.Start, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -76,7 +76,7 @@ describe('preflight Start', () => {
   });
 
   test('Failure => sender in another team', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderUuid: scrummasterName, data: undefined };
+    const message: IStartMessage = { type: EClientMessageType.Start, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -88,7 +88,7 @@ describe('preflight Start', () => {
   });
 
   test('Failure => sender is not scrum master', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderUuid: participant1Name, data: undefined };
+    const message: IStartMessage = { type: EClientMessageType.Start, senderId: participant1Name, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -102,7 +102,7 @@ describe('preflight Start', () => {
 
 describe('preflight Reveal', () => {
   test('OK', () => {
-    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderUuid: scrummasterName, data: undefined };
+    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -114,7 +114,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderUuid: scrummasterName, data: undefined };
+    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(undefined)
@@ -126,7 +126,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderUuid: scrummasterName, data: undefined };
+    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -138,7 +138,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderUuid: scrummasterName, data: undefined };
+    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -150,7 +150,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => sender in another team', () => {
-    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderUuid: scrummasterName, data: undefined };
+    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderId: scrummasterName, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -162,7 +162,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => sender is not scrum master', () => {
-    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderUuid: participant1Name, data: undefined };
+    const message: IRevealMessage = { type: EClientMessageType.Reveal, senderId: participant1Name, data: undefined };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -178,7 +178,7 @@ describe('preflight ChangeCardSet', () => {
   const cardSet = { cardSet: ECardSet.Cohn, cards: [], unknownEstimationIndex: 0 };
 
   test('OK', () => {
-    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderUuid: scrummasterName, data: cardSet };
+    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderId: scrummasterName, data: cardSet };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -190,7 +190,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderUuid: scrummasterName, data: cardSet };
+    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderId: scrummasterName, data: cardSet };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(undefined)
@@ -202,7 +202,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderUuid: scrummasterName, data: cardSet };
+    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderId: scrummasterName, data: cardSet };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -214,7 +214,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderUuid: scrummasterName, data: cardSet };
+    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderId: scrummasterName, data: cardSet };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -226,7 +226,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => sender in another team', () => {
-    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderUuid: scrummasterName, data: cardSet };
+    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderId: scrummasterName, data: cardSet };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(scrummasterName))
       .returns(scrummaster)
@@ -238,7 +238,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => sender is not scrum master', () => {
-    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderUuid: participant1Name, data: cardSet };
+    const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderId: participant1Name, data: cardSet };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -252,7 +252,7 @@ describe('preflight ChangeCardSet', () => {
 
 describe('preflight Estimate', () => {
   test('OK', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderUuid: participant1Name, data: 1 };
+    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -264,7 +264,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderUuid: participant1Name, data: 1 };
+    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(undefined)
@@ -276,7 +276,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderUuid: participant1Name, data: 1 };
+    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -288,7 +288,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderUuid: participant1Name, data: 1 };
+    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -300,7 +300,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => sender in another team', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderUuid: participant1Name, data: 1 };
+    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -312,7 +312,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => observer can not estimate', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderUuid: observerName, data: 1 };
+    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: observerName, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(observerName))
       .returns(observer)

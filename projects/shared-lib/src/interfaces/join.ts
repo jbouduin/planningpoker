@@ -1,5 +1,5 @@
 export interface IJoin {
-  team: string;
-  observer: boolean;
   nick: string
+  observer: boolean;
+  team: string;
 }

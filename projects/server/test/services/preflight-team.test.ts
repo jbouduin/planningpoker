@@ -28,7 +28,7 @@ describe('preflight Create', () => {
     cardSet: ECardSet.Cohn,
     nick: participant1Name
   };
-  const message: ICreatemessage = { type: EClientMessageType.Create, senderUuid: participant1Name, data: data };
+  const message: ICreatemessage = { type: EClientMessageType.Create, senderId: participant1Name, data: data };
 
   test('OK', () => {
     const storage = new Mock<IStorageService>()
@@ -64,7 +64,7 @@ describe('preflight Join', () => {
     observer: false,
     nick: participant1Name
   };
-  const message: IJoinMessage = { type: EClientMessageType.Join, senderUuid: participant1Name, data: data };
+  const message: IJoinMessage = { type: EClientMessageType.Join, senderId: participant1Name, data: data };
 
   test('OK', () => {
     const storage = new Mock<IStorageService>()
@@ -123,7 +123,7 @@ describe('preflight Join', () => {
 });
 
 describe('preflight Leave - Normal', () => {
-  const message: ILeaveMessage = { type: EClientMessageType.Leave, senderUuid: participant1Name, data: participant1Name };
+  const message: ILeaveMessage = { type: EClientMessageType.Leave, senderId: participant1Name, data: participant1Name };
 
   test('OK', () => {
     const storage = new Mock<IStorageService>()
@@ -182,7 +182,7 @@ describe('preflight Leave - Normal', () => {
 })
 
 describe('prefligh Leave - After Disconnect', () => {
-  const message: ILeaveMessage = { type: EClientMessageType.Leave, senderUuid: participant1Name, data: participant2Name };
+  const message: ILeaveMessage = { type: EClientMessageType.Leave, senderId: participant1Name, data: participant2Name };
 
   test('OK', () => {
     const storage = new Mock<IStorageService>()
@@ -306,7 +306,7 @@ describe('prefligh Leave - After Disconnect', () => {
 });
 
 describe('prefligh Pause', () => {
-  const message: IPauseMessage = { type: EClientMessageType.Pause, senderUuid: participant1Name, data: undefined };
+  const message: IPauseMessage = { type: EClientMessageType.Pause, senderId: participant1Name, data: undefined };
 
   test('OK', () => {
     const storage = new Mock<IStorageService>()
@@ -365,7 +365,7 @@ describe('prefligh Pause', () => {
 });
 
 describe("preflight Rejoin", () => {
-  const message: IRejoinMessage = { type: EClientMessageType.Rejoin, senderUuid: participant1Name, data: participant2Name };
+  const message: IRejoinMessage = { type: EClientMessageType.Rejoin, senderId: participant1Name, data: participant2Name };
 
   test('OK', () => {
     const storage = new Mock<IStorageService>()

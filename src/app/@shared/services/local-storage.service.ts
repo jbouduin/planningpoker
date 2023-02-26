@@ -7,11 +7,11 @@ export class LocalStorageService {
 
   //#region Private readonly properties ---------------------------------------
   private readonly nickKey: string = 'current_nick';
-  private readonly teamKey: string = 'current_team';
-  private readonly uuidKey: string = 'current_uuid';
+  private readonly teamNameKey: string = 'current_teamName';
+  private readonly participantIdKey: string = 'current_participantId';
   private _nick: string | null;
-  private _team: string | null;
-  private _uuid: string | null;
+  private _teamName: string | null;
+  private _participantId: string | null;
   //#endregion
 
   //#region getters/setters ---------------------------------------------------
@@ -28,29 +28,29 @@ export class LocalStorageService {
     }
   }
 
-  public get team(): string | null {
-    return this._team;
+  public get teamName(): string | null {
+    return this._teamName;
   }
 
-  public set team(value: string | null) {
-    this._team = value;
+  public set teamName(value: string | null) {
+    this._teamName = value;
     if (value) {
-      localStorage.setItem(this.teamKey, value);
+      localStorage.setItem(this.teamNameKey, value);
     } else {
-      localStorage.removeItem(this.teamKey);
+      localStorage.removeItem(this.teamNameKey);
     }
   }
 
-  public get uuid(): string | null {
-    return this._uuid;
+  public get participantId(): string | null {
+    return this._participantId;
   }
 
-  public set uuid(value: string | null) {
-    this._uuid = value;
+  public set participantId(value: string | null) {
+    this._participantId = value;
     if (value) {
-      localStorage.setItem(this.uuidKey, value);
+      localStorage.setItem(this.participantIdKey, value);
     } else {
-      localStorage.removeItem(this.uuidKey);
+      localStorage.removeItem(this.participantIdKey);
     }
   }
   //#endregion
@@ -58,16 +58,16 @@ export class LocalStorageService {
   //#region Constructor & C° --------------------------------------------------
   constructor() {
     this._nick = localStorage.getItem(this.nickKey);
-    this._team = localStorage.getItem(this.teamKey);
-    this._uuid = localStorage.getItem(this.uuidKey);
+    this._teamName = localStorage.getItem(this.teamNameKey);
+    this._participantId = localStorage.getItem(this.participantIdKey);
   }
   //#endregion
 
   //#region public methods -----------------------------------------------------
   public clear(): void {
     this.nick = null;
-    this.team = null;
-    this.uuid = null;
+    this.teamName = null;
+    this.participantId = null;
   }
   //#endregion
 }

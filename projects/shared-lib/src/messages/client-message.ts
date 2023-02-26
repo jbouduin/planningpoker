@@ -2,7 +2,7 @@ import { ICardSet, ICreate, IJoin, IObserverChange } from '../interfaces';
 import { EClientMessageType } from './client-message-type.enum';
 
 export interface IClientMessage<T> {
-  senderUuid: string;
+  senderId: string;
   data: T;
   type: EClientMessageType
 }

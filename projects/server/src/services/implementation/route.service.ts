@@ -109,12 +109,12 @@ export class RouteService implements IRouteService {
     );
 
     router.post(
-      `${this.systemPath}/participant/:uuid/disconnect`,
+      `${this.systemPath}/participant/:participantId/disconnect`,
       (request: Request, response: Response) => {
         try {
           response
             .type('application/json')
-            .send(this.systemController.disconnectParticipant(request.params.uuid));
+            .send(this.systemController.disconnectParticipant(request.params.participantId));
         } catch (error) {
           this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);
@@ -125,12 +125,12 @@ export class RouteService implements IRouteService {
 
   private setApiRoutes(router: Router): void {
     router.get(
-      '/team/:name/participant/:uuid',
+      '/team/:name/participant/:participantId',
       (request: Request, response: Response) => {
         try {
           response
             .type('application/json')
-            .send(JSON.stringify(this.apiController.canRejoin(request.params.name, request.params.uuid)));
+            .send(JSON.stringify(this.apiController.canRejoin(request.params.name, request.params.participantId)));
         } catch (error) {
           this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);

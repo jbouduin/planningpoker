@@ -18,7 +18,7 @@ export class ParticipantRepository implements IParticipantRepository{
 
   //#region IBaseRepository methods -------------------------------------------
   public add(entity: Participant): void {
-    this.participants.set(entity.uuid, entity);
+    this.participants.set(entity.participantId, entity);
   }
 
   public remove(id: string): void {

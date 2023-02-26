@@ -28,8 +28,8 @@ export class MembershipRepository implements IMembershipRepository {
   //#endregion
 
   //#region IMembershipRepository methods -------------------------------------
-  public getTeamOfParticipant(uuid: string): ITeam | undefined {
-    const mapEntry = this.participantTeamMap.get(uuid);
+  public getTeamOfParticipant(participantId: string): ITeam | undefined {
+    const mapEntry = this.participantTeamMap.get(participantId);
     if (mapEntry) {
       return this.teamRepository.get(mapEntry);
     } else {
@@ -37,8 +37,8 @@ export class MembershipRepository implements IMembershipRepository {
     }
   }
 
-  public isMemberOf(teamName: string, uuid: string): boolean {
-    return this.participantTeamMap.get(uuid) === teamName;
+  public participantIsMemberOf(participantId:string, teamName: string): boolean {
+    return this.participantTeamMap.get(participantId) === teamName;
   }
 
   public removeTeam(teamName: string): void {
@@ -69,8 +69,8 @@ export class MembershipRepository implements IMembershipRepository {
 
   public getTeamMembers(teamName: string): Array<Participant> {
     const result = new Array<Participant>()
-    this.getTeamMemberships(teamName).forEach((uuid: string) => {
-      const participant = this.participantRepository.get(uuid);
+    this.getTeamMemberships(teamName).forEach((participantId: string) => {
+      const participant = this.participantRepository.get(participantId);
       if (participant) {
         result.push(participant);
       }

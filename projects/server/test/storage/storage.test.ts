@@ -19,28 +19,28 @@ describe('Manage participants', () => {
     const participant = storage.createParticipant(socket);
     expect(participant).not.toBeNull();
     expect(participant).not.toBeUndefined();
-    expect(participant.uuid.length).toBeGreaterThan(0);
-    expect(storage.participantExists(participant.uuid)).toBe(true);
+    expect(participant.participantId.length).toBeGreaterThan(0);
+    expect(storage.participantExists(participant.participantId)).toBe(true);
     expect(storage.filterParticipants((_p: Participant) => true).length).toBe(1);
     const participant2 = storage.createParticipant(socket);
-    expect(participant2.uuid).not.toBe(participant.uuid);
+    expect(participant2.participantId).not.toBe(participant.participantId);
     expect(storage.filterParticipants((_p: Participant) => true).length).toBe(2);
   });
 
   test('Delete', () => {
     const storage: IStorageService = new StorageService();
     const participant = storage.createParticipant(socket);
-    storage.deleteParticipant(participant.uuid);
+    storage.deleteParticipant(participant.participantId);
     expect(storage.filterParticipants((_p: Participant) => true).length).toBe(0);
-    expect(storage.participantExists(participant.uuid)).toBe(false);
+    expect(storage.participantExists(participant.participantId)).toBe(false);
   });
 
   test('Get', () => {
     const storage: IStorageService = new StorageService();
     const participant = storage.createParticipant(socket);
-    const getResult = storage.getParticipant(participant.uuid);
+    const getResult = storage.getParticipant(participant.participantId);
     expect(getResult).not.toBeUndefined();
-    expect(getResult?.uuid).toBe(participant.uuid);
+    expect(getResult?.participantId).toBe(participant.participantId);
   });
 });
 
@@ -83,11 +83,11 @@ describe('Team membership', () => {
     const storage: IStorageService = new StorageService();
     const cardSet = { cardSet: ECardSet.Cohn, cards: [], unknownEstimationIndex: 0 };
     const participant = storage.createParticipant(socket);
-    expect(storage.canRejoin(participant.uuid, 'team')).toBe(EErrorCode.TeamDoesNotExist);
+    expect(storage.canRejoin(participant.participantId, 'team')).toBe(EErrorCode.TeamDoesNotExist);
     const team = storage.createTeam('team', cardSet);
-    expect(storage.canRejoin(participant.uuid, team.teamName)).toBe(EErrorCode.ParticipantNotInTeam);
-    storage.deleteParticipant(participant.uuid);
-    expect(storage.canRejoin(participant.uuid, 'team')).toBe(EErrorCode.ParticipantNotFound);
+    expect(storage.canRejoin(participant.participantId, team.teamName)).toBe(EErrorCode.ParticipantNotInTeam);
+    storage.deleteParticipant(participant.participantId);
+    expect(storage.canRejoin(participant.participantId, 'team')).toBe(EErrorCode.ParticipantNotFound);
   });
 
   test('join and delete team', () => {
@@ -96,15 +96,15 @@ describe('Team membership', () => {
     const participant = storage.createParticipant(socket);
     const team = storage.createTeam('team', cardSet);
     storage.joinTeam(team, participant);
-    expect(storage.getTeamOfParticipant(participant.uuid)).not.toBeUndefined();
-    expect(storage.getTeamOfParticipant(participant.uuid)?.teamName).toBe('team');
-    expect(storage.getTeamNameOfParticipant(participant.uuid)).toBe('team');
+    expect(storage.getTeamOfParticipant(participant.participantId)).not.toBeUndefined();
+    expect(storage.getTeamOfParticipant(participant.participantId)?.teamName).toBe('team');
+    expect(storage.getTeamNameOfParticipant(participant.participantId)).toBe('team');
     expect(team.allMembers.length).toBe(1);
     storage.deleteTeam('team');
     expect(team.allMembers.length).toBe(0);
     expect(storage.getTeam('team')).toBeUndefined();
-    expect(storage.getTeamOfParticipant(participant.uuid)).toBeUndefined();
-    expect(storage.getTeamNameOfParticipant(participant.uuid)).toBeUndefined();
+    expect(storage.getTeamOfParticipant(participant.participantId)).toBeUndefined();
+    expect(storage.getTeamNameOfParticipant(participant.participantId)).toBeUndefined();
   });
 
   test('join and delete participant', () => {
@@ -113,12 +113,12 @@ describe('Team membership', () => {
     const participant = storage.createParticipant(socket);
     const team = storage.createTeam('team', cardSet);
     storage.joinTeam(team, participant);
-    expect(storage.getTeamOfParticipant(participant.uuid)).not.toBeUndefined();
-    expect(storage.getTeamOfParticipant(participant.uuid)?.teamName).toBe('team');
+    expect(storage.getTeamOfParticipant(participant.participantId)).not.toBeUndefined();
+    expect(storage.getTeamOfParticipant(participant.participantId)?.teamName).toBe('team');
     expect(team.allMembers.length).toBe(1);
-    storage.deleteParticipant(participant.uuid);
+    storage.deleteParticipant(participant.participantId);
     expect(team.allMembers.length).toBe(0);
-    expect(storage.getParticipant(participant.uuid)).toBeUndefined();
+    expect(storage.getParticipant(participant.participantId)).toBeUndefined();
   });
 
 });

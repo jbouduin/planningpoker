@@ -133,7 +133,7 @@ export class MessageService implements IMessageService {
       member: {
         status: changedMember.status,
         nick: changedMember.nick,
-        uuid: changedMember.uuid,
+        participantId: changedMember.participantId,
         role: changedMember.role,
         observer: changedMember.observer
       }
@@ -159,7 +159,7 @@ export class MessageService implements IMessageService {
       return {
         status: participant.status,
         nick: participant.nick,
-        uuid: participant.uuid,
+        participantId: participant.participantId,
         role: participant.role,
         observer: participant.observer
       };

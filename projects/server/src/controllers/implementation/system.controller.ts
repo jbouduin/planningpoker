@@ -31,8 +31,8 @@ export class SystemController implements ISystemController {
   //#endregion
 
   //#region ISystemController methods -----------------------------------------
-  public disconnectParticipant(uuid: string): LooseObject {
-    const participant = this.storageService.getParticipant(uuid);
+  public disconnectParticipant(participantId: string): LooseObject {
+    const participant = this.storageService.getParticipant(participantId);
     const response: LooseObject = {}
     if (participant) {
       participant.socket.close();

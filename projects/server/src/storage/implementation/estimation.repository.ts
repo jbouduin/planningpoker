@@ -18,16 +18,16 @@ export class EstimationRepository implements IEstimationRepository {
   //#endregion
 
   //#region IEstimationRepository methods -------------------------------------
-  public createEstimation(uuid: string, card: number, revealed: boolean): IEstimation {
-    return new Estimation(uuid, card, revealed);
+  public createEstimation(participantId: string, card: number, revealed: boolean): IEstimation {
+    return new Estimation(participantId, card, revealed);
   }
 
-  public deleteEstimation(teamName: string, participantUuid: string): IEstimation {
+  public deleteEstimation(teamName: string, participantId: string): IEstimation {
     const teamEstimations = this.estimations.get(teamName);
     if (teamEstimations) {
-      teamEstimations.delete(participantUuid);
+      teamEstimations.delete(participantId);
     }
-    return new Estimation(participantUuid, -1);
+    return new Estimation(participantId, -1);
   }
 
   public getEstimations(teamName: string): Array<IEstimation> {
@@ -39,10 +39,10 @@ export class EstimationRepository implements IEstimationRepository {
     this.estimations.delete(teamName);
   }
 
-  public removeParticipant(teamName: string, uuid: string): void {
+  public removeParticipant(teamName: string, participantId: string): void {
     const teamEstimations = this.estimations.get(teamName);
     if (teamEstimations) {
-      teamEstimations.delete(uuid);
+      teamEstimations.delete(participantId);
     }
   }
 
@@ -50,11 +50,11 @@ export class EstimationRepository implements IEstimationRepository {
     this.estimations.set(teamName, new Map<string, IEstimation>());
   }
 
-  public upsertEstimation(teamName: string, participantUuid: string, cardIndex: number): IEstimation {
-    const result = new Estimation(participantUuid, cardIndex);
+  public upsertEstimation(teamName: string, participantId: string, cardIndex: number): IEstimation {
+    const result = new Estimation(participantId, cardIndex);
     const teamEstimations = this.estimations.get(teamName);
     if (teamEstimations) {
-      teamEstimations.set(participantUuid, result);
+      teamEstimations.set(participantId, result);
     }
     return result;
   }

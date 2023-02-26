@@ -43,7 +43,7 @@ export class SerializationService implements ISerializationService {
         role: menber.role,
         status: menber.status,
         observer: menber.observer,
-        uuid: menber.uuid
+        participantId: menber.participantId
       }));
       result.teams.push(gameDump);
     });
@@ -63,7 +63,7 @@ export class SerializationService implements ISerializationService {
         role: member.role,
         status: member.status,
         observer: member.observer,
-        uuid: member.uuid
+        participantId: member.participantId
       }));
       return result;
     }
@@ -83,7 +83,7 @@ export class SerializationService implements ISerializationService {
         role: participant.role,
         status: participant.status,
         observer: participant.observer,
-        uuid: participant.uuid
+        participantId: participant.participantId
       })
     });
     return result;
