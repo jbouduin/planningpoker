@@ -3,14 +3,14 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from "../storage.types";
 
 import { EParticipantStatus } from "../../../../shared-lib/src";
-import { ITeam, Participant } from "../../objects";
-import { IMembershipRepository, IParticipantRepository, ITeamRepository } from "../interfaces";
+import { ITeam, IServerParticipant } from "../../objects";
+import { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from "../interfaces";
 
 @injectable()
 export class MembershipRepository implements IMembershipRepository {
 
   //#region Private properties ------------------------------------------------
-  private readonly participantRepository: IParticipantRepository;
+  private readonly participantRepository: IServerParticipantRepository;
   private readonly teamRepository: ITeamRepository;
   private readonly memberships: Map<string, Array<string>>;
   private readonly participantTeamMap: Map<string, string>;
@@ -18,7 +18,7 @@ export class MembershipRepository implements IMembershipRepository {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
-    @inject(STORAGETYPES.ParticipantRepository) participantRepository: IParticipantRepository,
+    @inject(STORAGETYPES.ServerParticipantRepository) participantRepository: IServerParticipantRepository,
     @inject(STORAGETYPES.TeamRepository) teamRepository: ITeamRepository) {
     this.participantRepository = participantRepository;
     this.teamRepository = teamRepository;
@@ -45,9 +45,9 @@ export class MembershipRepository implements IMembershipRepository {
     this.memberships.delete(teamName);
   }
 
-  public getConnectedTeamMembers(teamName: string): Array<Participant> {
+  public getConnectedTeamMembers(teamName: string): Array<IServerParticipant> {
     return this.getTeamMembers(teamName)
-      .filter((p: Participant) => p.status === EParticipantStatus.Connected);
+      .filter((p: IServerParticipant) => p.status === EParticipantStatus.Connected);
   }
 
   public joinTeam(teamName: string, participant: string): void {
@@ -67,8 +67,8 @@ export class MembershipRepository implements IMembershipRepository {
     this.participantTeamMap.delete(participant);
   }
 
-  public getTeamMembers(teamName: string): Array<Participant> {
-    const result = new Array<Participant>()
+  public getTeamMembers(teamName: string): Array<IServerParticipant> {
+    const result = new Array<IServerParticipant>()
     this.getTeamMemberships(teamName).forEach((participantId: string) => {
       const participant = this.participantRepository.get(participantId);
       if (participant) {

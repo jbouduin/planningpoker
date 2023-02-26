@@ -1,9 +1,9 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, EErrorCode, ERole, IChangeCardSetMessage, IEstimateMessage, IRevealMessage, IStartMessage } from '../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IEstimateMessage, IRevealMessage, IStartMessage } from '../../../shared-lib/src';
 
-import { Participant } from '../../src/objects';
+import { ITeam, ServerParticipant } from '../../src/objects';
 import { PreflightService } from '../../src/services/implementation/preflight.service';
 import { IPreflightService } from '../../src/services/interfaces';
 import { IWebSocket, ReadyState } from '../../src/services/websocket';
@@ -15,15 +15,44 @@ const socket: IWebSocket = {
   send: jest.fn(undefined)
 };
 const participant1Name = 'participant1';
-const participant1 = new Participant(participant1Name, participant1Name, ERole.Unknown, socket);
-participant1.observer = false;
-const scrummasterName = 'scrum-master';
+const participant1 = new ServerParticipant(
+  {
+    nick: participant1Name,
+    participantId: participant1Name,
+    role: ERole.Developer,
+    status: EParticipantStatus.Connected,
+    observer: false
+  }, socket);
 const observerName = 'observer';
-const observer = new Participant(observerName, observerName, ERole.ScrumMaster, socket);
-observer.observer = true;
-const scrummaster = new Participant(scrummasterName, scrummasterName, ERole.ScrumMaster, socket);
+const observer = new ServerParticipant(
+  {
+    nick: observerName,
+    participantId: observerName,
+    role: ERole.Developer,
+    status: EParticipantStatus.Connected,
+    observer: true
+  }, socket);
+const scrummasterName = 'scrum-master';
+const scrummaster = new ServerParticipant(
+  {
+    nick: scrummasterName,
+    participantId: scrummasterName,
+    role: ERole.ScrumMaster,
+    status: EParticipantStatus.Connected,
+    observer: true
+  }, socket);
 const team1Name = 'team1';
+const team1: ITeam = {
+  teamName: team1Name,
+  lastAccessTime: Date.now(),
+  status: EPokerStatus.Cleared
+}
 const team2Name = 'team2';
+const team2: ITeam = {
+  teamName: team2Name,
+  lastAccessTime: Date.now(),
+  status: EPokerStatus.Cleared
+}
 const service: IPreflightService = new PreflightService();
 
 describe('preflight Start', () => {
@@ -34,8 +63,8 @@ describe('preflight Start', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.NoError);
   });
 
@@ -46,8 +75,8 @@ describe('preflight Start', () => {
       .returns(undefined)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotFound);
   });
 
@@ -58,8 +87,8 @@ describe('preflight Start', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(false)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.TeamDoesNotExist);
   });
 
@@ -70,7 +99,7 @@ describe('preflight Start', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
       .returns(undefined);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
@@ -82,8 +111,8 @@ describe('preflight Start', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team2Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team2);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
 
@@ -94,8 +123,8 @@ describe('preflight Start', () => {
       .returns(participant1)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(participant1Name))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(participant1Name))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ScrumMasterRequired);
   });
 });
@@ -108,8 +137,8 @@ describe('preflight Reveal', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.NoError);
   });
 
@@ -120,8 +149,8 @@ describe('preflight Reveal', () => {
       .returns(undefined)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotFound);
   });
 
@@ -132,8 +161,8 @@ describe('preflight Reveal', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(false)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.TeamDoesNotExist);
   });
 
@@ -144,7 +173,7 @@ describe('preflight Reveal', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
       .returns(undefined);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
@@ -156,7 +185,7 @@ describe('preflight Reveal', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
       .returns(undefined);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
@@ -168,8 +197,8 @@ describe('preflight Reveal', () => {
       .returns(participant1)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(participant1Name))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(participant1Name))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ScrumMasterRequired);
   });
 });
@@ -184,8 +213,8 @@ describe('preflight ChangeCardSet', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.NoError);
   });
 
@@ -196,8 +225,8 @@ describe('preflight ChangeCardSet', () => {
       .returns(undefined)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotFound);
   });
 
@@ -208,8 +237,8 @@ describe('preflight ChangeCardSet', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(false)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.TeamDoesNotExist);
   });
 
@@ -220,7 +249,7 @@ describe('preflight ChangeCardSet', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
       .returns(undefined);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
@@ -232,7 +261,7 @@ describe('preflight ChangeCardSet', () => {
       .returns(scrummaster)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(scrummasterName))
+      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
       .returns(undefined);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
@@ -244,8 +273,8 @@ describe('preflight ChangeCardSet', () => {
       .returns(participant1)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(participant1Name))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(participant1Name))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ScrumMasterRequired);
   });
 });
@@ -258,8 +287,8 @@ describe('preflight Estimate', () => {
       .returns(participant1)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(participant1Name))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(participant1Name))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.NoError);
   });
 
@@ -270,8 +299,8 @@ describe('preflight Estimate', () => {
       .returns(undefined)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(participant1Name))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(participant1Name))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotFound);
   });
 
@@ -282,8 +311,8 @@ describe('preflight Estimate', () => {
       .returns(participant1)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(false)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(participant1Name))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(participant1Name))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.TeamDoesNotExist);
   });
 
@@ -294,7 +323,7 @@ describe('preflight Estimate', () => {
       .returns(participant1)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(participant1Name))
+      .setup((service: IStorageService) => service.getTeamOfParticipant(participant1Name))
       .returns(undefined);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
@@ -306,8 +335,8 @@ describe('preflight Estimate', () => {
       .returns(participant1)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(participant1Name))
-      .returns(team2Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(participant1Name))
+      .returns(team2);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
 
@@ -318,8 +347,8 @@ describe('preflight Estimate', () => {
       .returns(observer)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamNameOfParticipant(observerName))
-      .returns(team1Name);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(observerName))
+      .returns(team1);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ObserverCanNotEstimate);
   });
 });

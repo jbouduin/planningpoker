@@ -1,7 +1,7 @@
 import { jest, describe, expect, test } from '@jest/globals';
 
 import { ECardSet, EErrorCode } from "../../../shared-lib/src";
-import { ITeam, Participant } from "../../src/objects";
+import { ITeam, ServerParticipant } from "../../src/objects";
 import { IWebSocket, ReadyState } from "../../src/services/websocket";
 import { StorageService } from "../../src/storage/implementation";
 import { IStorageService } from "../../src/storage/interfaces";
@@ -21,17 +21,17 @@ describe('Manage participants', () => {
     expect(participant).not.toBeUndefined();
     expect(participant.participantId.length).toBeGreaterThan(0);
     expect(storage.participantExists(participant.participantId)).toBe(true);
-    expect(storage.filterParticipants((_p: Participant) => true).length).toBe(1);
+    expect(storage.filterParticipants((_p: ServerParticipant) => true).length).toBe(1);
     const participant2 = storage.createParticipant(socket);
     expect(participant2.participantId).not.toBe(participant.participantId);
-    expect(storage.filterParticipants((_p: Participant) => true).length).toBe(2);
+    expect(storage.filterParticipants((_p: ServerParticipant) => true).length).toBe(2);
   });
 
   test('Delete', () => {
     const storage: IStorageService = new StorageService();
     const participant = storage.createParticipant(socket);
     storage.deleteParticipant(participant.participantId);
-    expect(storage.filterParticipants((_p: Participant) => true).length).toBe(0);
+    expect(storage.filterParticipants((_p: ServerParticipant) => true).length).toBe(0);
     expect(storage.participantExists(participant.participantId)).toBe(false);
   });
 

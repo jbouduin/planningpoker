@@ -4,7 +4,7 @@ import { AServerMessage } from "../../../../shared-lib/src";
 
 import SERVICETYPES from "../service.types";
 
-import { Participant } from "../../objects";
+import { IServerParticipant } from "../../objects";
 import { ILoggerService, ISenderService } from "../interfaces";
 import { IWebSocket, ReadyState } from "../websocket";
 
@@ -22,7 +22,7 @@ export class SenderService implements ISenderService{
   //#endregion
 
   //#region ISenderService methods --------------------------------------------
-  public sendToParticipant(to: Participant, message: AServerMessage): void {
+  public sendToParticipant(to: IServerParticipant, message: AServerMessage): void {
     this.loggerService.info('Socket', `${to.nick} => ${message.type} - ${JSON.stringify(message)}`);
     this.send(to.socket, message);
   }

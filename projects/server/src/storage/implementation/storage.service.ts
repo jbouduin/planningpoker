@@ -1,13 +1,11 @@
 import { inject, injectable } from "inversify";
-import { v4 as Uuid } from 'uuid';
 
 import STORAGETYPES from "../storage.types";
 
-import { EErrorCode, EPokerStatus, ERole, ICardSet, IEstimation } from "../../../../shared-lib/src";
-import { ITeam, Team } from "../../objects";
-import { Participant } from "../../objects/participant";
+import { EErrorCode, EPokerStatus, ICardSet, IEstimation } from "../../../../shared-lib/src";
+import { IServerParticipant, ITeam, Team } from "../../objects";
 import { IWebSocket } from "../../services/websocket";
-import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
+import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
 
 @injectable()
 export class StorageService implements IStorageService {
@@ -16,7 +14,7 @@ export class StorageService implements IStorageService {
   private readonly cardSetRepository: ICardSetRepository;
   private readonly estimationRepository: IEstimationRepository;
   private readonly membershipRepository: IMembershipRepository;
-  private readonly participantRepository: IParticipantRepository;
+  private readonly participantRepository: IServerParticipantRepository;
   private readonly teamRepository: ITeamRepository;
   private cnt: number;
   //#endregion
@@ -26,7 +24,7 @@ export class StorageService implements IStorageService {
     @inject(STORAGETYPES.CardSetRepository) cardSetRepository: ICardSetRepository,
     @inject(STORAGETYPES.EstimationRepository) estimationRepository: IEstimationRepository,
     @inject(STORAGETYPES.MembershipRepository) membershipRepository: IMembershipRepository,
-    @inject(STORAGETYPES.ParticipantRepository) participantRepository: IParticipantRepository,
+    @inject(STORAGETYPES.ServerParticipantRepository) participantRepository: IServerParticipantRepository,
     @inject(STORAGETYPES.TeamRepository) teamRepository: ITeamRepository) {
     this.cardSetRepository = cardSetRepository;
     this.estimationRepository = estimationRepository;
@@ -38,8 +36,8 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region participant -------------------------------------------------------
-  public createParticipant(socket: IWebSocket): Participant {
-    const result = new Participant(`participant ${++this.cnt}`, Uuid(), ERole.Unknown, socket);
+  public createParticipant(socket: IWebSocket): IServerParticipant {
+    const result = this.participantRepository.createParticipant(socket);
     this.participantRepository.add(result);
     return result;
   }
@@ -51,11 +49,11 @@ export class StorageService implements IStorageService {
     this.participantRepository.remove(participantId);
   }
 
-  public filterParticipants(filter: (participant: Participant) => boolean): Array<Participant> {
+  public filterParticipants(filter: (participant: IServerParticipant) => boolean): Array<IServerParticipant> {
     return this.participantRepository.getAll().filter(filter);
   }
 
-  public getParticipant(participantId: string): Participant | undefined {
+  public getParticipant(participantId: string): IServerParticipant | undefined {
     return this.participantRepository.get(participantId);
   }
 
@@ -76,12 +74,12 @@ export class StorageService implements IStorageService {
     return result;
   }
 
-  public deleteTeam(teamName: string): Array<Participant> {
+  public deleteTeam(teamName: string): Array<IServerParticipant> {
     this.cardSetRepository.removeCardSet(teamName);
     this.estimationRepository.removeTeam(teamName);
     const members = this.membershipRepository.getTeamMembers(teamName);
     this.membershipRepository.removeTeam(teamName);
-    members.forEach((p: Participant) => this.participantRepository.remove(p.participantId));
+    members.forEach((p: IServerParticipant) => this.participantRepository.remove(p.participantId));
     this.teamRepository.remove(teamName);
     return members;
   }
@@ -116,11 +114,11 @@ export class StorageService implements IStorageService {
     return result;
   }
 
-  public getConnectedTeamMembers(teamName: string): Array<Participant> {
+  public getConnectedTeamMembers(teamName: string): Array<IServerParticipant> {
     return this.membershipRepository.getConnectedTeamMembers(teamName);
   }
 
-  public getFirstConnectedTeamMember(teamName: string): Participant | undefined {
+  public getFirstConnectedTeamMember(teamName: string): IServerParticipant | undefined {
     const connectedTeamMembers = this.membershipRepository.getConnectedTeamMembers(teamName);
     return connectedTeamMembers.length > 0 ? connectedTeamMembers[0] : undefined;
   }
@@ -129,7 +127,7 @@ export class StorageService implements IStorageService {
     return this.membershipRepository.getTeamOfParticipant(participantId);
   }
 
-  public getTeamMembers(teamName: string): Array<Participant> {
+  public getTeamMembers(teamName: string): Array<IServerParticipant> {
     return this.membershipRepository.getTeamMembers(teamName);
   }
 
@@ -162,7 +160,7 @@ export class StorageService implements IStorageService {
     const cardSet = this.cardSetRepository.getCardSet(teamName);
     const result = this.estimationRepository.getEstimations(teamName);
     if (cardSet) {
-      this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: Participant) => {
+      this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: IServerParticipant) => {
         if (result.filter((e: IEstimation) => e.participantId !== p.participantId).length === 0) {
           const estimation = this.estimationRepository.upsertEstimation(teamName, p.participantId, cardSet.unknownEstimationIndex)
           result.push(estimation);

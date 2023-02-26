@@ -1,20 +1,20 @@
 import { EErrorCode, EPokerStatus, ICardSet, IEstimation } from "../../../../shared-lib/src";
-import { ITeam, Participant } from "../../objects";
+import { IServerParticipant, ITeam } from "../../objects";
 import { IWebSocket } from "../../services/websocket";
 
 export interface IStorageService {
   //#region participant -------------------------------------------------------
-  createParticipant(socket: IWebSocket): Participant;
+  createParticipant(socket: IWebSocket): IServerParticipant;
   deleteParticipant(participantId: string, teamName: string): void;
-  filterParticipants(filter: (participant: Participant) => boolean): Array<Participant>;
-  getParticipant(participantId: string): Participant | undefined;
+  filterParticipants(filter: (participant: IServerParticipant) => boolean): Array<IServerParticipant>;
+  getParticipant(participantId: string): IServerParticipant | undefined;
   participantExists(participantId: string): boolean;
   //#endregion
 
   //#region team --------------------------------------------------------------
   allTeams(): Array<ITeam>;
   createTeam(teamName: string, cardSet: ICardSet): ITeam;
-  deleteTeam(teamName: string): Array<Participant>;
+  deleteTeam(teamName: string): Array<IServerParticipant>;
   filterTeams(filter: (team: ITeam) => boolean): Array<ITeam>;
   getTeam(teamName: string): ITeam | undefined;
   teamExists(teamName: string): boolean;
@@ -22,9 +22,9 @@ export interface IStorageService {
 
   //#region membership --------------------------------------------------------
   canRejoin(participantId: string, teamName: string): EErrorCode;
-  getFirstConnectedTeamMember(teamName: string): Participant | undefined;
-  getConnectedTeamMembers(teamName: string): Array<Participant>;
-  getTeamMembers(teamName: string): Array<Participant>;
+  getFirstConnectedTeamMember(teamName: string): IServerParticipant | undefined;
+  getConnectedTeamMembers(teamName: string): Array<IServerParticipant>;
+  getTeamMembers(teamName: string): Array<IServerParticipant>;
   getTeamOfParticipant(participantId: string): ITeam | undefined;
   joinTeam(teamName: string, participantId: string): void;
   leaveTeam(teamName: string, participantId: string): void;

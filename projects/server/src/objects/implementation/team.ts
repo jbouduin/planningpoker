@@ -1,10 +1,5 @@
-import { EPokerStatus } from '../../../shared-lib/src';
-
-export interface ITeam {
-  status: EPokerStatus;
-  teamName: string;
-  lastAccessTime: number;
-}
+import { EPokerStatus } from '../../../../shared-lib/src';
+import { ITeam } from 'objects/interfaces/team';
 
 export class Team implements ITeam {
   //#region Public properties -------------------------------------------------

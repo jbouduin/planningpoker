@@ -2,7 +2,7 @@ const STORAGETYPES = {
   CardSetRepository: Symbol('CardSetRepository'),
   EstimationRepository: Symbol('EstimationRepository'),
   MembershipRepository: Symbol('MembershipRepository'),
-  ParticipantRepository: Symbol('ParticipantRepository'),
+  ServerParticipantRepository: Symbol('ServerParticipantRepository'),
   StorageService: Symbol('StorageService'),
   TeamRepository: Symbol('TeamRepository')
 };

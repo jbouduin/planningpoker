@@ -3,7 +3,7 @@ import { ERole } from './role.enum';
 
 export interface IParticipant {
   nick: string;
-  participantId: string;
+  readonly participantId: string;
   observer: boolean;
   role: ERole;
   status: EParticipantStatus;
