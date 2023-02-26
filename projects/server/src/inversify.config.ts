@@ -6,8 +6,8 @@ import STORAGETYPES from './storage/storage.types';
 
 import { ApiController, SystemController } from './controllers/implementation';
 import { IApiController, ISystemController } from './controllers/interfaces';
-import { CardService, CronService, EnvironmentService, HandlerService, LoggerService, MessageService, PreflightService, RouteService, SenderService, SocketService } from './services/implementation';
-import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, IRouteService, ISenderService, ISocketService } from './services/interfaces';
+import { CardService, CronService, EnvironmentService, HandlerService, LoggerService, MessageService, PreflightService, RouteService, SenderService, SerializationService, SocketService } from './services/implementation';
+import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, IRouteService, ISenderService, ISerializationService, ISocketService } from './services/interfaces';
 import { CardSetRepository, EstimationRepository, MembershipRepository, ParticipantRepository, StorageService, TeamRepository } from './storage/implementation';
 import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IParticipantRepository, IStorageService, ITeamRepository } from './storage/interfaces';
 
@@ -28,6 +28,7 @@ container.bind<IMessageService>(SERVICETYPES.MessageService).to(MessageService);
 container.bind<IPreflightService>(SERVICETYPES.PreflightService).to(PreflightService);
 container.bind<IRouteService>(SERVICETYPES.RouteService).to(RouteService);
 container.bind<ISenderService>(SERVICETYPES.SenderService).to(SenderService);
+container.bind<ISerializationService>(SERVICETYPES.SerializationService).to(SerializationService);
 container.bind<ISocketService>(SERVICETYPES.SocketService).to(SocketService).inSingletonScope();
 //#endregion
 

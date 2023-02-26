@@ -38,13 +38,20 @@ export class EstimationRepository implements IEstimationRepository {
     return new Estimation(participantUuid, -1);
   }
 
+  public getEstimations(teamName: string): Array<Estimation> {
+    const teamEstimations = this.estimations.get(teamName);
+    return teamEstimations ? Array.from(teamEstimations.values()) : new Array<Estimation>();
+  }
+
   public removeTeam(teamName: string): void {
     this.estimations.delete(teamName);
   }
 
-  public getEstimations(teamName: string): Array<Estimation> {
+  public removeParticipant(teamName: string, uuid: string): void {
     const teamEstimations = this.estimations.get(teamName);
-    return teamEstimations ? Array.from(teamEstimations.values()) : new Array<Estimation>();
+    if (teamEstimations) {
+      teamEstimations.delete(uuid);
+    }
   }
 
   public reveal(teamName: string, unknownEstimationIndex: number): Array<Estimation> {

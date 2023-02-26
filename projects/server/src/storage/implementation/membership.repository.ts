@@ -35,7 +35,6 @@ export class MembershipRepository implements IMembershipRepository {
     } else {
       return undefined;
     }
-
   }
 
   public isMemberOf(teamName: string, uuid: string): boolean {

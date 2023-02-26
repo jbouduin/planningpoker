@@ -1,5 +1,5 @@
 import { EErrorCode, ICardSet } from "../../../../shared-lib/src";
-import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
+import { Estimation, ITeam, Participant } from "../../objects";
 import { IWebSocket } from "../../services/websocket";
 
 export interface IStorageService {
@@ -41,11 +41,5 @@ export interface IStorageService {
   //#endregion cardset --------------------------------------------------------
   setCardSet(teamName: string, cardSet: ICardSet): void;
   getCardSet(teamName: string): ICardSet;
-  //#endregion
-
-  //#region serialization -----------------------------------------------------
-  serializeAllTeams(): LooseObject;
-  serializeTeam(teamname: string): LooseObject;
-  serializeParticipants(): LooseObject;
   //#endregion
 }
