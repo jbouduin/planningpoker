@@ -1,4 +1,5 @@
 import { injectable } from "inversify";
+import { EPokerStatus } from "../../../../shared-lib/src";
 
 import { ITeam } from "../../objects";
 import { ITeamRepository } from "../../storage/interfaces";
@@ -43,6 +44,14 @@ export class TeamRepository implements ITeamRepository{
     const team = this.teams.get(teamName);
     if (team) {
       team.lastAccessTime = Date.now();
+    }
+  }
+
+  public setStatus(teamName: string, status: EPokerStatus): void {
+    const team = this.teams.get(teamName);
+    if (team) {
+      team.lastAccessTime = Date.now();
+      team.status = status;
     }
   }
   //#endregion

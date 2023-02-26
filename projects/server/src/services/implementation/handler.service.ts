@@ -171,7 +171,7 @@ export class HandlerService implements IHandlerService {
           break;
         }
         case (EClientMessageType.Remove): {
-          this.handleRemove(sender, <IRemoveMessage>message, teamName);
+          this.handleRemove(<IRemoveMessage>message, teamName);
           break;
         }
         case (EClientMessageType.Reveal): {
@@ -294,7 +294,7 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleRemove(sender: Participant, message: IRemoveMessage, teamName: string): void {
+  private handleRemove(message: IRemoveMessage, teamName: string): void {
     const toRemove = this.storage.getParticipant(message.data);
     if (toRemove) {
       this.storage.deleteParticipant(toRemove.uuid);
@@ -323,7 +323,6 @@ export class HandlerService implements IHandlerService {
         sender;
       if (leaving) {
         this.loggerService.info('Server', `Leave: '${leaving.nick}' is leaving '${teamName}'`);
-        this.storage.leaveTeam(teamName, leaving.uuid);
         this.storage.deleteParticipant(leaving.uuid);
         // tell the others someone left
         leaving.status = EParticipantStatus.Left;
@@ -331,7 +330,6 @@ export class HandlerService implements IHandlerService {
           this.storage.getConnectedTeamMembers(teamName).filter((p: Participant) => p.uuid !== leaving.uuid),
           leaving,
           EMemberStatusChange.Left);
-        // TODO NOW check if we have to do this every time
         this.messageService.sendLeft(sender);
       }
       if (sender.uuid !== message.data) {
@@ -391,26 +389,25 @@ export class HandlerService implements IHandlerService {
   }
 
   private handleReveal(teamName: string): void {
-
-    const estimations = this.storage.reveal(teamName);
+    const result = this.storage.reveal(teamName);
     this.messageService.broadcastPokerStatus(
       this.storage.getConnectedTeamMembers(teamName),
-      EPokerStatus.Revealed // TODO NOW this is not right
+      result[0]
     );
     this.messageService.broadcastAllEstimations(
       this.storage.getConnectedTeamMembers(teamName),
-      estimations,
-      EPokerStatus.Revealed // TODO NOW this is not right
+      result[1],
+      result[0]
     );
 
   }
 
   private handleStart(teamName: string): void {
-    this.storage.startEstimating(teamName);
+    const result = this.storage.startEstimating(teamName);
     this.messageService.broadcastClearEstimations(this.storage.getConnectedTeamMembers(teamName));
     this.messageService.broadcastPokerStatus(
       this.storage.getConnectedTeamMembers(teamName),
-      EPokerStatus.Started // TODO NOW this is not right
+      result
     );
   }
   //#endregion

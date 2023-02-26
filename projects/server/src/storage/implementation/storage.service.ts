@@ -3,8 +3,8 @@ import { v4 as Uuid } from 'uuid';
 
 import STORAGETYPES from "../storage.types";
 
-import { EErrorCode, ERole, ICardSet } from "../../../../shared-lib/src";
-import { Estimation, ITeam, LooseObject, Team } from "../../objects";
+import { EErrorCode, EPokerStatus, ERole, ICardSet } from "../../../../shared-lib/src";
+import { Estimation, ITeam, Team } from "../../objects";
 import { Participant } from "../../objects/participant";
 import { IWebSocket } from "../../services/websocket";
 import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
@@ -159,19 +159,25 @@ export class StorageService implements IStorageService {
     return this.estimationRepository.getEstimations(teamName);
   }
 
-  public reveal(teamName: string): Array<Estimation> {
+  public reveal(teamName: string): [EPokerStatus, Array<Estimation>] {
     const cardSet = this.cardSetRepository.getCardSet(teamName);
+    const result = this.estimationRepository.getEstimations(teamName);
     if (cardSet) {
-      this.teamRepository.setLastAccessTime(teamName);
-      return this.estimationRepository.reveal(teamName, cardSet.unknownEstimationIndex);
-    } else {
-      return new Array<Estimation>();
+      this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: Participant) => {
+        if (result.filter((e: Estimation) => e.participantUuid !== p.uuid).length === 0) {
+          const estimation = this.estimationRepository.upsertEstimation(teamName, p.uuid, cardSet.unknownEstimationIndex)
+          result.push(estimation);
+        }
+      });
     }
+    this.teamRepository.setStatus(teamName, EPokerStatus.Revealed);
+    return [EPokerStatus.Revealed, result];
   }
 
-  public startEstimating(teamName: string): void {
-    this.teamRepository.setLastAccessTime(teamName);
-    return this.estimationRepository.startEstimating(teamName);
+  public startEstimating(teamName: string): EPokerStatus {
+    this.teamRepository.setStatus(teamName, EPokerStatus.Started);
+    this.estimationRepository.startEstimating(teamName);
+    return EPokerStatus.Started;
   }
 
   public upsertEstimation(teamName: string, participantUuid: string, cardIndex: number): Estimation {

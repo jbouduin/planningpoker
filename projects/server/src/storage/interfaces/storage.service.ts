@@ -1,4 +1,4 @@
-import { EErrorCode, ICardSet } from "../../../../shared-lib/src";
+import { EErrorCode, EPokerStatus, ICardSet } from "../../../../shared-lib/src";
 import { Estimation, ITeam, Participant } from "../../objects";
 import { IWebSocket } from "../../services/websocket";
 
@@ -32,9 +32,9 @@ export interface IStorageService {
 
   //#region estimations -------------------------------------------------------
   deleteEstimation(teamName: string, participantUuid: string): Estimation;
-  getEstimations(teamName: string): Array<Estimation>
-  reveal(teamName: string): Array<Estimation>;
-  startEstimating(teamName: string): void;
+  getEstimations(teamName: string): Array<Estimation>;
+  reveal(teamName: string): [EPokerStatus, Array<Estimation>];
+  startEstimating(teamName: string): EPokerStatus;
   upsertEstimation(teamName: string, participantUuid: string, cardIndex: number): Estimation;
   //#endregion
 
