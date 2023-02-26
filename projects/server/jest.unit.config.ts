@@ -3,7 +3,7 @@ import type { JestConfigWithTsJest } from 'ts-jest'
 const jestConfig: JestConfigWithTsJest = {
   preset: 'ts-jest/presets/js-with-ts-esm',
   roots: [
-    "./test"
+    "./test/unit"
   ],
   testEnvironment: "node",
   testMatch: [
@@ -26,12 +26,13 @@ const jestConfig: JestConfigWithTsJest = {
   testPathIgnorePatterns: [
     "do-not-commit.*"
   ],
-  coverageDirectory: "reports/coverage",
+  coverageDirectory: "reports/unit-test/coverage",
   collectCoverageFrom: [
-    "**/objects/team.ts",
-    "**/services/implementation/handler.service.ts",
-    "**/services/implementation/preflight.service.ts",
-    "**/storage/implementation/storage.service.ts",
+    "!**/objects/implementation/*",
+    "!**/services/websocket.ts",
+    // "**/services/implementation/handler.service.ts",
+    // "**/services/implementation/preflight.service.ts",
+    // "**/storage/implementation/storage.service.ts",
     "!**/*.types.*",
     "!**/index.ts",
     "!**/do-not-commit*"
@@ -42,7 +43,7 @@ const jestConfig: JestConfigWithTsJest = {
       "./node_modules/jest-html-reporter",
       {
         "pageTitle": "Planning poker server test suite",
-        "outputPath": "reports/jest/index.html",
+        "outputPath": "reports/unit-test/jest/index.html",
         "includeFailureMsg": true,
         // "styleOverridePath": "src/teststyle.css"
       }

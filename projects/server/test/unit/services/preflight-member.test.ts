@@ -1,13 +1,13 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 
-import { EClientMessageType, EErrorCode, EParticipantStatus, EPokerStatus, ERole, IChangeNickMessage, IChangeScrumMasterMessage, IObserveMessage, IObserverChange, IRemoveMessage } from '../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EParticipantStatus, EPokerStatus, ERole, IChangeNickMessage, IChangeScrumMasterMessage, IObserveMessage, IObserverChange, IRemoveMessage } from '../../../../shared-lib/src';
 
-import { ITeam, ServerParticipant } from '../../src/objects';
-import { PreflightService } from '../../src/services/implementation/preflight.service';
-import { IPreflightService } from '../../src/services/interfaces';
-import { IWebSocket, ReadyState } from '../../src/services/websocket';
-import { IStorageService } from '../../src/storage/interfaces';
+import { ITeam, ServerParticipant } from '../../../src/objects';
+import { PreflightService } from '../../../src/services/implementation/preflight.service';
+import { IPreflightService } from '../../../src/services/interfaces';
+import { IWebSocket, ReadyState } from '../../../src/services/websocket';
+import { IStorageService } from '../../../src/storage/interfaces';
 
 const socket: IWebSocket = {
   readyState: ReadyState.OPEN,
