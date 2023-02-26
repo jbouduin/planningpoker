@@ -18,8 +18,8 @@ export class EstimationRepository implements IEstimationRepository {
   //#endregion
 
   //#region IEstimationRepository methods -------------------------------------
-  public createEstimation(participantId: string, card: number, revealed: boolean): IEstimation {
-    return new Estimation(participantId, card, revealed);
+  public createEstimation(participantId: string, cardIndex: number, revealed: boolean): IEstimation {
+    return new Estimation(participantId, cardIndex, revealed);
   }
 
   public deleteEstimation(teamName: string, participantId: string): IEstimation {
