@@ -1,10 +1,11 @@
-import { Estimation } from "../../objects";
+import { IEstimation } from "../../../../shared-lib/src";
 
 export interface IEstimationRepository {
-  deleteEstimation(teamName: string, participantUuid: string): Estimation;
-  getEstimations(teamName: string): Array<Estimation>;
+  createEstimation(uuid: string, card: number, revealed: boolean): IEstimation;
+  deleteEstimation(teamName: string, participantUuid: string): IEstimation;
+  getEstimations(teamName: string): Array<IEstimation>;
   removeTeam(teamName: string): void;
   removeParticipant(teamName: string, uuid: string): void;
   startEstimating(teamName: string): void;
-  upsertEstimation(teamName: string, participantUuid: string, cardIndex: number): Estimation;
+  upsertEstimation(teamName: string, participantUuid: string, cardIndex: number): IEstimation;
 }

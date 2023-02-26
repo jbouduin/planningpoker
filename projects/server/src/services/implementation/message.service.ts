@@ -2,9 +2,9 @@ import { inject, injectable } from "inversify";
 
 import SERVICETYPES from "../service.types";
 
-import { AServerMessage, EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ICardSet, IEstimation, IMemberStatusChange, IParticipant } from "../../../../shared-lib/src";
+import { AServerMessage, EErrorCode, EMemberStatusChange, EPokerStatus, ICardSet, IEstimation, IMemberStatusChange, IParticipant } from "../../../../shared-lib/src";
 import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
-import { Estimation, ITeam, Participant } from "../../objects";
+import { ITeam, Participant } from "../../objects";
 import { IMessageService, ISenderService } from "../interfaces";
 import { IWebSocket } from "../websocket";
 
@@ -22,55 +22,36 @@ export class MessageService implements IMessageService {
   //#endregion
 
   //#region IMessageService broadcast methods ---------------------------------
-  public broadcastAllEstimations(members: Array<Participant>, estimations: Array<Estimation>, teamStatus: EPokerStatus): void {
-    members
-      .filter((p: Participant) => p.status === EParticipantStatus.Connected)
-      .forEach((p: Participant) => this.sendEstimations(p, teamStatus === EPokerStatus.Revealed, estimations));
+  public broadcastAllEstimations(members: Array<Participant>, estimations: Array<IEstimation>, teamStatus: EPokerStatus): void {
+    members.forEach((p: Participant) => this.sendEstimations(p, teamStatus === EPokerStatus.Revealed, estimations));
   }
 
   public broadcastCardSet(members: Array<Participant>, cardSet: ICardSet): void {
-    members
-      .filter((p: Participant) => p.status === EParticipantStatus.Connected)
-      .forEach((p: Participant) => this.sendCardSet(p, cardSet));
+    members.forEach((p: Participant) => this.sendCardSet(p, cardSet));
   }
 
   public broadcastClearEstimations(members: Array<Participant>): void {
-    members
-      .filter((p: Participant) => p.status === EParticipantStatus.Connected)
-      .forEach((p: Participant) => this.sendClearEstimations(p));
+    members.forEach((p: Participant) => this.sendClearEstimations(p));
   }
 
-  public broadcastEstimation(members: Array<Participant>, estimation: Estimation, teamStatus: EPokerStatus): void {
-    members
-      .filter((p: Participant) => p.status === EParticipantStatus.Connected)
-      .forEach((p: Participant) => this.sendEstimations(p, teamStatus === EPokerStatus.Revealed, [estimation]));
+  public broadcastEstimation(members: Array<Participant>, estimation: IEstimation, teamStatus: EPokerStatus): void {
+    members.forEach((p: Participant) => this.sendEstimations(p, teamStatus === EPokerStatus.Revealed, [estimation]));
   }
 
   public broadcastPokerStatus(members: Array<Participant>, status: EPokerStatus): void {
-    members
-      .filter((p: Participant) => p.status === EParticipantStatus.Connected)
-      .forEach((p: Participant) => this.sendPokerStatusChanged(p, status));
+    members.forEach((p: Participant) => this.sendPokerStatusChanged(p, status));
   }
 
   public broadcastMemberChange(members: Array<Participant>, changedMember: Participant, change: EMemberStatusChange): void {
-    members
-      .filter((p: Participant) => p.status === EParticipantStatus.Connected)
-      .forEach(other => this.sendMemberChange(other, changedMember, change));
+    members.forEach((p: Participant) => this.sendMemberChange(p, changedMember, change));
   }
 
   public broadcastSessionEnded(members: Array<Participant>): void {
-    members
-      .filter((p: Participant) => p.status === EParticipantStatus.Connected)
-      .forEach(other => this.sendSessionEnded(other));
+    members.forEach((p: Participant) => this.sendSessionEnded(p));
   }
   //#endregion
 
   //#region IMessageService send message methods ------------------------------
-  public sendSessionEnded(to: Participant): void {
-    const message: AServerMessage = new EndSessionMessage();
-    this.senderService.sendToParticipant(to, message);
-  }
-
   public sendErrorMessageToParticipant(to: Participant, code: EErrorCode): void {
     const message: AServerMessage = new ErrorMessage(code);
     this.senderService.sendToParticipant(to, message);
@@ -111,7 +92,7 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendAllInfo(to: Participant, team: ITeam, members: Array<Participant>, cardSet: ICardSet, estimations: Array<Estimation>): void {
+  public sendAllInfo(to: Participant, team: ITeam, members: Array<Participant>, cardSet: ICardSet, estimations: Array<IEstimation>): void {
     let message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0])
     this.senderService.sendToParticipant(to, message);
     message = new TeamNameMessage(team.teamName);
@@ -141,7 +122,7 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendEstimations(to: Participant, revealed: boolean, estimations: Array<Estimation>): void {
+  private sendEstimations(to: Participant, revealed: boolean, estimations: Array<IEstimation>): void {
     const message: AServerMessage = new EstimationListMessage(estimations);
     this.senderService.sendToParticipant(to, message);
   }
@@ -163,6 +144,11 @@ export class MessageService implements IMessageService {
 
   private sendPokerStatusChanged(to: Participant, status: EPokerStatus): void {
     const message: AServerMessage = new PokerStatusChangedMessage(status);
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  public sendSessionEnded(to: Participant): void {
+    const message: AServerMessage = new EndSessionMessage();
     this.senderService.sendToParticipant(to, message);
   }
   //#endregion

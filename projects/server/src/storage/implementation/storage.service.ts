@@ -3,8 +3,8 @@ import { v4 as Uuid } from 'uuid';
 
 import STORAGETYPES from "../storage.types";
 
-import { EErrorCode, EPokerStatus, ERole, ICardSet } from "../../../../shared-lib/src";
-import { Estimation, ITeam, Team } from "../../objects";
+import { EErrorCode, EPokerStatus, ERole, ICardSet, IEstimation } from "../../../../shared-lib/src";
+import { ITeam, Team } from "../../objects";
 import { Participant } from "../../objects/participant";
 import { IWebSocket } from "../../services/websocket";
 import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
@@ -44,14 +44,10 @@ export class StorageService implements IStorageService {
     return result;
   }
 
-  // TODO NOW pass teamname as optional parameter
-  public deleteParticipant(participantUuid: string): void {
-    const team = this.getTeamOfParticipant(participantUuid);
-    if (team) {
-      this.teamRepository.setLastAccessTime(team.teamName);
-      this.membershipRepository.leaveTeam(team.teamName, participantUuid);
-      this.estimationRepository.removeParticipant(team.teamName, participantUuid);
-    }
+  public deleteParticipant(participantUuid: string, teamName: string): void {
+    this.teamRepository.setLastAccessTime(teamName);
+    this.membershipRepository.leaveTeam(teamName, participantUuid);
+    this.estimationRepository.removeParticipant(teamName, participantUuid);
     this.participantRepository.remove(participantUuid);
   }
 
@@ -84,7 +80,7 @@ export class StorageService implements IStorageService {
     this.cardSetRepository.removeCardSet(teamName);
     this.estimationRepository.removeTeam(teamName);
     const members = this.membershipRepository.getTeamMembers(teamName);
-    const result = this.membershipRepository.removeTeam(teamName);
+    this.membershipRepository.removeTeam(teamName);
     members.forEach((p: Participant) => this.participantRepository.remove(p.uuid));
     this.teamRepository.remove(teamName);
     return members;
@@ -107,8 +103,7 @@ export class StorageService implements IStorageService {
   public canRejoin(uuid: string, teamName: string): EErrorCode {
     let result: EErrorCode;
     const team = this.teamRepository.get(teamName);
-    if (team)
-    {
+    if (team) {
       result = EErrorCode.TeamDoesNotExist;
     } else {
       const member = this.participantRepository.get(uuid);
@@ -150,21 +145,25 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  public deleteEstimation(teamName: string, participantUuid: string): Estimation {
+  public createEstimation(uuid: string, card: number, revealed: boolean): IEstimation {
+    return this.estimationRepository.createEstimation(uuid, card, revealed);
+  }
+
+  public deleteEstimation(teamName: string, participantUuid: string): IEstimation {
     this.teamRepository.setLastAccessTime(teamName);
     return this.estimationRepository.deleteEstimation(teamName, participantUuid);
   }
 
-  public getEstimations(teamName: string): Array<Estimation> {
+  public getEstimations(teamName: string): Array<IEstimation> {
     return this.estimationRepository.getEstimations(teamName);
   }
 
-  public reveal(teamName: string): [EPokerStatus, Array<Estimation>] {
+  public reveal(teamName: string): [EPokerStatus, Array<IEstimation>] {
     const cardSet = this.cardSetRepository.getCardSet(teamName);
     const result = this.estimationRepository.getEstimations(teamName);
     if (cardSet) {
       this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: Participant) => {
-        if (result.filter((e: Estimation) => e.participantUuid !== p.uuid).length === 0) {
+        if (result.filter((e: IEstimation) => e.participantUuid !== p.uuid).length === 0) {
           const estimation = this.estimationRepository.upsertEstimation(teamName, p.uuid, cardSet.unknownEstimationIndex)
           result.push(estimation);
         }
@@ -180,7 +179,7 @@ export class StorageService implements IStorageService {
     return EPokerStatus.Started;
   }
 
-  public upsertEstimation(teamName: string, participantUuid: string, cardIndex: number): Estimation {
+  public upsertEstimation(teamName: string, participantUuid: string, cardIndex: number): IEstimation {
     this.teamRepository.setLastAccessTime(teamName);
     return this.estimationRepository.upsertEstimation(teamName, participantUuid, cardIndex);
   }
