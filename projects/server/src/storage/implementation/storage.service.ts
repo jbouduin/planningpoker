@@ -42,10 +42,12 @@ export class StorageService implements IStorageService {
     return result;
   }
 
-  public deleteParticipant(participantId: string, teamName: string): void {
-    this.teamRepository.setLastAccessTime(teamName);
-    this.membershipRepository.leaveTeam(teamName, participantId);
-    this.estimationRepository.removeParticipant(teamName, participantId);
+  public deleteParticipant(participantId: string, teamName: string | undefined): void {
+    if (teamName) {
+      this.teamRepository.setLastAccessTime(teamName);
+      this.membershipRepository.leaveTeam(teamName, participantId);
+      this.estimationRepository.removeParticipant(teamName, participantId);
+    }
     this.participantRepository.remove(participantId);
   }
 
@@ -101,7 +103,7 @@ export class StorageService implements IStorageService {
   public canRejoin(participantId: string, teamName: string): EErrorCode {
     let result: EErrorCode;
     const team = this.teamRepository.get(teamName);
-    if (team) {
+    if (!team) {
       result = EErrorCode.TeamDoesNotExist;
     } else {
       const member = this.participantRepository.get(participantId);
@@ -143,9 +145,9 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  public createEstimation(participantId: string, card: number, revealed: boolean): IEstimation {
-    return this.estimationRepository.createEstimation(participantId, card, revealed);
-  }
+  // public createEstimation(participantId: string, card: number, revealed: boolean): IEstimation {
+  //   return this.estimationRepository.createEstimation(participantId, card, revealed);
+  // }
 
   public deleteEstimation(teamName: string, participantId: string): IEstimation {
     this.teamRepository.setLastAccessTime(teamName);
@@ -161,7 +163,7 @@ export class StorageService implements IStorageService {
     const result = this.estimationRepository.getEstimations(teamName);
     if (cardSet) {
       this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: IServerParticipant) => {
-        if (result.filter((e: IEstimation) => e.participantId !== p.participantId).length === 0) {
+        if (!result.find((e: IEstimation) => e.participantId === p.participantId)) {
           const estimation = this.estimationRepository.upsertEstimation(teamName, p.participantId, cardSet.unknownEstimationIndex)
           result.push(estimation);
         }
@@ -185,6 +187,7 @@ export class StorageService implements IStorageService {
 
   //#region Cardset -----------------------------------------------------------
   public setCardSet(teamName: string, cardSet: ICardSet): void {
+    this.teamRepository.setLastAccessTime(teamName);
     this.cardSetRepository.setCardSet(teamName, cardSet);
   }
 

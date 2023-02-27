@@ -4,7 +4,7 @@ import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
 import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
-import { IServerParticipant, ITeam, LooseObject } from "../../objects";
+import { Estimation, IServerParticipant, ITeam, LooseObject } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IHandlerService, ILoggerService, IMessageService } from "../interfaces";
 import { IPreflightService } from "../interfaces/preflight.service";
@@ -69,6 +69,8 @@ export class HandlerService implements IHandlerService {
               this.messageService.sendSelf(newScrumMaster);
             }
           }
+        } else {
+          this.storage.deleteParticipant(closed.participantId, undefined);
         }
       }
     }
@@ -417,7 +419,8 @@ export class HandlerService implements IHandlerService {
       const index: number = estimation.cardIndex < 0 ?
         estimation.cardIndex :
         revealed || estimation.participantId === to.participantId ? estimation.cardIndex : 0
-      return this.storage.createEstimation(estimation.participantId, index, revealed || estimation.participantId === to.participantId);
+      return new Estimation(estimation.participantId, index, revealed || estimation.participantId === to.participantId);
+      // this.storage.createEstimation(estimation.participantId, index, revealed || estimation.participantId === to.participantId);
     });
   }
   //#endregion

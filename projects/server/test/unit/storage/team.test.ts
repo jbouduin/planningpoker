@@ -1,4 +1,4 @@
-import { jest, expect, test, describe } from '@jest/globals';
+import { expect, test, describe } from '@jest/globals';
 import { EPokerStatus } from '../../../../shared-lib/src';
 
 import { TeamRepository } from '../../../src/storage/implementation/team.repository';
@@ -17,7 +17,7 @@ describe('ITeamRepository', () => {
     const teamName = 'team';
     const repository: ITeamRepository = new TeamRepository();
     const team = repository.createTeam(teamName);
-    const lastAccess = Date.now()
+    const lastAccess = team.lastAccessTime;
     repository.add(team);
     repository.setLastAccessTime(teamName);
     const retrieved = repository.get(teamName);

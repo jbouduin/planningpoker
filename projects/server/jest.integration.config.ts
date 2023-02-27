@@ -28,10 +28,7 @@ const jestConfig: JestConfigWithTsJest = {
   ],
   coverageDirectory: "reports/integration-test/coverage",
   collectCoverageFrom: [
-    "**/objects/team.ts",
-    "**/services/implementation/handler.service.ts",
-    "**/services/implementation/preflight.service.ts",
-    "**/storage/implementation/storage.service.ts",
+    "**/storage/implementation/*",
     "!**/*.types.*",
     "!**/index.ts",
     "!**/do-not-commit*"
