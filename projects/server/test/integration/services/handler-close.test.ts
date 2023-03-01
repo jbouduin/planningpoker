@@ -1,9 +1,8 @@
 import { expect, jest, test } from '@jest/globals';
 
-import { EMemberStatusChange, ERole, EServerMessageType, IInitMessage, IMemberChangedMessage, ISelfMessage } from '../../../../shared-lib/src';
-
 import SERVICETYPES from '../../../src/services/service.types';
 
+import { EMemberStatusChange, ERole, EServerMessageType, IMemberChangedMessage, ISelfMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import { Util } from "./util";
 
@@ -109,3 +108,25 @@ test('Scrum master disconnects', () => {
     expect(secondSelfMessage).toBeUndefined();
   }
 });
+
+test('Close of a participant that is in no team', () => {
+  const container = Util.getContainer();
+  const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+  // create team
+  const scrumMasterSend = jest.fn((_message: string) => Util.noop());
+  const scrumMasterSocket = Util.getSocket(scrumMasterSend);
+  Util.createTeam(scrumMasterSocket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
+  // participant 1 joins the team
+  const participant1Send = jest.fn((_message: string) => Util.noop());
+  const participant1Socket = Util.getSocket(participant1Send);
+  Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
+  // participant 2 connects and disconnects
+  const participant2Send = jest.fn((_message: string) => Util.noop());
+  const participant2Socket = Util.getSocket(participant2Send);
+  handlerService.handleConnect(participant2Socket);
+  handlerService.handleClose(participant2Socket);
+  // scrum master should not have received any message about participant 2
+  expect(scrumMasterSend).toHaveBeenCalledTimes(Util.expectedMessagesCreate + 1);
+  // participant 1 should not have received any message about participant 2
+  expect(participant1Send).toHaveBeenCalledTimes(Util.expectedMessagesCreate);
+})

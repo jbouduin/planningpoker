@@ -4,12 +4,12 @@ import { Container } from "inversify";
 import SERVICETYPES from '../../../src/services/service.types';
 import STORAGETYPES from '../../../src/storage/storage.types';
 
+import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICardSet, ICreatemessage, IErrorMessage, IJoinMessage } from '../../../../shared-lib/src';
 import { CardService, CronService, EnvironmentService, HandlerService, LoggerService, MessageService, PreflightService, SenderService } from '../../../src/services/implementation';
 import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService } from '../../../src/services/interfaces';
 import { IWebSocket, ReadyState } from "../../../src/services/websocket";
 import { CardSetRepository, EstimationRepository, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../src/storage/implementation";
 import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../src/storage/interfaces";
-import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICard, ICardSet, ICreatemessage, IErrorMessage, IJoinMessage } from '../../../../shared-lib/src';
 
 export class Util {
   public static scrumMaster1Nick = 'John Doe';
@@ -65,7 +65,7 @@ export class Util {
       .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
       .filter((message: AServerMessage) => message.type === messageType)
       .map((message: AServerMessage) => <T>message)
-      .filter((message: T) => filter(<T>message))
+      .filter((message: T) => filter(message))
       .length
   }
 
@@ -80,7 +80,7 @@ export class Util {
       .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
       .filter((message: AServerMessage) => message.type === messageType)
       .map((message: AServerMessage) => <T>message)
-      .find((message: T) => filter(<T>message));
+      .find((message: T) => filter(message));
   }
 
   public static errorMessageReceived(messages: Array<[message: string]>, errorCode: EErrorCode): boolean {

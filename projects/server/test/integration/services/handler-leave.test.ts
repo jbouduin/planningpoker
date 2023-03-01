@@ -65,8 +65,8 @@ describe('developer leaving', () => {
     const scrumMasterSocket = Util.getSocket(scrumMasterSend);
     Util.createTeam(scrumMasterSocket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
     // participant 1 joining
-    let participantSend = jest.fn((_message: string) => Util.noop());
-    let participantSocket = Util.getSocket(participantSend);
+    const participantSend = jest.fn((_message: string) => Util.noop());
+    const participantSocket = Util.getSocket(participantSend);
     const participant1Id = Util.joinTeam(participantSocket, handlerService, Util.team1Name, Util.participant1Nick);
     // observer 1 joining
     const observerSend = jest.fn((_message: string) => Util.noop());

@@ -102,7 +102,6 @@ export class HandlerService implements IHandlerService {
     const preflight = this.preflightService.preflight(this.storage, message, teamName);
 
     if (preflight !== EErrorCode.NoError) {
-      console.log(`${message.type} - ${preflight}`);
       this.messageService.sendErrorMessageToSocket(ws, preflight);
     } else {
       const participant = this.storage.getParticipant(message.senderId);
