@@ -287,7 +287,7 @@ export class HandlerService implements IHandlerService {
       this.messageService.sendAllInfo(
         sender,
         team,
-        this.storage.getTeamMembers(teamName),
+        this.storage.getTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
         this.storage.getCardSet(teamName),
         this.prepareEstimationsData(sender, team.status === EPokerStatus.Revealed, this.storage.getEstimations(teamName))
       );
