@@ -37,7 +37,7 @@ describe('Join/Leave', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getTeamMembers(Util.team1Name);
     // test
-    expect(teamMembers.length).toBe(2);
+    expect(teamMembers).toHaveLength(2);
     expect(teamMembers[0].participantId).not.toBe(teamMembers[1].participantId);
   });
 
@@ -73,7 +73,7 @@ describe('Join/Leave', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getTeamMembers(Util.team1Name);
     // test
-    expect(teamMembers.length).toBe(1);
+    expect(teamMembers).toHaveLength(1);
     expect(teamMembers[0].participantId).toBe(participant2Id);
   });
 });

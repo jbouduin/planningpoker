@@ -37,7 +37,7 @@ describe('CRUD', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getEstimations(Util.team1Name);
     // test
-    expect(estimations.length).toBe(1);
+    expect(estimations).toHaveLength(1);
     expect(estimations[0].cardIndex).toBe(0);
   });
 
@@ -71,7 +71,7 @@ describe('CRUD', () => {
     // retrieve estimations
     const estimations = container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .getEstimations(Util.team1Name); expect(estimations.length).toBe(1);
+      .getEstimations(Util.team1Name); expect(estimations).toHaveLength(1);
     // test
     expect(estimations[0].cardIndex).toBe(1);
   });
@@ -108,7 +108,7 @@ describe('CRUD', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getEstimations(Util.team1Name);
     // test
-    expect(estimations.length).toBe(0);
+    expect(estimations).toHaveLength(0);
   });
 });
 
@@ -137,7 +137,7 @@ describe('CRUD when estimation has not started', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getEstimations(Util.team1Name);
     // test
-    expect(estimations.length).toBe(0);
+    expect(estimations).toHaveLength(0);
   });
 
   test('update', () => {
@@ -168,7 +168,7 @@ describe('CRUD when estimation has not started', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getEstimations(Util.team1Name);
     // test
-    expect(estimations.length).toBe(0);
+    expect(estimations).toHaveLength(0);
   });
 
   test('delete', () => {
@@ -199,7 +199,7 @@ describe('CRUD when estimation has not started', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getEstimations(Util.team1Name);
     // test
-    expect(estimations.length).toBe(0);
+    expect(estimations).toHaveLength(0);
   });
 });
 
@@ -245,7 +245,7 @@ describe('Reveal', () => {
       .reveal(Util.team1Name);
     // test
     expect(status).toBe(EPokerStatus.Revealed);
-    expect(estimations.length).toBe(2);
+    expect(estimations).toHaveLength(2);
     const estimation1 = estimations.find(((e: IEstimation) => e.participantId === participant1Id));
     expect(estimation1).toBeDefined();
     if (estimation1) {
@@ -297,7 +297,7 @@ describe('Reveal', () => {
       .reveal(Util.team1Name);
     // test
     expect(status).toBe(EPokerStatus.Revealed);
-    expect(estimations.length).toBe(2);
+    expect(estimations).toHaveLength(2);
     const estimation1 = estimations.find(((e: IEstimation) => e.participantId === participant1Id));
     expect(estimation1).toBeDefined();
     if (estimation1) {
@@ -315,7 +315,7 @@ describe('Reveal', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getEstimations(Util.team1Name);
     // test retrieved
-    expect(retrieved.length).toBe(2);
+    expect(retrieved).toHaveLength(2);
     const retrieved1 = estimations.find(((e: IEstimation) => e.participantId === participant1Id));
     expect(retrieved1).toBeDefined();
     if (retrieved1) {

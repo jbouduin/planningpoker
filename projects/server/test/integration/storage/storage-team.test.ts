@@ -176,7 +176,7 @@ describe('Queries', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .allTeams();
     // test
-    expect(allTeams.length).toBe(2);
+    expect(allTeams).toHaveLength(2);
     expect(allTeams.find((t: ITeam) => t.teamName === Util.team1Name)).toBeDefined();
     expect(allTeams.find((t: ITeam) => t.teamName === Util.team2Name)).toBeDefined();
   });
@@ -197,7 +197,7 @@ describe('Queries', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .filterTeams((t: ITeam) => t.teamName === Util.team1Name);
     // test
-    expect(filterTeams.length).toBe(1);
+    expect(filterTeams).toHaveLength(1);
     expect(filterTeams.find((t: ITeam) => t.teamName === Util.team1Name)).toBeDefined();
     expect(filterTeams.find((t: ITeam) => t.teamName === Util.team2Name)).toBeUndefined();
   });

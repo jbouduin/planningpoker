@@ -97,7 +97,7 @@ describe('CRUD', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .deleteParticipant(participant1Id, Util.team1Name);
     // retrieve and test
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name).length).toBe(0);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name)).toHaveLength(0);
   });
 
   test('delete after estimating', () => {
@@ -128,7 +128,7 @@ describe('CRUD', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .deleteParticipant(participant1Id, Util.team1Name);
     // test
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name).length).toBe(0);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name)).toHaveLength(0);
   });
 
   test('delete after estimating without starting estimations', () => {
@@ -155,7 +155,7 @@ describe('CRUD', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .deleteParticipant(participant1Id, Util.team1Name);
     // test
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name).length).toBe(0);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name)).toHaveLength(0);
   });
 });
 
@@ -176,7 +176,7 @@ describe('join and leave team', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .joinTeam(Util.team1Name, participant1Id);
     // test
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name).length).toBe(1);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name)).toHaveLength(1);
   });
 
   test('leave team', () => {
@@ -199,7 +199,7 @@ describe('join and leave team', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .leaveTeam(Util.team1Name, participant1Id);
     // test
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name).length).toBe(0);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name)).toHaveLength(0);
   });
 });
 
@@ -215,14 +215,18 @@ describe('queries', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .createParticipant(Util.getSocket());
     // test
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((_p: IServerParticipant) => true).length).toBe(2);
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((p: IServerParticipant) => p.nick === Util.participant1Nick).length).toBe(1);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((_p: IServerParticipant) => true))
+      .toHaveLength(2);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((p: IServerParticipant) => p.nick === Util.participant1Nick))
+      .toHaveLength(1);
     // delete participant 1
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
       .deleteParticipant(participant1Id, undefined);
     // test
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((_p: IServerParticipant) => true).length).toBe(1);
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((p: IServerParticipant) => p.nick === Util.participant1Nick).length).toBe(0);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((_p: IServerParticipant) => true))
+      .toHaveLength(1);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((p: IServerParticipant) => p.nick === Util.participant1Nick))
+      .toHaveLength(0);
   });
 });

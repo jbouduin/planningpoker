@@ -70,7 +70,7 @@ describe('Customized card set', () => {
     expect(retrieved).toBeDefined();
     if (retrieved) {
       expect(retrieved.cardSet).toBe(ECardSet.Fibonacci);
-      expect(retrieved.cards.length).toBe(7);
+      expect(retrieved.cards).toHaveLength(7);
     }
   });
 
@@ -99,7 +99,7 @@ describe('Customized card set', () => {
       expect(retrieved2).toBeDefined();
       if (retrieved2) {
         expect(retrieved2.cardSet).toBe(ECardSet.Fibonacci);
-        expect(retrieved2.cards.length).toBe(7);
+        expect(retrieved2.cards).toHaveLength(7);
       }
     }
   });
