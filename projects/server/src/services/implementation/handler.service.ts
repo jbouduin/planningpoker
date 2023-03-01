@@ -100,7 +100,9 @@ export class HandlerService implements IHandlerService {
 
   public handleMessage(message: AClientMessage, teamName: string, ws: IWebSocket): void {
     const preflight = this.preflightService.preflight(this.storage, message, teamName);
+
     if (preflight !== EErrorCode.NoError) {
+      console.log(`${message.type} - ${preflight}`);
       this.messageService.sendErrorMessageToSocket(ws, preflight);
     } else {
       const participant = this.storage.getParticipant(message.senderId);
@@ -315,8 +317,8 @@ export class HandlerService implements IHandlerService {
   private handleLeave(sender: IServerParticipant, message: ILeaveMessage, teamName: string): void {
     if (sender.role === ERole.ScrumMaster) {
       this.loggerService.info('Server', `End game: '${sender.nick}' is ending '${teamName}'`);
-      this.storage.deleteTeam(teamName);
       this.messageService.broadcastSessionEnded(this.storage.getConnectedTeamMembers(teamName));
+      this.storage.deleteTeam(teamName);
 
     } else {
       const leaving = sender.participantId !== message.data ?

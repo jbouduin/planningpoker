@@ -9,7 +9,7 @@ import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILogg
 import { IWebSocket, ReadyState } from "../../../src/services/websocket";
 import { CardSetRepository, EstimationRepository, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../src/storage/implementation";
 import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../src/storage/interfaces";
-import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICard, ICardSet, ICreatemessage, IErrorMessage } from '../../../../shared-lib/src';
+import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICard, ICardSet, ICreatemessage, IErrorMessage, IJoinMessage } from '../../../../shared-lib/src';
 
 export class Util {
   public static scrumMaster1Nick = 'John Doe';
@@ -53,14 +53,19 @@ export class Util {
     }
   }
 
-  public static sleep(milliSeconds: number): Promise<unknown> {
-    return new Promise(r => setTimeout(r, milliSeconds));
-  }
-
   public static countMessageType(messages: Array<[message: string]>, messageType: EServerMessageType): number {
     return messages
       .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
       .filter((message: AServerMessage) => message.type === messageType)
+      .length
+  }
+
+  public static countFilteredMessages<T>(messages: Array<[message: string]>, messageType: EServerMessageType, filter: (m: T) => boolean): number {
+    return messages
+      .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
+      .filter((message: AServerMessage) => message.type === messageType)
+      .map((message: AServerMessage) => <T>message)
+      .filter((message: T) => filter(<T>message))
       .length
   }
 
@@ -70,25 +75,49 @@ export class Util {
       .find((message: AServerMessage) => message.type === messageType);
   }
 
+  public static extractFilteredMessage<T>(messages: Array<[message: string]>, messageType: EServerMessageType, filter: (m: T) => boolean): T {
+    return <T>messages
+      .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
+      .filter((message: AServerMessage) => message.type === messageType)
+      .map((message: AServerMessage) => <T>message)
+      .find((message: T) => filter(<T>message));
+  }
+
   public static errorMessageReceived(messages: Array<[message: string]>, errorCode: EErrorCode): boolean {
     const errorMessage = this.extractMessage<IErrorMessage>(messages, EServerMessageType.Error);
     return errorMessage && errorMessage.data.code === errorCode;
   }
 
-  public static createTeam(socket: IWebSocket, handlerService: IHandlerService, team: string, scrumMaster: string, cards?: ICardSet ): void {
-    const participant1 = handlerService.handleConnect(socket);
-    const message1: ICreatemessage = {
+  public static createTeam(socket: IWebSocket, handlerService: IHandlerService, teamName: string, scrumMasterNick: string, cards?: ICardSet ): string {
+    const scrumMaster = handlerService.handleConnect(socket);
+    const message: ICreatemessage = {
       type: EClientMessageType.Create,
-      senderId: participant1.participantId,
+      senderId: scrumMaster.participantId,
       data: {
-        nick: scrumMaster,
-        team: team,
+        nick: scrumMasterNick,
+        team: teamName,
         observer: false,
         cardSet: cards ? ECardSet.Custom : ECardSet.Cohn,
         cards: cards
       }
     }
-    handlerService.handleMessage(message1, team, socket);
+    handlerService.handleMessage(message, teamName, socket);
+    return scrumMaster.participantId;
+  }
+
+  public static joinTeam(socket: IWebSocket, handlerService: IHandlerService, teamName: string, nick: string, observer = false): string {
+    const participant = handlerService.handleConnect(socket);
+    const message: IJoinMessage = {
+      senderId: participant.participantId,
+      type: EClientMessageType.Join,
+      data: {
+        nick:nick,
+        observer: observer,
+        team: teamName
+      }
+    };
+    handlerService.handleMessage(message, Util.team1Name, socket);
+    return participant.participantId;
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */

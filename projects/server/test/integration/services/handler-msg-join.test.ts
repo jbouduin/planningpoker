@@ -202,8 +202,8 @@ describe('Join => OK', () => {
     expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 1);
   });
 
-  // TODO NOW join a team that is currently estimating
-  // TODO NOW join a team with scrum master and another participant check if both receive the memberchanged message
+  // TODO 2369 join a team that is currently estimating
+  // TODO 2369 join a team with scrum master and another participant check if both receive the memberchanged message
 
 });
 
@@ -212,8 +212,8 @@ describe('Join => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // create team
-    const scrumMaasterSend = jest.fn((_message: string) => Util.noop());
-    const scrumMasterSocket = Util.getSocket(scrumMaasterSend);
+    const scrumMasterSend = jest.fn((_message: string) => Util.noop());
+    const scrumMasterSocket = Util.getSocket(scrumMasterSend);
     Util.createTeam(scrumMasterSocket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
     // do not connect the user
     const send2 = jest.fn((_message: string) => Util.noop());
@@ -233,7 +233,7 @@ describe('Join => Failure', () => {
     expect(send2).toBeCalledTimes(1);
     expect(Util.errorMessageReceived(send2.mock.calls, EErrorCode.ParticipantNotFound)).toBe(true);
     // scrum master should not have received any additional messages
-    expect(scrumMaasterSend).toBeCalledTimes(Util.expectedMessagesCreate);
+    expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate);
   });
 
   test('No teams exist', () => {
