@@ -22,20 +22,12 @@ export class MessageService implements IMessageService {
   //#endregion
 
   //#region IMessageService broadcast methods ---------------------------------
-  public broadcastAllEstimations(members: Array<IServerParticipant>, estimations: Array<IEstimation>, teamStatus: EPokerStatus): void {
-    members.forEach((p: IServerParticipant) => this.sendEstimations(p, teamStatus === EPokerStatus.Revealed, estimations));
-  }
-
   public broadcastCardSet(members: Array<IServerParticipant>, cardSet: ICardSet): void {
     members.forEach((p: IServerParticipant) => this.sendCardSet(p, cardSet));
   }
 
   public broadcastClearEstimations(members: Array<IServerParticipant>): void {
     members.forEach((p: IServerParticipant) => this.sendClearEstimations(p));
-  }
-
-  public broadcastEstimation(members: Array<IServerParticipant>, estimation: IEstimation, teamStatus: EPokerStatus): void {
-    members.forEach((p: IServerParticipant) => this.sendEstimations(p, teamStatus === EPokerStatus.Revealed, [estimation]));
   }
 
   public broadcastPokerStatus(members: Array<IServerParticipant>, status: EPokerStatus): void {
@@ -103,6 +95,11 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
+  public sendEstimations(to: IServerParticipant, estimations: Array<IEstimation>): void {
+    const message: AServerMessage = new EstimationListMessage(estimations);
+    this.senderService.sendToParticipant(to, message);
+  }
+
   public sendException(socket: IWebSocket, errorMessage: string): void {
     const message: AServerMessage = new ErrorMessage(EErrorCode.ServerError, errorMessage);
     this.senderService.sendToSocket(socket, message);
@@ -117,11 +114,6 @@ export class MessageService implements IMessageService {
 
   private sendClearEstimations(to: IServerParticipant): void {
     const message: AServerMessage = new ClearEstimationsMessage();
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  private sendEstimations(to: IServerParticipant, revealed: boolean, estimations: Array<IEstimation>): void {
-    const message: AServerMessage = new EstimationListMessage(estimations);
     this.senderService.sendToParticipant(to, message);
   }
 

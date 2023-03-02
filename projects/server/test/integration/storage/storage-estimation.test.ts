@@ -9,7 +9,17 @@ import { IStorageService } from "../../../src/storage/interfaces";
 import { Util } from './util';
 
 describe('CRUD', () => {
-  test('create', () => {
+  test('create (factory method)', () => {
+    const container = Util.getContainer();
+    const estimation = container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .createEstimation('participant', 0, true);
+    expect(estimation.cardIndex).toBe(0);
+    expect(estimation.participantId).toBe('participant');
+    expect(estimation.revealed).toBe(true);
+  });
+
+  test('create (upsert)', () => {
     const container = Util.getContainer();
     const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Fibonacci);
     // create participant
@@ -41,7 +51,7 @@ describe('CRUD', () => {
     expect(estimations[0].cardIndex).toBe(0);
   });
 
-  test('update', () => {
+  test('update (upsert)', () => {
     const container = Util.getContainer();
     const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Fibonacci);
     // create participant

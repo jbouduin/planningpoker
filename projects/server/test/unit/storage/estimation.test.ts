@@ -3,22 +3,24 @@ import { IEstimation } from '../../../../shared-lib/src';
 import { EstimationRepository } from '../../../src/storage/implementation/estimation.repository';
 import { IEstimationRepository } from '../../../src/storage/interfaces/estimation.repository';
 
-// test('create estimation', () => {
-//   const participantId1 = 'participant';
-//   const cardIndex1 = 1;
-//   const revealed1 = true;
-//   const repository: IEstimationRepository = new EstimationRepository();
-//   const estimation = repository.createEstimation(participantId1, cardIndex1, revealed1);
-//   expect(estimation.cardIndex).toBe(cardIndex1);
-//   expect(estimation.participantId).toBe(participantId1);
-//   expect(estimation.revealed).toBe(revealed1);
-// });
+
 
 describe('start- estimate - delete - restart', () => {
   const participantId1 = 'participant1';
   const cardIndex1 = 1;
   const cardIndex2 = 2;
   const teamName = 'team';
+
+  test('create estimation', () => {
+    const participantId1 = 'participant';
+    const cardIndex1 = 1;
+    const revealed1 = true;
+    const repository: IEstimationRepository = new EstimationRepository();
+    const estimation = repository.createEstimation(participantId1, cardIndex1, revealed1);
+    expect(estimation.cardIndex).toBe(cardIndex1);
+    expect(estimation.participantId).toBe(participantId1);
+    expect(estimation.revealed).toBe(revealed1);
+  });
 
   test('upsert before start', () => {
     const repository: IEstimationRepository = new EstimationRepository();

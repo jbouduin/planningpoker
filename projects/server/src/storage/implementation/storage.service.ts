@@ -145,9 +145,9 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  // public createEstimation(participantId: string, card: number, revealed: boolean): IEstimation {
-  //   return this.estimationRepository.createEstimation(participantId, card, revealed);
-  // }
+  public createEstimation(participantId: string, card: number, revealed: boolean): IEstimation {
+    return this.estimationRepository.createEstimation(participantId, card, revealed);
+  }
 
   public deleteEstimation(teamName: string, participantId: string): IEstimation {
     this.teamRepository.setLastAccessTime(teamName);

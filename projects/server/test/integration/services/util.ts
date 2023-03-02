@@ -26,8 +26,12 @@ export class Util {
   public static expectedMessagesCreate = 6;
   public static expectedMessagesJoin = 6;
 
+  // TODO 2369 create a method to strip the join and create messages or add a parameter to the methods to start searching at a given index
+  // TODO 2369 let the methods joinTeam and createTeam return a tuple or define an interface for that
+  // TODO 2369 create a method that creates a team with scrum master, a connected user, a disconnected user to test if not methods are send across teams
+
   public static getContainer(): Container {
-    // TODO NOW mock the loggerservice
+    // TODO 2369 mock the loggerservice
     const container = new Container();
     container.bind<ICardService>(SERVICETYPES.CardService).to(CardService).inSingletonScope();
     container.bind<ICronService>(SERVICETYPES.CronService).to(CronService).inSingletonScope();
@@ -70,10 +74,10 @@ export class Util {
       .length
   }
 
-  public static extractMessage<T>(messages: Array<[message: string]>, messageType: EServerMessageType): T {
+  public static extractMessage<T>(messages: Array<[message: string]>, messageType: EServerMessageType, occurrence= 0): T {
     return <T>messages
       .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
-      .find((message: AServerMessage) => message.type === messageType);
+      .filter((message: AServerMessage) => message.type === messageType)[occurrence];
   }
 
   public static extractFilteredMessage<T>(messages: Array<[message: string]>, messageType: EServerMessageType, filter: (m: T) => boolean): T {

@@ -40,6 +40,7 @@ export class TeamRepository implements ITeamRepository{
   //#endregion
 
   //#region ITeamRepository methods -------------------------------------------
+  // TODO 2384 Refactor factory methods in repositories
   public createTeam(teamName: string): ITeam {
     return new Team(teamName);
   }

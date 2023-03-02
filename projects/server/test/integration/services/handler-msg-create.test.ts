@@ -2,16 +2,15 @@ import { describe, expect, jest, test } from '@jest/globals';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
-import { IHandlerService } from '../../../src/services/interfaces';
+import { ICardService, IHandlerService } from '../../../src/services/interfaces';
 
-import { CardService } from 'services/implementation';
 import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, ICreatemessage, IEstimationsMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
 import { Util } from "./util";
 
 describe('create => OK', () => {
   test('Standard Create', () => {
     const container = Util.getContainer();
-    const tshirt = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.TShirt);
+    const tshirt = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.TShirt);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // Connect scrum master 1
     const send1 = jest.fn((_message: string) => Util.noop());
@@ -29,6 +28,7 @@ describe('create => OK', () => {
       }
     }
     handlerService.handleMessage(message1, Util.team1Name, socket1);
+
     // check the message received by the scrum master
     expect(send1).toBeCalledTimes(Util.expectedMessagesCreate);
     expect(Util.countMessageType(send1.mock.calls, EServerMessageType.Self)).toBe(1);
@@ -85,7 +85,7 @@ describe('create => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // customize a card set
-    const cohn = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
+    const cohn = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     cohn.cards.splice(9, 3);
     // connect the scrum master
     const send1 = jest.fn((_message: string) => Util.noop());
@@ -104,8 +104,8 @@ describe('create => OK', () => {
       }
     }
     handlerService.handleMessage(message1, Util.team1Name, socket1);
-    expect(send1).toBeCalledTimes(Util.expectedMessagesCreate);
     // check if the card set message contains the correct data
+    expect(send1).toBeCalledTimes(Util.expectedMessagesCreate);
     const cardSetMessage = Util.extractMessage<ICardSetMessage>(send1.mock.calls, EServerMessageType.CardList);
     expect(cardSetMessage).toBeDefined();
     expect(cardSetMessage.data.cardSet).toBe(ECardSet.Cohn);
@@ -114,7 +114,7 @@ describe('create => OK', () => {
 
   test('Create a second team', () => {
     const container = Util.getContainer();
-    const fibo = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Fibonacci);
+    const fibo = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Fibonacci);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // connect the first scrum master
     const send1 = jest.fn((_message: string) => Util.noop());
@@ -148,9 +148,11 @@ describe('create => OK', () => {
       }
     }
     handlerService.handleMessage(message2, Util.team2Name, socket2);
-    // first scrum master should not have received any additional messsage
+
+    // test: first scrum master should not have received any additional messsage
     expect(send1).toBeCalledTimes(Util.expectedMessagesCreate);
-    // second scrum master should have received the usual create messages
+
+    // test: second scrum master should have received the usual create messages
     expect(send2).toBeCalledTimes(Util.expectedMessagesCreate);
     expect(Util.countMessageType(send2.mock.calls, EServerMessageType.Self)).toBe(1);
     const selfMessage = Util.extractMessage<ISelfMessage>(send2.mock.calls, EServerMessageType.Self);
@@ -214,14 +216,16 @@ describe('Create => Failure', () => {
       }
     }
     handlerService.handleMessage(message2, Util.team1Name, socket2);
-    // scrum master 1 should not have received any additional messages
+
+    // test: scrum master 1 should not have received any additional messages
     expect(send1).toBeCalledTimes(Util.expectedMessagesCreate);
-    // scrum master 2 should only have received the init and error message
+
+    // test: scrum master 2 should only have received the init and error message
     expect(send2).toBeCalledTimes(2);
     expect(Util.errorMessageReceived(send2.mock.calls, EErrorCode.TeamAlreadyExists)).toBe(true);
   });
 
-  test('Participant not found', () => {
+  test('Sender not found', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     const send1 = jest.fn((_message: string) => Util.noop());
@@ -238,10 +242,14 @@ describe('Create => Failure', () => {
       }
     }
     handlerService.handleMessage(message1, Util.team1Name, socket1);
-    // the only message received must be the error message
+
+    // test:  the only message received must be the error message
     expect(send1).toBeCalledTimes(1);
     expect(Util.errorMessageReceived(send1.mock.calls, EErrorCode.ParticipantNotFound)).toBe(true);
   });
 
-  // TODO 2366 create with an invalid custom card set
+  // TODO 2369 test('Send in another team', () => { }); not sure that this is realistic
+  // TODO 2372 test('TeamName is empty', () => { });
+  // TODO 2372 test('nick is null or empty', () => { });
+  // TODO 2366 test('create with an invalid custom card set', () => { });
 })

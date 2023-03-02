@@ -18,9 +18,10 @@ export class EstimationRepository implements IEstimationRepository {
   //#endregion
 
   //#region IEstimationRepository methods -------------------------------------
-  // public createEstimation(participantId: string, cardIndex: number, revealed: boolean): IEstimation {
-  //   return new Estimation(participantId, cardIndex, revealed);
-  // }
+  // TODO 2384 Refactor factory methods in repositories
+  public createEstimation(participantId: string, cardIndex: number, revealed: boolean): IEstimation {
+    return new Estimation(participantId, cardIndex, revealed);
+  }
 
   public deleteEstimation(teamName: string, participantId: string): IEstimation {
     const teamEstimations = this.estimations.get(teamName);

@@ -31,7 +31,7 @@ export interface IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  // createEstimation(participantId: string, card: number, revealed: boolean): IEstimation;
+  createEstimation(participantId: string, card: number, revealed: boolean): IEstimation;
   deleteEstimation(teamName: string, participantId: string): IEstimation;
   getEstimations(teamName: string): Array<IEstimation>;
   reveal(teamName: string): [EPokerStatus, Array<IEstimation>];

@@ -10,7 +10,7 @@ import { Util } from "./util";
 
 
 describe('Join => OK', () => {
-  test('standard join', () => {
+  test('Join', () => {
     const container = Util.getContainer();
     const cohn = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -33,7 +33,8 @@ describe('Join => OK', () => {
       }
     };
     handlerService.handleMessage(message, Util.team1Name, socket2);
-    // participant should have received the usual join messages
+
+    // test: participant should have received the usual join messages
     expect(send2).toBeCalledTimes(Util.expectedMessagesJoin);
     expect(Util.countMessageType(send2.mock.calls, EServerMessageType.Self)).toBe(1);
     const selfMessage = Util.extractMessage<ISelfMessage>(send2.mock.calls, EServerMessageType.Self);
@@ -61,7 +62,7 @@ describe('Join => OK', () => {
     expect(estimationListMessage).toBeDefined();
     expect(estimationListMessage.data).toHaveLength(0);
 
-    // scrum master should have received an additional member changed message
+    // test: scrum master should have received an additional member changed message
     expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate + 1);
     expect(Util.countMessageType(scrumMasterSend.mock.calls, EServerMessageType.MemberChanged)).toBe(1);
     const memberChangedMessage = Util.extractMessage<IMemberChangedMessage>(scrumMasterSend.mock.calls, EServerMessageType.MemberChanged);
@@ -72,7 +73,7 @@ describe('Join => OK', () => {
     expect(memberChangedMessage.data.member.observer).toBe(false);
   });
 
-  test('join as observer', () => {
+  test('Join as observer', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // create the team
@@ -94,20 +95,21 @@ describe('Join => OK', () => {
       }
     };
     handlerService.handleMessage(message, Util.team1Name, socket2);
-    // check if participant received the correct value for the observer flag
+
+    // test:  check if participant received the correct value for the observer flag
     expect(send2).toBeCalledTimes(Util.expectedMessagesJoin);
     const selfMessage = Util.extractMessage<ISelfMessage>(send2.mock.calls, EServerMessageType.Self);
     expect(selfMessage).toBeDefined();
     expect(selfMessage.data.observer).toBe(true);
 
-    // check if scrum master received the correct value for the observer flag
+    // test: check if scrum master received the correct value for the observer flag
     expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate + 1);
     const memberChangedMessage = Util.extractMessage<IMemberChangedMessage>(scrumMasterSend.mock.calls, EServerMessageType.MemberChanged);
     expect(memberChangedMessage).toBeDefined();
     expect(memberChangedMessage.data.member.observer).toBe(true);
   });
 
-  test('join a team with custom cardset', () => {
+  test('Join a team with custom cardset', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // customize a card set
@@ -133,7 +135,7 @@ describe('Join => OK', () => {
     };
     handlerService.handleMessage(message, Util.team1Name, socket2);
 
-    // check if participant received the correct card list
+    // test: check if participant received the correct card list
     expect(send2).toBeCalledTimes(Util.expectedMessagesJoin);
     const cardSetMessage = Util.extractMessage<ICardSetMessage>(scrumMasterSend.mock.calls, EServerMessageType.CardList);
     expect(cardSetMessage).toBeDefined();
@@ -141,7 +143,7 @@ describe('Join => OK', () => {
     expect(cardSetMessage.data.cards).toHaveLength(cohn.cards.length);
   });
 
-  test('join a second team', () => {
+  test('Join a second team', () => {
     const container = Util.getContainer();
     const cohn = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -168,7 +170,8 @@ describe('Join => OK', () => {
       }
     };
     handlerService.handleMessage(message, Util.team1Name, socket3);
-    // participant should have received the usual join messages from team 1
+
+    // test: participant should have received the usual join messages from team 1
     expect(send3).toBeCalledTimes(Util.expectedMessagesJoin);
     expect(Util.countMessageType(send3.mock.calls, EServerMessageType.Self)).toBe(1);
     const selfMessage = Util.extractMessage<ISelfMessage>(send3.mock.calls, EServerMessageType.Self);
@@ -196,13 +199,14 @@ describe('Join => OK', () => {
     expect(estimationListMessage).toBeDefined();
     expect(estimationListMessage.data).toHaveLength(0);
 
-    // the scrum master of team 2 should not have received any additional messages
+    // test: the scrum master of team 2 should not have received any additional messages
     expect(scrumMaster2Send).toBeCalledTimes(Util.expectedMessagesCreate);
-    // the scrum master of team 1 should have received one additionl message
+
+    // test: the scrum master of team 1 should have received one additionl message
     expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 1);
   });
 
-  test('two teams with two participants', () => {
+  test('Two teams with two participants', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // create team 1
@@ -232,25 +236,29 @@ describe('Join => OK', () => {
 
     // test: scrum master 1 should have received create messages + 2 joins
     expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
+
     // test: scrum master 1 should have received create messages + 2 joins
     expect(scrumMaster2Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
+
     // test: participant 1 should have received join messages + 1 join
     expect(participant1Send).toBeCalledTimes(Util.expectedMessagesJoin + 1);
+
     // test: participant 2 should have received join messages + 1 join
     expect(participant2Send).toBeCalledTimes(Util.expectedMessagesJoin + 1);
+
     // test: participant 3 should have received join messages
     expect(participant3Send).toBeCalledTimes(Util.expectedMessagesJoin);
+
     // test: participant 4 should have received join messages
     expect(participant4Send).toBeCalledTimes(Util.expectedMessagesJoin);
   });
 
-  // TODO 2369 join a team that is currently estimating
-
+  // TODO 2369 test('Join a team that is currently estimating', () => { });
 
 });
 
 describe('Join => Failure', () => {
-  test('Participant does not exist', () => {
+  test('Sender does not exist', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // create team
@@ -330,7 +338,7 @@ describe('Join => Failure', () => {
     expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate);
   });
 
-  test('Already in the team', () => {
+  test('Sender already in the team', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // create the team
@@ -361,7 +369,7 @@ describe('Join => Failure', () => {
     expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate + 1);
   });
 
-  test('Already in another team', () => {
+  test('Sender in different team', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // create team 1

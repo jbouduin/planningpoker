@@ -44,6 +44,7 @@ export class ServerParticipantRepository implements IServerParticipantRepository
   //#endregion
 
   //#region IServerParticipantRepository methods ------------------------------
+  // TODO 2384 Refactor factory methods in repositories
   public createParticipant(socket: IWebSocket): IServerParticipant {
     return new ServerParticipant({
       nick: `participant ${++this.cnt}`,
