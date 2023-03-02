@@ -86,7 +86,7 @@ export class Util {
 
   public static errorMessageReceived(messages: Array<[message: string]>, errorCode: EErrorCode): boolean {
     const errorMessage = this.extractMessage<IErrorMessage>(messages, EServerMessageType.Error);
-    return errorMessage && errorMessage.data.code === errorCode;
+    return (errorMessage !== undefined) && errorMessage.data.code === errorCode;
   }
 
   public static createTeam(socket: IWebSocket, handlerService: IHandlerService, teamName: string, scrumMasterNick: string, cards?: ICardSet ): string {
