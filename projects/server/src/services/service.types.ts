@@ -9,6 +9,7 @@ const SERVICETYPES = {
   PreflightService: Symbol('PreflightService'),
   RouteService: Symbol('RouteService'),
   SenderService: Symbol('SenderService'),
+  SerializationService: Symbol('SerializationService'),
   SocketService: Symbol('SocketService')
 };
 

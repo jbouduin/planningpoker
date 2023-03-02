@@ -30,9 +30,9 @@ export class HttpService {
   //#endregion
 
   //#region Public methods ----------------------------------------------------
-  public checkCanRejoin(teamName: string, uuid: string): Observable<boolean> {
+  public checkCanRejoin(teamName: string, participantId: string): Observable<boolean> {
     return this.httpClient
-      .get<LooseObject>(`/api/team/${teamName}/participant/${uuid}`, { observe: 'response', responseType: 'json' })
+      .get<LooseObject>(`/api/team/${teamName}/participant/${participantId}`, { observe: 'response', responseType: 'json' })
       .pipe(
         catchError((error: HttpResponse<LooseObject>) => of(error)),
         map((response: HttpResponse<LooseObject>) => {

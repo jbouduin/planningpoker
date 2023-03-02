@@ -2,9 +2,9 @@ import { inject, injectable } from "inversify";
 
 import SERVICETYPES from "../service.types";
 
-import { EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ICardSet, IEstimation, IMemberStatusChange, IParticipant, AServerMessage } from "../../../../shared-lib/lib";
+import { AServerMessage, EErrorCode, EMemberStatusChange, EPokerStatus, ICardSet, IEstimation, IMemberStatusChange, IParticipant } from "../../../../shared-lib/src";
 import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
-import { Estimation, ITeam, Participant } from "../../objects";
+import { ITeam, IServerParticipant } from "../../objects";
 import { IMessageService, ISenderService } from "../interfaces";
 import { IWebSocket } from "../websocket";
 
@@ -22,56 +22,37 @@ export class MessageService implements IMessageService {
   //#endregion
 
   //#region IMessageService broadcast methods ---------------------------------
-  public broadcastAllEstimations(team: ITeam): void {
-    team
-      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.sendEstimations(participant, team.status === EPokerStatus.Revealed, team.allEstimations));
+  public broadcastCardSet(members: Array<IServerParticipant>, cardSet: ICardSet): void {
+    members.forEach((p: IServerParticipant) => this.sendCardSet(p, cardSet));
   }
 
-  public broadcastCardSet(team: ITeam): void {
-    team
-      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.sendCardSet(participant, team.cardSet));
+  public broadcastClearEstimations(members: Array<IServerParticipant>): void {
+    members.forEach((p: IServerParticipant) => this.sendClearEstimations(p));
   }
 
-  public broadcastClearEstimations(team: ITeam): void {
-    team
-      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.sendClearEstimations(participant));
+  public broadcastPokerStatus(members: Array<IServerParticipant>, status: EPokerStatus): void {
+    members.forEach((p: IServerParticipant) => this.sendPokerStatusChanged(p, status));
   }
 
-  public broadcastEstimation(team: ITeam, estimation: Estimation): void {
-    team
-      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.sendEstimations(participant, team.status === EPokerStatus.Revealed, [estimation]));
+  public broadcastMemberChange(members: Array<IServerParticipant>, changedMember: IServerParticipant, change: EMemberStatusChange): void {
+    members.forEach((p: IServerParticipant) => this.sendMemberChange(p, changedMember, change));
   }
 
-  public broadcastPokerStatus(team: ITeam): void {
-    team
-      .filterMembers(participant => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.sendPokerStatusChanged(participant, team));
+  public broadcastReset(members: Array<IServerParticipant>): void {
+    members.forEach((p: IServerParticipant) => this.sendReset(p));
   }
 
-  public broadcastMemberChange(team: ITeam, changedMember: Participant, change: EMemberStatusChange): void {
-    team
-      .filterMembers(other => other.uuid !== changedMember.uuid && other.status === EParticipantStatus.Connected)
-      .forEach(other => this.sendMemberChange(other, changedMember, change));
+  public broadcastSessionEnded(members: Array<IServerParticipant>): void {
+    members.forEach((p: IServerParticipant) => this.sendSessionEnded(p));
   }
 
-  public broadcastSessionEnded(team: ITeam, participant: Participant): void {
-    team
-      .filterMembers(other => other.uuid !== participant.uuid && other.status === EParticipantStatus.Connected)
-      .forEach(other => this.sendSessionEnded(other));
+  public broadcastTeamIdle(members: Array<IServerParticipant>): void {
+    members.forEach((p: IServerParticipant) => this.sendTeamIdleMessage(p));
   }
   //#endregion
 
   //#region IMessageService send message methods ------------------------------
-  public sendSessionEnded(to: Participant): void {
-    const message: AServerMessage = new EndSessionMessage();
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  public sendErrorMessageToParticipant(to: Participant, code: EErrorCode): void {
+  public sendErrorMessageToParticipant(to: IServerParticipant, code: EErrorCode): void {
     const message: AServerMessage = new ErrorMessage(code);
     this.senderService.sendToParticipant(to, message);
   }
@@ -81,46 +62,41 @@ export class MessageService implements IMessageService {
     this.senderService.sendToSocket(ws, message);
   }
 
-  public sendInit(to: Participant): void {
+  public sendInit(to: IServerParticipant): void {
     const message: AServerMessage = new InitMessage(this.prepareParticipantsData([to])[0]);
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendLeft(to: Participant): void {
+  public sendLeft(to: IServerParticipant): void {
     const message: AServerMessage = new LeftMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendPing(to: Participant): void {
+  public sendPing(to: IServerParticipant): void {
     const message: AServerMessage = new PingMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendReset(to: Participant): void {
-    const message: AServerMessage = new ServerResetMessage();
+  public sendSelf(to: IServerParticipant): void {
+    const message: AServerMessage = new SelfMessage(to.self);
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendSelf(to: Participant): void {
-    const message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  public sendTeamIdleMessage(to: Participant): void {
-    const message: AServerMessage = new TeamIdleMessage();
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  public sendTeamInfo(to: Participant, team: ITeam): void {
+  public sendAllInfo(to: IServerParticipant, team: ITeam, members: Array<IServerParticipant>, cardSet: ICardSet, estimations: Array<IEstimation>): void {
     let message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0])
     this.senderService.sendToParticipant(to, message);
     message = new TeamNameMessage(team.teamName);
     this.senderService.sendToParticipant(to, message);
-    message = new CardSetMessage(team.cardSet);
+    message = new CardSetMessage(cardSet);
     this.senderService.sendToParticipant(to, message);
-    message = new MemberListMessage(this.prepareParticipantsData(team.filterMembers(other => other.uuid !== to.uuid)));
+    message = new MemberListMessage(members.map((p: IServerParticipant) => p.self));
     this.senderService.sendToParticipant(to, message);
-    message = new EstimationListMessage(this.prepareEstimationsData(to, team.status === EPokerStatus.Revealed, team.allEstimations));
+    message = new EstimationListMessage(estimations);
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  public sendEstimations(to: IServerParticipant, estimations: Array<IEstimation>): void {
+    const message: AServerMessage = new EstimationListMessage(estimations);
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -128,30 +104,26 @@ export class MessageService implements IMessageService {
     const message: AServerMessage = new ErrorMessage(EErrorCode.ServerError, errorMessage);
     this.senderService.sendToSocket(socket, message);
   }
+  //#endregion
 
   //#region private send methods ----------------------------------------------
-  private sendCardSet(to: Participant, cardSet: ICardSet): void {
+  private sendCardSet(to: IServerParticipant, cardSet: ICardSet): void {
     const message: AServerMessage = new CardSetMessage(cardSet);
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendClearEstimations(to: Participant): void {
+  private sendClearEstimations(to: IServerParticipant): void {
     const message: AServerMessage = new ClearEstimationsMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendEstimations(to: Participant, revealed: boolean, estimations: Array<Estimation>): void {
-    const message: AServerMessage = new EstimationListMessage(this.prepareEstimationsData(to, revealed, estimations));
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  private sendMemberChange(to: Participant, changedMember: Participant, change: EMemberStatusChange) {
+  private sendMemberChange(to: IServerParticipant, changedMember: IServerParticipant, change: EMemberStatusChange) {
     const data: IMemberStatusChange = {
       memberStatusChange: change,
       member: {
         status: changedMember.status,
         nick: changedMember.nick,
-        uuid: changedMember.uuid,
+        participantId: changedMember.participantId,
         role: changedMember.role,
         observer: changedMember.observer
       }
@@ -160,31 +132,35 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendPokerStatusChanged(to: Participant, game: ITeam): void {
-    const message: AServerMessage = new PokerStatusChangedMessage(game.status);
+  private sendPokerStatusChanged(to: IServerParticipant, status: EPokerStatus): void {
+    const message: AServerMessage = new PokerStatusChangedMessage(status);
     this.senderService.sendToParticipant(to, message);
   }
+
+  private sendReset(to: IServerParticipant): void {
+    const message: AServerMessage = new ServerResetMessage();
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  private sendSessionEnded(to: IServerParticipant): void {
+    const message: AServerMessage = new EndSessionMessage();
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  private sendTeamIdleMessage(to: IServerParticipant): void {
+    const message: AServerMessage = new TeamIdleMessage();
+    this.senderService.sendToParticipant(to, message);
+  }
+
   //#endregion
 
   //#region Private prepare message data methods ------------------------------
-  private prepareEstimationsData(to: Participant, revealed: boolean, estimations: Array<Estimation>): Array<IEstimation> {
-    return estimations.map(estimation => {
-      return {
-        card: estimation.card < 0 ?
-          estimation.card :
-          revealed || estimation.participantUuid === to.uuid ? estimation.card : 0,
-        revealed: revealed || estimation.participantUuid === to.uuid,
-        participantUuid: estimation.participantUuid
-      };
-    });
-  }
-
-  private prepareParticipantsData(participants: Array<Participant>): Array<IParticipant> {
+  private prepareParticipantsData(participants: Array<IServerParticipant>): Array<IParticipant> {
     return participants.map(participant => {
       return {
         status: participant.status,
         nick: participant.nick,
-        uuid: participant.uuid,
+        participantId: participant.participantId,
         role: participant.role,
         observer: participant.observer
       };

@@ -16,7 +16,7 @@ export class PokerService {
   private readonly cardService: CardService;
   private readonly sessionService: SessionService;
   private readonly teamService: TeamService;
-  private myUuid: string;
+  private myParticipantId: string;
   private pokerStatus: EPokerStatus;
   private givenEstimations: Map<string, Estimation>;
   //#endregion
@@ -39,7 +39,7 @@ export class PokerService {
         break;
       default:
         result = this.teamService.estimatingMembers
-          .filter((m: Member) => !this.givenEstimations.has(m.uuid))
+          .filter((m: Member) => !this.givenEstimations.has(m.participantId))
           .sort((a: Member, b: Member) => a.nick.localeCompare(b.nick));
         break;
     }
@@ -53,7 +53,7 @@ export class PokerService {
     this.sessionService = sessionService;
     this.teamService = teamService;
     this.givenEstimations = new Map<string, Estimation>;
-    this.myUuid = '';
+    this.myParticipantId = '';
     this.pokerStatus = EPokerStatus.Cleared;
     this.sessionService.incomingMessage.subscribe((serverMessage: AServerMessage) => this.handleServerMessage(serverMessage));
     this.sessionService.reset.subscribe(() => this.resetService());
@@ -65,7 +65,7 @@ export class PokerService {
     switch (message.type) {
       case EServerMessageType.Init:
       case EServerMessageType.Self:
-        this.myUuid = (<IInitMessage>message).data.uuid;
+        this.myParticipantId = (<IInitMessage>message).data.participantId;
         break;
       case EServerMessageType.ClearEstimations:
         this.givenEstimations.clear();
@@ -85,22 +85,22 @@ export class PokerService {
   }
 
   public withDraw(): void {
-    const message = new EstimateMessage(this.myUuid, -1);
+    const message = new EstimateMessage(this.myParticipantId, -1);
     this.sessionService.sendMessage(message);
   }
 
   public estimate(index: number): void {
-    const message = new EstimateMessage(this.myUuid, index);
+    const message = new EstimateMessage(this.myParticipantId, index);
     this.sessionService.sendMessage(message);
   }
 
   public reveal(): void {
-    const message = new RevealMessage(this.myUuid);
+    const message = new RevealMessage(this.myParticipantId);
     this.sessionService.sendMessage(message);
   }
 
   public start(): void {
-    const message = new StartMessage(this.myUuid);
+    const message = new StartMessage(this.myParticipantId);
     this.sessionService.sendMessage(message);
   }
 
@@ -113,14 +113,14 @@ export class PokerService {
   //#region private methods ---------------------------------------------------
   private handleEstimations(estimations: Array<IEstimation>): void {
     estimations.forEach(estimation => {
-      if (estimation.card >= 0) {
-        const member = this.teamService.getMember(estimation.participantUuid);
-        const card = this.cardService.getCard(estimation.card);
+      if (estimation.cardIndex >= 0) {
+        const member = this.teamService.getMember(estimation.participantId);
+        const card = this.cardService.getCard(estimation.cardIndex);
         if (member && card) {
-          this.givenEstimations.set(estimation.participantUuid, new Estimation(member, card, estimation.revealed));
+          this.givenEstimations.set(estimation.participantId, new Estimation(member, card, estimation.revealed));
         }
       } else {
-        this.givenEstimations.delete(estimation.participantUuid);
+        this.givenEstimations.delete(estimation.participantId);
       }
     });
   }

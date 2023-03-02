@@ -1,4 +1,4 @@
-import { AClientMessage, EErrorCode } from "../../../../shared-lib/lib";
+import { AClientMessage, EErrorCode } from "../../../../shared-lib/src";
 import { IStorageService } from "../../storage/interfaces";
 
 export interface IPreflightService {

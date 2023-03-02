@@ -10,7 +10,7 @@
     "deploy": "ng deploy",
     "serve:sw": "npx http-server ./dist -p 4200",
     "lint:site": "ng lint && stylelint \"src/**/*.scss\" && htmlhint \"src\" --config .htmlhintrc",
-    "lint:server": "cd projects/server && eslint -c .eslintrc --ext .js,.jsx,.ts,.tsx",
+    "lint:server": "cd projects/server && npm run lint",
     "lint:shared": "cd projects/shared-lib && eslint -c .eslintrc --ext .js,.jsx,.ts,.tsx",
     "test:site": "ng test",
     "test:server": "cd projects/server && npm run test",

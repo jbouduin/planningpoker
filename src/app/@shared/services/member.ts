@@ -5,7 +5,7 @@ export class Member {
   //#region Public properties -------------------------------------------------
   public status: EParticipantStatus;
   public nick: string;
-  public uuid: string;
+  public participantId: string;
   public role: ERole;
   public me: boolean;
   public observer: boolean;
@@ -15,7 +15,7 @@ export class Member {
   public constructor(participant: IParticipant, me: boolean) {
     this.status = participant.status;
     this.nick = participant.nick;
-    this.uuid = participant.uuid;
+    this.participantId = participant.participantId;
     this.role = participant.role;
     this.observer = participant.observer;
     this.me = me;

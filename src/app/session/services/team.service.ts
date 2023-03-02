@@ -25,7 +25,7 @@ export class TeamService {
   private readonly snackbarService: SnackbarService;
   private readonly translateService: TranslateService;
   private allMembers: Map<string, Member>;
-  private myUuid: string;
+  private myParticipantId: string;
   //#endregion
 
   //#region public properties -------------------------------------------------
@@ -49,7 +49,7 @@ export class TeamService {
   }
 
   public get canPoker(): boolean {
-    const me = this.allMembers.get(this.myUuid);
+    const me = this.allMembers.get(this.myParticipantId);
     return me !== undefined && !me.observer;
   }
 
@@ -74,9 +74,9 @@ export class TeamService {
     this.translateService = translateService;
     this.allMembers = new Map<string, Member>();
     this.teamName = '';
-    this.myUuid = '';
+    this.myParticipantId = '';
     this.sessionService.incomingMessage.subscribe((serverMessage: AServerMessage) => this.handleServerMessage(serverMessage));
-   this.sessionService.reset.subscribe(() => this.resetService());
+    this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
 
@@ -102,7 +102,7 @@ export class TeamService {
 
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
-        const message = new ChangeNickMessage(this.myUuid, result);
+        const message = new ChangeNickMessage(this.myParticipantId, result);
         this.sessionService.sendMessage(message);
       }
     });
@@ -116,18 +116,18 @@ export class TeamService {
 
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
-        const message = new ChangeScrumMasterMessage(this.myUuid, result);
+        const message = new ChangeScrumMasterMessage(this.myParticipantId, result);
         this.sessionService.sendMessage(message);
       }
     });
   }
 
-  public getMember(uuid: string): Member | undefined {
-    return this.allMembers.get(uuid);
+  public getMember(participantId: string): Member | undefined {
+    return this.allMembers.get(participantId);
   }
 
-  public removeParticipant(uuid: string): void {
-    const message = new RemoveMessage(this.myUuid,uuid);
+  public removeParticipant(participantId: string): void {
+    const message = new RemoveMessage(this.myParticipantId, participantId);
     this.sessionService.sendMessage(message);
   }
 
@@ -136,7 +136,7 @@ export class TeamService {
       member: member,
       observer: observe
     };
-    const message = new ObserveMessage(this.myUuid, data);
+    const message = new ObserveMessage(this.myParticipantId, data);
     this.sessionService.sendMessage(message);
   }
   //#endregion
@@ -161,24 +161,24 @@ export class TeamService {
         break;
       case EServerMessageType.TeamName:
         this.teamName = (<ITeamNameMessage>message).data;
-        this.localStorageService.team = this.teamName;
+        this.localStorageService.teamName = this.teamName;
         break;
     }
   }
 
   private handleSelf(me: Member): void {
-    this.myUuid = me.uuid;
-    this.allMembers.set(me.uuid, me);
+    this.myParticipantId = me.participantId;
+    this.allMembers.set(me.participantId, me);
   }
 
   private handleMemberChanged(memberChange: IMemberStatusChange): void {
     if (memberChange.memberStatusChange != EMemberStatusChange.Left) {
       this.allMembers.set(
-        memberChange.member.uuid,
+        memberChange.member.participantId,
         new Member(memberChange.member, false)
       );
     } else {
-      this.allMembers.delete(memberChange.member.uuid);
+      this.allMembers.delete(memberChange.member.participantId);
     }
 
     switch (memberChange.memberStatusChange) {
@@ -236,13 +236,13 @@ export class TeamService {
   }
 
   private handleMemberList(members: Array<IParticipant>): void {
-    const me = this.allMembers.get(this.myUuid);
+    const me = this.allMembers.get(this.myParticipantId);
     this.allMembers.clear();
     if (me) {
-      this.allMembers.set(this.myUuid, me);
+      this.allMembers.set(this.myParticipantId, me);
     }
     members.forEach(
-      (participant: IParticipant) => this.allMembers.set(participant.uuid, new Member(participant, participant.uuid === this.myUuid))
+      (participant: IParticipant) => this.allMembers.set(participant.participantId, new Member(participant, participant.participantId === this.myParticipantId))
     );
   }
 
@@ -250,7 +250,7 @@ export class TeamService {
     this.localStorageService.clear();
     this.allMembers.clear();
     this.teamName = '';
-    this.myUuid = '';
+    this.myParticipantId = '';
   }
   //#endregion
 }

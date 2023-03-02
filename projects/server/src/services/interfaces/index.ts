@@ -7,5 +7,5 @@ export * from './message.service';
 export * from './preflight.service';
 export * from './route.service';
 export * from './sender.service';
+export * from './serialization.service';
 export * from './socket.service';
-

@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 
-import { ECardSet, ICard, ICardSet } from '../../../../shared-lib/lib';
+import { ECardSet, ICard, ICardSet } from '../../../../shared-lib/src';
 import { ICardService } from '../interfaces';
 
 @injectable()
@@ -17,6 +17,7 @@ export class CardService implements ICardService {
   //#endregion
 
   //#region Interface members -------------------------------------------------
+  // TODO 2384 Refactor factory methods in repositories: include card service in refactoring
   public getCardSet(set: ECardSet): ICardSet {
     let result = this.cardSets.get(set);
     if (!result) {

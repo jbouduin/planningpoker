@@ -1,8 +1,8 @@
-import { AServerMessage } from "../../../../shared-lib/lib";
-import { Participant } from "../../objects";
+import { AServerMessage } from "../../../../shared-lib/src";
+import { IServerParticipant } from "../../objects";
 import { IWebSocket } from "../websocket";
 
 export interface ISenderService {
-  sendToParticipant(to: Participant, message: AServerMessage): void;
+  sendToParticipant(to: IServerParticipant, message: AServerMessage): void;
   sendToSocket(socket: IWebSocket, message: AServerMessage): void;
 }

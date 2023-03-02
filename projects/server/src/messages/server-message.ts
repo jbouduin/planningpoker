@@ -1,4 +1,4 @@
-import { IServerMessage, EServerMessageType } from "../../../shared-lib/lib";
+import { IServerMessage, EServerMessageType } from "../../../shared-lib/src";
 
 export abstract class ServerMessage<T> implements IServerMessage<T> {
   public readonly data: T;

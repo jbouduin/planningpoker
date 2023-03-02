@@ -7,7 +7,7 @@ import { enumMarker } from '@core/marker';
 import { SnackbarService } from '../services';
 
 // required because of ngx-translate-extract
-import { EErrorCode } from '../../../../projects/shared-lib/lib/messages/error-code.enum';
+import { EErrorCode } from '../../../../projects/shared-lib/src/messages/error-code.enum';
 
 @Injectable({
   providedIn: 'root'

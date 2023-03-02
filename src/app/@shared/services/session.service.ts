@@ -54,8 +54,8 @@ export class SessionService {
     return this.me.role === ERole.ScrumMaster;
   }
 
-  public get myUuid(): string {
-    return this.me.uuid;
+  public get myParticipantId(): string {
+    return this.me.participantId;
   }
 
   public get myStatus(): EParticipantStatus {
@@ -83,7 +83,7 @@ export class SessionService {
     this.log = new Logger('SessionService');
     // assign the private properties
     this.currentRoute = '/';
-    this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, uuid: '' }, true);
+    this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
     this.webSocket = null;
     // assign the public readonly properties
     this.incomingMessage = new ReplaySubject<AServerMessage>();
@@ -131,16 +131,16 @@ export class SessionService {
 
   public rejoin(): void {
     window.clearInterval(this.resumeTimer);
-    const team = this.localStorage.team;
-    const uuid = this.localStorage.uuid;
-    if (team && uuid) {
-      this.log.debug(`rejoining ${team} as ${uuid}`);
+    const team = this.localStorage.teamName;
+    const participantId = this.localStorage.participantId;
+    if (team && participantId) {
+      this.log.debug(`rejoining ${team} as ${participantId}`);
       if (this.status !== ESessionStatus.ReconnectPending) {
         this.status = ESessionStatus.Reconnecting;
       } else {
         this.status = ESessionStatus.Resuming;
       }
-      this.initialMessage = new RejoinMessage('', uuid);
+      this.initialMessage = new RejoinMessage('', participantId);
       this.connect(team);
     } else {
       this.snackbarService.showWarning(this.translateService.instant('Session.Service.Warning.Can_not_rejoin'));
@@ -150,10 +150,10 @@ export class SessionService {
 
   public quitSession(): void {
     window.clearInterval(this.resumeTimer);
-    const team = this.localStorage.team;
-    const uuid = this.localStorage.uuid;
-    if (uuid && team) {
-      const message = new LeaveMessage(uuid, uuid);
+    const team = this.localStorage.teamName;
+    const participantId = this.localStorage.participantId;
+    if (participantId && team) {
+      const message = new LeaveMessage(participantId, participantId);
       if (this.scrumMaster) {
         const params = new MessageBoxParams();
         params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
@@ -207,18 +207,18 @@ export class SessionService {
         data: params
       });
     } else {
-      const message = new PauseMessage(this.myUuid);
+      const message = new PauseMessage(this.myParticipantId);
       this.sendMessage(message);
     }
   }
 
   public canRejoin(): Observable<ICanRejoinResult> {
     const nick = this.localStorage.nick;
-    const team = this.localStorage.team;
-    const uuid = this.localStorage.uuid;
-    if (team && nick && uuid) {
+    const team = this.localStorage.teamName;
+    const participantId = this.localStorage.participantId;
+    if (team && nick && participantId) {
       this.status = ESessionStatus.Suspended;
-      return this.httpService.checkCanRejoin(team, uuid).pipe(map((can: boolean) => {
+      return this.httpService.checkCanRejoin(team, participantId).pipe(map((can: boolean) => {
         const result: ICanRejoinResult = {
           nick: nick,
           team: team,
@@ -273,12 +273,12 @@ export class SessionService {
         break;
       case EServerMessageType.Init:
         if (this.initialMessage) {
-          this.initialMessage.senderUuid = (<IInitMessage>message).data.uuid;
+          this.initialMessage.senderId = (<IInitMessage>message).data.participantId;
           this.sendMessage(this.initialMessage);
           this.initialMessage = undefined;
         }
         this.me = new Member((<IInitMessage>message).data, true);
-        this.localStorage.uuid = this.me.uuid;
+        this.localStorage.participantId = this.me.participantId;
         this.status = ESessionStatus.Active;
         this.navigateTo('/game');
         break;
@@ -290,7 +290,7 @@ export class SessionService {
         }
         this.me = new Member((<ISelfMessage>message).data, true);
         this.localStorage.nick = this.me.nick;
-        this.localStorage.uuid = this.me.uuid;
+        this.localStorage.participantId = this.me.participantId;
         if (this.me.status === EParticipantStatus.Paused) {
           this.status = ESessionStatus.Suspended;
           this.disconnect();

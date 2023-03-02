@@ -4,7 +4,7 @@ import STORAGETYPES from "../../storage/storage.types";
 import SERVICETYPES from "../../services/service.types";
 
 import { IStorageService } from "../../storage/interfaces";
-import { ECardSet, EErrorCode, ICardSet } from "../../../../shared-lib/lib";
+import { ECardSet, EErrorCode, ICardSet } from "../../../../shared-lib/src";
 import { LooseObject } from "../../objects";
 import { IApiController } from "../interfaces";
 import { ICardService, ILoggerService } from "../../services/interfaces";
@@ -30,9 +30,9 @@ export class ApiController implements IApiController {
   //#endregion
 
   //#region IApiController methods --------------------------------------------
-  public canRejoin(teamName: string, uuid: string): LooseObject {
+  public canRejoin(teamName: string, participantId: string): LooseObject {
     const response: LooseObject = {};
-    response.errorCode = this.storageService.canRejoin(uuid, teamName);
+    response.errorCode = this.storageService.canRejoin(participantId, teamName);
     switch (response.errorCode) {
       case EErrorCode.TeamDoesNotExist:
         response.canRejoin = false;
@@ -49,7 +49,7 @@ export class ApiController implements IApiController {
       default:
         response.canRejoin = true
     }
-    this.loggerService.info('Server', `check if ${uuid} can rejoin ${teamName}: ${JSON.stringify(response)}`);
+    this.loggerService.info('Server', `check if ${participantId} can rejoin ${teamName}: ${JSON.stringify(response)}`);
     return response;
   }
 
