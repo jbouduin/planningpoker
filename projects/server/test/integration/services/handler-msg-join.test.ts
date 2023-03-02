@@ -202,8 +202,50 @@ describe('Join => OK', () => {
     expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 1);
   });
 
+  test('two teams with two participants', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+    // create team 1
+    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
+    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
+    Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // create team 2
+    const scrumMaster2Send = jest.fn((_message: string) => Util.noop());
+    const scrumMaster2Socket = Util.getSocket(scrumMaster2Send);
+    Util.createTeam(scrumMaster2Socket, handlerService, Util.team2Name, Util.scrumMaster2Nick);
+    // participant 1 joining team 1
+    const participant1Send = jest.fn((_message: string) => Util.noop());
+    const participant1Socket = Util.getSocket(participant1Send);
+    Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
+    // participant 2 joining team 2
+    const participant2Send = jest.fn((_message: string) => Util.noop());
+    const participant2Socket = Util.getSocket(participant2Send);
+    Util.joinTeam(participant2Socket, handlerService, Util.team2Name, Util.participant2Nick);
+    // participant 3 joining team 1
+    const participant3Send = jest.fn((_message: string) => Util.noop());
+    const participant3Socket = Util.getSocket(participant3Send);
+    Util.joinTeam(participant3Socket, handlerService, Util.team1Name, Util.participant3Nick);
+    // participant 4 joining team 2
+    const participant4Send = jest.fn((_message: string) => Util.noop());
+    const participant4Socket = Util.getSocket(participant4Send);
+    Util.joinTeam(participant4Socket, handlerService, Util.team2Name, Util.participant4Nick);
+
+    // test: scrum master 1 should have received create messages + 2 joins
+    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
+    // test: scrum master 1 should have received create messages + 2 joins
+    expect(scrumMaster2Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
+    // test: participant 1 should have received join messages + 1 join
+    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesJoin + 1);
+    // test: participant 2 should have received join messages + 1 join
+    expect(participant2Send).toBeCalledTimes(Util.expectedMessagesJoin + 1);
+    // test: participant 3 should have received join messages
+    expect(participant3Send).toBeCalledTimes(Util.expectedMessagesJoin);
+    // test: participant 4 should have received join messages
+    expect(participant4Send).toBeCalledTimes(Util.expectedMessagesJoin);
+  });
+
   // TODO 2369 join a team that is currently estimating
-  // TODO 2369 join a team with scrum master and another participant check if both receive the memberchanged message
+
 
 });
 

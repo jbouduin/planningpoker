@@ -117,8 +117,12 @@ export class Util {
         team: teamName
       }
     };
-    handlerService.handleMessage(message, Util.team1Name, socket);
+    handlerService.handleMessage(message, teamName, socket);
     return participant.participantId;
+  }
+
+  public static sleep(milliSeconds: number): Promise<unknown> {
+    return new Promise(r => setTimeout(r, milliSeconds));
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */

@@ -89,6 +89,7 @@ export class HandlerService implements IHandlerService {
       .filterTeams((team: ITeam) => Date.now() - team.lastAccessTime > maxIdleTime)
       .forEach((team: ITeam) => {
         this.loggerService.info('Server', `Cron Tick: deleting '${team.teamName}'`);
+        this.messageService.broadcastTeamIdle(this.storage.getConnectedTeamMembers(team.teamName));
         this.storage.deleteTeam(team.teamName);
       });
   }

@@ -9,6 +9,7 @@ export interface IMessageService {
   broadcastEstimation(members: Array<IServerParticipant>, estimation: IEstimation, teamStatus: EPokerStatus): void;
   broadcastPokerStatus(members: Array<IServerParticipant>, status: EPokerStatus): void;
   broadcastMemberChange(members: Array<IServerParticipant>, changedMember: IServerParticipant, change: EMemberStatusChange): void;
+  broadcastTeamIdle(members: Array<IServerParticipant>): void;
   broadcastSessionEnded(members: Array<IServerParticipant>): void;
   sendErrorMessageToParticipant(to: IServerParticipant, code: EErrorCode): void;
   sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void;
@@ -19,6 +20,5 @@ export interface IMessageService {
   sendReset(to: IServerParticipant): void;
   sendSelf(to: IServerParticipant): void;
   sendSessionEnded(to: IServerParticipant): void;
-  sendTeamIdleMessage(to: IServerParticipant): void;
   sendAllInfo(to: IServerParticipant, team: ITeam, members: Array<IServerParticipant>, cardSet: ICardSet, estimations: Array<IEstimation>): void;
 }

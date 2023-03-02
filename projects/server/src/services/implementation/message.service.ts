@@ -49,6 +49,10 @@ export class MessageService implements IMessageService {
   public broadcastSessionEnded(members: Array<IServerParticipant>): void {
     members.forEach((p: IServerParticipant) => this.sendSessionEnded(p));
   }
+
+  public broadcastTeamIdle(members: Array<IServerParticipant>): void {
+    members.forEach((p: IServerParticipant) => this.sendTeamIdleMessage(p));
+  }
   //#endregion
 
   //#region IMessageService send message methods ------------------------------
@@ -84,11 +88,6 @@ export class MessageService implements IMessageService {
 
   public sendSelf(to: IServerParticipant): void {
     const message: AServerMessage = new SelfMessage(to.self);
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  public sendTeamIdleMessage(to: IServerParticipant): void {
-    const message: AServerMessage = new TeamIdleMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -151,6 +150,12 @@ export class MessageService implements IMessageService {
     const message: AServerMessage = new EndSessionMessage();
     this.senderService.sendToParticipant(to, message);
   }
+
+  private sendTeamIdleMessage(to: IServerParticipant): void {
+    const message: AServerMessage = new TeamIdleMessage();
+    this.senderService.sendToParticipant(to, message);
+  }
+
   //#endregion
 
   //#region Private prepare message data methods ------------------------------
