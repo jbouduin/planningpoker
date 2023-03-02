@@ -27,6 +27,7 @@ export class Util {
   public static expectedMessagesJoin = 6;
 
   public static getContainer(): Container {
+    // TODO NOW mock the loggerservice
     const container = new Container();
     container.bind<ICardService>(SERVICETYPES.CardService).to(CardService).inSingletonScope();
     container.bind<ICronService>(SERVICETYPES.CronService).to(CronService).inSingletonScope();
