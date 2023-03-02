@@ -34,6 +34,7 @@ const jestConfig: JestConfigWithTsJest = {
     "!**/services/implementation/route.service.ts",
     "!**/services/implementation/serialization.service.ts",
     "!**/services/implementation/socket.service.ts",
+    "!**/services/implementation/sender.service.ts",
     "!**/*.types.*",
     "!**/index.ts",
     "!**/do-not-commit*"

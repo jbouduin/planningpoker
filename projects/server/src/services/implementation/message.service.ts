@@ -46,6 +46,10 @@ export class MessageService implements IMessageService {
     members.forEach((p: IServerParticipant) => this.sendMemberChange(p, changedMember, change));
   }
 
+  public broadcastReset(members: Array<IServerParticipant>): void {
+    members.forEach((p: IServerParticipant) => this.sendReset(p));
+  }
+
   public broadcastSessionEnded(members: Array<IServerParticipant>): void {
     members.forEach((p: IServerParticipant) => this.sendSessionEnded(p));
   }
@@ -78,11 +82,6 @@ export class MessageService implements IMessageService {
 
   public sendPing(to: IServerParticipant): void {
     const message: AServerMessage = new PingMessage();
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  public sendReset(to: IServerParticipant): void {
-    const message: AServerMessage = new ServerResetMessage();
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -146,7 +145,12 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendSessionEnded(to: IServerParticipant): void {
+  private sendReset(to: IServerParticipant): void {
+    const message: AServerMessage = new ServerResetMessage();
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  private sendSessionEnded(to: IServerParticipant): void {
     const message: AServerMessage = new EndSessionMessage();
     this.senderService.sendToParticipant(to, message);
   }

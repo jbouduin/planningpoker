@@ -126,10 +126,12 @@ export class HandlerService implements IHandlerService {
     response.removedTeams = new Array<LooseObject>();
     this.storage.allTeams().forEach((team: ITeam) => {
       this.loggerService.info('Server', `System reset: removing '${team.teamName}'`);
+      const connectedTeamMembers = this.storage.getConnectedTeamMembers(team.teamName);
       const removedTeam: LooseObject = {};
       removedTeam.team = team.teamName;
       removedTeam.removedMembers = this.storage.deleteTeam(team.teamName).map((p: IServerParticipant) => `${p.nick} - ${p.participantId}`)
       response.totalMembers += removedTeam.removedMembers.length;
+      this.messageService.broadcastReset(connectedTeamMembers);
     });
     return response;
   }
