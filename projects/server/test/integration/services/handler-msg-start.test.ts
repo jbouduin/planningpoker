@@ -1,4 +1,4 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 
 import { EClientMessageType, EErrorCode, EMemberStatusChange, EPokerStatus, EServerMessageType, IPokerStatusChangedMessage, IStartMessage } from '../../../../shared-lib/src';
 
@@ -17,8 +17,8 @@ describe('Start => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with one participant
-    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant =    Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant =    Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // start estimating
     const message: IStartMessage = {
@@ -28,7 +28,7 @@ describe('Start => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // test: scrum master 1 should have received 1 MC join + 1 clear + 1 poker status
+    // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 poker status
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
     expect(scrumMaster.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
@@ -39,7 +39,7 @@ describe('Start => OK', () => {
       expect(pokerStatusMessage.data).toBe(EPokerStatus.Started);
     }
 
-    // test: participant 1 should have received 1 clear + 1 poker status
+    // Test: participant 1 should have received 1 clear + 1 poker status
     expect(participant.messagesReceivedAfterInitial).toBe(2);
     expect(participant.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
     expect(participant.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
@@ -49,7 +49,7 @@ describe('Start => OK', () => {
       expect(pokerStatusMessage.data).toBe(EPokerStatus.Started);
     }
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   })
 });
@@ -62,105 +62,91 @@ describe('start => Failure', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // create team with participant
+    const scrumMaster=    Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    const participantId = Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
-
-    // start estimating
+    // send start estimating
     const message: IStartMessage = {
-      senderId: participantId,
+      senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, Util.team1Name, participant1Socket);
+    participant.sendMessage(message);
 
-    // test: scrum master should have received create messages + 1 join
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 1);
-    expect(Util.errorMessageReceived(scrumMaster1Send.mock.calls, EErrorCode.ScrumMasterRequired)).toBe(false);
+    // Test: scrum master should have received 1 MC Join
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
 
-    // test: participant 1 should have received join messages + error message
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesJoin + 1);
-    expect(Util.errorMessageReceived(participant1Send.mock.calls, EErrorCode.ScrumMasterRequired)).toBe(true);
+    // Test: participant should have received 1 error
+    expect(participant.messagesReceivedAfterInitial).toBe(1);
+    expect(participant.errorMessageReceived(EErrorCode.ScrumMasterRequired)).toBe(true);
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
-  test('Team does not exist', () => {
+  test('Team not found', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    const scrumMasterParticipantId = Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // create the team
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
 
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
+    // connect the participant
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // start estimating
+    // send start estimating to the wrong team
+    scrumMaster.teamName = Util.team2Name;
     const message: IStartMessage = {
-      senderId: scrumMasterParticipantId,
+      senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, Util.team2Name, scrumMaster1Socket);
+    scrumMaster.sendMessage(message);
 
-    // test: scrum master should have received create messages + 1 join + 1 error
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
-    expect(Util.errorMessageReceived(scrumMaster1Send.mock.calls, EErrorCode.TeamDoesNotExist)).toBe(true);
+    // Test: scrum master should have received  1 join + 1 error
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.TeamDoesNotExist)).toBe(true);
 
-    // test: participant 1 should have received join messages only
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesJoin);
-    expect(Util.errorMessageReceived(participant1Send.mock.calls, EErrorCode.TeamDoesNotExist)).toBe(false);
+    // Test: participant 1 should have received no messages
+    expect(participant.messagesReceivedAfterInitial).toBe(0);
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
-  test('Sender does not exist', () => {
+  test('Sender not found', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
+    // create team
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     // start estimating
     const message: IStartMessage = {
       senderId: 'some participant id',
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster1Socket);
+    scrumMaster.sendMessage(message);
 
-    // test: scrum master should have received create messages + 1 join + 1 error
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
-    expect(Util.errorMessageReceived(scrumMaster1Send.mock.calls, EErrorCode.ParticipantNotFound)).toBe(true);
+    // Test: scrum master should have received 1 MC Join + 1 error
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
 
-    // test: participant 1 should have received join messages only
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesJoin);
-    expect(Util.errorMessageReceived(participant1Send.mock.calls, EErrorCode.ParticipantNotFound)).toBe(false);
+    // Test: participant 1 should have received no messages
+    expect(participant.messagesReceivedAfterInitial).toBe(0);
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
@@ -173,32 +159,28 @@ describe('start => Failure', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    const scrumMaster1ParticipantId = Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
+    // create team with participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // start estimating
+    // send start estimating to another team
+    scrumMaster.teamName = unaffectedTeam.teamName;
     const message: IStartMessage = {
-      senderId: scrumMaster1ParticipantId,
+      senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, unaffectedTeam.teamName, scrumMaster1Socket);
+    scrumMaster.sendMessage(message);
 
-    // test: scrum master 1 should have received create messages + 1 join + 1 error
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
-    expect(Util.errorMessageReceived(scrumMaster1Send.mock.calls, EErrorCode.ParticipantNotInTeam)).toBe(true);
+    // Test: scrum master should have received 1 MC join + 1 error
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
 
-    // test: participant 1 should have received join messages only
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesJoin);
-    expect(Util.errorMessageReceived(participant1Send.mock.calls, EErrorCode.ParticipantNotInTeam)).toBe(false);
+    // Test: participant 1 should have received nothing
+    expect(participant.messagesReceivedAfterInitial).toBe(0);
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 

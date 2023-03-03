@@ -17,6 +17,7 @@ export interface IATestParticipant {
 
   closeSocket(): void;
   countMemberChangedMessages(changeType: EMemberStatusChange, skipInitialMessages?: boolean): number;
+  // TODO NOW rename to countMessagesOfType
   countMessageType(messageType: EServerMessageType, skipInitialMessages?: boolean): number;
   dumpMessages(): void;
   errorMessageReceived(errorCode: EErrorCode): boolean;

@@ -17,8 +17,8 @@ describe('Change nick => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with one connected and one disconnected participant
-    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick);
 
     // scrum master changes his nick
@@ -29,7 +29,7 @@ describe('Change nick => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // test: scrum master should have received 2 MC join + 1 MC disconnect + 1 self
+    // Test: scrum master should have received 2 MC join + 1 MC disconnect + 1 self
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
@@ -40,7 +40,7 @@ describe('Change nick => OK', () => {
       expect(selfMessage.data.nick).toBe(Util.observer1Name);
     }
 
-    // test: participant should have received 1 MC join + 1 MC disconnect + 1 MC nick change
+    // Test: participant should have received 1 MC join + 1 MC disconnect + 1 MC nick change
     expect(participant.messagesReceivedAfterInitial).toBe(3);
     expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
     expect(participant.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
@@ -53,10 +53,10 @@ describe('Change nick => OK', () => {
       expect(memberChangeMessage.data.member.participantId).toBe(scrumMaster.participantId);
     }
 
-    // test: disconnected participant should not have received any additional message
+    // Test: disconnected participant should not have received any additional message
     expect(disconnected.messagesReceivedAfterInitial).toBe(0);
 
-    // test: unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });

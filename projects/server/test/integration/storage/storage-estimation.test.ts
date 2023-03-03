@@ -324,7 +324,7 @@ describe('Reveal', () => {
     const retrieved = container
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getEstimations(Util.team1Name);
-    // test retrieved
+    // Test: retrieved
     expect(retrieved).toHaveLength(2);
     const retrieved1 = estimations.find(((e: IEstimation) => e.participantId === participant1Id));
     expect(retrieved1).toBeDefined();

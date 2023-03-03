@@ -1,19 +1,18 @@
-import { jest } from '@jest/globals';
-import { It, Mock } from 'moq.ts';
 import { Container } from "inversify";
+import { It, Mock } from 'moq.ts';
+
+import { ECardSet, EClientMessageType, ICardSet, ICreatemessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../../src/services/service.types';
 import STORAGETYPES from '../../../../src/storage/storage.types';
 
-import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICardSet, ICreatemessage, IErrorMessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
 import { CardService, CronService, EnvironmentService, HandlerService, MessageService, PreflightService, SenderService } from '../../../../src/services/implementation';
 import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService, LogType } from '../../../../src/services/interfaces';
-import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
 import { CardSetRepository, EstimationRepository, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../../src/storage/implementation";
 import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../../src/storage/interfaces";
 import { ITestParticipant, TestParticipant } from './TestParticipant';
-import { UnaffectedTeam } from './UnaffectedTeam';
 import { ITestScrumMaster } from './TestScrumMaster';
+import { UnaffectedTeam } from './UnaffectedTeam';
 
 export class Util {
   public static scrumMaster1Nick = 'John Doe';
@@ -26,10 +25,6 @@ export class Util {
   public static observer2Name = '李四';
   public static team1Name = 'team1';
   public static team2Name = 'team2';
-
-  public static expectedMessagesCreate = 6;
-  public static expectedMessagesJoin = 6;
-
 
   public static getContainer(): Container {
     const logMock = new Mock<ILoggerService>()
@@ -62,67 +57,11 @@ export class Util {
     return container;
   }
 
-  public static getSocket(send: any): IWebSocket {
-    return {
-      readyState: ReadyState.OPEN,
-      close: jest.fn(undefined),
-      send: send
-    }
-  }
-
-
-
-
-  public static extractMessage<T>(messages: Array<[message: string]>, messageType: EServerMessageType, occurrence = 0): T {
-    return <T>messages
-      .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
-      .filter((message: AServerMessage) => message.type === messageType)[occurrence];
-  }
-
-
-
-  public static errorMessageReceived(messages: Array<[message: string]>, errorCode: EErrorCode): boolean {
-    const errorMessage = this.extractMessage<IErrorMessage>(messages, EServerMessageType.Error);
-    return (errorMessage !== undefined) && errorMessage.data.code === errorCode;
-  }
-
-  public static createTeam(socket: IWebSocket, handlerService: IHandlerService, teamName: string, scrumMasterNick: string, cards?: ICardSet): string {
-    const scrumMaster = handlerService.handleConnect(socket);
-    const message: ICreatemessage = {
-      type: EClientMessageType.Create,
-      senderId: scrumMaster.participantId,
-      data: {
-        nick: scrumMasterNick,
-        team: teamName,
-        observer: false,
-        cardSet: cards ? ECardSet.Custom : ECardSet.Cohn,
-        cards: cards
-      }
-    }
-    handlerService.handleMessage(message, teamName, socket);
-    return scrumMaster.participantId;
-  }
-
-  public static joinTeam(socket: IWebSocket, handlerService: IHandlerService, teamName: string, nick: string, observer = false): string {
-    const participant = handlerService.handleConnect(socket);
-    const message: IJoinMessage = {
-      senderId: participant.participantId,
-      type: EClientMessageType.Join,
-      data: {
-        nick: nick,
-        observer: observer,
-        team: teamName
-      }
-    };
-    handlerService.handleMessage(message, teamName, socket);
-    return participant.participantId;
-  }
-
   public static connectParticipant(handlerService: IHandlerService): ITestParticipant {
     return new TestParticipant(handlerService);
   }
 
-  public static joinTeamNew(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
+  public static joinTeam(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
     const participant = this.connectParticipant(handlerService);
     participant.teamName = teamName;
     const message: IJoinMessage = {
@@ -139,13 +78,13 @@ export class Util {
   }
 
   public static joinTeamAndDisconnect(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
-    const participant = this.joinTeamNew(handlerService, teamName, nickName, observer);
+    const participant = this.joinTeam(handlerService, teamName, nickName, observer);
     participant.closeSocket();
     return participant;
   }
 
   public static joinTeamAndPause(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
-    const participant = this.joinTeamNew(handlerService, teamName, nickName, observer);
+    const participant = this.joinTeam(handlerService, teamName, nickName, observer);
     const message: IPauseMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Pause,
@@ -156,7 +95,7 @@ export class Util {
     return participant;
   }
 
-  public static createTeamNew(
+  public static createTeam(
     handlerService: IHandlerService,
     teamName: string,
     scrumMasterNick: string,
@@ -182,12 +121,9 @@ export class Util {
 
   public static createUnaffectedTeam(handlerService: IHandlerService): UnaffectedTeam {
     const teamName = 'Unaffected Team';
-    const scrumMaster = this.createTeamNew(handlerService, teamName, 'Unaffected Scrum Master', false, ECardSet.Cohn);
-    const participant = this.joinTeamNew(handlerService, teamName, 'Unaffected Participant');
+    const scrumMaster = this.createTeam(handlerService, teamName, 'Unaffected Scrum Master', false, ECardSet.Cohn);
+    const participant = this.joinTeam(handlerService, teamName, 'Unaffected Participant');
     return new UnaffectedTeam(scrumMaster, participant, teamName);
   }
 
-  /* eslint-disable @typescript-eslint/no-empty-function */
-  public static noop(..._args: Array<unknown>): void { }
-  /* eslint-enable @typescript-eslint/no-empty-function */
 }

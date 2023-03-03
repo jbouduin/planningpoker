@@ -17,8 +17,8 @@ describe('Estimate => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with one participant
-    const scrumMaster= Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant= Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const scrumMaster= Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant= Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // start estimation
     const message: IStartMessage = {
@@ -36,7 +36,7 @@ describe('Estimate => OK', () => {
     };
     participant.sendMessage(estimateMessage);
 
-    // test: scrum master 1 should have received 1 MC join + 1 clear + 1 pokerstatus + 1 estimation list
+    // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 pokerstatus + 1 estimation list
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
     expect(scrumMaster.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
@@ -52,7 +52,7 @@ describe('Estimate => OK', () => {
       expect(estimationListMessage.data[0].revealed).toBe(false);
     }
 
-    // test: participant should have received 1 clear + 1 pokerstatus + 1 additional estimation list
+    // Test: participant should have received 1 clear + 1 pokerstatus + 1 additional estimation list
     expect(participant.messagesReceivedAfterInitial).toBe(3);
     expect(participant.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
     expect(participant.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
@@ -66,7 +66,7 @@ describe('Estimate => OK', () => {
       expect(estimationListMessage.data[0].revealed).toBe(true);
     }
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 

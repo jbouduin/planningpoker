@@ -16,7 +16,7 @@ describe('Handle Error', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team
-    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
 
     // raise an error
     handlerService.handleError(scrumMaster.socket, new Error('test error'));
@@ -30,7 +30,7 @@ describe('Handle Error', () => {
       expect(errorMessage.data.message).toBe('test error');
     }
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });

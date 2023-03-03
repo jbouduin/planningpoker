@@ -17,8 +17,8 @@ describe('Reveal => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with one participant
-    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     // TODO 2381 add a third participant who does not estimate
     // start estimation
     const message: IStartMessage = {
@@ -44,7 +44,7 @@ describe('Reveal => OK', () => {
     };
     scrumMaster.sendMessage(revealMessage);
 
-    // test: scrum master 1 should have received 1 MC join + 1 clear + 2 pokerstatus + 2 estimation list
+    // Test: scrum master 1 should have received 1 MC join + 1 clear + 2 pokerstatus + 2 estimation list
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(6);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1)
     expect(scrumMaster.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
@@ -52,14 +52,14 @@ describe('Reveal => OK', () => {
     expect(scrumMaster.countMessageType(EServerMessageType.PokerStatus)).toBe(2);
     // TODO 2381 check the messages
 
-    // test: participant 1 should have received 1 clear + 2 pokerstatus + 2 estimation list
+    // Test: participant 1 should have received 1 clear + 2 pokerstatus + 2 estimation list
     expect(participant.messagesReceivedAfterInitial).toBe(5);
     expect(participant.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
     expect(participant.countMessageType(EServerMessageType.EstimationList)).toBe(2);
     expect(participant.countMessageType(EServerMessageType.PokerStatus)).toBe(2);
     // TODO 2381 check the messages
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });

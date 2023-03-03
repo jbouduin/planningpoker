@@ -17,8 +17,8 @@ describe('Remove => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with two participants
-    const scrumMaster= Util.createTeamNew( handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const observer = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick, true);
+    const scrumMaster= Util.createTeam( handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const observer = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick, true);
     const participant = Util.joinTeamAndDisconnect( handlerService, Util.team1Name, Util.participant1Nick);
 
     // remove the disconnected participant
@@ -29,7 +29,7 @@ describe('Remove => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // test: scrum master should have received 2 MC join + 1 MC disconnect + 1 MC left
+    // Test: scrum master should have received 2 MC join + 1 MC disconnect + 1 MC left
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
@@ -41,7 +41,7 @@ describe('Remove => OK', () => {
       expect(leftMessage.data.member.participantId).toBe(participant.participantId);
     }
 
-    // test: observer 1 should have received 1 MC join + 1 MC disconnect + 1 MC left
+    // Test: observer 1 should have received 1 MC join + 1 MC disconnect + 1 MC left
     expect(observer.messagesReceivedAfterInitial).toBe(3);
     expect(observer.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
     expect(observer.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
@@ -53,10 +53,10 @@ describe('Remove => OK', () => {
       expect(leftMessage.data.member.participantId).toBe(participant.participantId);
     }
 
-    // test: participant 1 should only have received join messages
+    // Test: participant 1 should only have received join messages
     expect(participant.messagesReceivedAfterInitial).toBe(0);
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });

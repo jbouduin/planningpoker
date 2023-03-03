@@ -17,8 +17,8 @@ describe('Toggle observe => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with one participant
-    const scrumMaster =     Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant =  Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const scrumMaster =     Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant =  Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     // change own observer role
     const message: IObserveMessage = {
       senderId: participant.participantId,
@@ -30,7 +30,7 @@ describe('Toggle observe => OK', () => {
     };
     participant.sendMessage(message);
 
-    // test: scrum master 1 should have received 1 join + 1 MC observe
+    // Test: scrum master 1 should have received 1 join + 1 MC observe
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Observe)).toBe(1);
@@ -42,7 +42,7 @@ describe('Toggle observe => OK', () => {
       expect(observeMessage.data.member.participantId).toBe(participant.participantId);
     }
 
-    // test: participant 1 should have received 1 self
+    // Test: participant 1 should have received 1 self
     expect(participant.messagesReceivedAfterInitial).toBe(1);
     expect(participant.countMessageType(EServerMessageType.Self)).toBe(1);
     const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
@@ -52,7 +52,7 @@ describe('Toggle observe => OK', () => {
       expect(selfMessage.data.participantId).toBe(participant.participantId);
     }
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
@@ -64,8 +64,8 @@ describe('Toggle observe => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with participant
-    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // change observer role for someone else
     const message: IObserveMessage = {
@@ -78,7 +78,7 @@ describe('Toggle observe => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // test: scrum master 1 should have received 1 MC join + 1 MC observe
+    // Test: scrum master 1 should have received 1 MC join + 1 MC observe
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Observe)).toBe(1);
@@ -90,7 +90,7 @@ describe('Toggle observe => OK', () => {
       expect(observeMessage.data.member.participantId).toBe(participant.participantId);
     }
 
-    // test: participant 1 should have received 1  self
+    // Test: participant 1 should have received 1  self
     expect(participant.messagesReceivedAfterInitial).toBe(1);
     expect(participant.countMessageType(EServerMessageType.Self)).toBe(1);
     const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
@@ -100,7 +100,7 @@ describe('Toggle observe => OK', () => {
       expect(selfMessage.data.participantId).toBe(participant.participantId);
     }
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });

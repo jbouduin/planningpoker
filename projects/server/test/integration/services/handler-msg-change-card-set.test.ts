@@ -20,9 +20,9 @@ describe('Change card set => OK', () => {
     customizedCohn.cards.splice(9, 3);
 
     // create team
-    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     // participant joining team 1
-    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     // change card set
     const message: IChangeCardSetMessage = {
       senderId: scrumMaster.participantId,
@@ -31,7 +31,7 @@ describe('Change card set => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // test: scrum master should have received 1 MC join + 1 card list
+    // Test: scrum master should have received 1 MC join + 1 card list
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
     expect(scrumMaster.countMessageType(EServerMessageType.CardList)).toBe(1);
@@ -42,7 +42,7 @@ describe('Change card set => OK', () => {
       expect(updatedCardSetMessage.data.cards).toHaveLength(customizedCohn.cards.length);
     }
 
-    // test: participant should have received card list message only
+    // Test: participant should have received card list message only
     expect(participant.messagesReceivedAfterInitial).toBe(1);
     expect(participant.countMessageType(EServerMessageType.CardList)).toBe(1);
     updatedCardSetMessage = participant.extractMessage<ICardSetMessage>(EServerMessageType.CardList);
@@ -52,7 +52,7 @@ describe('Change card set => OK', () => {
       expect(updatedCardSetMessage.data.cards).toHaveLength(customizedCohn.cards.length);
     }
 
-    // test: unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });

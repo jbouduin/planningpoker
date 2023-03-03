@@ -16,8 +16,8 @@ describe('Pause => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with participant
-    const scrumMaster =    Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const scrumMaster =    Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     // change nick
     const message: IPauseMessage = {
       senderId: participant.participantId,
@@ -28,7 +28,7 @@ describe('Pause => OK', () => {
     // participant will close his socket as a result of the response
     participant.closeSocket();
 
-    // test: scrum master 1 should have received create messages + 1 MC join + 1 MC Paused
+    // Test: scrum master 1 should have received create messages + 1 MC join + 1 MC Paused
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Paused)).toBe(1);
@@ -40,7 +40,7 @@ describe('Pause => OK', () => {
       expect(memberChangedMessage.data.member.observer).toBe(false);
     }
 
-    // test: participant 1 should have received 1 self
+    // Test: participant 1 should have received 1 self
     const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
     expect(selfMessage).toBeDefined();
     if (selfMessage) {
@@ -48,7 +48,7 @@ describe('Pause => OK', () => {
       expect(selfMessage.data.participantId).toBe(participant.participantId);
     }
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });

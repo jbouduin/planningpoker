@@ -16,9 +16,9 @@ describe('Change scrum master => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with two participants
-    const scrumMaster= Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant1= Util.joinTeamNew( handlerService, Util.team1Name, Util.participant1Nick);
-    const participant2 = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant2Nick);
+    const scrumMaster= Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant1= Util.joinTeam( handlerService, Util.team1Name, Util.participant1Nick);
+    const participant2 = Util.joinTeam(handlerService, Util.team1Name, Util.participant2Nick);
 
     // change scrum master to participant 1
     const message: IChangeScrumMasterMessage = {
@@ -28,7 +28,7 @@ describe('Change scrum master => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // test: scrum master 1 should have received 2 MC join + 1 MC Role change + 1 Self
+    // Test: scrum master 1 should have received 2 MC join + 1 MC Role change + 1 Self
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
     expect(scrumMaster.countMessageType(EServerMessageType.Self)).toBe(1);
     expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
@@ -47,7 +47,7 @@ describe('Change scrum master => OK', () => {
       expect(roleChangedMessage.data.member.participantId).toBe(participant1.participantId);
     }
 
-    // test: participant 1 should have received 1 MC join + 1 MC role change + 1 self
+    // Test: participant 1 should have received 1 MC join + 1 MC role change + 1 self
     expect(participant1.messagesReceivedAfterInitial).toBe(3);
     expect(participant1.countMessageType(EServerMessageType.Self)).toBe(1);
     expect(participant1.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
@@ -66,11 +66,11 @@ describe('Change scrum master => OK', () => {
       expect(roleChangedMessage.data.member.participantId).toBe(scrumMaster.participantId);
     }
 
-    // test: participant 2 should have received 2 MC role changes
+    // Test: participant 2 should have received 2 MC role changes
     expect(participant2.messagesReceivedAfterInitial).toBe(2);
     expect(participant2.countMemberChangedMessages(EMemberStatusChange.ChangedRole)).toBe(2);
 
-    // test unaffected team
+    // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });
