@@ -140,36 +140,36 @@ export class HandlerService implements IHandlerService {
   //#region message handling methods ------------------------------------------
   private processMessage(sender: IServerParticipant, message: AClientMessage, teamName: string, ws: IWebSocket): void {
     if (message.type === EClientMessageType.Create) {
-      this.handleCreate(sender, <ICreatemessage>message);
+      this.handleCreate(sender, teamName, <ICreatemessage>message);
     }
     else {
       switch (message.type) {
         case (EClientMessageType.ChangeCardSet): {
-          this.handleChangeCardSet(<IChangeCardSetMessage>message, teamName);
+          this.handleChangeCardSet(teamName, <IChangeCardSetMessage>message);
           break;
         }
         case (EClientMessageType.ChangeNick): {
-          this.handleChangeNick(sender, <IChangeNickMessage>message, teamName);
+          this.handleChangeNick(sender, teamName, <IChangeNickMessage>message);
           break;
         }
         case (EClientMessageType.ChangeScrumMaster): {
-          this.handleChangeScrumMaster(sender, <IChangeScrumMasterMessage>message, teamName);
+          this.handleChangeScrumMaster(sender, teamName, <IChangeScrumMasterMessage>message);
           break;
         }
         case (EClientMessageType.Estimate): {
-          this.handleEstimate(sender, <IEstimateMessage>message, teamName);
+          this.handleEstimate(sender, teamName, <IEstimateMessage>message);
           break;
         }
         case (EClientMessageType.Join): {
-          this.handleJoin(sender, <IJoinMessage>message, teamName);
+          this.handleJoin(sender, teamName, <IJoinMessage>message, );
           break;
         }
         case (EClientMessageType.Leave): {
-          this.handleLeave(sender, <ILeaveMessage>message, teamName);
+          this.handleLeave(sender, teamName, <ILeaveMessage>message);
           break;
         }
         case (EClientMessageType.Observe): {
-          this.handleObserve(<IObserveMessage>message, teamName);
+          this.handleObserve(teamName, <IObserveMessage>message);
           break;
         }
         case (EClientMessageType.Pause): {
@@ -177,7 +177,7 @@ export class HandlerService implements IHandlerService {
           break;
         }
         case (EClientMessageType.Remove): {
-          this.handleRemove(<IRemoveMessage>message, teamName);
+          this.handleRemove(teamName, <IRemoveMessage>message);
           break;
         }
         case (EClientMessageType.Reveal): {
@@ -189,7 +189,7 @@ export class HandlerService implements IHandlerService {
           break;
         }
         case (EClientMessageType.Rejoin): {
-          this.handleRejoin(sender, <IRejoinMessage>message, teamName, ws);
+          this.handleRejoin(sender, teamName, <IRejoinMessage>message, ws);
           break;
         }
         default: {
@@ -200,14 +200,14 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleChangeCardSet(message: IChangeCardSetMessage, teamName: string): void {
+  private handleChangeCardSet(teamName: string,message: IChangeCardSetMessage): void {
     this.storage.setCardSet(teamName, message.data);
     this.messageService.broadcastCardSet(
       this.storage.getConnectedTeamMembers(teamName),
       message.data);
   }
 
-  private handleChangeNick(sender: IServerParticipant, message: IChangeNickMessage, teamName: string): void {
+  private handleChangeNick(sender: IServerParticipant, teamName: string, message: IChangeNickMessage): void {
     if (sender.nick !== message.data) {
       sender.nick = message.data;
       this.messageService.broadcastMemberChange(
@@ -218,7 +218,7 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleChangeScrumMaster(sender: IServerParticipant, message: IChangeNickMessage, teamName: string): void {
+  private handleChangeScrumMaster(sender: IServerParticipant, teamName: string, message: IChangeNickMessage): void {
     if (sender.participantId !== message.data) {
       const newScrumMaster = this.storage.getParticipant(message.data);
       if (newScrumMaster) {
@@ -241,18 +241,18 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleCreate(sender: IServerParticipant, message: ICreatemessage): void {
-    this.loggerService.info('Server', `Create: '${sender.nick}' is creating '${message.data.team}'`);
+  private handleCreate(sender: IServerParticipant, teamName: string, message: ICreatemessage): void {
+    this.loggerService.info('Server', `Create: '${sender.nick}' is creating '${teamName}'`);
     const cardSet = message.data.cardSet === ECardSet.Custom ?
       message.data.cards || this.cardService.getCardSet(ECardSet.Cohn) :
       this.cardService.getCardSet(message.data.cardSet);
     // create the team
-    const newGame = this.storage.createTeam(message.data.team, cardSet);
+    const newGame = this.storage.createTeam(teamName, cardSet);
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
     sender.role = ERole.ScrumMaster;
     // join the team
-    this.storage.joinTeam(message.data.team, sender.participantId);
+    this.storage.joinTeam(teamName, sender.participantId);
     // provide the sender with the current game state
     this.messageService.sendAllInfo(
       sender,
@@ -262,7 +262,7 @@ export class HandlerService implements IHandlerService {
       new Array<IEstimation>());
   }
 
-  private handleEstimate(sender: IServerParticipant, message: IEstimateMessage, teamName: string): void {
+  private handleEstimate(sender: IServerParticipant, teamName: string, message: IEstimateMessage): void {
     let result: IEstimation;
     const team = this.storage.getTeam(teamName);
     if (team) {
@@ -281,8 +281,8 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleJoin(sender: IServerParticipant, message: IJoinMessage, teamName: string): void {
-    this.loggerService.info('Server', `Join: '${sender.nick}' is joining '${message.data.team}'`);
+  private handleJoin(sender: IServerParticipant, teamName: string, message: IJoinMessage): void {
+    this.loggerService.info('Server', `Join: '${sender.nick}' is joining '${teamName}'`);
     sender.role = ERole.Developer;
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
@@ -305,7 +305,7 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleRemove(message: IRemoveMessage, teamName: string): void {
+  private handleRemove(teamName: string, message: IRemoveMessage): void {
     const toRemove = this.storage.getParticipant(message.data);
     if (toRemove) {
       this.storage.deleteParticipant(toRemove.participantId, teamName);
@@ -318,7 +318,7 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleLeave(sender: IServerParticipant, message: ILeaveMessage, teamName: string): void {
+  private handleLeave(sender: IServerParticipant, teamName: string, message: ILeaveMessage): void {
     if (sender.role === ERole.ScrumMaster) {
       this.loggerService.info('Server', `End game: '${sender.nick}' is ending '${teamName}'`);
       this.messageService.broadcastSessionEnded(this.storage.getConnectedTeamMembers(teamName));
@@ -345,7 +345,7 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleObserve(message: IObserveMessage, teamName: string): void {
+  private handleObserve(teamName: string, message: IObserveMessage): void {
     const member = this.storage.getParticipant(message.data.member);
     if (member && member.observer !== message.data.observer) {
       member.observer = message.data.observer;
@@ -368,7 +368,7 @@ export class HandlerService implements IHandlerService {
       EMemberChangeType.Paused);
   }
 
-  private handleRejoin(sender: IServerParticipant, message: IRejoinMessage, teamName: string, ws: IWebSocket): void {
+  private handleRejoin(sender: IServerParticipant, teamName: string, message: IRejoinMessage, ws: IWebSocket): void {
     this.loggerService.info('Server', `Rejoin: '${message.senderId}' => '${message.data}' `);
     // find the original participant and the game he was in
     const oldParticipant = this.storage.getParticipant(message.data);

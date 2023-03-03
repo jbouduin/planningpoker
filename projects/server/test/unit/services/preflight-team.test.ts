@@ -40,7 +40,6 @@ const service: IPreflightService = new PreflightService();
 
 describe('preflight Create', () => {
   const data: ICreate = {
-    team: team1Name,
     observer: false,
     cardSet: ECardSet.Cohn,
     nick: participant1Name
@@ -77,7 +76,6 @@ describe('preflight Create', () => {
 
 describe('preflight Join', () => {
   const data: IJoin = {
-    team: team1Name,
     observer: false,
     nick: participant1Name
   };

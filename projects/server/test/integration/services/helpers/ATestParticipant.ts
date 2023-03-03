@@ -7,26 +7,97 @@ import { IServerParticipant } from "../../../../src/objects";
 import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
 
 export interface IATestParticipant {
+  /**
+   * Returns the server generated participantId (UUID) of the connected IServerParticipant
+   */
   readonly participantId: string;
+
+  /**
+   * The socket used by the participant
+   */
   readonly socket: IWebSocket;
-  readonly participant: IServerParticipant;
+
+  /**
+   * The number of messages received after receiving the initial messages
+   */
   readonly messagesReceivedAfterInitial: number;
+
+  /**
+   * The total number of messages received
+   */
   readonly totalMessagesReceived: number;
+
+  /**
+   * The number of initial messages the participant should receive.
+   * Value needs to be set in the constructor of descendant classes
+   */
   readonly expectedNumberOfInitialMessages: number;
+
+  /**
+   * The teamname as it would be used in the URL
+   */
   teamName: string;
 
+  /**
+   * Close the socket of the participant. This triggers IHandlerService.handleClose.
+   */
   closeSocket(): void;
+
+  /**
+   * Count the number of IMemberChange messages of the given type
+   * @param changeType - the type of member change
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @returns the number found
+   */
   countMemberChangedMessages(changeType: EMemberChangeType, skipInitialMessages?: boolean): number;
+
+  /**
+   * Counte the number of messages of a given type
+   * @param messageType - the message type
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @returns the number found
+   */
   countMessagesOfType(messageType: EServerMessageType, skipInitialMessages?: boolean): number;
+
+  /**
+   * Write the received messages as JSON to the console
+   */
   dumpMessages(): void;
+
+  /**
+   * Check if an error message was received with the given error code. This method does not skip the initial messages
+   * @param errorCode - The error code to be searched for
+   * @returns true if the error message was found
+   */
   errorMessageReceived(errorCode: EErrorCode): boolean;
-  extractMemberChangedMessage(changeType: EMemberChangeType, skipInitialMessages?:boolean, occurrence?: number): IMemberChangeMessage | undefined;
+
+  /**
+   * Search for the x-th occurrence of a IMemberChangeMessage of the given change type
+   * @param changeType - the type of member change
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @param occurrence - 0-based
+   */
+  extractMemberChangedMessage(changeType: EMemberChangeType, skipInitialMessages?: boolean, occurrence?: number): IMemberChangeMessage | undefined;
+
+  /**
+   * Search for the x-th occurrence of a message of the given type
+   * @param messageType - the message type
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @param occurrence - 0-based
+   * @returns the x-th occurrence or undefined
+   */
   extractMessage<T = AServerMessage>(messageType: EServerMessageType, skipInitialMessages?: boolean, occurrence?: number): T | undefined;
 
+  /**
+   * calls IHandlerService.handleMessage
+   * @param message - a AClientMessage
+   */
   sendMessage(message: AClientMessage): void;
 }
 
 export abstract class ATestParticipant implements IATestParticipant {
+
+  private participant: IServerParticipant;
 
   protected get allMessages(): Array<AServerMessage> {
     return this.send.mock.calls
@@ -41,7 +112,7 @@ export abstract class ATestParticipant implements IATestParticipant {
 
   public send: jest.Mock<(_message: string) => void>;
   public socket: IWebSocket;
-  public participant: IServerParticipant;
+
   public expectedNumberOfInitialMessages: number;
   public teamName: string;
 

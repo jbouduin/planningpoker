@@ -69,8 +69,7 @@ export class Util {
       type: EClientMessageType.Join,
       data: {
         nick: nickName,
-        observer: observer,
-        team: teamName
+        observer: observer
       }
     };
     participant.sendMessage(message);
@@ -109,7 +108,6 @@ export class Util {
       senderId: scrumMaster.participantId,
       data: {
         nick: scrumMasterNick,
-        team: teamName,
         observer: observer,
         cardSet: cardSet || ECardSet.Cohn,
         cards: cards

@@ -13,10 +13,10 @@ describe('Join => OK', () => {
     const cohn = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create the team with particpant
+    // Setup: create the team with particpant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
@@ -107,13 +107,14 @@ describe('Join => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // customize a card set
+    // Setup: customize a card set
     const cohn = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     cohn.cards.splice(9, 3);
-    // create team with participant and a customized cardset
+
+    // Setup: create team with participant and a customized cardset
     Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick, false, ECardSet.Cohn, cohn);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
@@ -133,14 +134,14 @@ describe('Join => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with two participants
+    // Setup: create team with two participants
     const scrumMaster1 = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     const participant2 = Util.joinTeam(handlerService, Util.team1Name, Util.participant2Nick);
-    // create team 2 with two participants
+    // Setup: create team 2 with two participants
     const scrumMaster2 = Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
     const participant3 = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
     const participant4 = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
@@ -172,31 +173,30 @@ describe('Join => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team
+    // Setup: create team
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.connectParticipant(handlerService);
     participant.teamName = Util.team1Name;
-    // try to join with a wrong id
+    // Run: try to join with a wrong id
     const message: IJoinMessage = {
       senderId: 'some participant id',
       type: EClientMessageType.Join,
       data: {
         nick: Util.participant1Nick,
-        observer: false,
-        team: Util.team1Name
+        observer: false
       }
     };
     participant.sendMessage(message);
 
-    // participant should only have received 1 Init and one error
+    // Test: participant should only have received 1 Init and one error
     expect(participant.totalMessagesReceived).toBe(2);
     expect(participant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
     expect(participant.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
 
-    // scrum master should not have received any additional messages
+    // Test: scrum master should not have received any additional messages
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
@@ -207,17 +207,17 @@ describe('Join => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // connect the user
+    // Setup: connect the user
     const participant = Util.connectParticipant(handlerService);
     participant.teamName = Util.team1Name;
-    // join a non existing team
+
+    // Run: try to join a non-existing team
     const message: IJoinMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
         nick: Util.participant1Nick,
-        observer: false,
-        team: Util.team1Name
+        observer: false
       }
     };
     participant.sendMessage(message);
@@ -232,32 +232,32 @@ describe('Join => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create the team
-    const scrumMaster =     Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // connect the participant
+    // Setup: create the team
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // Setup: connect the participant
     const participant = Util.connectParticipant(handlerService);
     participant.teamName = Util.team2Name;
-    // join a non existing team
+
+    // Run: try to join a non-existing team
     const message: IJoinMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
         nick: Util.participant1Nick,
-        observer: false,
-        team: Util.team2Name
+        observer: false
       }
     };
     participant.sendMessage(message);
 
-    // Participant should only receive 1 init and 1 error message
+    // Test: Participant should only receive 1 init and 1 error message
     expect(participant.totalMessagesReceived).toBe(2);
     expect(participant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
     expect(participant.errorMessageReceived(EErrorCode.TeamDoesNotExist)).toBe(true);
 
-    // scrum master should not have received any additional messages
+    // Test: Scrum master should not have received any additional messages
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
@@ -268,21 +268,20 @@ describe('Join => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create the team with the participant
+    // Setup: create the team with the participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // join the team again
+    // Run: try to join the team again
     const message: IJoinMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
         nick: Util.participant1Nick,
-        observer: false,
-        team: Util.team1Name
+        observer: false
       }
     };
     participant.sendMessage(message);
@@ -303,23 +302,23 @@ describe('Join => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with participant
-    const scrumMaster1=    Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // Setup: create team with participant
+    const scrumMaster1 = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-    // create team 2
+    // Setup: create team 2
     const scrumMaster2 = Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
 
-    // participant tries to join team 1
+    // Run: participant tries to join team 2
+    participant.teamName = Util.team2Name;
     const message: IJoinMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
         nick: Util.participant1Nick,
-        observer: false,
-        team: Util.team2Name
+        observer: false
       }
     };
     participant.sendMessage(message);
