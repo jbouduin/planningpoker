@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import { InjectionToken, It, Mock } from 'moq.ts';
 import { Container } from "inversify";
 
 import SERVICETYPES from '../../../../src/services/service.types';
@@ -29,16 +30,27 @@ export class Util {
   public static expectedMessagesCreate = 6;
   public static expectedMessagesJoin = 6;
 
-    // TODO 2369 let the methods joinTeam and createTeam return a tuple or define an interface for that
 
   public static getContainer(): Container {
-    // TODO 2369 mock the loggerservice
+    const logMock = new Mock<ILoggerService>()
+      .setup((service: ILoggerService) => service.debug(It.IsAny(), It.IsAny()))
+      .returns(undefined)
+      .setup((service: ILoggerService) => service.info(It.IsAny(), It.IsAny()))
+      .returns(undefined)
+      .setup((service: ILoggerService) => service.warning(It.IsAny(), It.IsAny()))
+      .returns(undefined)
+      .setup((service: ILoggerService) => service.error(It.IsAny(), It.IsAny()))
+      .returns(undefined)
+      .setup((service: ILoggerService) => service.logError(It.IsAny(), It.IsAny()))
+      .returns(undefined);
+
     const container = new Container();
     container.bind<ICardService>(SERVICETYPES.CardService).to(CardService).inSingletonScope();
     container.bind<ICronService>(SERVICETYPES.CronService).to(CronService).inSingletonScope();
     container.bind<IEnvironmentService>(SERVICETYPES.EnvironmentService).to(EnvironmentService).inSingletonScope();
     container.bind<IHandlerService>(SERVICETYPES.HandlerService).to(HandlerService);
-    container.bind<ILoggerService>(SERVICETYPES.LoggerService).to(LoggerService).inSingletonScope();
+    container.bind<ILoggerService>(SERVICETYPES.LoggerService).toConstantValue(logMock.object());
+    // container.bind<ILoggerService>(SERVICETYPES.LoggerService).to()
     container.bind<IMessageService>(SERVICETYPES.MessageService).to(MessageService);
     container.bind<IPreflightService>(SERVICETYPES.PreflightService).to(PreflightService);
     container.bind<ISenderService>(SERVICETYPES.SenderService).to(SenderService);
@@ -62,7 +74,7 @@ export class Util {
 
 
 
-  public static extractMessage<T>(messages: Array<[message: string]>, messageType: EServerMessageType, occurrence= 0): T {
+  public static extractMessage<T>(messages: Array<[message: string]>, messageType: EServerMessageType, occurrence = 0): T {
     return <T>messages
       .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
       .filter((message: AServerMessage) => message.type === messageType)[occurrence];
@@ -75,7 +87,7 @@ export class Util {
     return (errorMessage !== undefined) && errorMessage.data.code === errorCode;
   }
 
-  public static createTeam(socket: IWebSocket, handlerService: IHandlerService, teamName: string, scrumMasterNick: string, cards?: ICardSet ): string {
+  public static createTeam(socket: IWebSocket, handlerService: IHandlerService, teamName: string, scrumMasterNick: string, cards?: ICardSet): string {
     const scrumMaster = handlerService.handleConnect(socket);
     const message: ICreatemessage = {
       type: EClientMessageType.Create,
@@ -98,7 +110,7 @@ export class Util {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
-        nick:nick,
+        nick: nick,
         observer: observer,
         team: teamName
       }
@@ -111,7 +123,7 @@ export class Util {
     return new TestParticipant(handlerService);
   }
 
-  public static joinTeamNew(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant{
+  public static joinTeamNew(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
     const participant = this.connectParticipant(handlerService);
     participant.teamName = teamName;
     const message: IJoinMessage = {
