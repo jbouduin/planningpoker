@@ -14,14 +14,14 @@ describe('create => OK', () => {
     const tshirt = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.TShirt);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // Create team 1
+    // Run: Create team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, Util.team1Name, Util.scrumMaster1Nick, false, ECardSet.TShirt);
 
-    // check the initial messages received by the scrum master
+    // Test: check the initial messages received by the scrum master
     expect(scrumMaster.totalMessagesReceived).toBe(scrumMaster.expectedNumberOfInitialMessages);
     expect(scrumMaster.countMessagesOfType(EServerMessageType.Self, false)).toBe(1);
     const selfMessage = scrumMaster.extractMessage<ISelfMessage>(EServerMessageType.Self, false);
@@ -65,11 +65,11 @@ describe('create => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create the team
+    // Run: create the team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.TShirt);
 
-    // check if the observer flag was send correctly
+    // Test: check if the observer flag was send correctly
     const selfMessage = scrumMaster.extractMessage<ISelfMessage>(EServerMessageType.Self, false);
     expect(selfMessage).toBeDefined();
     if (selfMessage) {
@@ -80,15 +80,15 @@ describe('create => OK', () => {
   test('Create with a custom card list', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
-    // customize a card set
+    // Setup: customize a card set
     const cohn = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     cohn.cards.splice(9, 3);
 
-    // create the team
+    // Run: create the team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, cohn);
 
-    // check if the card set message contains the correct data
+    // Test: check if the card set message contains the correct data
     const cardSetMessage = scrumMaster.extractMessage<ICardSetMessage>(EServerMessageType.CardList, false);
     expect(cardSetMessage).toBeDefined();
     if (cardSetMessage) {
@@ -104,10 +104,10 @@ describe('Create => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // Try to recreate the unaffected team
+    // Run: Try to recreate the unaffected team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, unaffectedTeam.teamName, Util.scrumMaster1Nick, false, ECardSet.TShirt);
 
@@ -123,19 +123,19 @@ describe('Create => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // connect a user
+    // Setup: connect a user
     const scrumMaster = Util.connectParticipant(handlerService);
     scrumMaster.teamName = Util.team1Name;
-    // create the team with an unknown participant
+
+    // Run: create the team passing an unknown participantId
     const message: ICreatemessage = {
       type: EClientMessageType.Create,
       senderId: 'some participant id',
       data: {
         nick: Util.scrumMaster1Nick,
-        team: Util.team1Name,
         observer: false,
         cardSet: ECardSet.Cohn
       }

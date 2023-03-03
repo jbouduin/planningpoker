@@ -105,7 +105,6 @@ export class SessionService {
     this.initialMessage = new CreateMessage(
       '',
       {
-        team: team,
         observer: observer || false,
         nick: nick,
         cardSet: cardSet,
@@ -121,7 +120,6 @@ export class SessionService {
     this.initialMessage = new JoinMessage(
       '',
       {
-        team: team,
         observer: observer,
         nick: nick
       }
