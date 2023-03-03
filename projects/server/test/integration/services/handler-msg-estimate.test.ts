@@ -4,7 +4,7 @@ import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 
-import { EClientMessageType, EServerMessageType, IEstimateMessage, IEstimationsMessage, IStartMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberStatusChange, EServerMessageType, IEstimateMessage, IEstimationsMessage, IStartMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 
@@ -16,53 +16,55 @@ describe('Estimate => OK', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    const scrumMaster1ParticipantId = Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    const participant1Id = Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
+    // create team with one participant
+    const scrumMaster= Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant= Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+
     // start estimation
     const message: IStartMessage = {
-      senderId: scrumMaster1ParticipantId,
+      senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster1Socket);
+    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
+
     // estimate
     const estimateMessage: IEstimateMessage = {
-      senderId: participant1Id,
+      senderId: participant.participantId,
       data: 2,
       type: EClientMessageType.Estimate
     };
-    handlerService.handleMessage(estimateMessage, Util.team1Name, participant1Socket);
+    handlerService.handleMessage(estimateMessage, Util.team1Name, participant.socket);
 
-    // test: scrum master 1 should have received create messages + 1 join + 1 clear + 1 pokerstatus + 1 additional estimation list
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 4);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.EstimationList)).toBe(2);
-    expect(Util.countFilteredMessages<IEstimationsMessage>(
-      scrumMaster1Send.mock.calls,
-      EServerMessageType.EstimationList,
-      (m: IEstimationsMessage) => m.data.length === 1 &&
-        m.data[0].participantId === participant1Id &&
+    // test: scrum master 1 should have received 1 MC join + 1 clear + 1 pokerstatus + 1 estimation list
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(scrumMaster.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
+    expect(scrumMaster.countMessageType(EServerMessageType.EstimationList)).toBe(1);
+    let estimationListMessage = scrumMaster.extractMessage<IEstimationsMessage>(EServerMessageType.EstimationList);
+    expect(estimationListMessage).toBeDefined();
+    if (estimationListMessage) {
+      expect(estimationListMessage.data).toHaveLength(1);
+      expect(estimationListMessage.data[0].participantId).toBe(participant.participantId);
         // TODO 2383 remove 999 to indicate that we do not want to send the estimated value
-        m.data[0].cardIndex === 999 &&
-        m.data[0].revealed === false
-    )).toBe(1);
+      expect(estimationListMessage.data[0].cardIndex).toBe(999);
+      expect(estimationListMessage.data[0].revealed).toBe(false);
+    }
 
-    // test: participant 1 should have received join messages + 1 clear + 1 pokerstatus + 1 additional estimation list
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesCreate + 3);
-    expect(Util.countMessageType(participant1Send.mock.calls, EServerMessageType.EstimationList)).toBe(2);
-    expect(Util.countFilteredMessages<IEstimationsMessage>(
-      participant1Send.mock.calls,
-      EServerMessageType.EstimationList,
-      (m: IEstimationsMessage) => m.data.length === 1 &&
-        m.data[0].participantId === participant1Id &&
-        m.data[0].cardIndex === 2 &&
-        m.data[0].revealed === true
-    )).toBe(1);
+    // test: participant should have received 1 clear + 1 pokerstatus + 1 additional estimation list
+    expect(participant.messagesReceivedAfterInitial).toBe(3);
+    expect(participant.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(participant.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
+    expect(participant.countMessageType(EServerMessageType.EstimationList)).toBe(1);
+    estimationListMessage = participant.extractMessage<IEstimationsMessage>(EServerMessageType.EstimationList);
+    expect(estimationListMessage).toBeDefined();
+    if (estimationListMessage) {
+      expect(estimationListMessage.data).toHaveLength(1);
+      expect(estimationListMessage.data[0].participantId).toBe(participant.participantId);
+      expect(estimationListMessage.data[0].cardIndex).toBe(2);
+      expect(estimationListMessage.data[0].revealed).toBe(true);
+    }
 
     // test unaffected team
     expect(unaffectedTeam.isUnaffected).toBe(true);

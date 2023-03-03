@@ -16,64 +16,60 @@ describe('Change scrum master => OK', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    const scrumMaster1ParticipantId = Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    const participant1Id = Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
-    // participant 2 joining team 1
-    const participant2Send = jest.fn((_message: string) => Util.noop());
-    const participant2Socket = Util.getSocket(participant2Send);
-    Util.joinTeam(participant2Socket, handlerService, Util.team1Name, Util.participant2Nick);
+    // create team with two participants
+    const scrumMaster= Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant1= Util.joinTeamNew( handlerService, Util.team1Name, Util.participant1Nick);
+    const participant2 = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant2Nick);
 
-    // change scrum master
+    // change scrum master to participant 1
     const message: IChangeScrumMasterMessage = {
-      senderId: scrumMaster1ParticipantId,
-      data: participant1Id,
+      senderId: scrumMaster.participantId,
+      data: participant1.participantId,
       type: EClientMessageType.ChangeScrumMaster
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster1Socket);
+    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
 
-    // test: scrum master 1 should have received create messages + 2 joins + 1 role change + 1 additional self
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 4);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.Self)).toBe(2);
-    expect(Util.countFilteredMessages<ISelfMessage>(
-      scrumMaster1Send.mock.calls,
-      EServerMessageType.Self,
-      (m: ISelfMessage) => m.data.role === ERole.Developer
-    )).toBe(1);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.MemberChanged)).toBe(3);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      scrumMaster1Send.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.member.role === ERole.ScrumMaster &&
-        m.data.memberStatusChange === EMemberStatusChange.ChangedRole &&
-        m.data.member.participantId === participant1Id
-    )).toBe(1);
+    // test: scrum master 1 should have received 2 MC join + 1 MC Role change + 1 Self
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
+    expect(scrumMaster.countMessageType(EServerMessageType.Self)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.ChangedRole)).toBe(1);
+    let selfMessage = scrumMaster.extractMessage<ISelfMessage>(EServerMessageType.Self);
+    expect(selfMessage).toBeDefined();
+    if (selfMessage) {
+      expect(selfMessage.data.participantId).toBe(scrumMaster.participantId);
+      expect(selfMessage.data.role).toBe(ERole.Developer);
+    }
+    let roleChangedMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.ChangedRole);
+    expect(roleChangedMessage).toBeDefined();
+    if (roleChangedMessage) {
+      expect(roleChangedMessage.data.member.role).toBe(ERole.ScrumMaster);
+      expect(roleChangedMessage.data.memberStatusChange).toBe(EMemberStatusChange.ChangedRole);
+      expect(roleChangedMessage.data.member.participantId).toBe(participant1.participantId);
+    }
 
-    // test: participant 1 should have received join messages + 1 join + 1 role change + 1 self
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesCreate + 3);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.Self)).toBe(2);
-    expect(Util.countFilteredMessages<ISelfMessage>(
-      scrumMaster1Send.mock.calls,
-      EServerMessageType.Self,
-      (m: ISelfMessage) => m.data.role === ERole.ScrumMaster
-    )).toBe(1);
-    expect(Util.countMessageType(participant1Send.mock.calls, EServerMessageType.MemberChanged)).toBe(2);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      participant1Send.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.member.role === ERole.Developer &&
-        m.data.memberStatusChange === EMemberStatusChange.ChangedRole &&
-        m.data.member.participantId === scrumMaster1ParticipantId
-    )).toBe(1);
+    // test: participant 1 should have received 1 MC join + 1 MC role change + 1 self
+    expect(participant1.messagesReceivedAfterInitial).toBe(3);
+    expect(participant1.countMessageType(EServerMessageType.Self)).toBe(1);
+    expect(participant1.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(participant1.countMemberChangedMessages(EMemberStatusChange.ChangedRole)).toBe(1);
+    selfMessage = participant1.extractMessage<ISelfMessage>(EServerMessageType.Self);
+    expect(selfMessage).toBeDefined();
+    if (selfMessage) {
+      expect(selfMessage.data.participantId).toBe(participant1.participantId);
+      expect(selfMessage.data.role).toBe(ERole.ScrumMaster);
+    }
+    roleChangedMessage = participant1.extractMemberChangedMessage(EMemberStatusChange.ChangedRole);
+    expect(roleChangedMessage).toBeDefined();
+    if (roleChangedMessage) {
+      expect(roleChangedMessage.data.member.role).toBe(ERole.Developer);
+      expect(roleChangedMessage.data.memberStatusChange).toBe(EMemberStatusChange.ChangedRole);
+      expect(roleChangedMessage.data.member.participantId).toBe(scrumMaster.participantId);
+    }
 
-    // test: participant 2 should have received join messages + 2 role changes
-    expect(participant2Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
-    expect(Util.countMessageType(participant2Send.mock.calls, EServerMessageType.MemberChanged)).toBe(2);
+    // test: participant 2 should have received 2 MC role changes
+    expect(participant2.messagesReceivedAfterInitial).toBe(2);
+    expect(participant2.countMemberChangedMessages(EMemberStatusChange.ChangedRole)).toBe(2);
 
     // test unaffected team
     expect(unaffectedTeam.isUnaffected).toBe(true);

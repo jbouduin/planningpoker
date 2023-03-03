@@ -4,7 +4,7 @@ import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 
-import { EClientMessageType, EErrorCode, EMemberStatusChange, EServerMessageType, ILeaveMessage, IMemberChangedMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, EServerMessageType, ILeaveMessage, IMemberChangedMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 describe('Leaving => OK', () => {
@@ -15,51 +15,45 @@ describe('Leaving => OK', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team
-    const scrumMasterSend = jest.fn((_message: string) => Util.noop());
-    const scrumMasterSocket = Util.getSocket(scrumMasterSend);
-    Util.createTeam(scrumMasterSocket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant 1 joining
-    const participantSend = jest.fn((_message: string) => Util.noop());
-    const participantSocket = Util.getSocket(participantSend);
-    const participant1Id = Util.joinTeam(participantSocket, handlerService, Util.team1Name, Util.participant1Nick);
-    // observer 1 joining
-    const observerSend = jest.fn((_message: string) => Util.noop());
-    const observerSocket = Util.getSocket(observerSend);
-    Util.joinTeam(observerSocket, handlerService, Util.team1Name, Util.observer2Name);
-    // participant 1 leaves
+    // create team with participant and observer
+    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const observer = Util.joinTeamNew(handlerService, Util.team1Name, Util.observer1Name, true);
+
+    // participant leaves
     const message: ILeaveMessage = {
-      senderId: participant1Id,
-      data: participant1Id,
+      senderId: participant.participantId,
+      data: participant.participantId,
       type: EClientMessageType.Leave
     };
-    handlerService.handleMessage(message, Util.team1Name, participantSocket);
-    handlerService.handleClose(participantSocket);
+    handlerService.handleMessage(message, Util.team1Name, participant.socket);
+    handlerService.handleClose(participant.socket);
 
-    // test: scrum master should have received create messages + 2 join memberchange + 1 leave memberchange
-    expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate + 3);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      scrumMasterSend.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.memberStatusChange == EMemberStatusChange.Joined)
-    ).toBe(2);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      scrumMasterSend.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.memberStatusChange == EMemberStatusChange.Left && participant1Id === participant1Id)
-    ).toBe(1);
+    // test: scrum master should have received 2 MC join + 1 MC leave
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
+    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(leftMessage).toBeDefined();
+    if (leftMessage) {
+      expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
+      expect(leftMessage.data.member.participantId).toBe(participant.participantId);
+    }
 
-    // test: observer should have received join messages + 1 leave memberchange
-    expect(observerSend).toBeCalledTimes(Util.expectedMessagesJoin + 1);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      observerSend.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.memberStatusChange == EMemberStatusChange.Left && participant1Id === participant1Id)
-    ).toBe(1);
+    // test: observer should have received 1 MC leave
+    expect(observer.messagesReceivedAfterInitial).toBe(1);
+    expect(observer.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
+    leftMessage = observer.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(leftMessage).toBeDefined();
+    if (leftMessage) {
+      expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
+      expect(leftMessage.data.member.participantId).toBe(participant.participantId);
+    }
 
-    // test: participant should have received join messages + 1 join memberchange + his own leave acknowledge message
-    expect(participantSend).toBeCalledTimes(Util.expectedMessagesJoin + 2);
-    expect(Util.countMessageType(participantSend.mock.calls, EServerMessageType.Left)).toBe(1);
+    // test: participant should have received 1 MC join memberchange + 1 Left
+    expect(participant.messagesReceivedAfterInitial).toBe(2);
+    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(participant.countMessageType(EServerMessageType.Left)).toBe(1);
 
     // test unaffected team
     expect(unaffectedTeam.isUnaffected).toBe(true);
@@ -72,69 +66,52 @@ describe('Leaving => OK', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team
-    const scrumMasterSend = jest.fn((_message: string) => Util.noop());
-    const scrumMasterSocket = Util.getSocket(scrumMasterSend);
-    Util.createTeam(scrumMasterSocket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant 1 joining
-    const participantSend = jest.fn((_message: string) => Util.noop());
-    const participantSocket = Util.getSocket(participantSend);
-    const participant1Id = Util.joinTeam(participantSocket, handlerService, Util.team1Name, Util.participant1Nick);
-    // observer 1 joining
-    const observerSend = jest.fn((_message: string) => Util.noop());
-    const observerSocket = Util.getSocket(observerSend);
-    Util.joinTeam(observerSocket, handlerService, Util.team1Name, Util.observer2Name);
-    // participant 1 disconnecting
-    handlerService.handleClose(participantSocket);
-    // participant 1 reconnects
-    const participantReconnectSend = jest.fn((_message: string) => Util.noop());
-    const participantReconnectSocket = Util.getSocket(participantReconnectSend);
-    const participantReconnectedId = handlerService.handleConnect(participantReconnectSocket).participantId;
+    // create team with participant and observer
+    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
+    const observer = Util.joinTeamNew(handlerService, Util.team1Name, Util.observer1Name, true);
+
+    // participant 1 reconnects to leave
+    const reconnect = Util.connectParticipant(handlerService);
+
     // participant 1 leaves
     const message: ILeaveMessage = {
-      senderId: participantReconnectedId,
-      data: participant1Id,
+      senderId: reconnect.participantId,
+      data: participant.participantId,
       type: EClientMessageType.Leave
     };
-    handlerService.handleMessage(message, Util.team1Name, participantReconnectSocket);
-    handlerService.handleClose(participantReconnectSocket);
+    handlerService.handleMessage(message, Util.team1Name, reconnect.socket);
+    handlerService.handleClose(reconnect.socket);
 
-    // Test: scrum master should have received create messages + 2 join memberchange + 1 disconnected member change + 1 leave memberchange
-    expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate + 4);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      scrumMasterSend.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.memberStatusChange == EMemberStatusChange.Joined)
-    ).toBe(2);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      scrumMasterSend.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.memberStatusChange == EMemberStatusChange.Disconnected && participant1Id === participant1Id)
-    ).toBe(1);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      scrumMasterSend.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.memberStatusChange == EMemberStatusChange.Left && participant1Id === participant1Id)
-    ).toBe(1);
+    // Test: scrum master should have received 2 MC join + 1 MC disconnected + 1 MC leave
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
+    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(leftMessage).toBeDefined();
+    if (leftMessage) {
+      expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
+      expect(leftMessage.data.member.participantId).toBe(participant.participantId);
+    }
 
-    // Test: observer should have received join messages + 1 disconnected member change + 1 leave memberchange
-    expect(observerSend).toBeCalledTimes(Util.expectedMessagesJoin + 2);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      observerSend.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.memberStatusChange == EMemberStatusChange.Disconnected && participant1Id === participant1Id)
-    ).toBe(1);
+    // Test: observer should have received + 1 MC disconnect + 1 MC leave
+    expect(observer.messagesReceivedAfterInitial).toBe(1);
+    expect(observer.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
+    leftMessage = observer.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(leftMessage).toBeDefined();
+    if (leftMessage) {
+      expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
+      expect(leftMessage.data.member.participantId).toBe(participant.participantId);
+    }
 
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      observerSend.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.memberStatusChange == EMemberStatusChange.Left && participant1Id === participant1Id)
-    ).toBe(1);
+    // Test: participant should have received his init message
+    expect(participant.messagesReceivedAfterInitial).toBe(0);
 
     // Test: reconnected participant should have received init messages + his own leave acknowledge message
-    expect(participantReconnectSend).toBeCalledTimes(2);
-    expect(Util.countMessageType(participantReconnectSend.mock.calls, EServerMessageType.Init)).toBe(1);
-    expect(Util.countMessageType(participantReconnectSend.mock.calls, EServerMessageType.Left)).toBe(1);
+    console.log(JSON.stringify(reconnect.send.mock.calls, null, 2))
+    expect(reconnect.countMessageType(EServerMessageType.Init, false)).toBe(1);
+    expect(reconnect.countMessageType(EServerMessageType.Left, false)).toBe(1);
 
     // test unaffected team
     expect(unaffectedTeam.isUnaffected).toBe(true);
@@ -149,42 +126,37 @@ describe('Leaving => OK', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team
-    const scrumMasterSend = jest.fn((_message: string) => Util.noop());
-    const scrumMasterSocket = Util.getSocket(scrumMasterSend);
-    const scrumMasterId = Util.createTeam(scrumMasterSocket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant 1 joining
-    const participantSend = jest.fn((_message: string) => Util.noop());
-    const participantSocket = Util.getSocket(participantSend);
-    Util.joinTeam(participantSocket, handlerService, Util.team1Name, Util.participant1Nick);
-    // observer 1 joining
-    const observerSend = jest.fn((_message: string) => Util.noop());
-    const observerSocket = Util.getSocket(observerSend);
-    Util.joinTeam(observerSocket, handlerService, Util.team1Name, Util.observer2Name);
-    // participant 1 leaves
+    // create team with participant and observer
+    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const observer = Util.joinTeamNew(handlerService, Util.team1Name, Util.observer1Name, true);
+
+    // scrum master leaves
     const message: ILeaveMessage = {
-      senderId: scrumMasterId,
-      data: scrumMasterId,
+      senderId: scrumMaster.participantId,
+      data: scrumMaster.participantId,
       type: EClientMessageType.Leave
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMasterSocket);
+    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
     // clients will close their socket as a reaction on the session ended message
-    handlerService.handleClose(scrumMasterSocket);
-    handlerService.handleClose(participantSocket);
-    handlerService.handleClose(observerSocket);
+    handlerService.handleClose(scrumMaster.socket);
+    handlerService.handleClose(participant.socket);
+    handlerService.handleClose(observer.socket);
 
-    // test: scrum master should have received create messages + 2 join memberchange + 1 session ended
-    expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate + 3);
-    expect(Util.countMessageType(scrumMasterSend.mock.calls, EServerMessageType.EndSession)).toBe(1);
+    // test: scrum master should have received 2 MC join  + 1 session ended
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
+    expect(scrumMaster.countMessageType(EServerMessageType.EndSession)).toBe(1);
 
-    // test: observer should have received join messages + 1 session ended
-    expect(observerSend).toBeCalledTimes(Util.expectedMessagesJoin + 1);
-    expect(Util.countMessageType(observerSend.mock.calls, EServerMessageType.EndSession)).toBe(1);
+    // test: participant should have received 1 MC join + 1 session ended
+    expect(participant.messagesReceivedAfterInitial).toBe(2);
+    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(participant.countMessageType(EServerMessageType.EndSession)).toBe(1);
 
-    // test: participant should have received join messages + 1 join memberchange + 1 session ended
-    expect(participantSend).toBeCalledTimes(Util.expectedMessagesJoin + 2);
-    expect(Util.countMessageType(participantSend.mock.calls, EServerMessageType.EndSession)).toBe(1);
+    // test: observer should have received 1 session ended
+    expect(observer.messagesReceivedAfterInitial).toBe(1);
 
+    expect(observer.countMessageType(EServerMessageType.EndSession)).toBe(1);
     // test unaffected team
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });

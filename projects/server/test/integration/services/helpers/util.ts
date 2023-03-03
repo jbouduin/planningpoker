@@ -4,14 +4,15 @@ import { Container } from "inversify";
 import SERVICETYPES from '../../../../src/services/service.types';
 import STORAGETYPES from '../../../../src/storage/storage.types';
 
-import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICardSet, ICreatemessage, IErrorMessage, IJoinMessage } from '../../../../../shared-lib/src';
+import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICardSet, ICreatemessage, IErrorMessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
 import { CardService, CronService, EnvironmentService, HandlerService, LoggerService, MessageService, PreflightService, SenderService } from '../../../../src/services/implementation';
 import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService } from '../../../../src/services/interfaces';
 import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
 import { CardSetRepository, EstimationRepository, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../../src/storage/implementation";
 import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../../src/storage/interfaces";
-import { TestParticipant } from './TestParticipant';
+import { ITestParticipant, TestParticipant } from './TestParticipant';
 import { UnaffectedTeam } from './UnaffectedTeam';
+import { ITestScrumMaster } from './TestScrumMaster';
 
 export class Util {
   public static scrumMaster1Nick = 'John Doe';
@@ -28,9 +29,7 @@ export class Util {
   public static expectedMessagesCreate = 6;
   public static expectedMessagesJoin = 6;
 
-  // TODO 2369 create a method to strip the join and create messages or add a parameter to the methods to start searching at a given index
-  // TODO 2369 let the methods joinTeam and createTeam return a tuple or define an interface for that
-  // TODO 2369 create a method that creates a team with scrum master, a connected user, a disconnected user to test if not methods are send across teams
+    // TODO 2369 let the methods joinTeam and createTeam return a tuple or define an interface for that
 
   public static getContainer(): Container {
     // TODO 2369 mock the loggerservice
@@ -60,21 +59,8 @@ export class Util {
     }
   }
 
-  public static countMessageType(messages: Array<[message: string]>, messageType: EServerMessageType): number {
-    return messages
-      .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
-      .filter((message: AServerMessage) => message.type === messageType)
-      .length
-  }
 
-  public static countFilteredMessages<T>(messages: Array<[message: string]>, messageType: EServerMessageType, filter: (m: T) => boolean): number {
-    return messages
-      .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
-      .filter((message: AServerMessage) => message.type === messageType)
-      .map((message: AServerMessage) => <T>message)
-      .filter((message: T) => filter(message))
-      .length
-  }
+
 
   public static extractMessage<T>(messages: Array<[message: string]>, messageType: EServerMessageType, occurrence= 0): T {
     return <T>messages
@@ -82,13 +68,7 @@ export class Util {
       .filter((message: AServerMessage) => message.type === messageType)[occurrence];
   }
 
-  public static extractFilteredMessage<T>(messages: Array<[message: string]>, messageType: EServerMessageType, filter: (m: T) => boolean): T {
-    return <T>messages
-      .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
-      .filter((message: AServerMessage) => message.type === messageType)
-      .map((message: AServerMessage) => <T>message)
-      .find((message: T) => filter(message));
-  }
+
 
   public static errorMessageReceived(messages: Array<[message: string]>, errorCode: EErrorCode): boolean {
     const errorMessage = this.extractMessage<IErrorMessage>(messages, EServerMessageType.Error);
@@ -127,18 +107,14 @@ export class Util {
     return participant.participantId;
   }
 
-  public static sleep(milliSeconds: number): Promise<unknown> {
-    return new Promise(r => setTimeout(r, milliSeconds));
-  }
-
-  public static connectParticipant(handlerService: IHandlerService): TestParticipant {
+  public static connectParticipant(handlerService: IHandlerService): ITestParticipant {
     const send = jest.fn((_message: string) => this.noop());
     const socket = this.getSocket(send);
     const participant = handlerService.handleConnect(socket);
     return new TestParticipant(send, socket, participant)
   }
 
-  public static joinTeamNew(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): TestParticipant{
+  public static joinTeamNew(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant{
     const participant = this.connectParticipant(handlerService);
     const message: IJoinMessage = {
       senderId: participant.participantId,
@@ -153,7 +129,31 @@ export class Util {
     return participant;
   }
 
-  public static createTeamNew(handlerService: IHandlerService, teamName: string, scrumMasterNick: string, cards?: ICardSet): TestParticipant {
+  public static joinTeamAndDisconnect(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
+    const participant = this.joinTeamNew(handlerService, teamName, nickName, observer);
+    handlerService.handleClose(participant.socket);
+    return participant;
+  }
+
+  public static joinTeamAndPause(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
+    const participant = this.joinTeamNew(handlerService, teamName, nickName, observer);
+    const message: IPauseMessage = {
+      senderId: participant.participantId,
+      type: EClientMessageType.Pause,
+      data: undefined
+    }
+    handlerService.handleMessage(message, teamName, participant.socket);
+    handlerService.handleClose(participant.socket);
+    return participant;
+  }
+
+  public static createTeamNew(
+    handlerService: IHandlerService,
+    teamName: string,
+    scrumMasterNick: string,
+    observer = false,
+    cardSet?: ECardSet,
+    cards?: ICardSet): ITestScrumMaster {
     const scrumMaster = this.connectParticipant(handlerService);
     const message: ICreatemessage = {
       type: EClientMessageType.Create,
@@ -161,8 +161,8 @@ export class Util {
       data: {
         nick: scrumMasterNick,
         team: teamName,
-        observer: false,
-        cardSet: cards ? ECardSet.Custom : ECardSet.Cohn,
+        observer: observer,
+        cardSet: cardSet || ECardSet.Cohn,
         cards: cards
       }
     }
@@ -172,7 +172,7 @@ export class Util {
 
   public static createUnaffectedTeam(handlerService: IHandlerService): UnaffectedTeam {
     const teamName = 'Unaffected Team';
-    const scrumMaster = this.createTeamNew(handlerService, teamName, 'Unaffected Scrum Master', undefined);
+    const scrumMaster = this.createTeamNew(handlerService, teamName, 'Unaffected Scrum Master', false, ECardSet.Cohn);
     const participant = this.joinTeamNew(handlerService, teamName, 'Unaffected Participant');
     return new UnaffectedTeam(scrumMaster, participant, teamName);
   }

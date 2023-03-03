@@ -4,7 +4,7 @@ import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 
-import { EClientMessageType, EServerMessageType, IEstimateMessage, IRevealMessage, IStartMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberStatusChange, EServerMessageType, IEstimateMessage, IRevealMessage, IStartMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 
@@ -16,47 +16,45 @@ describe('Reveal => OK', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    const scrumMaster1ParticipantId = Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-   // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    const participant1Id = Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
-
+    // create team with one participant
+    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
     // TODO 2381 add a third participant who does not estimate
     // start estimation
     const message: IStartMessage = {
-      senderId: scrumMaster1ParticipantId,
+      senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster1Socket);
+    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
     // estimate
     const estimateMessage: IEstimateMessage = {
-      senderId: participant1Id,
+      senderId: participant.participantId,
       data: 2,
       type: EClientMessageType.Estimate
     };
-    handlerService.handleMessage(estimateMessage, Util.team1Name, participant1Socket);
+    handlerService.handleMessage(estimateMessage, Util.team1Name, participant.socket);
 
     const revealMessage: IRevealMessage = {
-      senderId: scrumMaster1ParticipantId,
+      senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Reveal
     };
-    handlerService.handleMessage(revealMessage, Util.team1Name, scrumMaster1Socket);
+    handlerService.handleMessage(revealMessage, Util.team1Name, scrumMaster.socket);
 
-    // test: scrum master 1 should have received create messages + 1 join + 1 clear + 2 pokerstatus + 2 additional estimation list
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 6);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.EstimationList)).toBe(3);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.PokerStatus)).toBe(2);
+    // test: scrum master 1 should have received 1 MC join + 1 clear + 2 pokerstatus + 2 estimation list
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(6);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1)
+    expect(scrumMaster.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(scrumMaster.countMessageType(EServerMessageType.EstimationList)).toBe(2);
+    expect(scrumMaster.countMessageType(EServerMessageType.PokerStatus)).toBe(2);
     // TODO 2381 check the messages
 
-    // test: participant 1 should have received join messages + 1 clear + 2 pokerstatus + 2 additional estimation list
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesCreate + 5);
-    expect(Util.countMessageType(participant1Send.mock.calls, EServerMessageType.EstimationList)).toBe(3);
+    // test: participant 1 should have received 1 clear + 2 pokerstatus + 2 estimation list
+    expect(participant.messagesReceivedAfterInitial).toBe(5);
+    expect(participant.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(participant.countMessageType(EServerMessageType.EstimationList)).toBe(2);
+    expect(participant.countMessageType(EServerMessageType.PokerStatus)).toBe(2);
     // TODO 2381 check the messages
 
     // test unaffected team

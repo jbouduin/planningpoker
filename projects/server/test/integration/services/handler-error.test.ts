@@ -11,15 +11,26 @@ describe('Handle Error', () => {
   test('Handle error ', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    handlerService.handleError(scrumMaster1Socket, new Error('test error'));
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // create team
+    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+
+    // raise an error
+    handlerService.handleError(scrumMaster.socket, new Error('test error'));
 
     // test
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 1);
-    expect(Util.errorMessageReceived(scrumMaster1Send.mock.calls, EErrorCode.ServerError)).toBe(true);
-    expect(Util.extractMessage<IErrorMessage>(scrumMaster1Send.mock.calls, EServerMessageType.Error).data.message).toBe('test error');
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.ServerError)).toBe(true);
+    const errorMessage = scrumMaster.extractMessage<IErrorMessage>(EServerMessageType.Error);
+    expect(errorMessage).toBeDefined();
+    if (errorMessage) {
+      expect(errorMessage.data.message).toBe('test error');
+    }
+
+    // test unaffected team
+    expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });

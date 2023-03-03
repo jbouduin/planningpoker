@@ -1,11 +1,12 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EPokerStatus, EServerMessageType, IPokerStatusChangedMessage, IStartMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EMemberStatusChange, EPokerStatus, EServerMessageType, IPokerStatusChangedMessage, IStartMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 import { Util } from "./helpers/util";
+import exp from 'constants';
 
 describe('Start => OK', () => {
   test('Start', () => {
@@ -15,41 +16,38 @@ describe('Start => OK', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    const scrumMaster1ParticipantId = Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
+    // create team with one participant
+    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant =    Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
 
     // start estimating
     const message: IStartMessage = {
-      senderId: scrumMaster1ParticipantId,
+      senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster1Socket);
+    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
 
-    // test: scrum master 1 should have received create messages + 1 join + 1 clear message + 1 status change message
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 3);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.ClearEstimations)).toBe(1);
-    expect(Util.countFilteredMessages<IPokerStatusChangedMessage>(
-      scrumMaster1Send.mock.calls,
-      EServerMessageType.PokerStatus,
-      (m: IPokerStatusChangedMessage) => m.data === EPokerStatus.Started)
-    ).toBe(1);
+    // test: scrum master 1 should have received 1 MC join + 1 clear + 1 poker status
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(scrumMaster.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
+    let pokerStatusMessage = scrumMaster.extractMessage<IPokerStatusChangedMessage>(EServerMessageType.PokerStatus);
+    expect(pokerStatusMessage).toBeDefined();
+    if (pokerStatusMessage) {
+      expect(pokerStatusMessage.data).toBe(EPokerStatus.Started);
+    }
 
-    // test: participant 1 should have received join messages + 1 clear message + 1 status change message
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
-    expect(Util.countMessageType(participant1Send.mock.calls, EServerMessageType.ClearEstimations)).toBe(1);
-    expect(Util.countFilteredMessages<IPokerStatusChangedMessage>(
-      participant1Send.mock.calls,
-      EServerMessageType.PokerStatus,
-      (m: IPokerStatusChangedMessage) => m.data === EPokerStatus.Started)
-    ).toBe(1);
+    // test: participant 1 should have received 1 clear + 1 poker status
+    expect(participant.messagesReceivedAfterInitial).toBe(2);
+    expect(participant.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(participant.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
+    pokerStatusMessage = participant.extractMessage<IPokerStatusChangedMessage>(EServerMessageType.PokerStatus);
+    expect(pokerStatusMessage).toBeDefined();
+    if (pokerStatusMessage) {
+      expect(pokerStatusMessage.data).toBe(EPokerStatus.Started);
+    }
 
     // test unaffected team
     expect(unaffectedTeam.isUnaffected).toBe(true);

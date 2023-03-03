@@ -1,10 +1,10 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IChangeNickMessage, IMemberChangedMessage, ISelfMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberStatusChange, EServerMessageType, IChangeNickMessage, ISelfMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 
@@ -16,45 +16,47 @@ describe('Change nick => OK', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    const scrumMaster1ParticipantId = Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // create team with one connected and one disconnected participant
+    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick);
 
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
-
-    // change nick
+    // scrum master changes his nick
     const message: IChangeNickMessage = {
-      senderId: scrumMaster1ParticipantId,
+      senderId: scrumMaster.participantId,
       data: Util.observer1Name,
       type: EClientMessageType.ChangeNick
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster1Socket);
+    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
 
-    // test: scrum master 1 should have received create messages + 1 join + 1 additional self
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.Self)).toBe(2);
-    expect(Util.countFilteredMessages<ISelfMessage>(
-      scrumMaster1Send.mock.calls,
-      EServerMessageType.Self,
-      (m: ISelfMessage) => m.data.nick === Util.observer1Name
-    )).toBe(1);
+    // test: scrum master should have received 2 MC join + 1 MC disconnect + 1 self
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
+    expect(scrumMaster.countMessageType(EServerMessageType.Self)).toBe(1);
+    const selfMessage = scrumMaster.extractMessage<ISelfMessage>(EServerMessageType.Self);
+    expect(selfMessage).toBeDefined();
+    if (selfMessage) {
+      expect(selfMessage.data.nick).toBe(Util.observer1Name);
+    }
 
-    // test: participant 1 should have received join messages + 1 member change
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesCreate + 1);
-    expect(Util.countMessageType(participant1Send.mock.calls, EServerMessageType.MemberChanged)).toBe(1);
-    expect(Util.countFilteredMessages<IMemberChangedMessage>(
-      participant1Send.mock.calls,
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangedMessage) => m.data.member.nick === Util.observer1Name &&
-        m.data.memberStatusChange === EMemberStatusChange.ChangedNick &&
-        m.data.member.participantId === scrumMaster1ParticipantId
-    )).toBe(1);
+    // test: participant should have received 1 MC join + 1 MC disconnect + 1 MC nick change
+    expect(participant.messagesReceivedAfterInitial).toBe(3);
+    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(participant.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
+    expect(participant.countMemberChangedMessages(EMemberStatusChange.ChangedNick)).toBe(1);
+    const memberChangeMessage = participant.extractMemberChangedMessage(EMemberStatusChange.ChangedNick, true);
+    expect(memberChangeMessage).toBeDefined();
+    if (memberChangeMessage) {
+      expect(memberChangeMessage.data.member.nick).toBe(Util.observer1Name);
+      expect(memberChangeMessage.data.memberStatusChange).toBe(EMemberStatusChange.ChangedNick);
+      expect(memberChangeMessage.data.member.participantId).toBe(scrumMaster.participantId);
+    }
 
-    // test unaffected team
+    // test: disconnected participant should not have received any additional message
+    expect(disconnected.messagesReceivedAfterInitial).toBe(0);
+
+    // test: unaffected team
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });
@@ -66,5 +68,4 @@ describe('Change nick => Failure', () => {
   // TODO 2375 test('Sender not in any team', () => { });
   // TODO 2375 test('Sender in different team', () => { });
   // TODO 2372 test('nick is null or empty', () => { });
-
 });

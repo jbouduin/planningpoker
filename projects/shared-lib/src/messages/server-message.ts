@@ -11,6 +11,7 @@ export type ICardSetMessage = IServerMessage<ICardSet>;
 export type IClearEstimationsMessage = IServerMessage<void>;
 export type IEndSessionMessage = IServerMessage<void>;
 export type IErrorMessage = IServerMessage<IError>;
+// TODO NOW Rename to estimationlist message
 export type IEstimationsMessage = IServerMessage<Array<IEstimation>>;
 export type IInitMessage = IServerMessage<IParticipant>;
 export type ILeftMessage = IServerMessage<void>;

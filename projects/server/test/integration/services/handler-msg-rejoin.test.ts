@@ -4,7 +4,7 @@ import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 
-import { EClientMessageType, EServerMessageType, IRejoinMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberStatusChange, EServerMessageType, IRejoinMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 describe('Rejoin => OK', () => {
@@ -15,39 +15,32 @@ describe('Rejoin => OK', () => {
     // create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // create team with one disconnected participant
+    const scrumMaster =     Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant =  Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    const participant1Id = Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
-    // participant 1 disconnecting
-    handlerService.handleClose(participant1Socket);
     // create a new connection to rejoin
-    const rejoinSend = jest.fn((_message: string) => Util.noop());
-    const rejoinSocket = Util.getSocket(rejoinSend);
-    const rejoiningParticipantId = handlerService.handleConnect(rejoinSocket).participantId;
+    const rejoiningParticipant = Util.connectParticipant(handlerService);
     // rejoin
     const message: IRejoinMessage = {
-      senderId: rejoiningParticipantId,
-      data: participant1Id,
+      senderId: rejoiningParticipant.participantId,
+      data: participant.participantId,
       type: EClientMessageType.Rejoin
     };
-    handlerService.handleMessage(message, Util.team1Name, rejoinSocket);
+    handlerService.handleMessage(message, Util.team1Name, rejoiningParticipant.socket);
 
-    // test: scrum master 1 should have received create messages + 1 join + 1 disconnected + 1 rejoin
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 3);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.MemberChanged)).toBe(3);
+    // test: scrum master 1 should have received 1 MC join + 1 MC disconnected + 1 MC rejoin
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Rejoined)).toBe(1);
     // TODO 2383 check the message contents of the rejoin
 
-    // test: participant 1 should have received join messages
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesJoin);
+    // test: participant 1 should have received no additional messages
+    expect(participant.messagesReceivedAfterInitial).toBe(0);
 
     // test: rejoining participant should have received join messages
-    expect(rejoinSend).toBeCalledTimes(Util.expectedMessagesJoin);
+    expect(rejoiningParticipant.messagesReceivedAfterInitial).toBe(0);
 
     // TODO 2383 check if the rejoin messages reflect the current team status
 

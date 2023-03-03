@@ -4,7 +4,7 @@ import SERVICETYPES from '../../../src/services/service.types';
 
 import { ICardService, IHandlerService } from '../../../src/services/interfaces';
 
-import { ECardSet, EClientMessageType, EServerMessageType, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EMemberStatusChange, EServerMessageType, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 
@@ -19,46 +19,42 @@ describe('Change card set => OK', () => {
     // customize a card set
     const customizedCohn = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     customizedCohn.cards.splice(9, 3);
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    const scrumMaster1ParticipantId = Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant 1 joining team 1
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
+
+    // create team
+    const scrumMaster = Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // participant joining team 1
+    const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
     // change card set
     const message: IChangeCardSetMessage = {
-      senderId: scrumMaster1ParticipantId,
+      senderId: scrumMaster.participantId,
       data: customizedCohn,
       type: EClientMessageType.ChangeCardSet
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster1Socket);
+    // TODO NOW implement sending message in IAParticipant
+    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
 
-    // test: scrum master 1 should have received create messages + 1 join + 1 additional card list
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 2);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.CardList)).toBe(2);
-    let updatedCardSetMessage = Util.extractMessage<ICardSetMessage>(
-      scrumMaster1Send.mock.calls,
-      EServerMessageType.CardList,
-      1
-    );
+    // test: scrum master should have received 1 MC join + 1 card list
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMessageType(EServerMessageType.CardList)).toBe(1);
+    let updatedCardSetMessage = scrumMaster.extractMessage<ICardSetMessage>(EServerMessageType.CardList);
     expect(updatedCardSetMessage).toBeDefined();
-    expect(updatedCardSetMessage.data.cardSet).toBe(customizedCohn.cardSet);
-    expect(updatedCardSetMessage.data.cards).toHaveLength(customizedCohn.cards.length);
-    // test: participant 1 should have received join messages + 1 additional card list
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesCreate + 1);
-    expect(Util.countMessageType(participant1Send.mock.calls, EServerMessageType.CardList)).toBe(2);
-    updatedCardSetMessage = Util.extractMessage<ICardSetMessage>(
-      participant1Send.mock.calls,
-      EServerMessageType.CardList,
-      1
-    );
-    expect(updatedCardSetMessage).toBeDefined();
-    expect(updatedCardSetMessage.data.cardSet).toBe(customizedCohn.cardSet);
-    expect(updatedCardSetMessage.data.cards).toHaveLength(customizedCohn.cards.length);
+    if (updatedCardSetMessage) {
+      expect(updatedCardSetMessage.data.cardSet).toBe(customizedCohn.cardSet);
+      expect(updatedCardSetMessage.data.cards).toHaveLength(customizedCohn.cards.length);
+    }
 
-    // test unaffected team
+    // test: participant should have received card list message only
+    expect(participant.messagesReceivedAfterInitial).toBe(1);
+    expect(participant.countMessageType(EServerMessageType.CardList)).toBe(1);
+    updatedCardSetMessage = participant.extractMessage<ICardSetMessage>(EServerMessageType.CardList);
+    expect(updatedCardSetMessage).toBeDefined();
+    if (updatedCardSetMessage) {
+      expect(updatedCardSetMessage.data.cardSet).toBe(customizedCohn.cardSet);
+      expect(updatedCardSetMessage.data.cards).toHaveLength(customizedCohn.cards.length);
+    }
+
+    // test: unaffected team
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 });

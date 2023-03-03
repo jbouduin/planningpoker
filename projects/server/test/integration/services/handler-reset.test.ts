@@ -1,6 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
-import { EClientMessageType, EServerMessageType, IPauseMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberStatusChange, EServerMessageType, IPauseMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -11,46 +11,33 @@ describe('Reset', () => {
   test('Handle reset', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
-    // create team 1
-    const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
-    Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant 1 joining
-    const participant1Send = jest.fn((_message: string) => Util.noop());
-    const participant1Socket = Util.getSocket(participant1Send);
-    Util.joinTeam(participant1Socket, handlerService, Util.team1Name, Util.participant1Nick);
-    // participant 2 joining
-    const participant2Send = jest.fn((_message: string) => Util.noop());
-    const participant2Socket = Util.getSocket(participant2Send);
-    const participant2Id = Util.joinTeam(participant2Socket, handlerService, Util.team1Name, Util.participant2Nick);
-    // participant 2 pausing
-    const message: IPauseMessage = {
-      senderId: participant2Id,
-      type: EClientMessageType.Pause,
-      data: undefined
-    }
-    handlerService.handleMessage(message, Util.team1Name, participant2Socket);
-    // observer 1 joining
-    const observerSend = jest.fn((_message: string) => Util.noop());
-    const observerSocket = Util.getSocket(observerSend);
-    Util.joinTeam(observerSocket, handlerService, Util.team1Name, Util.observer2Name);
-    // reset
+    // create team with one connected, one paused participant and a connected observer
+    const scrumMaster =    Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant =    Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
+    const paused = Util.joinTeamAndPause(handlerService, Util.team1Name, Util.participant2Nick);
+    const observer = Util.joinTeamNew(handlerService, Util.team1Name, Util.observer2Name, true);
+
+    // reset the server
     handlerService.handleReset();
 
-    // test: scrum master should have received create messages + 3 joins + 1 pause + 1 reset
-    expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 5);
-    expect(Util.countMessageType(scrumMaster1Send.mock.calls, EServerMessageType.ServerReset)).toBe(1);
+    // test: scrum master should have received 3 MC join + 1 MC pause + 1 reset
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(5);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(3);
+    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Paused)).toBe(1);
+    expect(scrumMaster.countMessageType(EServerMessageType.ServerReset)).toBe(1);
 
-    // test: participant 1 should have received create messages + 2 joins + 1 pause + 1 reset
-    expect(participant1Send).toBeCalledTimes(Util.expectedMessagesJoin + 4);
-    expect(Util.countMessageType(participant1Send.mock.calls, EServerMessageType.ServerReset)).toBe(1);
+    // test: participant should have received 2 MC joins + 1 MC pause + 1 reset
+    expect(participant.messagesReceivedAfterInitial).toBe(4);
+    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
+    expect(participant.countMemberChangedMessages(EMemberStatusChange.Paused)).toBe(1);
+    expect(participant.countMessageType(EServerMessageType.ServerReset)).toBe(1);
 
-    // test: participant 2 should have received create messages + 1 self (pause), no join and no reset
-    expect(participant2Send).toBeCalledTimes(Util.expectedMessagesJoin + 1);
-    expect(Util.countMessageType(participant2Send.mock.calls, EServerMessageType.ServerReset)).toBe(0);
+    // test: paused participant should have received 1 self (pause)
+    expect(paused.messagesReceivedAfterInitial).toBe(1);
+    expect(paused.countMessageType(EServerMessageType.Self)).toBe(1);
 
-    // test: observer should have received create messages +  1 reset and no joins
-    expect(observerSend).toBeCalledTimes(Util.expectedMessagesJoin + 1);
-    expect(Util.countMessageType(observerSend.mock.calls, EServerMessageType.ServerReset)).toBe(1);
+    // test: observer should have received 1 reset
+    expect(observer.messagesReceivedAfterInitial).toBe(1);
+    expect(observer.countMessageType(EServerMessageType.ServerReset)).toBe(1);
   });
 });
