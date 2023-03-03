@@ -1,13 +1,13 @@
 import { jest } from '@jest/globals';
-import { InjectionToken, It, Mock } from 'moq.ts';
+import { It, Mock } from 'moq.ts';
 import { Container } from "inversify";
 
 import SERVICETYPES from '../../../../src/services/service.types';
 import STORAGETYPES from '../../../../src/storage/storage.types';
 
 import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICardSet, ICreatemessage, IErrorMessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
-import { CardService, CronService, EnvironmentService, HandlerService, LoggerService, MessageService, PreflightService, SenderService } from '../../../../src/services/implementation';
-import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService } from '../../../../src/services/interfaces';
+import { CardService, CronService, EnvironmentService, HandlerService, MessageService, PreflightService, SenderService } from '../../../../src/services/implementation';
+import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService, LogType } from '../../../../src/services/interfaces';
 import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
 import { CardSetRepository, EstimationRepository, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../../src/storage/implementation";
 import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../../src/storage/interfaces";
@@ -33,15 +33,15 @@ export class Util {
 
   public static getContainer(): Container {
     const logMock = new Mock<ILoggerService>()
-      .setup((service: ILoggerService) => service.debug(It.IsAny(), It.IsAny()))
+      .setup((service: ILoggerService) => service.debug(<LogType>It.IsAny(), <string>It.IsAny()))
       .returns(undefined)
-      .setup((service: ILoggerService) => service.info(It.IsAny(), It.IsAny()))
+      .setup((service: ILoggerService) => service.info(<LogType>It.IsAny(), <string>It.IsAny()))
       .returns(undefined)
-      .setup((service: ILoggerService) => service.warning(It.IsAny(), It.IsAny()))
+      .setup((service: ILoggerService) => service.warning(<LogType>It.IsAny(), <string>It.IsAny()))
       .returns(undefined)
-      .setup((service: ILoggerService) => service.error(It.IsAny(), It.IsAny()))
+      .setup((service: ILoggerService) => service.error(<LogType>It.IsAny(), <string>It.IsAny()))
       .returns(undefined)
-      .setup((service: ILoggerService) => service.logError(It.IsAny(), It.IsAny()))
+      .setup((service: ILoggerService) => service.logError(<LogType>It.IsAny(), <Error>It.IsAny()))
       .returns(undefined);
 
     const container = new Container();
@@ -50,7 +50,6 @@ export class Util {
     container.bind<IEnvironmentService>(SERVICETYPES.EnvironmentService).to(EnvironmentService).inSingletonScope();
     container.bind<IHandlerService>(SERVICETYPES.HandlerService).to(HandlerService);
     container.bind<ILoggerService>(SERVICETYPES.LoggerService).toConstantValue(logMock.object());
-    // container.bind<ILoggerService>(SERVICETYPES.LoggerService).to()
     container.bind<IMessageService>(SERVICETYPES.MessageService).to(MessageService);
     container.bind<IPreflightService>(SERVICETYPES.PreflightService).to(PreflightService);
     container.bind<ISenderService>(SERVICETYPES.SenderService).to(SenderService);

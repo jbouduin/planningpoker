@@ -8,7 +8,6 @@ import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
 
 export interface IATestParticipant {
   readonly participantId: string;
-  // readonly send: jest.Mock<(_message: string) => void>;
   readonly socket: IWebSocket;
   readonly participant: IServerParticipant;
   readonly messagesReceivedAfterInitial: number;
@@ -19,7 +18,7 @@ export interface IATestParticipant {
   closeSocket(): void;
   countMemberChangedMessages(changeType: EMemberStatusChange, skipInitialMessages?: boolean): number;
   countMessageType(messageType: EServerMessageType, skipInitialMessages?: boolean): number;
-
+  dumpMessages(): void;
   errorMessageReceived(errorCode: EErrorCode): boolean;
   extractMemberChangedMessage(changeType: EMemberStatusChange, skipInitialMessages?:boolean, occurrence?: number): IMemberChangedMessage | undefined;
   extractMessage<T = AServerMessage>(messageType: EServerMessageType, skipInitialMessages?: boolean, occurrence?: number): T | undefined;
@@ -93,6 +92,12 @@ export abstract class ATestParticipant implements IATestParticipant {
     return skipInitialMessages ?
       this.messagesAfterInitialMessages.filter((message: AServerMessage) => message.type === messageType).length :
       this.allMessages.filter((message: AServerMessage) => message.type === messageType).length;
+  }
+
+  public dumpMessages(): void {
+    /* eslint-disable no-console */
+    console.log(JSON.stringify(this.send.mock.calls, null, 2));
+    /* eslint-enable no-console */
   }
 
   public errorMessageReceived(errorCode: EErrorCode): boolean {
