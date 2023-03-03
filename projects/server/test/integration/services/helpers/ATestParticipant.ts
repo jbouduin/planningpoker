@@ -45,15 +45,17 @@ export interface IATestParticipant {
 
   /**
    * Count the number of IMemberChange messages of the given type
-   * @param changeType the type of member change
-   * @param skipInitialMessages pass yes when counting should start after the initial messages. Default: yes
+   * @param changeType - the type of member change
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @returns the number found
    */
   countMemberChangedMessages(changeType: EMemberChangeType, skipInitialMessages?: boolean): number;
 
   /**
    * Counte the number of messages of a given type
-   * @param messageType the message type
-   * @param skipInitialMessages pass yes when counting should start after the initial messages. Default: yes
+   * @param messageType - the message type
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @returns the number found
    */
   countMessagesOfType(messageType: EServerMessageType, skipInitialMessages?: boolean): number;
 
@@ -64,29 +66,31 @@ export interface IATestParticipant {
 
   /**
    * Check if an error message was received with the given error code. This method does not skip the initial messages
-   * @param errorCode
+   * @param errorCode - The error code to be searched for
+   * @returns true if the error message was found
    */
   errorMessageReceived(errorCode: EErrorCode): boolean;
 
   /**
    * Search for the x-th occurrence of a IMemberChangeMessage of the given change type
-   * @param changeType the type of member change
-   * @param skipInitialMessages pass yes when counting should start after the initial messages. Default: yes
-   * @param occurrence 0-based
+   * @param changeType - the type of member change
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @param occurrence - 0-based
    */
   extractMemberChangedMessage(changeType: EMemberChangeType, skipInitialMessages?: boolean, occurrence?: number): IMemberChangeMessage | undefined;
 
   /**
-   * Search for the x-th occurerence of a message of the given type
-   * @param messageType the message type
-   * @param skipInitialMessages pass yes when counting should start after the initial messages. Default: yes
-   * @param occurrence 0-based
+   * Search for the x-th occurrence of a message of the given type
+   * @param messageType - the message type
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @param occurrence - 0-based
+   * @returns the x-th occurrence or undefined
    */
   extractMessage<T = AServerMessage>(messageType: EServerMessageType, skipInitialMessages?: boolean, occurrence?: number): T | undefined;
 
   /**
    * calls IHandlerService.handleMessage
-   * @param message
+   * @param message - a AClientMessage
    */
   sendMessage(message: AClientMessage): void;
 }
