@@ -1,12 +1,11 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
+
+import { ECardSet, EClientMessageType, EMemberStatusChange, EServerMessageType, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { ICardService, IHandlerService } from '../../../src/services/interfaces';
-
-import { ECardSet, EClientMessageType, EMemberStatusChange, EServerMessageType, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
-
 
 describe('Change card set => OK', () => {
   test('Change card set', () => {
@@ -30,8 +29,7 @@ describe('Change card set => OK', () => {
       data: customizedCohn,
       type: EClientMessageType.ChangeCardSet
     };
-    // TODO NOW implement sending message in IAParticipant
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
 
     // test: scrum master should have received 1 MC join + 1 card list
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);

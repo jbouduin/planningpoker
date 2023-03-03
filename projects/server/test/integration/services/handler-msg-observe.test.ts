@@ -1,10 +1,10 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
+
+import { EClientMessageType, EMemberStatusChange, EServerMessageType, IObserveMessage, ISelfMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IMemberChangedMessage, IObserveMessage, ISelfMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 
@@ -28,7 +28,7 @@ describe('Toggle observe => OK', () => {
       },
       type: EClientMessageType.Observe
     };
-    handlerService.handleMessage(message, Util.team1Name, participant.socket);
+    participant.sendMessage(message);
 
     // test: scrum master 1 should have received 1 join + 1 MC observe
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
@@ -76,7 +76,7 @@ describe('Toggle observe => OK', () => {
       },
       type: EClientMessageType.Observe
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
 
     // test: scrum master 1 should have received 1 MC join + 1 MC observe
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);

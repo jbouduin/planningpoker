@@ -1,12 +1,11 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
+
+import { EClientMessageType, EMemberStatusChange, EParticipantStatus, EServerMessageType, IPauseMessage, ISelfMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-
-import { EClientMessageType, EMemberStatusChange, EParticipantStatus, EServerMessageType, IMemberChangedMessage, IPauseMessage, ISelfMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
-
 
 describe('Pause => OK', () => {
   test('pause', () => {
@@ -25,9 +24,9 @@ describe('Pause => OK', () => {
       data: undefined,
       type: EClientMessageType.Pause
     };
-    handlerService.handleMessage(message, Util.team1Name, participant.socket);
+    participant.sendMessage(message);
     // participant will close his socket as a result of the response
-    handlerService.handleClose(participant.socket);
+    participant.closeSocket();
 
     // test: scrum master 1 should have received create messages + 1 MC join + 1 MC Paused
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);

@@ -1,12 +1,12 @@
 import { describe, expect, test } from '@jest/globals';
 
+import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, ICreatemessage, IEstimationsMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
+
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { ICardService, IHandlerService } from '../../../src/services/interfaces';
-
-import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, ICreatemessage, IEstimationsMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
-import { Util } from "./helpers/util";
 import { ITestScrumMaster } from './helpers/TestScrumMaster';
+import { Util } from "./helpers/util";
 
 describe('create => OK', () => {
   test('Standard Create', () => {
@@ -130,7 +130,7 @@ describe('Create => Failure', () => {
     const scrumMaster = Util.connectParticipant(handlerService);
 
     // create the team with an unknown participant
-    const message1: ICreatemessage = {
+    const message: ICreatemessage = {
       type: EClientMessageType.Create,
       senderId: 'some participant id',
       data: {
@@ -140,7 +140,7 @@ describe('Create => Failure', () => {
         cardSet: ECardSet.Cohn
       }
     }
-    handlerService.handleMessage(message1, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
 
     // test: the only messages received must be the init and the error message
     expect(scrumMaster.totalMessagesReceived).toBe(2);

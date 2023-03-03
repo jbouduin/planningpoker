@@ -1,10 +1,10 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
+
+import { EClientMessageType, EMemberStatusChange, IRejoinMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IRejoinMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 describe('Rejoin => OK', () => {
@@ -21,13 +21,14 @@ describe('Rejoin => OK', () => {
 
     // create a new connection to rejoin
     const rejoiningParticipant = Util.connectParticipant(handlerService);
+    rejoiningParticipant.teamName = Util.team1Name;
     // rejoin
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
     };
-    handlerService.handleMessage(message, Util.team1Name, rejoiningParticipant.socket);
+    rejoiningParticipant.sendMessage(message);
 
     // test: scrum master 1 should have received 1 MC join + 1 MC disconnected + 1 MC rejoin
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);

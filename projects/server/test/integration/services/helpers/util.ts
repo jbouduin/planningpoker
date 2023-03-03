@@ -108,14 +108,12 @@ export class Util {
   }
 
   public static connectParticipant(handlerService: IHandlerService): ITestParticipant {
-    const send = jest.fn((_message: string) => this.noop());
-    const socket = this.getSocket(send);
-    const participant = handlerService.handleConnect(socket);
-    return new TestParticipant(send, socket, participant)
+    return new TestParticipant(handlerService);
   }
 
   public static joinTeamNew(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant{
     const participant = this.connectParticipant(handlerService);
+    participant.teamName = teamName;
     const message: IJoinMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
@@ -125,13 +123,13 @@ export class Util {
         team: teamName
       }
     };
-    handlerService.handleMessage(message, teamName, participant.socket);
+    participant.sendMessage(message);
     return participant;
   }
 
   public static joinTeamAndDisconnect(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
     const participant = this.joinTeamNew(handlerService, teamName, nickName, observer);
-    handlerService.handleClose(participant.socket);
+    participant.closeSocket();
     return participant;
   }
 
@@ -142,8 +140,8 @@ export class Util {
       type: EClientMessageType.Pause,
       data: undefined
     }
-    handlerService.handleMessage(message, teamName, participant.socket);
-    handlerService.handleClose(participant.socket);
+    participant.sendMessage(message);
+    participant.closeSocket();
     return participant;
   }
 
@@ -155,6 +153,7 @@ export class Util {
     cardSet?: ECardSet,
     cards?: ICardSet): ITestScrumMaster {
     const scrumMaster = this.connectParticipant(handlerService);
+    scrumMaster.teamName = teamName;
     const message: ICreatemessage = {
       type: EClientMessageType.Create,
       senderId: scrumMaster.participantId,
@@ -166,7 +165,7 @@ export class Util {
         cards: cards
       }
     }
-    handlerService.handleMessage(message, teamName, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
     return scrumMaster;
   }
 

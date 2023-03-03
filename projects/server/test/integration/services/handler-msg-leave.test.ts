@@ -1,10 +1,10 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
+import { EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, EServerMessageType, ILeaveMessage } from '../../../../shared-lib/src';
+
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-
-import { EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, EServerMessageType, ILeaveMessage, IMemberChangedMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 describe('Leaving => OK', () => {
@@ -26,8 +26,8 @@ describe('Leaving => OK', () => {
       data: participant.participantId,
       type: EClientMessageType.Leave
     };
-    handlerService.handleMessage(message, Util.team1Name, participant.socket);
-    handlerService.handleClose(participant.socket);
+    participant.sendMessage(message);
+    participant.closeSocket();
 
     // test: scrum master should have received 2 MC join + 1 MC leave
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
@@ -73,15 +73,15 @@ describe('Leaving => OK', () => {
 
     // participant 1 reconnects to leave
     const reconnect = Util.connectParticipant(handlerService);
-
+    reconnect.teamName = Util.team1Name;
     // participant 1 leaves
     const message: ILeaveMessage = {
       senderId: reconnect.participantId,
       data: participant.participantId,
       type: EClientMessageType.Leave
     };
-    handlerService.handleMessage(message, Util.team1Name, reconnect.socket);
-    handlerService.handleClose(reconnect.socket);
+    reconnect.sendMessage(message);
+    reconnect.closeSocket();
 
     // Test: scrum master should have received 2 MC join + 1 MC disconnected + 1 MC leave
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
@@ -109,7 +109,6 @@ describe('Leaving => OK', () => {
     expect(participant.messagesReceivedAfterInitial).toBe(0);
 
     // Test: reconnected participant should have received init messages + his own leave acknowledge message
-    console.log(JSON.stringify(reconnect.send.mock.calls, null, 2))
     expect(reconnect.countMessageType(EServerMessageType.Init, false)).toBe(1);
     expect(reconnect.countMessageType(EServerMessageType.Left, false)).toBe(1);
 
@@ -137,11 +136,11 @@ describe('Leaving => OK', () => {
       data: scrumMaster.participantId,
       type: EClientMessageType.Leave
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
     // clients will close their socket as a reaction on the session ended message
-    handlerService.handleClose(scrumMaster.socket);
-    handlerService.handleClose(participant.socket);
-    handlerService.handleClose(observer.socket);
+    scrumMaster.closeSocket();
+    participant.closeSocket();
+    observer.closeSocket();
 
     // test: scrum master should have received 2 MC join  + 1 session ended
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);

@@ -1,10 +1,10 @@
 import { describe, expect, test } from '@jest/globals';
 
+import { EClientMessageType, EMemberStatusChange, EServerMessageType, IChangeNickMessage, ISelfMessage } from '../../../../shared-lib/src';
+
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IChangeNickMessage, ISelfMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 
@@ -27,7 +27,7 @@ describe('Change nick => OK', () => {
       data: Util.observer1Name,
       type: EClientMessageType.ChangeNick
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
 
     // test: scrum master should have received 2 MC join + 1 MC disconnect + 1 self
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);

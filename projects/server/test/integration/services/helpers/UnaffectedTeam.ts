@@ -1,4 +1,4 @@
-import { ITestParticipant, TestParticipant } from "./TestParticipant";
+import { ITestParticipant } from "./TestParticipant";
 import { ITestScrumMaster } from "./TestScrumMaster";
 
 export class UnaffectedTeam {

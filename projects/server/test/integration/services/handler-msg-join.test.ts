@@ -1,18 +1,16 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
+import { ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationsMessage, IJoinMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
+
 import SERVICETYPES from '../../../src/services/service.types';
 
-import { IHandlerService } from '../../../src/services/interfaces';
-
-import { CardService } from 'services/implementation';
-import { ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationsMessage, IJoinMessage, IMemberChangedMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
+import { ICardService, IHandlerService } from '../../../src/services/interfaces';
 import { Util } from "./helpers/util";
-
 
 describe('Join => OK', () => {
   test('Join', () => {
     const container = Util.getContainer();
-    const cohn = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
+    const cohn = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
     // create unaffected Team
@@ -113,7 +111,7 @@ describe('Join => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // customize a card set
-    const cohn = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
+    const cohn = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     cohn.cards.splice(9, 3);
     // create team with participant and a customized cardset
     Util.createTeamNew(handlerService, Util.team1Name, Util.scrumMaster1Nick, false, ECardSet.Cohn, cohn);

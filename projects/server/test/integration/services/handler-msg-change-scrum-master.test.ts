@@ -1,12 +1,11 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
+import { EClientMessageType, EMemberStatusChange, ERole, EServerMessageType, IChangeScrumMasterMessage, ISelfMessage } from '../../../../shared-lib/src';
+
 import { IHandlerService } from '../../../src/services/interfaces';
-
-import { EClientMessageType, EMemberStatusChange, ERole, EServerMessageType, IChangeScrumMasterMessage, IMemberChangedMessage, ISelfMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
-
 
 describe('Change scrum master => OK', () => {
   test('Change scrum master', () => {
@@ -27,7 +26,7 @@ describe('Change scrum master => OK', () => {
       data: participant1.participantId,
       type: EClientMessageType.ChangeScrumMaster
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
 
     // test: scrum master 1 should have received 2 MC join + 1 MC Role change + 1 Self
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);

@@ -6,7 +6,7 @@ import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 import { Util } from "./helpers/util";
-import exp from 'constants';
+
 
 describe('Start => OK', () => {
   test('Start', () => {
@@ -26,7 +26,7 @@ describe('Start => OK', () => {
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
 
     // test: scrum master 1 should have received 1 MC join + 1 clear + 1 poker status
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);

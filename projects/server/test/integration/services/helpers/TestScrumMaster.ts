@@ -1,15 +1,11 @@
-import { jest } from "@jest/globals"
-
-import { IServerParticipant } from "../../../../src/objects";
-
-import { IWebSocket } from "../../../../src/services/websocket";
+import { IHandlerService } from "../../../../src/services/interfaces";
 import { ATestParticipant, IATestParticipant } from "./ATestParticipant";
 
 export type ITestScrumMaster = IATestParticipant;
 
 export class TestScrumMaster extends ATestParticipant implements ITestScrumMaster {
-  public constructor(send: jest.Mock<(_message: string) => void>, socket: IWebSocket, participant: IServerParticipant) {
-    super(send, socket, participant);
+  public constructor(handlerService: IHandlerService) {
+    super(handlerService);
     this.expectedNumberOfInitialMessages = 6;
   }
 }

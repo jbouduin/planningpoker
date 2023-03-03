@@ -1,6 +1,6 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IPauseMessage } from '../../../../shared-lib/src';
+import { EMemberStatusChange, EServerMessageType } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 

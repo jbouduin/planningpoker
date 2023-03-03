@@ -1,10 +1,10 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
+
+import { EClientMessageType, EMemberStatusChange, EServerMessageType, IEstimateMessage, IEstimationsMessage, IStartMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IEstimateMessage, IEstimationsMessage, IStartMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 
@@ -26,7 +26,7 @@ describe('Estimate => OK', () => {
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
 
     // estimate
     const estimateMessage: IEstimateMessage = {
@@ -34,7 +34,7 @@ describe('Estimate => OK', () => {
       data: 2,
       type: EClientMessageType.Estimate
     };
-    handlerService.handleMessage(estimateMessage, Util.team1Name, participant.socket);
+    participant.sendMessage(estimateMessage);
 
     // test: scrum master 1 should have received 1 MC join + 1 clear + 1 pokerstatus + 1 estimation list
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);

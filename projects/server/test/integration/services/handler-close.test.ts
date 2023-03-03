@@ -1,8 +1,8 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
-import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IMemberChangedMessage, ISelfMessage } from '../../../../shared-lib/src';
+import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, ISelfMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import { Util } from "./helpers/util";
 
@@ -19,8 +19,8 @@ describe('Close', () => {
     const participant = Util.joinTeamNew(handlerService, Util.team1Name, Util.participant1Nick);
     const observer = Util.joinTeamNew(handlerService, Util.team1Name, Util.observer2Name, true);
 
-    // participant 1 disconnects
-    handlerService.handleClose(participant.socket);
+    // participant disconnects
+    participant.closeSocket()
 
     // test: scrum master should have received create messages + 2 MC join + 1 MC disconnect
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
@@ -65,7 +65,7 @@ describe('Close', () => {
     const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick)
 
     // scrum master disconnects
-    handlerService.handleClose(scrumMaster.socket);
+    scrumMaster.closeSocket();
 
     // test: scrum master should have received 3 MC join + 1 MC Disconnect
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
@@ -136,7 +136,7 @@ describe('Close', () => {
 
     // participant 2 connects and disconnects
     const participant = Util.connectParticipant(handlerService);
-    handlerService.handleClose(participant.socket);
+    participant.closeSocket();
 
     // test: unaffected team
     expect(unaffectedTeam.isUnaffected).toBe(true);

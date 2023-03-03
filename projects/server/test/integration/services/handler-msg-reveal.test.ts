@@ -1,4 +1,4 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -26,21 +26,23 @@ describe('Reveal => OK', () => {
       data: undefined,
       type: EClientMessageType.Start
     };
-    handlerService.handleMessage(message, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(message);
+
     // estimate
     const estimateMessage: IEstimateMessage = {
       senderId: participant.participantId,
       data: 2,
       type: EClientMessageType.Estimate
     };
-    handlerService.handleMessage(estimateMessage, Util.team1Name, participant.socket);
+    participant.sendMessage(estimateMessage);
 
+    // reveal
     const revealMessage: IRevealMessage = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Reveal
     };
-    handlerService.handleMessage(revealMessage, Util.team1Name, scrumMaster.socket);
+    scrumMaster.sendMessage(revealMessage);
 
     // test: scrum master 1 should have received 1 MC join + 1 clear + 2 pokerstatus + 2 estimation list
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(6);
