@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EMemberStatusChange, EServerMessageType, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EMemberChangeType, EServerMessageType, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -33,8 +33,8 @@ describe('Change card set => OK', () => {
 
     // Test: scrum master should have received 1 MC join + 1 card list
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(scrumMaster.countMessageType(EServerMessageType.CardList)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.CardList)).toBe(1);
     let updatedCardSetMessage = scrumMaster.extractMessage<ICardSetMessage>(EServerMessageType.CardList);
     expect(updatedCardSetMessage).toBeDefined();
     if (updatedCardSetMessage) {
@@ -44,7 +44,7 @@ describe('Change card set => OK', () => {
 
     // Test: participant should have received card list message only
     expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.CardList)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.CardList)).toBe(1);
     updatedCardSetMessage = participant.extractMessage<ICardSetMessage>(EServerMessageType.CardList);
     expect(updatedCardSetMessage).toBeDefined();
     if (updatedCardSetMessage) {

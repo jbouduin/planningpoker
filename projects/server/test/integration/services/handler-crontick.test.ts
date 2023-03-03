@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EMemberStatusChange, EServerMessageType } from '../../../../shared-lib/src';
+import { EMemberChangeType, EServerMessageType } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -29,19 +29,19 @@ describe('Cron tick', () => {
 
     // Test: scrum master 1 should have received 1 MC join + 1 idle message
     expect(scrumMaster1.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster1.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(scrumMaster1.countMessageType(EServerMessageType.TeamIdle)).toBe(1);
+    expect(scrumMaster1.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster1.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(1);
 
     // Test: participant 1 should have received idle message only
     expect(participant1.messagesReceivedAfterInitial).toBe(1);
-    expect(participant1.countMessageType(EServerMessageType.TeamIdle)).toBe(1);
+    expect(participant1.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(1);
 
     // Test: scrum master 2 should have received join only
     expect(scrumMaster2.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster2.countMessageType(EServerMessageType.TeamIdle)).toBe(0);
+    expect(scrumMaster2.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(0);
 
     // Test: participant 2 should have received no additional messages
     expect(participant2.messagesReceivedAfterInitial).toBe(0);
-    expect(participant2.countMessageType(EServerMessageType.TeamIdle)).toBe(0);
+    expect(participant2.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(0);
   });
 });

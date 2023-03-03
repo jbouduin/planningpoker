@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
-import { EClientMessageType, EMemberStatusChange, ERole, EServerMessageType, IChangeScrumMasterMessage, ISelfMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberChangeType, ERole, EServerMessageType, IChangeScrumMasterMessage, ISelfMessage } from '../../../../shared-lib/src';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 import { Util } from "./helpers/util";
@@ -30,45 +30,45 @@ describe('Change scrum master => OK', () => {
 
     // Test: scrum master 1 should have received 2 MC join + 1 MC Role change + 1 Self
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
-    expect(scrumMaster.countMessageType(EServerMessageType.Self)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.ChangedRole)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.Self)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.ChangedRole)).toBe(1);
     let selfMessage = scrumMaster.extractMessage<ISelfMessage>(EServerMessageType.Self);
     expect(selfMessage).toBeDefined();
     if (selfMessage) {
       expect(selfMessage.data.participantId).toBe(scrumMaster.participantId);
       expect(selfMessage.data.role).toBe(ERole.Developer);
     }
-    let roleChangedMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.ChangedRole);
+    let roleChangedMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.ChangedRole);
     expect(roleChangedMessage).toBeDefined();
     if (roleChangedMessage) {
       expect(roleChangedMessage.data.member.role).toBe(ERole.ScrumMaster);
-      expect(roleChangedMessage.data.memberStatusChange).toBe(EMemberStatusChange.ChangedRole);
+      expect(roleChangedMessage.data.memberStatusChange).toBe(EMemberChangeType.ChangedRole);
       expect(roleChangedMessage.data.member.participantId).toBe(participant1.participantId);
     }
 
     // Test: participant 1 should have received 1 MC join + 1 MC role change + 1 self
     expect(participant1.messagesReceivedAfterInitial).toBe(3);
-    expect(participant1.countMessageType(EServerMessageType.Self)).toBe(1);
-    expect(participant1.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(participant1.countMemberChangedMessages(EMemberStatusChange.ChangedRole)).toBe(1);
+    expect(participant1.countMessagesOfType(EServerMessageType.Self)).toBe(1);
+    expect(participant1.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(participant1.countMemberChangedMessages(EMemberChangeType.ChangedRole)).toBe(1);
     selfMessage = participant1.extractMessage<ISelfMessage>(EServerMessageType.Self);
     expect(selfMessage).toBeDefined();
     if (selfMessage) {
       expect(selfMessage.data.participantId).toBe(participant1.participantId);
       expect(selfMessage.data.role).toBe(ERole.ScrumMaster);
     }
-    roleChangedMessage = participant1.extractMemberChangedMessage(EMemberStatusChange.ChangedRole);
+    roleChangedMessage = participant1.extractMemberChangedMessage(EMemberChangeType.ChangedRole);
     expect(roleChangedMessage).toBeDefined();
     if (roleChangedMessage) {
       expect(roleChangedMessage.data.member.role).toBe(ERole.Developer);
-      expect(roleChangedMessage.data.memberStatusChange).toBe(EMemberStatusChange.ChangedRole);
+      expect(roleChangedMessage.data.memberStatusChange).toBe(EMemberChangeType.ChangedRole);
       expect(roleChangedMessage.data.member.participantId).toBe(scrumMaster.participantId);
     }
 
     // Test: participant 2 should have received 2 MC role changes
     expect(participant2.messagesReceivedAfterInitial).toBe(2);
-    expect(participant2.countMemberChangedMessages(EMemberStatusChange.ChangedRole)).toBe(2);
+    expect(participant2.countMemberChangedMessages(EMemberChangeType.ChangedRole)).toBe(2);
 
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);

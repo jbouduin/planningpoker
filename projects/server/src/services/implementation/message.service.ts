@@ -2,8 +2,8 @@ import { inject, injectable } from "inversify";
 
 import SERVICETYPES from "../service.types";
 
-import { AServerMessage, EErrorCode, EMemberStatusChange, EPokerStatus, ICardSet, IEstimation, IMemberStatusChange, IParticipant } from "../../../../shared-lib/src";
-import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangedMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
+import { AServerMessage, EErrorCode, EMemberChangeType, EPokerStatus, ICardSet, IEstimation, IMemberChange, IParticipant } from "../../../../shared-lib/src";
+import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangeMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
 import { ITeam, IServerParticipant } from "../../objects";
 import { IMessageService, ISenderService } from "../interfaces";
 import { IWebSocket } from "../websocket";
@@ -34,7 +34,7 @@ export class MessageService implements IMessageService {
     members.forEach((p: IServerParticipant) => this.sendPokerStatusChanged(p, status));
   }
 
-  public broadcastMemberChange(members: Array<IServerParticipant>, changedMember: IServerParticipant, change: EMemberStatusChange): void {
+  public broadcastMemberChange(members: Array<IServerParticipant>, changedMember: IServerParticipant, change: EMemberChangeType): void {
     members.forEach((p: IServerParticipant) => this.sendMemberChange(p, changedMember, change));
   }
 
@@ -117,8 +117,8 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendMemberChange(to: IServerParticipant, changedMember: IServerParticipant, change: EMemberStatusChange) {
-    const data: IMemberStatusChange = {
+  private sendMemberChange(to: IServerParticipant, changedMember: IServerParticipant, change: EMemberChangeType) {
+    const data: IMemberChange = {
       memberStatusChange: change,
       member: {
         status: changedMember.status,
@@ -128,7 +128,7 @@ export class MessageService implements IMessageService {
         observer: changedMember.observer
       }
     }
-    const message: AServerMessage = new MemberChangedMessage(data);
+    const message: AServerMessage = new MemberChangeMessage(data);
     this.senderService.sendToParticipant(to, message);
   }
 

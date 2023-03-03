@@ -1,5 +1,4 @@
-// TODO NOW rename to EMemberChangeType
-export enum EMemberStatusChange {
+export enum EMemberChangeType {
   ChangedNick = 'changed-nick',
   ChangedRole = 'changed-role',
   Disconnected = 'disconnected',

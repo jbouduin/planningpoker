@@ -1,5 +1,5 @@
 import { EPokerStatus, ICardSet, IError, IEstimation, IParticipant } from "../interfaces";
-import { IMemberStatusChange } from "../interfaces/member-status-change";
+import { IMemberChange } from "../interfaces/member-change";
 import { EServerMessageType } from "./server-message-type.enum";
 
 export interface IServerMessage<T> {
@@ -11,11 +11,10 @@ export type ICardSetMessage = IServerMessage<ICardSet>;
 export type IClearEstimationsMessage = IServerMessage<void>;
 export type IEndSessionMessage = IServerMessage<void>;
 export type IErrorMessage = IServerMessage<IError>;
-// TODO NOW Rename to estimationlist message
-export type IEstimationsMessage = IServerMessage<Array<IEstimation>>;
+export type IEstimationListMessage = IServerMessage<Array<IEstimation>>;
 export type IInitMessage = IServerMessage<IParticipant>;
 export type ILeftMessage = IServerMessage<void>;
-export type IMemberChangedMessage = IServerMessage<IMemberStatusChange>;
+export type IMemberChangeMessage = IServerMessage<IMemberChange>;
 export type IMemberListMessage = IServerMessage<Array<IParticipant>>;
 export type IPingMessage = IServerMessage<void>;
 export type IPokerStatusChangedMessage = IServerMessage<EPokerStatus>;
@@ -28,10 +27,10 @@ export type AServerMessage =
   IClearEstimationsMessage |
   IEndSessionMessage |
   IErrorMessage |
-  IEstimationsMessage |
+  IEstimationListMessage |
   IInitMessage |
   ILeftMessage |
-  IMemberChangedMessage |
+  IMemberChangeMessage |
   IMemberListMessage |
   IPingMessage |
   IPokerStatusChangedMessage |

@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals"
 import { IHandlerService } from "services/interfaces";
-import { AClientMessage, AServerMessage, EErrorCode, EMemberStatusChange, EServerMessageType, IErrorMessage, IMemberChangedMessage } from "../../../../../shared-lib/src";
+import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, EServerMessageType, IErrorMessage, IMemberChangeMessage } from "../../../../../shared-lib/src";
 
 import { IServerParticipant } from "../../../../src/objects";
 
@@ -16,12 +16,11 @@ export interface IATestParticipant {
   teamName: string;
 
   closeSocket(): void;
-  countMemberChangedMessages(changeType: EMemberStatusChange, skipInitialMessages?: boolean): number;
-  // TODO NOW rename to countMessagesOfType
-  countMessageType(messageType: EServerMessageType, skipInitialMessages?: boolean): number;
+  countMemberChangedMessages(changeType: EMemberChangeType, skipInitialMessages?: boolean): number;
+  countMessagesOfType(messageType: EServerMessageType, skipInitialMessages?: boolean): number;
   dumpMessages(): void;
   errorMessageReceived(errorCode: EErrorCode): boolean;
-  extractMemberChangedMessage(changeType: EMemberStatusChange, skipInitialMessages?:boolean, occurrence?: number): IMemberChangedMessage | undefined;
+  extractMemberChangedMessage(changeType: EMemberChangeType, skipInitialMessages?:boolean, occurrence?: number): IMemberChangeMessage | undefined;
   extractMessage<T = AServerMessage>(messageType: EServerMessageType, skipInitialMessages?: boolean, occurrence?: number): T | undefined;
 
   sendMessage(message: AClientMessage): void;
@@ -78,18 +77,18 @@ export abstract class ATestParticipant implements IATestParticipant {
     this.socket.readyState == ReadyState.CLOSED;
   }
 
-  public countMemberChangedMessages(changeType: EMemberStatusChange, skipInitialMessages?: boolean): number {
+  public countMemberChangedMessages(changeType: EMemberChangeType, skipInitialMessages?: boolean): number {
     const allMemberChangedMessages = skipInitialMessages ?
       this.messagesAfterInitialMessages.filter((message: AServerMessage) => message.type === EServerMessageType.MemberChanged) :
       this.allMessages.filter((message: AServerMessage) => message.type === EServerMessageType.MemberChanged);
 
     return allMemberChangedMessages
-      .map((m: AServerMessage) => <IMemberChangedMessage>m)
-      .filter((m: IMemberChangedMessage) => m.data.memberStatusChange === changeType)
+      .map((m: AServerMessage) => <IMemberChangeMessage>m)
+      .filter((m: IMemberChangeMessage) => m.data.memberStatusChange === changeType)
       .length;
   }
 
-  public countMessageType(messageType: EServerMessageType, skipInitialMessages = true): number {
+  public countMessagesOfType(messageType: EServerMessageType, skipInitialMessages = true): number {
     return skipInitialMessages ?
       this.messagesAfterInitialMessages.filter((message: AServerMessage) => message.type === messageType).length :
       this.allMessages.filter((message: AServerMessage) => message.type === messageType).length;
@@ -114,14 +113,14 @@ export abstract class ATestParticipant implements IATestParticipant {
     return allMessagesOfType.length >= occurrence ? <T>allMessagesOfType[occurrence] : undefined
   }
 
-  public extractMemberChangedMessage(changeType: EMemberStatusChange, skipInitialMessages = true, occurrence = 0): IMemberChangedMessage | undefined {
+  public extractMemberChangedMessage(changeType: EMemberChangeType, skipInitialMessages = true, occurrence = 0): IMemberChangeMessage | undefined {
     const allMemberChangedMessages = skipInitialMessages ?
       this.messagesAfterInitialMessages.filter((message: AServerMessage) => message.type === EServerMessageType.MemberChanged) :
       this.allMessages.filter((message: AServerMessage) => message.type === EServerMessageType.MemberChanged);
 
     const messageOfGivenChangeType = allMemberChangedMessages
-      .map((m: AServerMessage) => <IMemberChangedMessage>m)
-      .filter((m: IMemberChangedMessage) => m.data.memberStatusChange === changeType);
+      .map((m: AServerMessage) => <IMemberChangeMessage>m)
+      .filter((m: IMemberChangeMessage) => m.data.memberStatusChange === changeType);
     return messageOfGivenChangeType.length >= occurrence ? messageOfGivenChangeType[occurrence] : undefined
   }
 

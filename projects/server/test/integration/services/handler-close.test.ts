@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
-import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, ISelfMessage } from '../../../../shared-lib/src';
+import { EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ISelfMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import { Util } from "./helpers/util";
 
@@ -24,9 +24,9 @@ describe('Close', () => {
 
     // Test: scrum master should have received create messages + 2 MC join + 1 MC disconnect
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
-    let disconnectMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.Disconnected);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    let disconnectMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Disconnected);
     expect(disconnectMessage).toBeDefined();
     if (disconnectMessage) {
       expect(disconnectMessage.data.member.participantId === participant.participantId);
@@ -35,8 +35,8 @@ describe('Close', () => {
 
     // Test: observer should have received 1 MC disconnect
     expect(observer.messagesReceivedAfterInitial).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
-    disconnectMessage = observer.extractMemberChangedMessage(EMemberStatusChange.Disconnected);
+    expect(observer.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    disconnectMessage = observer.extractMemberChangedMessage(EMemberChangeType.Disconnected);
     expect(disconnectMessage).toBeDefined();
     if (disconnectMessage) {
       expect(disconnectMessage.data.member.participantId === participant.participantId);
@@ -45,7 +45,7 @@ describe('Close', () => {
 
     // Test: participant should have received 1 MC join only
     expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
 
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
@@ -69,20 +69,20 @@ describe('Close', () => {
 
     // Test: scrum master should have received 3 MC join + 1 MC Disconnect
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(3);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
 
     // Test: observer should have received 1 MC Join + 2 MC disconnect memberchange + 1 MC role change or 1 self
     expect(observer.messagesReceivedAfterInitial).toBe(4);
-    expect(observer.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(2);
+    expect(observer.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(observer.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(2);
     expect(
-      observer.countMemberChangedMessages(EMemberStatusChange.ChangedRole) +
-      observer.countMessageType(EServerMessageType.Self)
+      observer.countMemberChangedMessages(EMemberChangeType.ChangedRole) +
+      observer.countMessagesOfType(EServerMessageType.Self)
     ).toBe(1);
 
     let secondSelfMessage = observer.extractMessage<ISelfMessage>(EServerMessageType.Self);
-    let otherMemberChangedRoleMessage = observer.extractMemberChangedMessage(EMemberStatusChange.ChangedRole);
+    let otherMemberChangedRoleMessage = observer.extractMemberChangedMessage(EMemberChangeType.ChangedRole);
 
     if (secondSelfMessage) {
       expect(otherMemberChangedRoleMessage).toBeUndefined();
@@ -91,22 +91,22 @@ describe('Close', () => {
     }
     if (otherMemberChangedRoleMessage) {
       expect(secondSelfMessage).toBeUndefined();
-      expect(otherMemberChangedRoleMessage.data.memberStatusChange).toBe(EMemberStatusChange.ChangedRole)
+      expect(otherMemberChangedRoleMessage.data.memberStatusChange).toBe(EMemberChangeType.ChangedRole)
       expect(otherMemberChangedRoleMessage.data.member.participantId).toBe(participant.participantId);
       expect(otherMemberChangedRoleMessage.data.member.role).toBe(ERole.ScrumMaster);
     }
 
     // Test: participant should have received 2 MC join + 2 MC disconnect + 1 MC role change or a second self
     expect(participant.messagesReceivedAfterInitial).toBe(5);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(2);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(2);
     expect(
-      participant.countMemberChangedMessages(EMemberStatusChange.ChangedRole) +
-      participant.countMessageType(EServerMessageType.Self)
+      participant.countMemberChangedMessages(EMemberChangeType.ChangedRole) +
+      participant.countMessagesOfType(EServerMessageType.Self)
     ).toBe(1);
 
     secondSelfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
-    otherMemberChangedRoleMessage = participant.extractMemberChangedMessage(EMemberStatusChange.ChangedRole);
+    otherMemberChangedRoleMessage = participant.extractMemberChangedMessage(EMemberChangeType.ChangedRole);
 
     if (secondSelfMessage) {
       expect(otherMemberChangedRoleMessage).toBeUndefined();
@@ -115,7 +115,7 @@ describe('Close', () => {
     }
     if (otherMemberChangedRoleMessage) {
       expect(secondSelfMessage).toBeUndefined();
-      expect(otherMemberChangedRoleMessage.data.memberStatusChange).toBe(EMemberStatusChange.ChangedRole)
+      expect(otherMemberChangedRoleMessage.data.memberStatusChange).toBe(EMemberChangeType.ChangedRole)
       expect(otherMemberChangedRoleMessage.data.member.participantId).toBe(observer.participantId);
       expect(otherMemberChangedRoleMessage.data.member.role).toBe(ERole.ScrumMaster);
     }

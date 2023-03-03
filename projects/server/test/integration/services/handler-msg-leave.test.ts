@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, EServerMessageType, ILeaveMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EServerMessageType, ILeaveMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -31,9 +31,9 @@ describe('Leaving => OK', () => {
 
     // Test: scrum master should have received 2 MC join + 1 MC leave
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
-    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
+    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Left);
     expect(leftMessage).toBeDefined();
     if (leftMessage) {
       expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
@@ -42,8 +42,8 @@ describe('Leaving => OK', () => {
 
     // Test: observer should have received 1 MC leave
     expect(observer.messagesReceivedAfterInitial).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
-    leftMessage = observer.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(observer.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
+    leftMessage = observer.extractMemberChangedMessage(EMemberChangeType.Left);
     expect(leftMessage).toBeDefined();
     if (leftMessage) {
       expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
@@ -52,8 +52,8 @@ describe('Leaving => OK', () => {
 
     // Test: participant should have received 1 MC join memberchange + 1 Left
     expect(participant.messagesReceivedAfterInitial).toBe(2);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.Left)).toBe(1);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.Left)).toBe(1);
 
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
@@ -85,10 +85,10 @@ describe('Leaving => OK', () => {
 
     // Test: scrum master should have received 2 MC join + 1 MC disconnected + 1 MC leave
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
-    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
+    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Left);
     expect(leftMessage).toBeDefined();
     if (leftMessage) {
       expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
@@ -97,8 +97,8 @@ describe('Leaving => OK', () => {
 
     // Test: observer should have received + 1 MC disconnect + 1 MC leave
     expect(observer.messagesReceivedAfterInitial).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
-    leftMessage = observer.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(observer.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
+    leftMessage = observer.extractMemberChangedMessage(EMemberChangeType.Left);
     expect(leftMessage).toBeDefined();
     if (leftMessage) {
       expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
@@ -109,14 +109,14 @@ describe('Leaving => OK', () => {
     expect(participant.messagesReceivedAfterInitial).toBe(0);
 
     // Test: reconnected participant should have received init messages + his own leave acknowledge message
-    expect(reconnect.countMessageType(EServerMessageType.Init, false)).toBe(1);
-    expect(reconnect.countMessageType(EServerMessageType.Left, false)).toBe(1);
+    expect(reconnect.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
+    expect(reconnect.countMessagesOfType(EServerMessageType.Left, false)).toBe(1);
 
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
-  // TODO 2369 leaving during estimations should remove estimation if participant has made one
+  // TODO 2385 leaving during estimations should remove estimation if participant has made one
 
   test('Scrum Master leaving', () => {
     const container = Util.getContainer();
@@ -144,18 +144,18 @@ describe('Leaving => OK', () => {
 
     // Test: scrum master should have received 2 MC join  + 1 session ended
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
-    expect(scrumMaster.countMessageType(EServerMessageType.EndSession)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.EndSession)).toBe(1);
 
     // Test: participant should have received 1 MC join + 1 session ended
     expect(participant.messagesReceivedAfterInitial).toBe(2);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.EndSession)).toBe(1);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.EndSession)).toBe(1);
 
     // Test: observer should have received 1 session ended
     expect(observer.messagesReceivedAfterInitial).toBe(1);
 
-    expect(observer.countMessageType(EServerMessageType.EndSession)).toBe(1);
+    expect(observer.countMessagesOfType(EServerMessageType.EndSession)).toBe(1);
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
@@ -186,7 +186,7 @@ describe('Leaving => Failure', () => {
 
     // Test: scrum master should only have received 1 MC Join
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
 
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
@@ -214,7 +214,7 @@ describe('Leaving => Failure', () => {
 
     // Participant should only receive 1 init and 1 error message
     expect(participant.totalMessagesReceived).toBe(2);
-    expect(participant.countMessageType(EServerMessageType.Init, false)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
     expect(participant.errorMessageReceived(EErrorCode.TeamDoesNotExist)).toBe(true);
 
     // scrum master should not have received any additional messages
@@ -246,7 +246,7 @@ describe('Leaving => Failure', () => {
 
     // Test: participant should only have received the init and the error message
     expect(participant.totalMessagesReceived).toBe(2);
-    expect(participant.countMessageType(EServerMessageType.Init, false)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
     expect(participant.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
 
     // Test: scrum master should not have received any additional messages
@@ -277,12 +277,12 @@ describe('Leaving => Failure', () => {
 
     // Test: participant should only have received the error message
     expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.Init, false)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
     expect(participant.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
 
     // Test: scrum master should only have received 1 MC Joined
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
 
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);

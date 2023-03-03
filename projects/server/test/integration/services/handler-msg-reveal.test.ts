@@ -4,7 +4,7 @@ import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IEstimateMessage, IRevealMessage, IStartMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberChangeType, EServerMessageType, IEstimateMessage, IRevealMessage, IStartMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 
@@ -46,17 +46,17 @@ describe('Reveal => OK', () => {
 
     // Test: scrum master 1 should have received 1 MC join + 1 clear + 2 pokerstatus + 2 estimation list
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(6);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1)
-    expect(scrumMaster.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(scrumMaster.countMessageType(EServerMessageType.EstimationList)).toBe(2);
-    expect(scrumMaster.countMessageType(EServerMessageType.PokerStatus)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1)
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.EstimationList)).toBe(2);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(2);
     // TODO 2381 check the messages
 
     // Test: participant 1 should have received 1 clear + 2 pokerstatus + 2 estimation list
     expect(participant.messagesReceivedAfterInitial).toBe(5);
-    expect(participant.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.EstimationList)).toBe(2);
-    expect(participant.countMessageType(EServerMessageType.PokerStatus)).toBe(2);
+    expect(participant.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.EstimationList)).toBe(2);
+    expect(participant.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(2);
     // TODO 2381 check the messages
 
     // Test: check if unaffected team is unaffected

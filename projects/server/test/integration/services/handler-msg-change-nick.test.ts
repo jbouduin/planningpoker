@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IChangeNickMessage, ISelfMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberChangeType, EServerMessageType, IChangeNickMessage, ISelfMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -31,9 +31,9 @@ describe('Change nick => OK', () => {
 
     // Test: scrum master should have received 2 MC join + 1 MC disconnect + 1 self
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
-    expect(scrumMaster.countMessageType(EServerMessageType.Self)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.Self)).toBe(1);
     const selfMessage = scrumMaster.extractMessage<ISelfMessage>(EServerMessageType.Self);
     expect(selfMessage).toBeDefined();
     if (selfMessage) {
@@ -42,14 +42,14 @@ describe('Change nick => OK', () => {
 
     // Test: participant should have received 1 MC join + 1 MC disconnect + 1 MC nick change
     expect(participant.messagesReceivedAfterInitial).toBe(3);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.ChangedNick)).toBe(1);
-    const memberChangeMessage = participant.extractMemberChangedMessage(EMemberStatusChange.ChangedNick, true);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.ChangedNick)).toBe(1);
+    const memberChangeMessage = participant.extractMemberChangedMessage(EMemberChangeType.ChangedNick, true);
     expect(memberChangeMessage).toBeDefined();
     if (memberChangeMessage) {
       expect(memberChangeMessage.data.member.nick).toBe(Util.observer1Name);
-      expect(memberChangeMessage.data.memberStatusChange).toBe(EMemberStatusChange.ChangedNick);
+      expect(memberChangeMessage.data.memberStatusChange).toBe(EMemberChangeType.ChangedNick);
       expect(memberChangeMessage.data.member.participantId).toBe(scrumMaster.participantId);
     }
 

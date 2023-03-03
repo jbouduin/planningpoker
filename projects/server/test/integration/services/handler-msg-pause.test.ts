@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberStatusChange, EParticipantStatus, EServerMessageType, IPauseMessage, ISelfMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberChangeType, EParticipantStatus, EServerMessageType, IPauseMessage, ISelfMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -30,9 +30,9 @@ describe('Pause => OK', () => {
 
     // Test: scrum master 1 should have received create messages + 1 MC join + 1 MC Paused
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Paused)).toBe(1);
-    const memberChangedMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.Paused);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Paused)).toBe(1);
+    const memberChangedMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Paused);
     expect(memberChangedMessage).toBeDefined();
     if (memberChangedMessage) {
       expect(memberChangedMessage.data.member.status).toBe(EParticipantStatus.Paused);

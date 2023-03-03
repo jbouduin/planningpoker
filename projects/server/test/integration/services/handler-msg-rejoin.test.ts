@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberStatusChange, IRejoinMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberChangeType, IRejoinMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -32,9 +32,9 @@ describe('Rejoin => OK', () => {
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected + 1 MC rejoin
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Rejoined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Rejoined)).toBe(1);
     // TODO 2383 check the message contents of the rejoin
 
     // Test: participant 1 should have received no additional messages

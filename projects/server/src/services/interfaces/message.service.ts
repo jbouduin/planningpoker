@@ -1,4 +1,4 @@
-import { EErrorCode, EMemberStatusChange, EPokerStatus, ICardSet, IEstimation } from "../../../../shared-lib/src";
+import { EErrorCode, EMemberChangeType, EPokerStatus, ICardSet, IEstimation } from "../../../../shared-lib/src";
 import { ITeam, IServerParticipant } from "../../objects";
 import { IWebSocket } from "../websocket";
 
@@ -6,7 +6,7 @@ export interface IMessageService {
   broadcastCardSet(members: Array<IServerParticipant>, cardSet: ICardSet): void;
   broadcastClearEstimations(members: Array<IServerParticipant>): void;
   broadcastPokerStatus(members: Array<IServerParticipant>, status: EPokerStatus): void;
-  broadcastMemberChange(members: Array<IServerParticipant>, changedMember: IServerParticipant, change: EMemberStatusChange): void;
+  broadcastMemberChange(members: Array<IServerParticipant>, changedMember: IServerParticipant, change: EMemberChangeType): void;
   broadcastReset(members: Array<IServerParticipant>): void;
   broadcastSessionEnded(members: Array<IServerParticipant>): void;
   broadcastTeamIdle(members: Array<IServerParticipant>): void;

@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberStatusChange, EParticipantStatus, IRemoveMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberChangeType, EParticipantStatus, IRemoveMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -31,10 +31,10 @@ describe('Remove => OK', () => {
 
     // Test: scrum master should have received 2 MC join + 1 MC disconnect + 1 MC left
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
-    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
+    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Left);
     expect(leftMessage).toBeDefined();
     if (leftMessage) {
       expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
@@ -43,10 +43,10 @@ describe('Remove => OK', () => {
 
     // Test: observer 1 should have received 1 MC join + 1 MC disconnect + 1 MC left
     expect(observer.messagesReceivedAfterInitial).toBe(3);
-    expect(observer.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberStatusChange.Disconnected)).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberStatusChange.Left)).toBe(1);
-    leftMessage = observer.extractMemberChangedMessage(EMemberStatusChange.Left);
+    expect(observer.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(observer.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    expect(observer.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
+    leftMessage = observer.extractMemberChangedMessage(EMemberChangeType.Left);
     expect(leftMessage).toBeDefined();
     if (leftMessage) {
       expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);

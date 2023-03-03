@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IEstimateMessage, IEstimationsMessage, IStartMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberChangeType, EServerMessageType, IEstimateMessage, IEstimationListMessage, IStartMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -38,11 +38,11 @@ describe('Estimate => OK', () => {
 
     // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 pokerstatus + 1 estimation list
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(scrumMaster.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(scrumMaster.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
-    expect(scrumMaster.countMessageType(EServerMessageType.EstimationList)).toBe(1);
-    let estimationListMessage = scrumMaster.extractMessage<IEstimationsMessage>(EServerMessageType.EstimationList);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.EstimationList)).toBe(1);
+    let estimationListMessage = scrumMaster.extractMessage<IEstimationListMessage>(EServerMessageType.EstimationList);
     expect(estimationListMessage).toBeDefined();
     if (estimationListMessage) {
       expect(estimationListMessage.data).toHaveLength(1);
@@ -54,10 +54,10 @@ describe('Estimate => OK', () => {
 
     // Test: participant should have received 1 clear + 1 pokerstatus + 1 additional estimation list
     expect(participant.messagesReceivedAfterInitial).toBe(3);
-    expect(participant.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.EstimationList)).toBe(1);
-    estimationListMessage = participant.extractMessage<IEstimationsMessage>(EServerMessageType.EstimationList);
+    expect(participant.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.EstimationList)).toBe(1);
+    estimationListMessage = participant.extractMessage<IEstimationListMessage>(EServerMessageType.EstimationList);
     expect(estimationListMessage).toBeDefined();
     if (estimationListMessage) {
       expect(estimationListMessage.data).toHaveLength(1);

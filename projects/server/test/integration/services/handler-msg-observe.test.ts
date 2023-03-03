@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberStatusChange, EServerMessageType, IObserveMessage, ISelfMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EMemberChangeType, EServerMessageType, IObserveMessage, ISelfMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -32,19 +32,19 @@ describe('Toggle observe => OK', () => {
 
     // Test: scrum master 1 should have received 1 join + 1 MC observe
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Observe)).toBe(1);
-    const observeMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.Observe);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Observe)).toBe(1);
+    const observeMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Observe);
     expect(observeMessage).toBeDefined();
     if (observeMessage) {
       expect(observeMessage.data.member.observer).toBe(true);
-      expect(observeMessage.data.memberStatusChange).toBe(EMemberStatusChange.Observe);
+      expect(observeMessage.data.memberStatusChange).toBe(EMemberChangeType.Observe);
       expect(observeMessage.data.member.participantId).toBe(participant.participantId);
     }
 
     // Test: participant 1 should have received 1 self
     expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.Self)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.Self)).toBe(1);
     const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
     expect(selfMessage).toBeDefined();
     if (selfMessage) {
@@ -80,19 +80,19 @@ describe('Toggle observe => OK', () => {
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC observe
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Observe)).toBe(1);
-    const observeMessage = scrumMaster.extractMemberChangedMessage(EMemberStatusChange.Observe);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Observe)).toBe(1);
+    const observeMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Observe);
     expect(observeMessage).toBeDefined();
     if (observeMessage) {
       expect(observeMessage.data.member.observer).toBe(true);
-      expect(observeMessage.data.memberStatusChange).toBe(EMemberStatusChange.Observe);
+      expect(observeMessage.data.memberStatusChange).toBe(EMemberChangeType.Observe);
       expect(observeMessage.data.member.participantId).toBe(participant.participantId);
     }
 
     // Test: participant 1 should have received 1  self
     expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.Self)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.Self)).toBe(1);
     const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
     expect(selfMessage).toBeDefined();
     if (selfMessage) {

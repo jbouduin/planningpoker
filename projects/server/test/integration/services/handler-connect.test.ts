@@ -17,7 +17,7 @@ describe('Connect', () => {
 
     // Test: init message
     expect(connected.totalMessagesReceived).toBe(1);
-    expect(connected.countMessageType(EServerMessageType.Init, false)).toBe(1);
+    expect(connected.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
     const initMessage = connected.extractMessage<IInitMessage>(EServerMessageType.Init, false);
     expect(initMessage).toBeDefined();
     if (initMessage) {

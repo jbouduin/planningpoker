@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
-import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, AServerMessage } from '@shared-lib';
+import { EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, IMemberChangeMessage, IMemberListMessage, IMemberChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, AServerMessage } from '@shared-lib';
 
 import { environment } from '@env/environment';
 import { MessageBoxComponent, MessageBoxParams } from '@shared/components';
@@ -154,7 +154,7 @@ export class TeamService {
         this.resetService();
         break;
       case EServerMessageType.MemberChanged:
-        this.handleMemberChanged((<IMemberChangedMessage>message).data);
+        this.handleMemberChanged((<IMemberChangeMessage>message).data);
         break;
       case EServerMessageType.MemberList:
         this.handleMemberList((<IMemberListMessage>message).data);
@@ -171,8 +171,8 @@ export class TeamService {
     this.allMembers.set(me.participantId, me);
   }
 
-  private handleMemberChanged(memberChange: IMemberStatusChange): void {
-    if (memberChange.memberStatusChange != EMemberStatusChange.Left) {
+  private handleMemberChanged(memberChange: IMemberChange): void {
+    if (memberChange.memberStatusChange != EMemberChangeType.Left) {
       this.allMembers.set(
         memberChange.member.participantId,
         new Member(memberChange.member, false)
@@ -182,7 +182,7 @@ export class TeamService {
     }
 
     switch (memberChange.memberStatusChange) {
-      case EMemberStatusChange.ChangedRole:
+      case EMemberChangeType.ChangedRole:
         if (memberChange.member.role === ERole.ScrumMaster) {
           this.snackbarService.showInfo(
             this.translateService.instant(
@@ -192,7 +192,7 @@ export class TeamService {
           );
         }
         break;
-      case EMemberStatusChange.Disconnected:
+      case EMemberChangeType.Disconnected:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_was_disconnected',
@@ -200,7 +200,7 @@ export class TeamService {
           )
         );
         break;
-      case EMemberStatusChange.Joined:
+      case EMemberChangeType.Joined:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_has_joined',
@@ -208,7 +208,7 @@ export class TeamService {
           )
         );
         break;
-      case EMemberStatusChange.Left:
+      case EMemberChangeType.Left:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_has_left',
@@ -216,7 +216,7 @@ export class TeamService {
           )
         );
         break;
-      case EMemberStatusChange.Paused:
+      case EMemberChangeType.Paused:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_is_having_a_break',
@@ -224,7 +224,7 @@ export class TeamService {
           )
         );
         break;
-      case EMemberStatusChange.Rejoined:
+      case EMemberChangeType.Rejoined:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_is_back',

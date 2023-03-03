@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EMemberStatusChange, EPokerStatus, EServerMessageType, IPokerStatusChangedMessage, IStartMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, EServerMessageType, IPokerStatusChangedMessage, IStartMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -30,9 +30,9 @@ describe('Start => OK', () => {
 
     // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 poker status
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
-    expect(scrumMaster.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(scrumMaster.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
     let pokerStatusMessage = scrumMaster.extractMessage<IPokerStatusChangedMessage>(EServerMessageType.PokerStatus);
     expect(pokerStatusMessage).toBeDefined();
     if (pokerStatusMessage) {
@@ -41,8 +41,8 @@ describe('Start => OK', () => {
 
     // Test: participant 1 should have received 1 clear + 1 poker status
     expect(participant.messagesReceivedAfterInitial).toBe(2);
-    expect(participant.countMessageType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.PokerStatus)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
     pokerStatusMessage = participant.extractMessage<IPokerStatusChangedMessage>(EServerMessageType.PokerStatus);
     expect(pokerStatusMessage).toBeDefined();
     if (pokerStatusMessage) {
@@ -76,7 +76,7 @@ describe('start => Failure', () => {
 
     // Test: scrum master should have received 1 MC Join
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
 
     // Test: participant should have received 1 error
     expect(participant.messagesReceivedAfterInitial).toBe(1);
@@ -110,7 +110,7 @@ describe('start => Failure', () => {
 
     // Test: scrum master should have received  1 join + 1 error
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
     expect(scrumMaster.errorMessageReceived(EErrorCode.TeamDoesNotExist)).toBe(true);
 
     // Test: participant 1 should have received no messages
@@ -140,7 +140,7 @@ describe('start => Failure', () => {
 
     // Test: scrum master should have received 1 MC Join + 1 error
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
     expect(scrumMaster.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
 
     // Test: participant 1 should have received no messages
@@ -174,7 +174,7 @@ describe('start => Failure', () => {
 
     // Test: scrum master should have received 1 MC join + 1 error
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
     expect(scrumMaster.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
 
     // Test: participant 1 should have received nothing

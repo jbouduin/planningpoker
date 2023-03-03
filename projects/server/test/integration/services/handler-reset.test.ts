@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EMemberStatusChange, EServerMessageType } from '../../../../shared-lib/src';
+import { EMemberChangeType, EServerMessageType } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -22,22 +22,22 @@ describe('Reset', () => {
 
     // Test: scrum master should have received 3 MC join + 1 MC pause + 1 reset
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(5);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberStatusChange.Paused)).toBe(1);
-    expect(scrumMaster.countMessageType(EServerMessageType.ServerReset)).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(3);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Paused)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.ServerReset)).toBe(1);
 
     // Test: participant should have received 2 MC joins + 1 MC pause + 1 reset
     expect(participant.messagesReceivedAfterInitial).toBe(4);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.Joined)).toBe(2);
-    expect(participant.countMemberChangedMessages(EMemberStatusChange.Paused)).toBe(1);
-    expect(participant.countMessageType(EServerMessageType.ServerReset)).toBe(1);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Paused)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.ServerReset)).toBe(1);
 
     // Test: paused participant should have received 1 self (pause)
     expect(paused.messagesReceivedAfterInitial).toBe(1);
-    expect(paused.countMessageType(EServerMessageType.Self)).toBe(1);
+    expect(paused.countMessagesOfType(EServerMessageType.Self)).toBe(1);
 
     // Test: observer should have received 1 reset
     expect(observer.messagesReceivedAfterInitial).toBe(1);
-    expect(observer.countMessageType(EServerMessageType.ServerReset)).toBe(1);
+    expect(observer.countMessagesOfType(EServerMessageType.ServerReset)).toBe(1);
   });
 });
