@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
+import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { IServerParticipant, ITeam, LooseObject } from "../../objects";
 import { IStorageService } from '../../storage/interfaces';
 import { ICardService, IHandlerService, ILoggerService, IMessageService } from "../interfaces";
@@ -53,7 +53,7 @@ export class HandlerService implements IHandlerService {
           this.messageService.broadcastMemberChange(
             this.storage.getConnectedTeamMembers(team.teamName).filter((p: IServerParticipant) => p.participantId !== closed.participantId),
             closed,
-            EMemberStatusChange.Disconnected
+            EMemberChangeType.Disconnected
           );
           if (closed.role === ERole.ScrumMaster) {
             // assign some random participant the scrum master role
@@ -64,7 +64,7 @@ export class HandlerService implements IHandlerService {
               this.messageService.broadcastMemberChange(
                 this.storage.getConnectedTeamMembers(team.teamName).filter((p: IServerParticipant) => p.participantId !== newScrumMaster.participantId),
                 newScrumMaster,
-                EMemberStatusChange.ChangedRole
+                EMemberChangeType.ChangedRole
               );
               this.messageService.sendSelf(newScrumMaster);
             }
@@ -213,7 +213,7 @@ export class HandlerService implements IHandlerService {
       this.messageService.broadcastMemberChange(
         this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
         sender,
-        EMemberStatusChange.ChangedNick);
+        EMemberChangeType.ChangedNick);
       this.messageService.sendSelf(sender);
     }
   }
@@ -227,11 +227,11 @@ export class HandlerService implements IHandlerService {
         this.messageService.broadcastMemberChange(
           this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
           sender,
-          EMemberStatusChange.ChangedRole);
+          EMemberChangeType.ChangedRole);
         this.messageService.broadcastMemberChange(
           this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== newScrumMaster.participantId),
           newScrumMaster,
-          EMemberStatusChange.ChangedRole);
+          EMemberChangeType.ChangedRole);
         this.messageService.sendSelf(sender);
         this.messageService.sendSelf(newScrumMaster);
       }
@@ -301,7 +301,7 @@ export class HandlerService implements IHandlerService {
       this.messageService.broadcastMemberChange(
         this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
         sender,
-        EMemberStatusChange.Joined);
+        EMemberChangeType.Joined);
     }
   }
 
@@ -314,7 +314,7 @@ export class HandlerService implements IHandlerService {
       this.messageService.broadcastMemberChange(
         this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => toRemove.participantId !== p.participantId),
         toRemove,
-        EMemberStatusChange.Left);
+        EMemberChangeType.Left);
     }
   }
 
@@ -336,7 +336,7 @@ export class HandlerService implements IHandlerService {
         this.messageService.broadcastMemberChange(
           this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== leaving.participantId),
           leaving,
-          EMemberStatusChange.Left);
+          EMemberChangeType.Left);
         this.messageService.sendLeft(sender);
       }
       if (sender.participantId !== message.data) {
@@ -352,7 +352,7 @@ export class HandlerService implements IHandlerService {
       this.messageService.broadcastMemberChange(
         this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== member.participantId),
         member,
-        EMemberStatusChange.Observe);
+        EMemberChangeType.Observe);
       this.messageService.sendSelf(member);
     }
   }
@@ -365,7 +365,7 @@ export class HandlerService implements IHandlerService {
     this.messageService.broadcastMemberChange(
       this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
       sender,
-      EMemberStatusChange.Paused);
+      EMemberChangeType.Paused);
   }
 
   private handleRejoin(sender: IServerParticipant, message: IRejoinMessage, teamName: string, ws: IWebSocket): void {
@@ -391,7 +391,7 @@ export class HandlerService implements IHandlerService {
       this.messageService.broadcastMemberChange(
         this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId),
         oldParticipant,
-        EMemberStatusChange.Rejoined);
+        EMemberChangeType.Rejoined);
     }
   }
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { EPokerStatus, EServerMessageType, IEstimation, IEstimationsMessage, IInitMessage, IPokerStatusChangedMessage, AServerMessage } from '@shared-lib';
+import { EPokerStatus, EServerMessageType, IEstimation, IEstimationListMessage, IInitMessage, IPokerStatusChangedMessage, AServerMessage } from '@shared-lib';
 
 import { EstimateMessage, RevealMessage, StartMessage } from '@shared/messages';
 import { Member, SessionService } from '@shared/services';
@@ -76,7 +76,7 @@ export class PokerService {
         this.resetService();
         break;
       case EServerMessageType.EstimationList:
-        this.handleEstimations((<IEstimationsMessage>message).data);
+        this.handleEstimations((<IEstimationListMessage>message).data);
         break;
       case EServerMessageType.PokerStatus:
         this.pokerStatus = (<IPokerStatusChangedMessage>message).data;
