@@ -5,7 +5,7 @@ import { EClientMessageType, EServerMessageType, IPauseMessage } from '../../../
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-import { Util } from "./util";
+import { Util } from "./helpers/util";
 
 describe('Reset', () => {
   test('Handle reset', () => {

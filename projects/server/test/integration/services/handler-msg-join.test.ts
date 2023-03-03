@@ -6,7 +6,7 @@ import { IHandlerService } from '../../../src/services/interfaces';
 
 import { CardService } from 'services/implementation';
 import { ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationsMessage, IJoinMessage, IMemberChangedMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
-import { Util } from "./util";
+import { Util } from "./helpers/util";
 
 
 describe('Join => OK', () => {
@@ -14,6 +14,10 @@ describe('Join => OK', () => {
     const container = Util.getContainer();
     const cohn = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
     // create the team
     const scrumMasterSend = jest.fn((_message: string) => Util.noop());
     const scrumMasterSocket = Util.getSocket(scrumMasterSend);
@@ -71,11 +75,18 @@ describe('Join => OK', () => {
     expect(memberChangedMessage.data.member.participantId).toBe(participant.participantId);
     expect(memberChangedMessage.data.member.role).toBe(ERole.Developer);
     expect(memberChangedMessage.data.member.observer).toBe(false);
+
+    // test unaffected team
+    expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
   test('Join as observer', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
     // create the team
     const scrumMasterSend = jest.fn((_message: string) => Util.noop());
     const scrumMasterSocket = Util.getSocket(scrumMasterSend);
@@ -107,11 +118,18 @@ describe('Join => OK', () => {
     const memberChangedMessage = Util.extractMessage<IMemberChangedMessage>(scrumMasterSend.mock.calls, EServerMessageType.MemberChanged);
     expect(memberChangedMessage).toBeDefined();
     expect(memberChangedMessage.data.member.observer).toBe(true);
+
+    // test unaffected team
+    expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
   test('Join a team with custom cardset', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
     // customize a card set
     const cohn = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     cohn.cards.splice(9, 3);
@@ -141,12 +159,16 @@ describe('Join => OK', () => {
     expect(cardSetMessage).toBeDefined();
     expect(cardSetMessage.data.cardSet).toBe(ECardSet.Cohn);
     expect(cardSetMessage.data.cards).toHaveLength(cohn.cards.length);
+
+    // test unaffected team
+    expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
   test('Join a second team', () => {
     const container = Util.getContainer();
     const cohn = container.get<CardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
     // create the first team
     const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
     const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
@@ -209,6 +231,10 @@ describe('Join => OK', () => {
   test('Two teams with two participants', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
     // create team 1
     const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
     const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
@@ -251,6 +277,9 @@ describe('Join => OK', () => {
 
     // test: participant 4 should have received join messages
     expect(participant4Send).toBeCalledTimes(Util.expectedMessagesJoin);
+
+    // test unaffected team
+    expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
   // TODO 2369 test('Join a team that is currently estimating', () => { });
@@ -261,6 +290,10 @@ describe('Join => Failure', () => {
   test('Sender does not exist', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
     // create team
     const scrumMasterSend = jest.fn((_message: string) => Util.noop());
     const scrumMasterSocket = Util.getSocket(scrumMasterSend);
@@ -284,11 +317,15 @@ describe('Join => Failure', () => {
     expect(Util.errorMessageReceived(send2.mock.calls, EErrorCode.ParticipantNotFound)).toBe(true);
     // scrum master should not have received any additional messages
     expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate);
+
+    // test unaffected team
+    expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
   test('No teams exist', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
     // connect the user
     const send2 = jest.fn((_message: string) => Util.noop());
     const socket2 = Util.getSocket(send2);
@@ -312,6 +349,10 @@ describe('Join => Failure', () => {
   test('Team does not exist', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
     // create the team
     const scrumMasterSend = jest.fn((_message: string) => Util.noop());
     const scrumMasterSocket = Util.getSocket(scrumMasterSend);
@@ -336,11 +377,18 @@ describe('Join => Failure', () => {
     expect(Util.errorMessageReceived(send2.mock.calls, EErrorCode.TeamDoesNotExist)).toBe(true);
     // scrum master should not have received any additional messages
     expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate);
+
+    // test unaffected team
+    expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
   test('Sender already in the team', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
     // create the team
     const scrumMasterSend = jest.fn((_message: string) => Util.noop());
     const scrumMasterSocket = Util.getSocket(scrumMasterSend);
@@ -367,19 +415,22 @@ describe('Join => Failure', () => {
     expect(Util.errorMessageReceived(send2.mock.calls, EErrorCode.ParticipantAllReadyInTeam)).toBe(true);
     // the scrum master should not have received a message about the second join
     expect(scrumMasterSend).toBeCalledTimes(Util.expectedMessagesCreate + 1);
+
+    // test unaffected team
+    expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
   test('Sender in different team', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
     // create team 1
     const scrumMaster1Send = jest.fn((_message: string) => Util.noop());
     const scrumMaster1Socket = Util.getSocket(scrumMaster1Send);
     Util.createTeam(scrumMaster1Socket, handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // create team 2
-    const scrumMaster2Send = jest.fn((_message: string) => Util.noop());
-    const scrumMaster2Socket = Util.getSocket(scrumMaster2Send);
-    Util.createTeam(scrumMaster2Socket, handlerService, Util.team2Name, Util.scrumMaster2Nick);
     // connect user
     const send3 = jest.fn((_message: string) => Util.noop());
     const socket3 = Util.getSocket(send3);
@@ -397,13 +448,14 @@ describe('Join => Failure', () => {
     handlerService.handleMessage(message, Util.team1Name, socket3);
     // try to join team 2
     message.data.team = Util.team2Name;
-    handlerService.handleMessage(message, Util.team2Name, socket3);
+    handlerService.handleMessage(message, unaffectedTeam.teamName, socket3);
     // user should have received the usual join messages plus an error message when trying to join the second team
     expect(send3).toBeCalledTimes(Util.expectedMessagesJoin + 1);
     expect(Util.errorMessageReceived(send3.mock.calls, EErrorCode.ParticipantAllReadyInTeam)).toBe(true);
     // the scrum master of team 1 should have received the create messages plus the member change
     expect(scrumMaster1Send).toBeCalledTimes(Util.expectedMessagesCreate + 1);
-    // the scrum master of team 1 should only have received the create messages
-    expect(scrumMaster2Send).toBeCalledTimes(Util.expectedMessagesCreate);
+
+    // test unaffected team
+    expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 })

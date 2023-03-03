@@ -5,7 +5,7 @@ import { EServerMessageType } from '../../../../shared-lib/src';
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-import { Util } from "./util";
+import { Util } from "./helpers/util";
 
 describe('Cron tick', () => {
   test('Cron tick removes a team', async () => {

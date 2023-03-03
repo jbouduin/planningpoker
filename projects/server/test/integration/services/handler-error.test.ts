@@ -5,7 +5,7 @@ import { EErrorCode, EServerMessageType, IErrorMessage } from '../../../../share
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-import { Util } from "./util";
+import { Util } from "./helpers/util";
 
 describe('Handle Error', () => {
   test('Handle error ', () => {

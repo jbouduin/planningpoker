@@ -1,15 +1,17 @@
 import { jest } from '@jest/globals';
 import { Container } from "inversify";
 
-import SERVICETYPES from '../../../src/services/service.types';
-import STORAGETYPES from '../../../src/storage/storage.types';
+import SERVICETYPES from '../../../../src/services/service.types';
+import STORAGETYPES from '../../../../src/storage/storage.types';
 
-import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICardSet, ICreatemessage, IErrorMessage, IJoinMessage } from '../../../../shared-lib/src';
-import { CardService, CronService, EnvironmentService, HandlerService, LoggerService, MessageService, PreflightService, SenderService } from '../../../src/services/implementation';
-import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService } from '../../../src/services/interfaces';
-import { IWebSocket, ReadyState } from "../../../src/services/websocket";
-import { CardSetRepository, EstimationRepository, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../src/storage/implementation";
-import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../src/storage/interfaces";
+import { AServerMessage, ECardSet, EClientMessageType, EErrorCode, EServerMessageType, ICardSet, ICreatemessage, IErrorMessage, IJoinMessage } from '../../../../../shared-lib/src';
+import { CardService, CronService, EnvironmentService, HandlerService, LoggerService, MessageService, PreflightService, SenderService } from '../../../../src/services/implementation';
+import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService } from '../../../../src/services/interfaces';
+import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
+import { CardSetRepository, EstimationRepository, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../../src/storage/implementation";
+import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../../src/storage/interfaces";
+import { TestParticipant } from './TestParticipant';
+import { UnaffectedTeam } from './UnaffectedTeam';
 
 export class Util {
   public static scrumMaster1Nick = 'John Doe';
@@ -127,6 +129,52 @@ export class Util {
 
   public static sleep(milliSeconds: number): Promise<unknown> {
     return new Promise(r => setTimeout(r, milliSeconds));
+  }
+
+  public static connectParticipant(handlerService: IHandlerService): TestParticipant {
+    const send = jest.fn((_message: string) => this.noop());
+    const socket = this.getSocket(send);
+    const participant = handlerService.handleConnect(socket);
+    return new TestParticipant(send, socket, participant)
+  }
+
+  public static joinTeamNew(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): TestParticipant{
+    const participant = this.connectParticipant(handlerService);
+    const message: IJoinMessage = {
+      senderId: participant.participantId,
+      type: EClientMessageType.Join,
+      data: {
+        nick: nickName,
+        observer: observer,
+        team: teamName
+      }
+    };
+    handlerService.handleMessage(message, teamName, participant.socket);
+    return participant;
+  }
+
+  public static createTeamNew(handlerService: IHandlerService, teamName: string, scrumMasterNick: string, cards?: ICardSet): TestParticipant {
+    const scrumMaster = this.connectParticipant(handlerService);
+    const message: ICreatemessage = {
+      type: EClientMessageType.Create,
+      senderId: scrumMaster.participantId,
+      data: {
+        nick: scrumMasterNick,
+        team: teamName,
+        observer: false,
+        cardSet: cards ? ECardSet.Custom : ECardSet.Cohn,
+        cards: cards
+      }
+    }
+    handlerService.handleMessage(message, teamName, scrumMaster.socket);
+    return scrumMaster;
+  }
+
+  public static createUnaffectedTeam(handlerService: IHandlerService): UnaffectedTeam {
+    const teamName = 'Unaffected Team';
+    const scrumMaster = this.createTeamNew(handlerService, teamName, 'Unaffected Scrum Master', undefined);
+    const participant = this.joinTeamNew(handlerService, teamName, 'Unaffected Participant');
+    return new UnaffectedTeam(scrumMaster, participant, teamName);
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
