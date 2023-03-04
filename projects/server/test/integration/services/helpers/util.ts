@@ -6,10 +6,10 @@ import { ECardSet, EClientMessageType, ICardSet, ICreatemessage, IJoinMessage, I
 import SERVICETYPES from '../../../../src/services/service.types';
 import STORAGETYPES from '../../../../src/storage/storage.types';
 
-import { CardService, CronService, EnvironmentService, HandlerService, MessageService, PreflightService, SenderService } from '../../../../src/services/implementation';
-import { ICardService, ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService, LogType } from '../../../../src/services/interfaces';
-import { CardSetRepository, EstimationRepository, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../../src/storage/implementation";
-import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../../src/storage/interfaces";
+import { CronService, EnvironmentService, HandlerService, MessageService, PreflightService, SenderService } from '../../../../src/services/implementation';
+import { ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService, LogType } from '../../../../src/services/interfaces';
+import { CardSetRepository, EstimationRepository, FactoryService, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../../src/storage/implementation";
+import { ICardSetRepository, IEstimationRepository, IFactoryService, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../../src/storage/interfaces";
 import { ITestParticipant, TestParticipant } from './TestParticipant';
 import { ITestScrumMaster } from './TestScrumMaster';
 import { UnaffectedTeam } from './UnaffectedTeam';
@@ -40,7 +40,6 @@ export class Util {
       .returns(undefined);
 
     const container = new Container();
-    container.bind<ICardService>(SERVICETYPES.CardService).to(CardService).inSingletonScope();
     container.bind<ICronService>(SERVICETYPES.CronService).to(CronService).inSingletonScope();
     container.bind<IEnvironmentService>(SERVICETYPES.EnvironmentService).to(EnvironmentService).inSingletonScope();
     container.bind<IHandlerService>(SERVICETYPES.HandlerService).to(HandlerService);
@@ -50,6 +49,7 @@ export class Util {
     container.bind<ISenderService>(SERVICETYPES.SenderService).to(SenderService);
     container.bind<ICardSetRepository>(STORAGETYPES.CardSetRepository).to(CardSetRepository).inSingletonScope();
     container.bind<IEstimationRepository>(STORAGETYPES.EstimationRepository).to(EstimationRepository).inSingletonScope();
+    container.bind<IFactoryService>(STORAGETYPES.FactoryService).to(FactoryService);
     container.bind<IMembershipRepository>(STORAGETYPES.MembershipRepository).to(MembershipRepository).inSingletonScope();
     container.bind<IServerParticipantRepository>(STORAGETYPES.ServerParticipantRepository).to(ServerParticipantRepository).inSingletonScope();
     container.bind<IStorageService>(STORAGETYPES.StorageService).to(StorageService).inSingletonScope();
