@@ -1,27 +1,27 @@
 import { describe, expect, test } from '@jest/globals';
 
-import SERVICETYPES from '../../../src/services/service.types';
 import STORAGETYPES from '../../../src/storage/storage.types';
 
 import { ECardSet } from "../../../../shared-lib/src";
 import { IServerParticipant } from "../../../src/objects";
-import { ICardService } from '../../../src/services/interfaces';
-import { IStorageService } from "../../../src/storage/interfaces";
+import { IFactoryService, IStorageService } from "../../../src/storage/interfaces";
 import { Util } from './util';
 
 describe('CRUD', () => {
   test('Create', () => {
     const container = Util.getContainer();
-    // create participant
-    const participant1 = container
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    // Setup: create participant
+    const participant = factory.createParticipant(Util.getSocket());
+    container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket());
-    const participant1Id = participant1.participantId;
+      .addParticipant(participant);
+    const participant1Id = participant.participantId;
     // test
-    expect(participant1).toBeDefined();
-    expect(participant1.nick).toBe(Util.participant1Nick);
-    expect(participant1.participantId).not.toBeNull();
-    expect(participant1.participantId.length).toBeGreaterThan(0);
+    expect(participant).toBeDefined();
+    expect(participant.nick).toBe(Util.participant1Nick);
+    expect(participant.participantId).not.toBeNull();
+    expect(participant.participantId.length).toBeGreaterThan(0);
     // retrieve
     const retrieved = container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -38,15 +38,17 @@ describe('CRUD', () => {
 
   test('Update', () => {
     const container = Util.getContainer();
-    // create participant
-    const participant1Id = container
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    // Setup: create participant
+    const participant = factory.createParticipant(Util.getSocket());
+    container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket()).participantId;
+      .addParticipant(participant);
     // retrieve and set new nick
     const newNick = 'Johan';
     let retrieved = container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .getParticipant(participant1Id);
+      .getParticipant(participant.participantId);
     expect(retrieved).toBeDefined();
     if (retrieved) {
       retrieved.nick = newNick;
@@ -54,7 +56,7 @@ describe('CRUD', () => {
     // retrieve
     retrieved = container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .getParticipant(participant1Id);
+      .getParticipant(participant.participantId);
     // test
     expect(retrieved).toBeDefined();
     if (retrieved) {
@@ -64,57 +66,65 @@ describe('CRUD', () => {
 
   test('Delete', () => {
     const container = Util.getContainer();
-    // create participant
-    const participant1Id = container
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    // Setup: create participant
+    const participant = factory.createParticipant(Util.getSocket());
+    container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket()).participantId;
+      .addParticipant(participant);
     // delete participant
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .deleteParticipant(participant1Id, undefined);
+      .deleteParticipant(participant.participantId, undefined);
     // test
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getParticipant(participant1Id)).toBeUndefined();
-    expect(container.get<IStorageService>(STORAGETYPES.StorageService).participantExists(participant1Id)).toBe(false);
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).getParticipant(participant.participantId)).toBeUndefined();
+    expect(container.get<IStorageService>(STORAGETYPES.StorageService).participantExists(participant.participantId)).toBe(false);
   });
 
   test('delete after joining a team', () => {
     const container = Util.getContainer();
-    const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
-    // create participant
-    const participant1Id = container
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    // Setup: create team
+    const team = factory.createTeam(Util.team1Name);
+    container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket()).participantId;
-    // create team
-    container.
-      get<IStorageService>(STORAGETYPES.StorageService)
-      .createTeam(Util.team1Name, cardSet);
+      .addTeam(team, cardSet);
+    // Setup: create participant
+    const participant = factory.createParticipant(Util.getSocket());
+    container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .addParticipant(participant);
     // join team
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant1Id);
+      .joinTeam(Util.team1Name, participant.participantId);
     // delete participant
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .deleteParticipant(participant1Id, Util.team1Name);
+      .deleteParticipant(participant.participantId, Util.team1Name);
     // retrieve and test
     expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name)).toHaveLength(0);
   });
 
   test('delete after estimating', () => {
     const container = Util.getContainer();
-    const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
-    // create participant
-    const participant1Id = container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket()).participantId;
-    // create team
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    // Setup: create team
+    const team = factory.createTeam(Util.team1Name);
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .createTeam(Util.team1Name, cardSet);
-    // join team
+      .addTeam(team, cardSet);
+    // Setup: create participant
+    const participant = factory.createParticipant(Util.getSocket());
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant1Id);
+      .addParticipant(participant);
+    // Setup: join team
+    container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .joinTeam(Util.team1Name, participant.participantId);
     // start estimating
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -122,38 +132,41 @@ describe('CRUD', () => {
     // estimate
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .upsertEstimation(Util.team1Name, participant1Id, 0);
+      .upsertEstimation(Util.team1Name, participant.participantId, 0);
     // delete participant
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .deleteParticipant(participant1Id, Util.team1Name);
+      .deleteParticipant(participant.participantId, Util.team1Name);
     // test
     expect(container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name)).toHaveLength(0);
   });
 
   test('delete after estimating without starting estimations', () => {
     const container = Util.getContainer();
-    const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
-    // create participant
-    const participant1Id = container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket()).participantId;
-    // create team
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    // Setup: create team
+    const team = factory.createTeam(Util.team1Name);
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .createTeam(Util.team1Name, cardSet);
-    // join team
+      .addTeam(team, cardSet);
+    // Setup: create participant
+    const participant = factory.createParticipant(Util.getSocket());
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant1Id);
+      .addParticipant(participant);
+    // Setup: join team
+    container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .joinTeam(Util.team1Name, participant.participantId);
     // estimate
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .upsertEstimation(Util.team1Name, participant1Id, 0);
+      .upsertEstimation(Util.team1Name, participant.participantId, 0);
     // delete participant
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .deleteParticipant(participant1Id, Util.team1Name);
+      .deleteParticipant(participant.participantId, Util.team1Name);
     // test
     expect(container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name)).toHaveLength(0);
   });
@@ -162,42 +175,48 @@ describe('CRUD', () => {
 describe('join and leave team', () => {
   test('join team', () => {
     const container = Util.getContainer();
-    const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
-    // create participant
-    const participant1Id = container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket()).participantId;
-    // create team
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    // Setup: create team
+    const team = factory.createTeam(Util.team1Name);
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .createTeam(Util.team1Name, cardSet);
-    // join team
+      .addTeam(team, cardSet);
+    // Setup: create participant
+    const participant = factory.createParticipant(Util.getSocket());
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant1Id);
+      .addParticipant(participant);
+    // Setup: join team
+    container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .joinTeam(Util.team1Name, participant.participantId);
     // test
     expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name)).toHaveLength(1);
   });
 
   test('leave team', () => {
     const container = Util.getContainer();
-    const cardSet = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
-    // create participant
-    const participant1Id = container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket()).participantId;
-    // create team
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    // Setup: create team
+    const team = factory.createTeam(Util.team1Name);
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .createTeam(Util.team1Name, cardSet);
-    // join team
+      .addTeam(team, cardSet);
+    // Setup: create participant
+    const participant = factory.createParticipant(Util.getSocket());
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant1Id);
+      .addParticipant(participant);
+    // Setup: join team
+    container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .joinTeam(Util.team1Name, participant.participantId);
     // leave team
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .leaveTeam(Util.team1Name, participant1Id);
+      .leaveTeam(Util.team1Name, participant.participantId);
     // test
     expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name)).toHaveLength(0);
   });
@@ -206,14 +225,17 @@ describe('join and leave team', () => {
 describe('queries', () => {
   test('Filter participants', () => {
     const container = Util.getContainer();
-    // create participant 1
-    const participant1Id = container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket()).participantId;
-    // create participant 2
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    // Setup: create participant
+    const participant1 = factory.createParticipant(Util.getSocket());
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .createParticipant(Util.getSocket());
+      .addParticipant(participant1);
+    // Setup: create participant 2
+    const participant2 = factory.createParticipant(Util.getSocket());
+    container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .addParticipant(participant2);
     // test
     expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((_p: IServerParticipant) => true))
       .toHaveLength(2);
@@ -222,7 +244,7 @@ describe('queries', () => {
     // delete participant 1
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .deleteParticipant(participant1Id, undefined);
+      .deleteParticipant(participant1.participantId, undefined);
     // test
     expect(container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((_p: IServerParticipant) => true))
       .toHaveLength(1);
