@@ -1,10 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 
-import STORAGETYPES from '../../../src/storage/storage.types';
-
 import { ECardSet, EPokerStatus, IEstimation } from "../../../../shared-lib/src";
-
 import { IFactoryService, IStorageService } from "../../../src/storage/interfaces";
+import STORAGETYPES from '../../../src/storage/storage.types';
 import { Util } from './util';
 
 describe('CRUD', () => {
@@ -242,7 +240,7 @@ describe('Reveal', () => {
       .addParticipant(participant1);
     // create second participant
     const participant2 = factory.createParticipant(Util.getSocket());
-    const participant2Id = container
+    container
       .get<IStorageService>(STORAGETYPES.StorageService)
       .addParticipant(participant2);
     // Setup: create team
@@ -302,7 +300,7 @@ describe('Reveal', () => {
       .addParticipant(participant1);
     // Setup: create participant 2
     const participant2 = factory.createParticipant(Util.getSocket());
-    const participant2Id = container
+    container
       .get<IStorageService>(STORAGETYPES.StorageService)
       .addParticipant(participant2);
     // Setup: create team

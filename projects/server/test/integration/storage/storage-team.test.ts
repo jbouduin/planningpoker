@@ -1,11 +1,9 @@
 import { describe, expect, test } from '@jest/globals';
 
-import SERVICETYPES from '../../../src/services/service.types';
-import STORAGETYPES from '../../../src/storage/storage.types';
-
 import { ECardSet, EPokerStatus } from "../../../../shared-lib/src";
 import { IServerParticipant, ITeam } from "../../../src/objects";
 import { IFactoryService, IStorageService } from "../../../src/storage/interfaces";
+import STORAGETYPES from '../../../src/storage/storage.types';
 import { Util } from './util';
 
 describe('CRUD', () => {

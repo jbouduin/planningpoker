@@ -1,9 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 
-import STORAGETYPES from '../../../src/storage/storage.types';
-
 import { ECardSet, EErrorCode, EParticipantStatus } from "../../../../shared-lib/src";
 import { IFactoryService, IStorageService } from "../../../src/storage/interfaces";
+import STORAGETYPES from '../../../src/storage/storage.types';
 import { Util } from './util';
 
 describe('Join/Leave', () => {
@@ -18,7 +17,7 @@ describe('Join/Leave', () => {
       .addParticipant(participant1);
     // create second participant
     const participant2 = factory.createParticipant(Util.getSocket());
-    const participant2Id = container
+    container
       .get<IStorageService>(STORAGETYPES.StorageService)
       .addParticipant(participant2);
     // Setup: create team
@@ -111,7 +110,6 @@ describe('Can rejoin', () => {
   test('Can not: team does not exist', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // create first participant
     const participant = factory.createParticipant(Util.getSocket());
     container
