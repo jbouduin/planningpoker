@@ -1,26 +1,10 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, ICard, ICardSet } from '../../../../shared-lib/src';
+import { FactoryService } from '../../../src/storage/implementation/factory.service';
+import { IFactoryService } from '../../../src/storage/interfaces/factory.service';
 import { CardSetRepository } from '../../../src/storage/implementation/card-set.repository';
 import { ICardSetRepository } from '../../../src/storage/interfaces/card-set.repository';
-
-const cardSet1: ICardSet = {
-  cardSet: ECardSet.Cohn,
-  cards: new Array<ICard>(),
-  unknownEstimationIndex: 1
-};
-
-const cardSet2: ICardSet = {
-  cardSet: ECardSet.Fibonacci,
-  cards: new Array<ICard>(),
-  unknownEstimationIndex: 2
-};
-
-const cardSet3: ICardSet = {
-  cardSet: ECardSet.TShirt,
-  cards: new Array<ICard>(),
-  unknownEstimationIndex: 3
-};
+import { ECardSet } from '../../../../shared-lib/src';
 
 const team1Name = 'team1';
 const team2Name = 'team2';
@@ -29,27 +13,31 @@ describe('CRUD', () => {
 
   test('Create', () => {
     const repository: ICardSetRepository = new CardSetRepository();
-    repository.setCardSet(team1Name, cardSet1);
+    const factory: IFactoryService = new FactoryService;
+    const cohn = factory.createCardSet(ECardSet.Cohn);
+    repository.setCardSet(team1Name, cohn);
     const retrieved = repository.getCardSet(team1Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cardSet1.unknownEstimationIndex);
-      expect(retrieved.cardSet).toBe(cardSet1.cardSet);
-      expect(retrieved.cards.length).toBe(cardSet1.cards.length);
+      expect(retrieved.unknownEstimationIndex).toBe(cohn.unknownEstimationIndex);
+      expect(retrieved.cardSet).toBe(cohn.cardSet);
+      expect(retrieved.cards.length).toBe(cohn.cards.length);
     }
   });
 
   test('Update', () => {
     const repository: ICardSetRepository = new CardSetRepository();
-    repository.setCardSet(team1Name, cardSet1);
-
-    repository.setCardSet(team1Name, cardSet2);
+    const factory: IFactoryService = new FactoryService;
+    const cohn = factory.createCardSet(ECardSet.Cohn);
+    const fibo = factory.createCardSet(ECardSet.Fibonacci);
+    repository.setCardSet(team1Name, cohn);
+    repository.setCardSet(team1Name, fibo);
     const retrieved = repository.getCardSet(team1Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cardSet2.unknownEstimationIndex);
-      expect(retrieved.cardSet).toBe(cardSet2.cardSet);
-      expect(retrieved.cards.length).toBe(cardSet2.cards.length);
+      expect(retrieved.unknownEstimationIndex).toBe(fibo.unknownEstimationIndex);
+      expect(retrieved.cardSet).toBe(fibo.cardSet);
+      expect(retrieved.cards.length).toBe(fibo.cards.length);
     }
   });
 
@@ -67,7 +55,9 @@ describe('CRUD', () => {
 
   test('Delete', () => {
     const repository: ICardSetRepository = new CardSetRepository();
-    repository.setCardSet(team1Name, cardSet1);
+    const factory: IFactoryService = new FactoryService;
+    const cohn = factory.createCardSet(ECardSet.Cohn);
+    repository.setCardSet(team1Name, cohn);
 
     expect(repository.removeCardSet(team1Name)).toBe(true);
     const retrieved = repository.getCardSet(team1Name);
@@ -80,49 +70,59 @@ describe('CRUD', () => {
 describe('Two teams', () => {
   test('create cardset for two teams', () => {
     const repository: ICardSetRepository = new CardSetRepository();
-    repository.setCardSet(team1Name, cardSet1);
-    repository.setCardSet(team2Name, cardSet2);
+    const factory: IFactoryService = new FactoryService;
+    const cohn = factory.createCardSet(ECardSet.Cohn);
+    const fibo = factory.createCardSet(ECardSet.Fibonacci);
+    repository.setCardSet(team1Name, cohn);
+    repository.setCardSet(team2Name, fibo);
     let retrieved = repository.getCardSet(team1Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cardSet1.unknownEstimationIndex);
-      expect(retrieved.cardSet).toBe(cardSet1.cardSet);
-      expect(retrieved.cards.length).toBe(cardSet1.cards.length);
+      expect(retrieved.unknownEstimationIndex).toBe(cohn.unknownEstimationIndex);
+      expect(retrieved.cardSet).toBe(cohn.cardSet);
+      expect(retrieved.cards.length).toBe(cohn.cards.length);
     }
     retrieved = repository.getCardSet(team2Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cardSet2.unknownEstimationIndex);
-      expect(retrieved.cardSet).toBe(cardSet2.cardSet);
-      expect(retrieved.cards.length).toBe(cardSet2.cards.length);
+      expect(retrieved.unknownEstimationIndex).toBe(fibo.unknownEstimationIndex);
+      expect(retrieved.cardSet).toBe(fibo.cardSet);
+      expect(retrieved.cards.length).toBe(fibo.cards.length);
     }
   });
 
   test('update cardset for one team', () => {
     const repository: ICardSetRepository = new CardSetRepository();
-    repository.setCardSet(team1Name, cardSet1);
-    repository.setCardSet(team2Name, cardSet2);
-    repository.setCardSet(team2Name, cardSet3);
+    const factory: IFactoryService = new FactoryService;
+    const cohn = factory.createCardSet(ECardSet.Cohn);
+    const fibo = factory.createCardSet(ECardSet.Fibonacci);
+    const tshirt = factory.createCardSet(ECardSet.TShirt);
+    repository.setCardSet(team1Name, cohn);
+    repository.setCardSet(team2Name, fibo);
+    repository.setCardSet(team2Name, tshirt);
     let retrieved = repository.getCardSet(team1Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cardSet1.unknownEstimationIndex);
-      expect(retrieved.cardSet).toBe(cardSet1.cardSet);
-      expect(retrieved.cards.length).toBe(cardSet1.cards.length);
+      expect(retrieved.unknownEstimationIndex).toBe(cohn.unknownEstimationIndex);
+      expect(retrieved.cardSet).toBe(cohn.cardSet);
+      expect(retrieved.cards.length).toBe(cohn.cards.length);
     }
     retrieved = repository.getCardSet(team2Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cardSet3.unknownEstimationIndex);
-      expect(retrieved.cardSet).toBe(cardSet3.cardSet);
-      expect(retrieved.cards.length).toBe(cardSet3.cards.length);
+      expect(retrieved.unknownEstimationIndex).toBe(tshirt.unknownEstimationIndex);
+      expect(retrieved.cardSet).toBe(tshirt.cardSet);
+      expect(retrieved.cards.length).toBe(tshirt.cards.length);
     }
   });
 
   test('delete cardset for a teams', () => {
     const repository: ICardSetRepository = new CardSetRepository();
-    repository.setCardSet(team1Name, cardSet1);
-    repository.setCardSet(team2Name, cardSet2);
+    const factory: IFactoryService = new FactoryService;
+    const cohn = factory.createCardSet(ECardSet.Cohn);
+    const fibo = factory.createCardSet(ECardSet.Fibonacci);
+    repository.setCardSet(team1Name, cohn);
+    repository.setCardSet(team2Name, fibo);
     expect(repository.removeCardSet(team1Name)).toBe(true);
     expect(repository.removeCardSet(team1Name)).toBe(false);
     let retrieved = repository.getCardSet(team1Name);
@@ -130,9 +130,9 @@ describe('Two teams', () => {
     retrieved = repository.getCardSet(team2Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cardSet2.unknownEstimationIndex);
-      expect(retrieved.cardSet).toBe(cardSet2.cardSet);
-      expect(retrieved.cards.length).toBe(cardSet2.cards.length);
+      expect(retrieved.unknownEstimationIndex).toBe(fibo.unknownEstimationIndex);
+      expect(retrieved.cardSet).toBe(fibo.cardSet);
+      expect(retrieved.cards.length).toBe(fibo.cards.length);
     }
   });
 

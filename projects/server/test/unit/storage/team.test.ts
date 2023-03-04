@@ -1,22 +1,26 @@
-import { expect, test, describe } from '@jest/globals';
-import { EPokerStatus } from '../../../../shared-lib/src';
+import { describe, expect, test } from '@jest/globals';
 
+import { EPokerStatus } from '../../../../shared-lib/src';
+import { FactoryService } from '../../../src/storage/implementation/factory.service';
 import { TeamRepository } from '../../../src/storage/implementation/team.repository';
+import { IFactoryService } from '../../../src/storage/interfaces/factory.service';
 import { ITeamRepository } from '../../../src/storage/interfaces/team.repository';
 
 
 describe('ITeamRepository', () => {
   test('create team', () => {
     const teamName = 'team';
-    const repository: ITeamRepository = new TeamRepository();
-    const team = repository.createTeam(teamName);
+    const factory: IFactoryService = new FactoryService();
+    const team = factory.createTeam(teamName);
     expect(team.teamName).toBe(teamName);
   });
 
   test('set last access time', () => {
     const teamName = 'team';
     const repository: ITeamRepository = new TeamRepository();
-    const team = repository.createTeam(teamName);
+    const factory: IFactoryService = new FactoryService();
+    const team = factory.createTeam(teamName);
+    repository.add(team);
     const lastAccess = team.lastAccessTime;
     repository.add(team);
     repository.setLastAccessTime(teamName);
@@ -27,10 +31,11 @@ describe('ITeamRepository', () => {
   });
 
   test('set status', () => {
+    const lastAccess = Date.now()
     const teamName = 'team';
     const repository: ITeamRepository = new TeamRepository();
-    const team = repository.createTeam(teamName);
-    const lastAccess = Date.now()
+    const factory: IFactoryService = new FactoryService();
+    const team = factory.createTeam(teamName);
     repository.add(team);
     repository.setStatus(teamName, EPokerStatus.Started);
     const retrieved = repository.get(teamName);
@@ -44,7 +49,8 @@ describe('ITeamRepository', () => {
 test('BaseRepository CR-D', () => {
   const teamName = 'team';
   const repository: ITeamRepository = new TeamRepository();
-  const team = repository.createTeam(teamName);
+  const factory: IFactoryService = new FactoryService();
+  const team = factory.createTeam(teamName);
   repository.add(team);
   expect(repository.get(teamName)).toBeDefined();
   expect(repository.getAll().length).toBe(1);
