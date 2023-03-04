@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EMemberChangeType, EServerMessageType, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EServerMessageType, ICard, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 import STORAGETYPES from '../../../src/storage/storage.types';
@@ -14,18 +14,18 @@ describe('Change card set => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // customize a card set
+    // Setup: customize a card set
     const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
     customizedCohn.cards.splice(9, 3);
 
-    // create team
+    // Setup: create team
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant joining team 1
+    // Setup: participant joining team 1
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-    // change card set
+    // Run: change card set
     const message: IChangeCardSetMessage = {
       senderId: scrumMaster.participantId,
       data: customizedCohn,
@@ -66,6 +66,75 @@ describe('Change card set => Failure', () => {
   // TODO 2374 test('Sender not scrum master', () => { });
   // TODO 2374 test('Sender not in any team', () => { });
   // TODO 2374 test('Sender in different team', () => { });
-  // TODO 2366 test('card set invalid', () => { });
 
+  test('card set invalid: Missing unknown estimation', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: customize a card set
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const indexOfUnknown = customizedCohn.cards.findIndex((card: ICard) => card.index === customizedCohn.unknownEstimationIndex);
+    customizedCohn.cards.splice(indexOfUnknown, 1);
+
+    // Setup: create team
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // Setup: participant joining team 1
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+    // Run: change card set
+    const message: IChangeCardSetMessage = {
+      senderId: scrumMaster.participantId,
+      data: customizedCohn,
+      type: EClientMessageType.ChangeCardSet
+    };
+    scrumMaster.sendMessage(message);
+
+    // Test: scrum master should have received 1 MC join + 1 error
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.UnknownEstimationCardMissing)).toBe(true);
+
+    // Test: participant should have received no messages
+    expect(participant.messagesReceivedAfterInitial).toBe(0);
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
+
+  test('card set invalid: Less than two estimation cards', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: customize a card set
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    customizedCohn.cards.splice(1, 11);
+
+    // Setup: create team
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // Setup: participant joining team 1
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+    // Run: change card set
+    const message: IChangeCardSetMessage = {
+      senderId: scrumMaster.participantId,
+      data: customizedCohn,
+      type: EClientMessageType.ChangeCardSet
+    };
+    scrumMaster.sendMessage(message);
+
+    // Test: scrum master should have received 1 MC join + 1 error
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.MoreThanTwoEstimationCardsRequired)).toBe(true);
+
+    // Test: participant should have received no messages
+    expect(participant.messagesReceivedAfterInitial).toBe(0);
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
 });
