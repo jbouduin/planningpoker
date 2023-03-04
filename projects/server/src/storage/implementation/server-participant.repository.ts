@@ -39,9 +39,4 @@ export class ServerParticipantRepository implements IServerParticipantRepository
     return this.participants.has(id);
   }
   //#endregion
-
-  //#region IServerParticipantRepository methods ------------------------------
-  // TODO 2384 Refactor factory methods in repositories
-
-  //#endregion
 }
