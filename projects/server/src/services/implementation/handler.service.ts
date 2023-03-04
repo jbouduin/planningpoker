@@ -5,8 +5,8 @@ import SERVICETYPES from "../service.types";
 
 import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { IServerParticipant, ITeam, LooseObject } from "../../objects";
-import { IStorageService } from '../../storage/interfaces';
-import { ICardService, IHandlerService, ILoggerService, IMessageService } from "../interfaces";
+import { IFactoryService, IStorageService } from '../../storage/interfaces';
+import { IHandlerService, ILoggerService, IMessageService } from "../interfaces";
 import { IPreflightService } from "../interfaces/preflight.service";
 import { IWebSocket } from '../websocket';
 
@@ -15,7 +15,7 @@ import { IWebSocket } from '../websocket';
 export class HandlerService implements IHandlerService {
 
   //#region Private properties ------------------------------------------------
-  private readonly cardService: ICardService;
+  private readonly factoryService: IFactoryService;
   private readonly loggerService: ILoggerService;
   private readonly messageService: IMessageService;
   private readonly preflightService: IPreflightService;
@@ -24,12 +24,12 @@ export class HandlerService implements IHandlerService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
-    @inject(SERVICETYPES.CardService) cardService: ICardService,
+    @inject(STORAGETYPES.FactoryService) factoryService: IFactoryService,
     @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService,
     @inject(SERVICETYPES.MessageService) messageService: IMessageService,
     @inject(SERVICETYPES.PreflightService) preflightService: IPreflightService,
     @inject(STORAGETYPES.StorageService) storage: IStorageService) {
-    this.cardService = cardService;
+    this.factoryService = factoryService;
     this.loggerService = loggerService;
     this.messageService = messageService;
     this.preflightService = preflightService;
@@ -77,7 +77,8 @@ export class HandlerService implements IHandlerService {
   }
 
   public handleConnect(ws: IWebSocket): IServerParticipant {
-    const newParticipant = this.storage.createParticipant(ws);
+    const newParticipant = this.factoryService.createParticipant(ws);
+    this.storage.addParticipant(newParticipant);
     // send the participant himself back, so he knows his assigned participantId
     this.messageService.sendInit(newParticipant);
     return newParticipant;
@@ -244,10 +245,11 @@ export class HandlerService implements IHandlerService {
   private handleCreate(sender: IServerParticipant, teamName: string, message: ICreatemessage): void {
     this.loggerService.info('Server', `Create: '${sender.nick}' is creating '${teamName}'`);
     const cardSet = message.data.cardSet === ECardSet.Custom ?
-      message.data.cards || this.cardService.getCardSet(ECardSet.Cohn) :
-      this.cardService.getCardSet(message.data.cardSet);
+      message.data.cards || this.factoryService.createCardSet(ECardSet.Cohn) :
+      this.factoryService.createCardSet(message.data.cardSet);
     // create the team
-    const newGame = this.storage.createTeam(teamName, cardSet);
+    const newTeam = this.factoryService.createTeam(teamName);
+    this.storage.addTeam(newTeam, cardSet);
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
     sender.role = ERole.ScrumMaster;
@@ -256,7 +258,7 @@ export class HandlerService implements IHandlerService {
     // provide the sender with the current game state
     this.messageService.sendAllInfo(
       sender,
-      newGame,
+      newTeam,
       new Array<IServerParticipant>(),
       cardSet,
       new Array<IEstimation>());
@@ -426,7 +428,7 @@ export class HandlerService implements IHandlerService {
         estimation.cardIndex :
         // TODO 2383 remove 999 to indicate that we do not want to send the estimated value
         revealed || estimation.participantId === to.participantId ? estimation.cardIndex : 999
-      return this.storage.createEstimation(estimation.participantId, index, revealed || estimation.participantId === to.participantId);
+      return this.factoryService.createEstimation(estimation.participantId, index, revealed || estimation.participantId === to.participantId);
     });
   }
   //#endregion

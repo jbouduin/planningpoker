@@ -1,9 +1,6 @@
 import { injectable } from "inversify";
-import { v4 as Uuid } from 'uuid';
-import { EParticipantStatus, ERole } from "../../../../shared-lib/src";
 
-import { IWebSocket } from "../../services/websocket";
-import { IServerParticipant, ServerParticipant } from "../../objects";
+import { IServerParticipant } from "../../objects";
 import { IServerParticipantRepository } from "../interfaces";
 
 @injectable()
@@ -45,14 +42,6 @@ export class ServerParticipantRepository implements IServerParticipantRepository
 
   //#region IServerParticipantRepository methods ------------------------------
   // TODO 2384 Refactor factory methods in repositories
-  public createParticipant(socket: IWebSocket): IServerParticipant {
-    return new ServerParticipant({
-      nick: `participant ${++this.cnt}`,
-      participantId: Uuid(),
-      role: ERole.Unknown,
-      observer: false,
-      status: EParticipantStatus.Connected
-    }, socket);
-  }
+
   //#endregion
 }

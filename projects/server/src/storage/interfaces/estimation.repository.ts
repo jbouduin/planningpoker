@@ -1,7 +1,6 @@
 import { IEstimation } from "../../../../shared-lib/src";
 
 export interface IEstimationRepository {
-  createEstimation(participantId: string, cardIndex: number, revealed: boolean): IEstimation;
   deleteEstimation(teamName: string, participantId: string): IEstimation;
   getEstimations(teamName: string): Array<IEstimation>;
   removeTeam(teamName: string): void;
