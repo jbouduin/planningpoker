@@ -3,15 +3,17 @@ import { describe, expect, test } from '@jest/globals';
 import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, ICreatemessage, IEstimationListMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
+import STORAGETYPES from '../../../src/storage/storage.types';
 
-import { ICardService, IHandlerService } from '../../../src/services/interfaces';
+import { IHandlerService } from '../../../src/services/interfaces';
+import { IFactoryService } from '../../../src/storage/interfaces';
 import { ITestScrumMaster } from './helpers/TestScrumMaster';
 import { Util } from "./helpers/util";
 
 describe('create => OK', () => {
   test('Standard Create', () => {
     const container = Util.getContainer();
-    const tshirt = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.TShirt);
+    const tshirt = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.TShirt);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
     // Setup: create unaffected Team
@@ -81,7 +83,7 @@ describe('create => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // Setup: customize a card set
-    const cohn = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
     cohn.cards.splice(9, 3);
 
     // Run: create the team

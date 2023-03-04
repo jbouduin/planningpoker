@@ -1,4 +1,3 @@
-export * from './card.service';
 export * from './cron.service';
 export * from './environment.service';
 export * from './handler.service';

@@ -1,47 +1,65 @@
 import { injectable } from 'inversify';
+import { v4 as Uuid } from 'uuid';
 
-import { ECardSet, ICard, ICardSet } from '../../../../shared-lib/src';
-import { ICardService } from '../interfaces';
+import { ECardSet, EParticipantStatus, ERole, ICard, ICardSet, IEstimation } from "../../../../shared-lib/src";
+
+import { Estimation, IServerParticipant, ITeam, ServerParticipant, Team } from "../../objects";
+import { IWebSocket } from "../../services/websocket";
+import { IFactoryService } from "../interfaces";
 
 @injectable()
-export class CardService implements ICardService {
+export class FactoryService implements IFactoryService {
 
   //#region private properties ------------------------------------------------
-  private cardSets: Map<ECardSet, ICardSet>;
+  private cnt: number;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
-    this.cardSets = new Map<ECardSet, ICardSet>();
+    this.cnt = 0;
   }
   //#endregion
 
-  //#region Interface members -------------------------------------------------
-  // TODO 2384 Refactor factory methods in repositories: include card service in refactoring
-  public getCardSet(set: ECardSet): ICardSet {
-    let result = this.cardSets.get(set);
-    if (!result) {
-      let cards: Array<ICard>;
-      switch (set) {
-        case ECardSet.Fibonacci:
-          cards = this.generateFibonacci();
-          break;
-        case ECardSet.TShirt:
-          cards = this.generateShirts();
-          break;
-        case ECardSet.Cohn:
-        default:
-          cards = this.generateCohn();
-          break;
-      }
-      result = {
-        cardSet: set,
-        cards: cards,
-        unknownEstimationIndex: cards.findIndex((card: ICard) => card.isUnknownEstimation)
-      }
-      this.cardSets.set(set, result);
+  //#region IFactoryService methods -------------------------------------------
+  public createCardSet(set: ECardSet): ICardSet {
+    let cards: Array<ICard>;
+    switch (set) {
+      case ECardSet.Fibonacci:
+        cards = this.generateFibonacci();
+        break;
+      case ECardSet.TShirt:
+        cards = this.generateShirts();
+        break;
+      case ECardSet.Cohn:
+      default:
+        cards = this.generateCohn();
+        break;
     }
-    return result;
+    return {
+      cardSet: set,
+      cards: cards,
+      unknownEstimationIndex: cards.findIndex((card: ICard) => card.isUnknownEstimation)
+    }
+  }
+
+  public createEstimation(participantId: string, cardIndex: number, revealed: boolean): IEstimation {
+    return new Estimation(participantId, cardIndex, revealed);
+  }
+
+  public createParticipant(socket: IWebSocket): IServerParticipant {
+    return new ServerParticipant(
+      {
+        nick: `participant ${++this.cnt}`,
+        participantId: Uuid(),
+        role: ERole.Unknown,
+        observer: false,
+        status: EParticipantStatus.Connected
+      },
+      socket);
+  }
+
+  public createTeam(teamName: string): ITeam {
+    return new Team(teamName);
   }
   //#endregion
 
@@ -85,7 +103,6 @@ export class CardService implements ICardService {
       { index: idx++, label: 'local_cafe', isIcon: true, isUnknownEstimation: false }
     ];
   }
-
 
   private generateShirts(): Array<ICard> {
     let idx = 0;

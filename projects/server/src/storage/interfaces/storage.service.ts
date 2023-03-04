@@ -1,10 +1,9 @@
 import { EErrorCode, EPokerStatus, ICardSet, IEstimation } from "../../../../shared-lib/src";
 import { IServerParticipant, ITeam } from "../../objects";
-import { IWebSocket } from "../../services/websocket";
 
 export interface IStorageService {
   //#region participant -------------------------------------------------------
-  createParticipant(socket: IWebSocket): IServerParticipant;
+  addParticipant(participant: IServerParticipant): void;
   deleteParticipant(participantId: string, teamName: string | undefined): void;
   filterParticipants(filter: (participant: IServerParticipant) => boolean): Array<IServerParticipant>;
   getParticipant(participantId: string): IServerParticipant | undefined;
@@ -12,8 +11,8 @@ export interface IStorageService {
   //#endregion
 
   //#region team --------------------------------------------------------------
+  addTeam(team: ITeam, cardSet: ICardSet): void;
   allTeams(): Array<ITeam>;
-  createTeam(teamName: string, cardSet: ICardSet): ITeam;
   deleteTeam(teamName: string): Array<IServerParticipant>;
   filterTeams(filter: (team: ITeam) => boolean): Array<ITeam>;
   getTeam(teamName: string): ITeam | undefined;
@@ -31,7 +30,7 @@ export interface IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  createEstimation(participantId: string, card: number, revealed: boolean): IEstimation;
+  // createEstimation(participantId: string, card: number, revealed: boolean): IEstimation;
   deleteEstimation(teamName: string, participantId: string): IEstimation;
   getEstimations(teamName: string): Array<IEstimation>;
   reveal(teamName: string): [EPokerStatus, Array<IEstimation>];

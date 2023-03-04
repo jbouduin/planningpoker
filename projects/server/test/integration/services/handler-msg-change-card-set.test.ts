@@ -3,8 +3,10 @@ import { describe, expect, test } from '@jest/globals';
 import { ECardSet, EClientMessageType, EMemberChangeType, EServerMessageType, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
+import STORAGETYPES from '../../../src/storage/storage.types';
 
-import { ICardService, IHandlerService } from '../../../src/services/interfaces';
+import { IHandlerService } from '../../../src/services/interfaces';
+import { IFactoryService } from '../../../src/storage/interfaces';
 import { Util } from "./helpers/util";
 
 describe('Change card set => OK', () => {
@@ -16,7 +18,7 @@ describe('Change card set => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // customize a card set
-    const customizedCohn = container.get<ICardService>(SERVICETYPES.CardService).getCardSet(ECardSet.Cohn);
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
     customizedCohn.cards.splice(9, 3);
 
     // create team

@@ -1,7 +1,9 @@
-import { jest, expect, test, describe } from '@jest/globals';
+import { describe, expect, jest, test } from '@jest/globals';
 
 import { IWebSocket, ReadyState } from '../../../src/services/websocket';
+import { FactoryService } from '../../../src/storage/implementation/factory.service';
 import { ServerParticipantRepository } from '../../../src/storage/implementation/server-participant.repository';
+import { IFactoryService } from '../../../src/storage/interfaces/factory.service';
 import { IServerParticipantRepository } from '../../../src/storage/interfaces/server-participant.repository';
 
 const socket: IWebSocket = {
@@ -12,13 +14,13 @@ const socket: IWebSocket = {
 
 describe('IServerParticipantRepository', () => {
   test('create participant', () => {
-    const repository: IServerParticipantRepository = new ServerParticipantRepository();
-    const participant1 = repository.createParticipant(socket);
+    const factory: IFactoryService = new FactoryService();
+    const participant1 = factory.createParticipant(socket);
     expect(participant1.nick).toBe('participant 1');
     expect(participant1.participantId).not.toBeNull();
     expect(participant1.participantId.length).toBeGreaterThan(0);
 
-    const participant2 = repository.createParticipant(socket);
+    const participant2 = factory.createParticipant(socket);
     expect(participant2.nick).toBe('participant 2');
     expect(participant2.participantId).not.toBeNull();
     expect(participant2.participantId.length).toBeGreaterThan(0);
@@ -28,8 +30,10 @@ describe('IServerParticipantRepository', () => {
 });
 
 test('BaseRepository CR-D', () => {
+  const factory: IFactoryService = new FactoryService();
+  const participant1 = factory.createParticipant(socket);
   const repository: IServerParticipantRepository = new ServerParticipantRepository();
-  const participant1 = repository.createParticipant(socket);
+  repository.add(participant1);
   const participant1Id = participant1.participantId;
   repository.add(participant1);
   expect(repository.get(participant1Id)).toBeDefined();

@@ -3,27 +3,27 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from "../../storage/storage.types";
 import SERVICETYPES from "../../services/service.types";
 
-import { IStorageService } from "../../storage/interfaces";
+import { IFactoryService, IStorageService } from "../../storage/interfaces";
 import { ECardSet, EErrorCode, ICardSet } from "../../../../shared-lib/src";
 import { LooseObject } from "../../objects";
 import { IApiController } from "../interfaces";
-import { ICardService, ILoggerService } from "../../services/interfaces";
+import { ILoggerService } from "../../services/interfaces";
 
 @injectable()
 export class ApiController implements IApiController {
 
   //#region Private properties ------------------------------------------------
-  private readonly cardService: ICardService;
+  private readonly factoryService: IFactoryService;
   private readonly loggerService: ILoggerService;
   private readonly storageService: IStorageService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
-    @inject(SERVICETYPES.CardService) cardService: ICardService,
+    @inject(STORAGETYPES.FactoryService) factoryService: IFactoryService,
     @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService,
     @inject(STORAGETYPES.StorageService) storageService: IStorageService) {
-    this.cardService = cardService;
+    this.factoryService = factoryService;
     this.loggerService = loggerService;
     this.storageService = storageService;
   }
@@ -55,9 +55,9 @@ export class ApiController implements IApiController {
 
   public availableCardSets(): Array<ICardSet> {
     return [
-      this.cardService.getCardSet(ECardSet.Cohn),
-      this.cardService.getCardSet(ECardSet.Fibonacci),
-      this.cardService.getCardSet(ECardSet.TShirt)
+      this.factoryService.createCardSet(ECardSet.Cohn),
+      this.factoryService.createCardSet(ECardSet.Fibonacci),
+      this.factoryService.createCardSet(ECardSet.TShirt)
     ];
   }
   //#endregion

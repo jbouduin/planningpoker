@@ -4,8 +4,7 @@ import STORAGETYPES from "../storage.types";
 
 import { EErrorCode, EPokerStatus, ICardSet, IEstimation } from "../../../../shared-lib/src";
 import { IServerParticipant, ITeam } from "../../objects";
-import { IWebSocket } from "../../services/websocket";
-import { ICardSetRepository, IEstimationRepository, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
+import { ICardSetRepository, IEstimationRepository, IFactoryService, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
 
 @injectable()
 export class StorageService implements IStorageService {
@@ -13,6 +12,7 @@ export class StorageService implements IStorageService {
   //#region Private properties ------------------------------------------------
   private readonly cardSetRepository: ICardSetRepository;
   private readonly estimationRepository: IEstimationRepository;
+  // private readonly factoryService: IFactoryService;
   private readonly membershipRepository: IMembershipRepository;
   private readonly participantRepository: IServerParticipantRepository;
   private readonly teamRepository: ITeamRepository;
@@ -23,11 +23,13 @@ export class StorageService implements IStorageService {
   public constructor(
     @inject(STORAGETYPES.CardSetRepository) cardSetRepository: ICardSetRepository,
     @inject(STORAGETYPES.EstimationRepository) estimationRepository: IEstimationRepository,
+    @inject(STORAGETYPES.FactoryService) factoryService: IFactoryService,
     @inject(STORAGETYPES.MembershipRepository) membershipRepository: IMembershipRepository,
     @inject(STORAGETYPES.ServerParticipantRepository) participantRepository: IServerParticipantRepository,
     @inject(STORAGETYPES.TeamRepository) teamRepository: ITeamRepository) {
     this.cardSetRepository = cardSetRepository;
     this.estimationRepository = estimationRepository;
+    // this.factoryService = factoryService;
     this.membershipRepository = membershipRepository;
     this.participantRepository = participantRepository;
     this.teamRepository = teamRepository;
@@ -36,10 +38,8 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region participant -------------------------------------------------------
-  public createParticipant(socket: IWebSocket): IServerParticipant {
-    const result = this.participantRepository.createParticipant(socket);
-    this.participantRepository.add(result);
-    return result;
+  public addParticipant(participant: IServerParticipant): void {
+    this.participantRepository.add(participant);
   }
 
   public deleteParticipant(participantId: string, teamName: string | undefined): void {
@@ -65,16 +65,16 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region Team --------------------------------------------------------------
+  public addTeam(team: ITeam, cardSet: ICardSet): void {
+    this.cardSetRepository.setCardSet(team.teamName, cardSet);
+    this.teamRepository.add(team);
+  }
+
   public allTeams(): Array<ITeam> {
     return this.teamRepository.getAll();
   }
 
-  public createTeam(teamName: string, cardSet: ICardSet): ITeam {
-    const result = this.teamRepository.createTeam(teamName);
-    this.cardSetRepository.setCardSet(teamName, cardSet);
-    this.teamRepository.add(result);
-    return result;
-  }
+
 
   public deleteTeam(teamName: string): Array<IServerParticipant> {
     this.cardSetRepository.removeCardSet(teamName);
@@ -145,10 +145,6 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  public createEstimation(participantId: string, card: number, revealed: boolean): IEstimation {
-    return this.estimationRepository.createEstimation(participantId, card, revealed);
-  }
-
   public deleteEstimation(teamName: string, participantId: string): IEstimation {
     this.teamRepository.setLastAccessTime(teamName);
     return this.estimationRepository.deleteEstimation(teamName, participantId);
