@@ -5,7 +5,6 @@ import { ECardSet } from "../../../../shared-lib/src";
 import { IFactoryService, IStorageService } from "../../../src/storage/interfaces";
 import { Util } from './util';
 
-// TODO 2366 implement backend validations when creating a customized set
 describe('Non customized card sets', () => {
   test('create with Fibonnaci', () => {
     const container = Util.getContainer();
