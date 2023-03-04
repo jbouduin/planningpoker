@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { AClientMessage, EClientMessageType, EErrorCode, ERole, ICard, ICardSet, IChangeCardSetMessage, IChangeScrumMasterMessage, ICreatemessage, ILeaveMessage, IObserveMessage, IParticipant, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
+import { AClientMessage, EClientMessageType, EErrorCode, ERole, ICard, ICardSet, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IJoinMessage, ILeaveMessage, IObserveMessage, IParticipant, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { IStorageService } from "../../storage/interfaces";
 import { IPreflightService } from "../interfaces";
 
@@ -9,6 +9,10 @@ export class PreflightService implements IPreflightService {
 
   //#region IPreflightService methods -----------------------------------------
   public preflight(storageService: IStorageService, message: AClientMessage, teamName: string): EErrorCode {
+
+    if (teamName.length === 0) {
+      return EErrorCode.TeamNameMayNotBeEmtpy;
+    }
 
     const sender = storageService.getParticipant(message.senderId);
     if (!sender) {
@@ -20,6 +24,23 @@ export class PreflightService implements IPreflightService {
       return EErrorCode.TeamAlreadyExists;
     }
 
+    if (message.type === EClientMessageType.Create || message.type === EClientMessageType.Join || message.type === EClientMessageType.ChangeNick) {
+      let nick = "";
+      switch (message.type) {
+        case EClientMessageType.Create:
+          nick = (<ICreatemessage>message).data.nick;
+          break;
+        case EClientMessageType.Join:
+          nick = (<IJoinMessage>message).data.nick;
+          break;
+        case EClientMessageType.ChangeNick:
+          nick = (<IChangeNickMessage>message).data;
+          break;
+      }
+      if (nick.length === 0) {
+        return EErrorCode.ParticipantNameMayNotBeEmpty;
+      }
+    }
     if (this.messageTypeRequiresTeam(message.type) && !teamExists) {
       return EErrorCode.TeamDoesNotExist;
     }
