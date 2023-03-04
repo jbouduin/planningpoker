@@ -184,6 +184,43 @@ describe('Create => Failure', () => {
     expect(scrumMaster.errorMessageReceived(EErrorCode.MoreThanTwoEstimationCardsRequired)).toBe(true);
   });
 
-  // TODO 2372 test('TeamName is empty', () => { });
-  // TODO 2372 test('nick is null or empty', () => { });
+  test('TeamName is empty', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Run: Create team
+    const scrumMaster: ITestScrumMaster = Util.createTeam(
+      handlerService, "", Util.scrumMaster1Nick, false, ECardSet.TShirt);
+
+    // Test: the scrum master should have an init and an error message
+    expect(scrumMaster.totalMessagesReceived).toBe(2);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.TeamNameMayNotBeEmtpy)).toBe(true);
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
+
+  test('nick is null or empty', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Run: Create team
+    const scrumMaster: ITestScrumMaster = Util.createTeam(
+      handlerService, Util.team1Name, "", false, ECardSet.TShirt);
+
+    // Test: the scrum master should have an init and an error message
+    expect(scrumMaster.totalMessagesReceived).toBe(2);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.ParticipantNameMayNotBeEmpty)).toBe(true);
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
 })

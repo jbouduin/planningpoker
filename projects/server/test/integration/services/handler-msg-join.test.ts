@@ -339,4 +339,27 @@ describe('Join => Failure', () => {
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
+
+  test('User name is empty', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create the team with particpant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, '');
+
+    // Test: participant should have received the init and an error
+    expect(participant.totalMessagesReceived).toBe(2);
+    expect(participant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
+    expect(participant.errorMessageReceived(EErrorCode.ParticipantNameMayNotBeEmpty)).toBe(true);
+
+    // Test: scrum master should have received no messages
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(0);
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
 })
