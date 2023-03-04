@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, ICreatemessage, IEstimationListMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICard, ICardSetMessage, ICreatemessage, IEstimationListMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 import STORAGETYPES from '../../../src/storage/storage.types';
@@ -153,7 +153,37 @@ describe('Create => Failure', () => {
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
+  test('create with an invalid custom card set: unknown missing', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+    // Setup: customize a card set
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.index === cohn.unknownEstimationIndex);
+    cohn.cards.splice(indexOfUnknown, 1);
+
+    // Run: create the team
+    const scrumMaster: ITestScrumMaster = Util.createTeam(
+      handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, cohn);
+
+    // Test: Scrum Master should have received an error
+    expect(scrumMaster.errorMessageReceived(EErrorCode.UnknownEstimationCardMissing)).toBe(true);
+  });
+
+  test('create with an invalid custom card set: less than two estimation cards', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+    // Setup: customize a card set
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    cohn.cards.splice(1, 11);
+
+    // Run: create the team
+    const scrumMaster: ITestScrumMaster = Util.createTeam(
+      handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, cohn);
+
+    // Test: Scrum Master should have received an error
+    expect(scrumMaster.errorMessageReceived(EErrorCode.MoreThanTwoEstimationCardsRequired)).toBe(true);
+  });
+
   // TODO 2372 test('TeamName is empty', () => { });
   // TODO 2372 test('nick is null or empty', () => { });
-  // TODO 2366 test('create with an invalid custom card set', () => { });
 })

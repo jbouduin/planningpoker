@@ -8,6 +8,8 @@ export enum EErrorCode {
   ParticipantHasNoRole = 300,
   ScrumMasterRequired = 301,
   ObserverCanNotEstimate = 302,
+  UnknownEstimationCardMissing = 400,
+  MoreThanTwoEstimationCardsRequired = 401,
   ServerError = 500,
   NotImplemented = 501,
   UnknownVerb = 502

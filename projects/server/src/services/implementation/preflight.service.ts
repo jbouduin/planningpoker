@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { AClientMessage, EClientMessageType, EErrorCode, ERole, IChangeScrumMasterMessage, ILeaveMessage, IObserveMessage, IParticipant, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
+import { AClientMessage, EClientMessageType, EErrorCode, ERole, ICard, ICardSet, IChangeCardSetMessage, IChangeScrumMasterMessage, ICreatemessage, ILeaveMessage, IObserveMessage, IParticipant, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { IStorageService } from "../../storage/interfaces";
 import { IPreflightService } from "../interfaces";
 
@@ -101,9 +101,20 @@ export class PreflightService implements IPreflightService {
       sender.role !== ERole.ScrumMaster) {
       return EErrorCode.ScrumMasterRequired;
     }
-    else {
-      return this.checkAuthorization(message.type, sender);
+
+    if (message.type == EClientMessageType.ChangeCardSet || message.type === EClientMessageType.Create) {
+      const cardSet = message.type === EClientMessageType.ChangeCardSet ?
+        (<IChangeCardSetMessage>message).data :
+        (<ICreatemessage>message).data.cards;
+      if (cardSet) {
+        const cardSetError = this.checkCardSet(cardSet)
+        if (cardSetError != EErrorCode.NoError) {
+          return cardSetError;
+        }
+      }
     }
+
+    return this.checkAuthorization(message.type, sender);
   }
   //#endregion
 
@@ -166,6 +177,18 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.NoError;
     }
     return result;
+  }
+
+  private checkCardSet(cardSet: ICardSet): EErrorCode {
+    const unknownEstimationCard = cardSet.cards.find((card: ICard) => card.index === cardSet.unknownEstimationIndex);
+    if (!unknownEstimationCard) {
+      return EErrorCode.UnknownEstimationCardMissing;
+    }
+    const estimationCards = cardSet.cards.filter((card: ICard) => card.index !== cardSet.unknownEstimationIndex && !card.isIcon).length;
+    if (estimationCards < 2) {
+      return EErrorCode.MoreThanTwoEstimationCardsRequired;
+    }
+    return EErrorCode.NoError;
   }
   //#endregion
 }

@@ -2,11 +2,11 @@ import { describe, expect, jest, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 
 import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IEstimateMessage, IRevealMessage, IStartMessage } from '../../../../shared-lib/src';
-
 import { ITeam, ServerParticipant } from '../../../src/objects';
 import { PreflightService } from '../../../src/services/implementation/preflight.service';
 import { IPreflightService } from '../../../src/services/interfaces';
 import { IWebSocket, ReadyState } from '../../../src/services/websocket';
+import { FactoryService } from '../../../src/storage/implementation/factory.service';
 import { IStorageService } from '../../../src/storage/interfaces';
 
 const socket: IWebSocket = {
@@ -204,7 +204,7 @@ describe('preflight Reveal', () => {
 });
 
 describe('preflight ChangeCardSet', () => {
-  const cardSet = { cardSet: ECardSet.Cohn, cards: [], unknownEstimationIndex: 0 };
+  const cardSet = new FactoryService().createCardSet(ECardSet.Cohn);
 
   test('OK', () => {
     const message: IChangeCardSetMessage = { type: EClientMessageType.ChangeCardSet, senderId: scrummasterName, data: cardSet };
