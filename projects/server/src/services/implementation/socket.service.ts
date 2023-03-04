@@ -55,9 +55,6 @@ export class SocketService implements ISocketService {
         });
       });
 
-    if (this.pingInterval > 0) {
-      setInterval(() => { this.handlerService.handlePing() }, this.pingInterval);
-    }
     expressWs.app.use('/game', router);
   }
   //#endregion

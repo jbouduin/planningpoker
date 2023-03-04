@@ -39,14 +39,13 @@ const team2: ITeam = {
 const service: IPreflightService = new PreflightService();
 
 describe('preflight Create', () => {
-  const data: ICreate = {
-    observer: false,
-    cardSet: ECardSet.Cohn,
-    nick: participant1Name
-  };
-  const message: ICreatemessage = { type: EClientMessageType.Create, senderId: participant1Name, data: data };
-
   test('OK', () => {
+    const data: ICreate = {
+      observer: false,
+      cardSet: ECardSet.Cohn,
+      nick: participant1Name
+    };
+    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -56,6 +55,12 @@ describe('preflight Create', () => {
   });
 
   test('Failure => team already exists', () => {
+    const data: ICreate = {
+      observer: false,
+      cardSet: ECardSet.Cohn,
+      nick: participant1Name
+    };
+    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -65,6 +70,12 @@ describe('preflight Create', () => {
   });
 
   test('Failure => sender does not exist', () => {
+    const data: ICreate = {
+      observer: false,
+      cardSet: ECardSet.Cohn,
+      nick: participant1Name
+    };
+    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(undefined)
@@ -72,16 +83,45 @@ describe('preflight Create', () => {
       .returns(true);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotFound);
   });
+
+  test('Failure => TeamName may not be empty', () => {
+    const data: ICreate = {
+      observer: false,
+      cardSet: ECardSet.Cohn,
+      nick: participant1Name
+    };
+    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: participant1Name, data: data };
+    const storage = new Mock<IStorageService>()
+      .setup((service: IStorageService) => service.getParticipant(participant1Name))
+      .returns(participant1)
+      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .returns(false);
+    expect(service.preflight(storage.object(), message, '')).toBe(EErrorCode.TeamNameMayNotBeEmtpy);
+  });
+
+  test('Failure => Username may not be empty', () => {
+    const data: ICreate = {
+      observer: false,
+      cardSet: ECardSet.Cohn,
+      nick: ''
+    };
+    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: participant1Name, data: data };
+    const storage = new Mock<IStorageService>()
+      .setup((service: IStorageService) => service.getParticipant(participant1Name))
+      .returns(participant1)
+      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .returns(false);
+    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNameMayNotBeEmpty);
+  });
 });
 
 describe('preflight Join', () => {
-  const data: IJoin = {
-    observer: false,
-    nick: participant1Name
-  };
-  const message: IJoinMessage = { type: EClientMessageType.Join, senderId: participant1Name, data: data };
-
   test('OK', () => {
+    const data: IJoin = {
+      observer: false,
+      nick: participant1Name
+    };
+    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -93,6 +133,11 @@ describe('preflight Join', () => {
   });
 
   test('Failure => sender does not exists', () => {
+    const data: IJoin = {
+      observer: false,
+      nick: participant1Name
+    };
+    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(undefined)
@@ -104,6 +149,11 @@ describe('preflight Join', () => {
   });
 
   test('Failure => team does not exists', () => {
+    const data: IJoin = {
+      observer: false,
+      nick: participant1Name
+    };
+    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -115,6 +165,11 @@ describe('preflight Join', () => {
   });
 
   test('Failure => sender already member', () => {
+    const data: IJoin = {
+      observer: false,
+      nick: participant1Name
+    };
+    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -126,6 +181,11 @@ describe('preflight Join', () => {
   });
 
   test('Failure => sender member of another team', () => {
+    const data: IJoin = {
+      observer: false,
+      nick: participant1Name
+    };
+    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -135,6 +195,22 @@ describe('preflight Join', () => {
       .returns(team2);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantAllReadyInTeam);
   });
+
+  test('Failure => user name may not be empty', () => {
+    const data: IJoin = {
+      observer: false,
+      nick: ''
+    };
+    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: participant1Name, data: data };
+    const storage = new Mock<IStorageService>()
+      .setup((service: IStorageService) => service.getParticipant(participant1Name))
+      .returns(participant1)
+      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .returns(true)
+      .setup((service: IStorageService) => service.getTeamOfParticipant(participant1Name))
+      .returns(undefined);
+    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNameMayNotBeEmpty);
+  })
 });
 
 describe('preflight Leave - Normal', () => {

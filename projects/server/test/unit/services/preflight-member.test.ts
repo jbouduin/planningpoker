@@ -281,9 +281,9 @@ describe('preflight Observe - toggle other', () => {
 });
 
 describe('preflight ChangeNick', () => {
-  const message: IChangeNickMessage = { type: EClientMessageType.ChangeNick, senderId: participant1Name, data: participant2Name };
 
   test('OK', () => {
+    const message: IChangeNickMessage = { type: EClientMessageType.ChangeNick, senderId: participant1Name, data: participant2Name };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(participant1)
@@ -293,12 +293,23 @@ describe('preflight ChangeNick', () => {
   });
 
   test('Failure => sender does not exist', () => {
+    const message: IChangeNickMessage = { type: EClientMessageType.ChangeNick, senderId: participant1Name, data: participant2Name };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(participant1Name))
       .returns(undefined)
       .setup(((service: IStorageService) => service.teamExists(team1Name)))
       .returns(false);
     expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNotFound);
+  });
+
+  test('Failure => Name may not be empty', () => {
+    const message: IChangeNickMessage = { type: EClientMessageType.ChangeNick, senderId: participant1Name, data: '' };
+    const storage = new Mock<IStorageService>()
+      .setup((service: IStorageService) => service.getParticipant(participant1Name))
+      .returns(participant1)
+      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .returns(false);
+    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.ParticipantNameMayNotBeEmpty);
   });
 });
 

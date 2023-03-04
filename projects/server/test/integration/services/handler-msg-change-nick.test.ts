@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberChangeType, EServerMessageType, IChangeNickMessage, ISelfMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EMemberChangeType, EServerMessageType, IChangeNickMessage, ISelfMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -63,9 +63,46 @@ describe('Change nick => OK', () => {
 
 
 describe('Change nick => Failure', () => {
+  test('nick is null or empty', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // create team with one connected and one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+    const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick);
+
+    // scrum master changes his nick
+    const message: IChangeNickMessage = {
+      senderId: scrumMaster.participantId,
+      data: "",
+      type: EClientMessageType.ChangeNick
+    };
+    scrumMaster.sendMessage(message);
+
+    // Test: scrum master should have received 2 MC join + 1 MC disconnect + 1 error
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.ParticipantNameMayNotBeEmpty));
+
+    // Test: participant should have received 1 MC join + 1 MC disconnect
+    expect(participant.messagesReceivedAfterInitial).toBe(2);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(participant.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+
+    // Test: disconnected participant should not have received any additional message
+    expect(disconnected.messagesReceivedAfterInitial).toBe(0);
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
+
   // TODO 2375 test('Team not found', () => { });
   // TODO 2375 test('Sender not found', () => { });
   // TODO 2375 test('Sender not in any team', () => { });
   // TODO 2375 test('Sender in different team', () => { });
-  // TODO 2372 test('nick is null or empty', () => { });
 });
