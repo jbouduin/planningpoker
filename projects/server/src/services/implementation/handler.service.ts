@@ -3,13 +3,12 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
+import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { IServerParticipant, ITeam, LooseObject } from "../../objects";
 import { IFactoryService, IStorageService } from '../../storage/interfaces';
 import { IHandlerService, ILoggerService, IMessageService } from "../interfaces";
 import { IPreflightService } from "../interfaces/preflight.service";
 import { IWebSocket } from '../websocket';
-
 
 @injectable()
 export class HandlerService implements IHandlerService {

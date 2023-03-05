@@ -270,7 +270,6 @@ describe('Change scrum master => Failure', () => {
     participant2.sendMessage(message);
 
     // Test: scrum master 1 should have received 2 MC join
-    scrumMaster.dumpMessages()
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
     expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
 

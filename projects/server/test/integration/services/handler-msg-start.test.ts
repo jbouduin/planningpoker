@@ -222,6 +222,39 @@ describe('start => Failure', () => {
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
+  test('only observers connected', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-  // TODO 2370 test('only observers connected', () => { });
+    // Setup: Create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick, true);
+    const observer1 = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
+    const observer2 = Util.joinTeam(handlerService, Util.team1Name, Util.observer2Name, true);
+
+    // Run: start estimating
+    const message: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(message);
+
+    // Test: scrum master 1 should have received 2 MC join + 1 error
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.OnlyObserversOnline)).toBe(true);
+
+    // Test: observer 1 should only have received 1 MC Join
+    expect(observer1.messagesReceivedAfterInitial).toBe(1);
+    expect(observer1.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+
+    // Test: observer 2 should have received no messages
+    expect(observer2.messagesReceivedAfterInitial).toBe(0);
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
 })

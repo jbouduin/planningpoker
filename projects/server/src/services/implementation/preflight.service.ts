@@ -338,6 +338,7 @@ export class PreflightService implements IPreflightService {
    * - sender must be scrum master
    * - sender must be in team
    * - team status may not be 'started'
+   * - at least one team member should not be observer
    */
   private preflightStart(storage: IStorageService, sender: IServerParticipant, teamName: string): EErrorCode {
     let result = EErrorCode.NoError;
@@ -353,6 +354,8 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotInTeam;
       } else if (team.status === EPokerStatus.Started) {
         result = EErrorCode.EstimationAlreadyStarted;
+      } else if (storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => !p.observer).length === 0){
+        result = EErrorCode.OnlyObserversOnline;
       }
     }
     return result;

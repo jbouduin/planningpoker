@@ -49,12 +49,26 @@ export class Util {
     );
   }
 
-  public static observerName = 'observer';
-  public static getObserver(): IServerParticipant {
+  public static observerName1 = 'observer1';
+  public static getObserver1(): IServerParticipant {
     return new ServerParticipant(
       {
-        nick: Util.observerName,
-        participantId: Util.observerName,
+        nick: Util.observerName1,
+        participantId: Util.observerName1,
+        role: ERole.Developer,
+        status: EParticipantStatus.Connected,
+        observer: true
+      },
+      Util.getSocket()
+    );
+  }
+
+  public static observerName2 = 'observer2';
+  public static getObserver2(): IServerParticipant {
+    return new ServerParticipant(
+      {
+        nick: Util.observerName2,
+        participantId: Util.observerName2,
         role: ERole.Developer,
         status: EParticipantStatus.Connected,
         observer: true
