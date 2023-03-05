@@ -10,10 +10,9 @@ describe('CRUD', () => {
     const container = Util.getContainer();
     const estimation = container
       .get<IFactoryService>(STORAGETYPES.FactoryService)
-      .createEstimation('participant', 0, true);
+      .createEstimation('participant', 0);
     expect(estimation.cardIndex).toBe(0);
     expect(estimation.participantId).toBe('participant');
-    expect(estimation.revealed).toBe(true);
   });
 
   test('create (upsert)', () => {
@@ -279,13 +278,11 @@ describe('Reveal', () => {
     expect(estimation1).toBeDefined();
     if (estimation1) {
       expect(estimation1.cardIndex).toBe(1);
-      expect(estimation1.revealed).toBe(true);
     }
     const estimation2 = estimations.find(((e: IEstimation) => e.participantId === participant2.participantId));
     expect(estimation2).toBeDefined();
     if (estimation2) {
       expect(estimation2.cardIndex).toBe(2);
-      expect(estimation2.revealed).toBe(true);
     }
   });
 
@@ -335,14 +332,12 @@ describe('Reveal', () => {
     expect(estimation1).toBeDefined();
     if (estimation1) {
       expect(estimation1.cardIndex).toBe(1);
-      expect(estimation1.revealed).toBe(true);
     }
     const estimation2 = estimations.find(((e: IEstimation) => e.participantId === participant2.participantId));
     expect(estimation2).toBeDefined();
     if (estimation2) {
       const estimationCard = cardSet.cards.find((card: ICard) => card.isUnknownEstimation);
       expect(estimationCard).toBeDefined();
-      expect(estimation2.revealed).toBe(true);
     }
     // retrieve
     const retrieved = container
@@ -354,14 +349,12 @@ describe('Reveal', () => {
     expect(retrieved1).toBeDefined();
     if (retrieved1) {
       expect(retrieved1.cardIndex).toBe(1);
-      expect(retrieved1.revealed).toBe(true);
     }
     const retrieved2 = estimations.find(((e: IEstimation) => e.participantId === participant2.participantId));
     expect(retrieved2).toBeDefined();
     if (retrieved2) {
       const estimationCard = cardSet.cards.find((card: ICard) => card.isUnknownEstimation);
       expect(estimationCard).toBeDefined();
-      expect(retrieved2.revealed).toBe(true);
     }
   });
 });

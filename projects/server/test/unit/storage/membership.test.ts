@@ -10,6 +10,7 @@ import { IServerParticipantRepository } from '../../../src/storage/interfaces/se
 import { ITeamRepository } from '../../../src/storage/interfaces/team.repository';
 import { IServerParticipant, ServerParticipant } from '../../../src/objects';
 
+// TODO NOW use util
 const socket: IWebSocket = {
   readyState: ReadyState.OPEN,
   close: jest.fn(undefined),

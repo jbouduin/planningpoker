@@ -47,9 +47,7 @@ describe('Estimate => OK', () => {
     if (estimationListMessage) {
       expect(estimationListMessage.data).toHaveLength(1);
       expect(estimationListMessage.data[0].participantId).toBe(participant.participantId);
-        // TODO 2383 remove 999 to indicate that we do not want to send the estimated value
-      expect(estimationListMessage.data[0].cardIndex).toBe(999);
-      expect(estimationListMessage.data[0].revealed).toBe(false);
+      expect(estimationListMessage.data[0].cardIndex).toBe(2);
     }
 
     // Test: participant should have received 1 clear + 1 pokerstatus + 1 additional estimation list
@@ -63,7 +61,6 @@ describe('Estimate => OK', () => {
       expect(estimationListMessage.data).toHaveLength(1);
       expect(estimationListMessage.data[0].participantId).toBe(participant.participantId);
       expect(estimationListMessage.data[0].cardIndex).toBe(2);
-      expect(estimationListMessage.data[0].revealed).toBe(true);
     }
 
     // Test: check if unaffected team is unaffected

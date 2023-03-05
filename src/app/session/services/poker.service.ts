@@ -113,11 +113,11 @@ export class PokerService {
   //#region private methods ---------------------------------------------------
   private handleEstimations(estimations: Array<IEstimation>): void {
     estimations.forEach(estimation => {
-      if (estimation.cardIndex >= 0) {
+      if (estimation.cardIndex) {
         const member = this.teamService.getMember(estimation.participantId);
         const card = this.cardService.getCard(estimation.cardIndex);
         if (member && card) {
-          this.givenEstimations.set(estimation.participantId, new Estimation(member, card, estimation.revealed));
+          this.givenEstimations.set(estimation.participantId, new Estimation(member, card, this.pokerStatus === EPokerStatus.Revealed || member.me));
         }
       } else {
         this.givenEstimations.delete(estimation.participantId);

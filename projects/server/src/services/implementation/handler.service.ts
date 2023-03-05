@@ -162,7 +162,7 @@ export class HandlerService implements IHandlerService {
           break;
         }
         case (EClientMessageType.Join): {
-          this.handleJoin(sender, teamName, <IJoinMessage>message, );
+          this.handleJoin(sender, teamName, <IJoinMessage>message,);
           break;
         }
         case (EClientMessageType.Leave): {
@@ -201,7 +201,7 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleChangeCardSet(teamName: string,message: IChangeCardSetMessage): void {
+  private handleChangeCardSet(teamName: string, message: IChangeCardSetMessage): void {
     this.storage.setCardSet(teamName, message.data);
     this.messageService.broadcastCardSet(
       this.storage.getConnectedTeamMembers(teamName),
@@ -268,7 +268,7 @@ export class HandlerService implements IHandlerService {
     let result: IEstimation;
     const team = this.storage.getTeam(teamName);
     if (team) {
-      if (message.data >= 0) {
+      if (message.data) {
         result = this.storage.upsertEstimation(teamName, sender.participantId, message.data);
       }
       else {
@@ -276,10 +276,7 @@ export class HandlerService implements IHandlerService {
       }
       this.storage
         .getConnectedTeamMembers(teamName)
-        .forEach((p: IServerParticipant) => {
-          const toSend = this.prepareEstimationsData(p, team.status === EPokerStatus.Revealed, [result]);
-          this.messageService.sendEstimations(p, toSend);
-        });
+        .forEach((p: IServerParticipant) => { this.messageService.sendEstimations(p, [result]); });
     }
   }
 
@@ -297,7 +294,7 @@ export class HandlerService implements IHandlerService {
         team,
         this.storage.getTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
         this.storage.getCardSet(teamName),
-        this.prepareEstimationsData(sender, team.status === EPokerStatus.Revealed, this.storage.getEstimations(teamName))
+        this.storage.getEstimations(teamName)
       );
       // tell the others someone joined
       this.messageService.broadcastMemberChange(
@@ -387,7 +384,7 @@ export class HandlerService implements IHandlerService {
         team,
         this.storage.getTeamMembers(teamName),
         this.storage.getCardSet(teamName),
-        this.prepareEstimationsData(sender, team.status === EPokerStatus.Revealed, this.storage.getEstimations(teamName))
+        this.storage.getEstimations(teamName)
       );
       // tell the others that participant rejoined
       this.messageService.broadcastMemberChange(
@@ -405,10 +402,7 @@ export class HandlerService implements IHandlerService {
     );
     this.storage
       .getConnectedTeamMembers(teamName)
-      .forEach((p: IServerParticipant) => {
-        const toSend = this.prepareEstimationsData(p, result[0] === EPokerStatus.Revealed, result[1]);
-        this.messageService.sendEstimations(p, toSend);
-      });
+      .forEach((p: IServerParticipant) => { this.messageService.sendEstimations(p, result[1]); });
   }
 
   private handleStart(teamName: string): void {
@@ -418,18 +412,6 @@ export class HandlerService implements IHandlerService {
       this.storage.getConnectedTeamMembers(teamName),
       result
     );
-  }
-  //#endregion
-
-  //#region private helpers ---------------------------------------------------
-  private prepareEstimationsData(to: IServerParticipant, revealed: boolean, estimations: Array<IEstimation>): Array<IEstimation> {
-    return estimations.map(estimation => {
-      const index: number = estimation.cardIndex < 0 ?
-        estimation.cardIndex :
-        // TODO 2383 remove 999 to indicate that we do not want to send the estimated value
-        revealed || estimation.participantId === to.participantId ? estimation.cardIndex : 999
-      return this.factoryService.createEstimation(estimation.participantId, index, revealed || estimation.participantId === to.participantId);
-    });
   }
   //#endregion
 }

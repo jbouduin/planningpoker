@@ -41,8 +41,8 @@ export class FactoryService implements IFactoryService {
     }
   }
 
-  public createEstimation(participantId: string, cardIndex: number, revealed: boolean): IEstimation {
-    return new Estimation(participantId, cardIndex, revealed);
+  public createEstimation(participantId: string, cardIndex: number | undefined): IEstimation {
+    return new Estimation(participantId, cardIndex);
   }
 
   public createParticipant(socket: IWebSocket): IServerParticipant {

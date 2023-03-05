@@ -6,6 +6,7 @@ import { ServerParticipantRepository } from '../../../src/storage/implementation
 import { IFactoryService } from '../../../src/storage/interfaces/factory.service';
 import { IServerParticipantRepository } from '../../../src/storage/interfaces/server-participant.repository';
 
+// TODO NOW use util
 const socket: IWebSocket = {
   readyState: ReadyState.OPEN,
   close: jest.fn(undefined),

@@ -6,6 +6,8 @@ import { CardSetRepository } from '../../../src/storage/implementation/card-set.
 import { ICardSetRepository } from '../../../src/storage/interfaces/card-set.repository';
 import { ECardSet } from '../../../../shared-lib/src';
 
+
+// TODO NOW use util
 const team1Name = 'team1';
 const team2Name = 'team2';
 
