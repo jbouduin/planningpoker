@@ -439,7 +439,9 @@ describe("preflight ChangeScrumMaster", () => {
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
       .returns(Util.getTeam1())
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant2Name))
-      .returns(Util.getTeam1());
+      .returns(Util.getTeam1())
+      .setup((service: IStorageService) => service.getParticipant(Util.participant2Name))
+      .returns(Util.getParticipant2());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
   });
 
@@ -579,6 +581,23 @@ describe("preflight ChangeScrumMaster", () => {
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
 
-  // TODO 2373 new scrum master must be online
+  test('Failure => new scrum master is not online', () => {
+    const message: IChangeScrumMasterMessage = { type: EClientMessageType.ChangeScrumMaster, senderId: Util.scrummasterName, data: Util.disconnectedName };
+
+    const storage = new Mock<IStorageService>()
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup((service: IStorageService) => service.participantExists(Util.disconnectedName))
+      .returns(true)
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .returns(true)
+      .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
+      .returns(Util.getTeam1())
+      .setup((service: IStorageService) => service.getTeamOfParticipant(Util.disconnectedName))
+      .returns(Util.getTeam1())
+      .setup((service: IStorageService) => service.getParticipant(Util.disconnectedName))
+      .returns(Util.getDisconnected());
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NewScrumMasterIsNotConnected);
+  });
 });
 

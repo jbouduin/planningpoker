@@ -8,7 +8,8 @@
   },
   "plugins": [
     "eslint-plugin-tsdoc",
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "ban"
   ],
   "extends": [
     "eslint:recommended",
@@ -35,6 +36,14 @@
         "argsIgnorePattern": "^_"
       }
     ],
-    "tsdoc/syntax": "warn"
+    "tsdoc/syntax": "warn",
+    "ban/ban": [
+      2,
+      { "name": [ "describe", "only" ] },
+      { "name": [ "describe", "skip" ] },
+      { "name": [ "test", "only" ] },
+      { "name": [ "test", "skip" ] },
+      { "name": [ "*", "dumpMessages" ] }
+    ]
   }
 }
