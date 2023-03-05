@@ -13,12 +13,12 @@ describe('Start => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: Create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with one participant
+    // Setup: create team with one participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant =    Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // start estimating
     const message: IStartMessage = {
@@ -51,7 +51,7 @@ describe('Start => OK', () => {
 
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
-  })
+  });
 });
 
 describe('start => Failure', () => {
@@ -59,7 +59,7 @@ describe('start => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: Create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with participant
@@ -90,7 +90,7 @@ describe('start => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: Create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create the team
@@ -124,7 +124,7 @@ describe('start => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: Create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team
@@ -156,7 +156,7 @@ describe('start => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: Create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with participant
@@ -184,6 +184,44 @@ describe('start => Failure', () => {
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
-  // TODO 2370 test('poker status is started', () => { });
+  test('poker status is started', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: Create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: start estimating
+    const message: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(message);
+
+    // Run: start a second time
+    scrumMaster.sendMessage(message);
+
+    // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 poker status + 1 error
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
+    expect(scrumMaster.errorMessageReceived(EErrorCode.EstimationAlreadyStarted)).toBe(true);
+
+    // Test: participant 1 should only have received 1 clear + 1 poker status
+    expect(participant.messagesReceivedAfterInitial).toBe(2);
+    expect(participant.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
+
+
   // TODO 2370 test('only observers connected', () => { });
 })

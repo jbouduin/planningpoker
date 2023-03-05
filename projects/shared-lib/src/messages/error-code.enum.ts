@@ -12,6 +12,9 @@ export enum EErrorCode {
   ObserverCanNotEstimate = 302,
   UnknownEstimationCardMissing = 400,
   MoreThanTwoEstimationCardsRequired = 401,
+  EstimationNotStarted = 402,
+  EstimationAlreadyStarted = 403,
+  InvalidEstimation = 404,
   ServerError = 500,
   NotImplemented = 501,
   UnknownVerb = 502

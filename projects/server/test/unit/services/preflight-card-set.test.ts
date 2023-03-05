@@ -1,52 +1,25 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, EPokerStatus, ERole, ICard, IChangeCardSetMessage, ICreate, ICreatemessage } from '../../../../shared-lib/src';
-import { ITeam, ServerParticipant } from '../../../src/objects';
-import { PreflightService } from '../../../src/services/implementation/preflight.service';
-import { IPreflightService } from '../../../src/services/interfaces';
-import { IWebSocket, ReadyState } from '../../../src/services/websocket';
+import { ECardSet, EClientMessageType, EErrorCode, ICard, IChangeCardSetMessage, ICreate, ICreatemessage } from '../../../../shared-lib/src';
 import { FactoryService } from '../../../src/storage/implementation/factory.service';
 import { IStorageService } from '../../../src/storage/interfaces';
-
-const scrummasterName = 'scrum-master';
-const socket: IWebSocket = {
-  readyState: ReadyState.OPEN,
-  close: jest.fn(undefined),
-  send: jest.fn(undefined)
-};
-
-const scrummaster = new ServerParticipant(
-  {
-    nick: scrummasterName,
-    participantId: scrummasterName,
-    role: ERole.ScrumMaster,
-    status: EParticipantStatus.Connected,
-    observer: true
-  }, socket);
-const team1Name = 'team1';
-const team1: ITeam = {
-  teamName: team1Name,
-  lastAccessTime: Date.now(),
-  status: EPokerStatus.Cleared
-}
-
-const service: IPreflightService = new PreflightService();
+import { Util } from './util';
 
 describe('cardSet OK', () => {
   test('create OK with standard cardset', () => {
     const data: ICreate = {
       observer: false,
       cardSet: ECardSet.Cohn,
-      nick: scrummasterName
+      nick: Util.scrummasterName
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: scrummasterName, data: data };
+    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
-      .setup((service: IStorageService) => service.getParticipant(scrummasterName))
-      .returns(scrummaster)
-      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
       .returns(false);
-    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.NoError);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
   });
 
   test('create OK with customized cardset', () => {
@@ -55,33 +28,33 @@ describe('cardSet OK', () => {
     const data: ICreate = {
       observer: false,
       cardSet: ECardSet.Custom,
-      nick: scrummasterName,
+      nick: Util.scrummasterName,
       cards: cohn
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: scrummasterName, data: data };
+    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
-      .setup((service: IStorageService) => service.getParticipant(scrummasterName))
-      .returns(scrummaster)
-      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
       .returns(false);
-    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.NoError);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
   });
 
   test('change cardset OK with standard cardset', () => {
     const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,
-      senderId: scrummasterName,
+      senderId: Util.scrummasterName,
       data: cohn
     };
     const storage = new Mock<IStorageService>()
-      .setup((service: IStorageService) => service.getParticipant(scrummasterName))
-      .returns(scrummaster)
-      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
-      .returns(team1);
-    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.NoError);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
+      .returns(Util.getTeam1());
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
   });
 
   test('change cardset OK with customized cardset', () => {
@@ -89,17 +62,17 @@ describe('cardSet OK', () => {
     cohn.cards.splice(9, 3);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,
-      senderId: scrummasterName,
+      senderId: Util.scrummasterName,
       data: cohn
     };
     const storage = new Mock<IStorageService>()
-      .setup((service: IStorageService) => service.getParticipant(scrummasterName))
-      .returns(scrummaster)
-      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
-      .returns(team1);
-    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.NoError);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
+      .returns(Util.getTeam1());
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
   });
 });
 
@@ -111,16 +84,16 @@ describe('cardSet not OK', () => {
     const data: ICreate = {
       observer: false,
       cardSet: ECardSet.Custom,
-      nick: scrummasterName,
+      nick: Util.scrummasterName,
       cards: cohn
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: scrummasterName, data: data };
+    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
-      .setup((service: IStorageService) => service.getParticipant(scrummasterName))
-      .returns(scrummaster)
-      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
       .returns(false);
-    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.UnknownEstimationCardMissing);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.UnknownEstimationCardMissing);
   });
 
   test('Change cardset with unknown estimation missing', () => {
@@ -129,17 +102,17 @@ describe('cardSet not OK', () => {
     cohn.cards.splice(indexOfUnknown, 1);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,
-      senderId: scrummasterName,
+      senderId: Util.scrummasterName,
       data: cohn
     };
     const storage = new Mock<IStorageService>()
-      .setup((service: IStorageService) => service.getParticipant(scrummasterName))
-      .returns(scrummaster)
-      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
-      .returns(team1);
-    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.UnknownEstimationCardMissing);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
+      .returns(Util.getTeam1());
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.UnknownEstimationCardMissing);
   });
 
   test('Create with less than two estimation cards', () => {
@@ -148,16 +121,16 @@ describe('cardSet not OK', () => {
     const data: ICreate = {
       observer: false,
       cardSet: ECardSet.Custom,
-      nick: scrummasterName,
+      nick: Util.scrummasterName,
       cards: cohn
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: scrummasterName, data: data };
+    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
-      .setup((service: IStorageService) => service.getParticipant(scrummasterName))
-      .returns(scrummaster)
-      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
       .returns(false);
-    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.MoreThanTwoEstimationCardsRequired);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.MoreThanTwoEstimationCardsRequired);
   });
 
   test('Change cardset with less than two estimation cards', () => {
@@ -165,16 +138,16 @@ describe('cardSet not OK', () => {
     cohn.cards.splice(1, 11);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,
-      senderId: scrummasterName,
+      senderId: Util.scrummasterName,
       data: cohn
     };
     const storage = new Mock<IStorageService>()
-      .setup((service: IStorageService) => service.getParticipant(scrummasterName))
-      .returns(scrummaster)
-      .setup(((service: IStorageService) => service.teamExists(team1Name)))
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
       .returns(true)
-      .setup((service: IStorageService) => service.getTeamOfParticipant(scrummasterName))
-      .returns(team1);
-    expect(service.preflight(storage.object(), message, team1Name)).toBe(EErrorCode.MoreThanTwoEstimationCardsRequired);
+      .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
+      .returns(Util.getTeam1());
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.MoreThanTwoEstimationCardsRequired);
   });
 })
