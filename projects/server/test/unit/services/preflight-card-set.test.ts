@@ -4,7 +4,7 @@ import { Mock } from 'moq.ts';
 import { ECardSet, EClientMessageType, EErrorCode, ICard, IChangeCardSetMessage, ICreate, ICreatemessage } from '../../../../shared-lib/src';
 import { FactoryService } from '../../../src/storage/implementation/factory.service';
 import { IStorageService } from '../../../src/storage/interfaces';
-import { Util } from './util';
+import { Util } from '../util';
 
 describe('cardSet OK', () => {
   test('create OK with standard cardset', () => {

@@ -1,10 +1,10 @@
 import { jest } from '@jest/globals';
 
-import { ECardSet, EParticipantStatus, EPokerStatus, ERole, ICardSet } from '../../../../shared-lib/src';
-import { IServerParticipant, ITeam, ServerParticipant } from '../../../src/objects';
-import { PreflightService } from '../../../src/services/implementation/preflight.service';
-import { IPreflightService } from '../../../src/services/interfaces/preflight.service';
-import { IWebSocket, ReadyState } from "../../../src/services/websocket";
+import { ECardSet, EParticipantStatus, EPokerStatus, ERole, ICardSet } from '../../../shared-lib/src';
+import { IServerParticipant, ITeam, ServerParticipant } from '../../src/objects';
+import { PreflightService } from '../../src/services/implementation/preflight.service';
+import { IPreflightService } from '../../src/services/interfaces/preflight.service';
+import { IWebSocket, ReadyState } from "../../src/services/websocket";
 
 export class Util {
 
@@ -51,6 +51,19 @@ export class Util {
     );
   }
 
+  public static disconnectedName = 'disconnectName';
+  public static getDisconnected(): IServerParticipant {
+    return new ServerParticipant(
+      {
+        nick: Util.disconnectedName,
+        participantId: Util.disconnectedName,
+        role: ERole.Developer,
+        status: EParticipantStatus.Disconnected,
+        observer: true
+      },
+      this.getSocket()
+    );
+  }
   public static team1Name = 'team1';
   public static getTeam1(status = EPokerStatus.Cleared): ITeam {
     return {
@@ -84,7 +97,7 @@ export class Util {
     };
   }
 
-  private static getSocket(): IWebSocket {
+  public static getSocket(): IWebSocket {
     return {
       readyState: ReadyState.OPEN,
       close: jest.fn(undefined),
