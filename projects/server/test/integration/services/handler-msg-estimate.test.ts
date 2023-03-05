@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberChangeType, EServerMessageType, IEstimateMessage, IEstimationListMessage, IStartMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EMemberChangeType, EServerMessageType, IEstimateMessage, IEstimationListMessage, IStartMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 
@@ -13,14 +13,14 @@ describe('Estimate => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with one participant
+    // Setup: create team with one participant
     const scrumMaster= Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant= Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // start estimation
+    // Setup: start estimation
     const message: IStartMessage = {
       senderId: scrumMaster.participantId,
       data: undefined,
@@ -28,7 +28,7 @@ describe('Estimate => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // estimate
+    // Run: estimate
     const estimateMessage: IEstimateMessage = {
       senderId: participant.participantId,
       data: 2,
@@ -76,11 +76,82 @@ describe('Estimate => OK', () => {
 
 
 describe('Estimate => Failure', () => {
+  test('poker status is not started', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: estimate
+    const estimateMessage: IEstimateMessage = {
+      senderId: participant.participantId,
+      data: 2,
+      type: EClientMessageType.Estimate
+    };
+    participant.sendMessage(estimateMessage);
+
+    // Test: scrum master 1 should have received 1 MC join
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+
+    // Test: participant should have received 1 Error
+    expect(participant.messagesReceivedAfterInitial).toBe(1);
+    expect(participant.errorMessageReceived(EErrorCode.EstimationNotStarted));
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
+
+  test('Card index out of range', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: start estimation
+    const message: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(message);
+
+    // Run: estimate
+    const estimateMessage: IEstimateMessage = {
+      senderId: participant.participantId,
+      data: 55,
+      type: EClientMessageType.Estimate
+    };
+    participant.sendMessage(estimateMessage);
+
+    // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 pokerstatus
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
+
+    // Test: participant should have received 1 clear + 1 pokerstatus + 1 error
+    expect(participant.messagesReceivedAfterInitial).toBe(3);
+    expect(participant.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(participant.errorMessageReceived(EErrorCode.InvalidEstimation)).toBe(true);
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
+
   // TODO 2380 test('Team not found', () => { });
   // TODO 2380 test('Sender not found', () => { });
   // TODO 2380 test('Sender not in any team', () => { });
   // TODO 2380 test('Sender in different team', () => { });
-  // TODO 2371 test('poker status is not started', () => { });
   // TODO 2380 test('Sender is observer', () => { });
-  // TODO 2380 test('Card index out of range', () => { });
 });
