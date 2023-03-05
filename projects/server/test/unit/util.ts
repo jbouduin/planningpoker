@@ -23,6 +23,18 @@ export class Util {
   }
 
   public static participant2Name = 'participant2';
+  public static getParticipant2(): IServerParticipant {
+    return new ServerParticipant(
+      {
+        nick: Util.participant2Name,
+        participantId: Util.participant2Name,
+        role: ERole.Developer,
+        status: EParticipantStatus.Connected,
+        observer: false
+      },
+      this.getSocket()
+    );
+  }
 
   public static scrummasterName = 'scrum-master';
   public static getScrummaster(): IServerParticipant {

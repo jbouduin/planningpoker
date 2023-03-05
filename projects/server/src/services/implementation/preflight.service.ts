@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { IServerParticipant } from "objects";
 
-import { AClientMessage, EClientMessageType, EErrorCode, EPokerStatus, ERole, ICard, ICardSet, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
+import { AClientMessage, EClientMessageType, EErrorCode, EParticipantStatus, EPokerStatus, ERole, ICard, ICardSet, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { IStorageService } from "../../storage/interfaces";
 import { IPreflightService } from "../interfaces";
 
@@ -148,10 +148,15 @@ export class PreflightService implements IPreflightService {
       result = EErrorCode.ParticipantNotInTeam;
     } else if (sender.role !== ERole.ScrumMaster) {
       result = EErrorCode.ScrumMasterRequired;
-    } else if (!storage.participantExists(message.data)) {
-      result = EErrorCode.ParticipantNotFound;
     } else if (storage.getTeamOfParticipant(message.data)?.teamName !== teamName) {
       result = EErrorCode.ParticipantNotInTeam;
+    } else {
+      const newScrumMaster = storage.getParticipant(message.data);
+      if (!newScrumMaster){
+        result = EErrorCode.ParticipantNotFound;
+      } else if (newScrumMaster.status !== EParticipantStatus.Connected) {
+        result = EErrorCode.NewScrumMasterIsNotConnected;
+      }
     }
     return result;
   }
