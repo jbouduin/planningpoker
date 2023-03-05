@@ -79,7 +79,7 @@ describe('cardSet OK', () => {
 describe('cardSet not OK', () => {
   test('Create with unknown estimation missing', () => {
     const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.index === cohn.unknownEstimationIndex);
+    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
     cohn.cards.splice(indexOfUnknown, 1);
     const data: ICreate = {
       observer: false,
@@ -98,7 +98,7 @@ describe('cardSet not OK', () => {
 
   test('Change cardset with unknown estimation missing', () => {
     const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.index === cohn.unknownEstimationIndex);
+    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
     cohn.cards.splice(indexOfUnknown, 1);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,

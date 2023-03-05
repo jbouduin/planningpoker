@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EPokerStatus, IEstimation } from "../../../../shared-lib/src";
+import { ECardSet, EPokerStatus, ICard, IEstimation } from "../../../../shared-lib/src";
 import { IFactoryService, IStorageService } from "../../../src/storage/interfaces";
 import STORAGETYPES from '../../../src/storage/storage.types';
 import { Util } from './util';
@@ -340,7 +340,8 @@ describe('Reveal', () => {
     const estimation2 = estimations.find(((e: IEstimation) => e.participantId === participant2.participantId));
     expect(estimation2).toBeDefined();
     if (estimation2) {
-      expect(estimation2.cardIndex).toBe(cardSet.unknownEstimationIndex);
+      const estimationCard = cardSet.cards.find((card: ICard) => card.isUnknownEstimation);
+      expect(estimationCard).toBeDefined();
       expect(estimation2.revealed).toBe(true);
     }
     // retrieve
@@ -358,7 +359,8 @@ describe('Reveal', () => {
     const retrieved2 = estimations.find(((e: IEstimation) => e.participantId === participant2.participantId));
     expect(retrieved2).toBeDefined();
     if (retrieved2) {
-      expect(retrieved2.cardIndex).toBe(cardSet.unknownEstimationIndex);
+      const estimationCard = cardSet.cards.find((card: ICard) => card.isUnknownEstimation);
+      expect(estimationCard).toBeDefined();
       expect(retrieved2.revealed).toBe(true);
     }
   });

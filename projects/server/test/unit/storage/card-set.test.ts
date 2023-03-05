@@ -19,7 +19,6 @@ describe('CRUD', () => {
     const retrieved = repository.getCardSet(team1Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cohn.unknownEstimationIndex);
       expect(retrieved.cardSet).toBe(cohn.cardSet);
       expect(retrieved.cards.length).toBe(cohn.cards.length);
     }
@@ -35,7 +34,6 @@ describe('CRUD', () => {
     const retrieved = repository.getCardSet(team1Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(fibo.unknownEstimationIndex);
       expect(retrieved.cardSet).toBe(fibo.cardSet);
       expect(retrieved.cards.length).toBe(fibo.cards.length);
     }
@@ -78,14 +76,12 @@ describe('Two teams', () => {
     let retrieved = repository.getCardSet(team1Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cohn.unknownEstimationIndex);
       expect(retrieved.cardSet).toBe(cohn.cardSet);
       expect(retrieved.cards.length).toBe(cohn.cards.length);
     }
     retrieved = repository.getCardSet(team2Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(fibo.unknownEstimationIndex);
       expect(retrieved.cardSet).toBe(fibo.cardSet);
       expect(retrieved.cards.length).toBe(fibo.cards.length);
     }
@@ -103,14 +99,12 @@ describe('Two teams', () => {
     let retrieved = repository.getCardSet(team1Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(cohn.unknownEstimationIndex);
       expect(retrieved.cardSet).toBe(cohn.cardSet);
       expect(retrieved.cards.length).toBe(cohn.cards.length);
     }
     retrieved = repository.getCardSet(team2Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(tshirt.unknownEstimationIndex);
       expect(retrieved.cardSet).toBe(tshirt.cardSet);
       expect(retrieved.cards.length).toBe(tshirt.cards.length);
     }
@@ -130,7 +124,6 @@ describe('Two teams', () => {
     retrieved = repository.getCardSet(team2Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.unknownEstimationIndex).toBe(fibo.unknownEstimationIndex);
       expect(retrieved.cardSet).toBe(fibo.cardSet);
       expect(retrieved.cards.length).toBe(fibo.cards.length);
     }

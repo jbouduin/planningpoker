@@ -37,8 +37,7 @@ export class FactoryService implements IFactoryService {
     }
     return {
       cardSet: set,
-      cards: cards,
-      unknownEstimationIndex: cards.findIndex((card: ICard) => card.isUnknownEstimation)
+      cards: cards
     }
   }
 
@@ -67,58 +66,58 @@ export class FactoryService implements IFactoryService {
   private generateCohn(): Array<ICard> {
     let idx = 0;
     return [
-      { index: idx++, label: '0', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '0.5', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '1', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '2', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '3', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '5', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '8', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '13', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '20', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '40', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '100', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '1000', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '?', isIcon: false, isUnknownEstimation: true },
-      { index: idx++, label: 'local_cafe', isIcon: true, isUnknownEstimation: false }
+      { index: idx++, label: '0', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '0.5', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '1', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '2', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '3', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '5', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '8', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '13', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '20', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '40', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '100', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '1000', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '?', isIcon: false, isUnknownEstimation: true, isEstimation: false },
+      { index: idx++, label: 'local_cafe', isIcon: true, isUnknownEstimation: false, isEstimation: false }
     ];
   }
 
   private generateFibonacci(): Array<ICard> {
     let idx = 0;
     return [
-      { index: idx++, label: '0', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '1', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '2', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '3', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '5', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '8', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '13', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '21', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '34', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '55', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '89', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '144', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '?', isIcon: false, isUnknownEstimation: true },
-      { index: idx++, label: 'local_cafe', isIcon: true, isUnknownEstimation: false }
+      { index: idx++, label: '0', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '1', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '2', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '3', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '5', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '8', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '13', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '21', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '34', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '55', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '89', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '144', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '?', isIcon: false, isUnknownEstimation: true, isEstimation: false },
+      { index: idx++, label: 'local_cafe', isIcon: true, isUnknownEstimation: false, isEstimation: false }
     ];
   }
 
   private generateShirts(): Array<ICard> {
     let idx = 0;
     return [
-      { index: idx++, label: '0', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: 'XXXS', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: 'XXS', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: 'XS', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: 'S', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: 'M', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: 'L', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: 'XL', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: 'XXL', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: 'XXXL', isIcon: false, isUnknownEstimation: false },
-      { index: idx++, label: '?', isIcon: false, isUnknownEstimation: true },
-      { index: idx++, label: 'local_cafe', isIcon: true, isUnknownEstimation: false }
+      { index: idx++, label: '0', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: 'XXXS', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: 'XXS', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: 'XS', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: 'S', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: 'M', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: 'L', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: 'XL', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: 'XXL', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: 'XXXL', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+      { index: idx++, label: '?', isIcon: false, isUnknownEstimation: true, isEstimation: true },
+      { index: idx++, label: 'local_cafe', isIcon: true, isUnknownEstimation: false, isEstimation: true }
     ];
   }
   //#endregion

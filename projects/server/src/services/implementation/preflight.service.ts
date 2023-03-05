@@ -383,11 +383,11 @@ export class PreflightService implements IPreflightService {
    * - the cardset must at least contain two cards which are estimations
    */
   private checkCardSet(cardSet: ICardSet): EErrorCode {
-    const unknownEstimationCard = cardSet.cards.find((card: ICard) => card.index === cardSet.unknownEstimationIndex);
+    const unknownEstimationCard = cardSet.cards.find((card: ICard) => card.isUnknownEstimation);
     if (!unknownEstimationCard) {
       return EErrorCode.UnknownEstimationCardMissing;
     }
-    const estimationCards = cardSet.cards.filter((card: ICard) => card.index !== cardSet.unknownEstimationIndex && !card.isIcon).length;
+    const estimationCards = cardSet.cards.filter((card: ICard) => card.isEstimation).length;
     if (estimationCards < 2) {
       return EErrorCode.MoreThanTwoEstimationCardsRequired;
     }

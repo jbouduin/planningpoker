@@ -75,13 +75,12 @@ export class Util {
 
   public static getCardSet(): ICardSet {
     return {
-    cardSet: ECardSet.Cohn,
-    cards: [
-      { index: 1, label: '1', isIcon: false, isUnknownEstimation: false },
-      { index: 2, label: '2', isIcon: false, isUnknownEstimation: false },
-      { index: 9, label: '?', isIcon: false, isUnknownEstimation: true }
-    ],
-    unknownEstimationIndex: 3
+      cardSet: ECardSet.Cohn,
+      cards: [
+        { index: 1, label: '1', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+        { index: 2, label: '2', isIcon: false, isUnknownEstimation: false, isEstimation: true },
+        { index: 9, label: '?', isIcon: false, isUnknownEstimation: true, isEstimation: false }
+      ]
     };
   }
 
