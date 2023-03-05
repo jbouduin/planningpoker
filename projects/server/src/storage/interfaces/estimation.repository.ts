@@ -6,5 +6,5 @@ export interface IEstimationRepository {
   removeTeam(teamName: string): void;
   removeParticipant(teamName: string, participantId: string): void;
   startEstimating(teamName: string): void;
-  upsertEstimation(teamName: string, participantId: string, cardIndex: number): IEstimation;
+  upsertEstimation(teamName: string, participantId: string, cardIndex: number | undefined): IEstimation;
 }

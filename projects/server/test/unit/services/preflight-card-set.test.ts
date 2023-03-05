@@ -4,7 +4,7 @@ import { Mock } from 'moq.ts';
 import { ECardSet, EClientMessageType, EErrorCode, ICard, IChangeCardSetMessage, ICreate, ICreatemessage } from '../../../../shared-lib/src';
 import { FactoryService } from '../../../src/storage/implementation/factory.service';
 import { IStorageService } from '../../../src/storage/interfaces';
-import { Util } from './util';
+import { Util } from '../util';
 
 describe('cardSet OK', () => {
   test('create OK with standard cardset', () => {
@@ -79,7 +79,7 @@ describe('cardSet OK', () => {
 describe('cardSet not OK', () => {
   test('Create with unknown estimation missing', () => {
     const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.index === cohn.unknownEstimationIndex);
+    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
     cohn.cards.splice(indexOfUnknown, 1);
     const data: ICreate = {
       observer: false,
@@ -98,7 +98,7 @@ describe('cardSet not OK', () => {
 
   test('Change cardset with unknown estimation missing', () => {
     const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.index === cohn.unknownEstimationIndex);
+    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
     cohn.cards.splice(indexOfUnknown, 1);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,

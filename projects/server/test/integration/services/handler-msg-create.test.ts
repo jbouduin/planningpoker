@@ -158,7 +158,7 @@ describe('Create => Failure', () => {
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // Setup: customize a card set
     const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.index === cohn.unknownEstimationIndex);
+    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
     cohn.cards.splice(indexOfUnknown, 1);
 
     // Run: create the team

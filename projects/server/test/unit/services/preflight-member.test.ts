@@ -3,7 +3,7 @@ import { Mock } from 'moq.ts';
 
 import { EClientMessageType, EErrorCode, IChangeNickMessage, IChangeScrumMasterMessage, IObserveMessage, IObserverChange, IRemoveMessage } from '../../../../shared-lib/src';
 import { IStorageService } from '../../../src/storage/interfaces';
-import { Util } from './util';
+import { Util } from '../util';
 
 describe('preflight Observe - toggle self', () => {
   const data: IObserverChange = {

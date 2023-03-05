@@ -76,7 +76,7 @@ describe('Change card set => Failure', () => {
 
     // Setup: customize a card set
     const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = customizedCohn.cards.findIndex((card: ICard) => card.index === customizedCohn.unknownEstimationIndex);
+    const indexOfUnknown = customizedCohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
     customizedCohn.cards.splice(indexOfUnknown, 1);
 
     // Setup: create team

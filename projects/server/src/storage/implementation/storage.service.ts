@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 
 import STORAGETYPES from "../storage.types";
 
-import { EErrorCode, EPokerStatus, ICardSet, IEstimation } from "../../../../shared-lib/src";
+import { EErrorCode, EPokerStatus, ICard, ICardSet, IEstimation } from "../../../../shared-lib/src";
 import { IServerParticipant, ITeam } from "../../objects";
 import { ICardSetRepository, IEstimationRepository, IFactoryService, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
 
@@ -158,9 +158,10 @@ export class StorageService implements IStorageService {
     const cardSet = this.cardSetRepository.getCardSet(teamName);
     const result = this.estimationRepository.getEstimations(teamName);
     if (cardSet) {
+      const unknownEstimationIndex = cardSet.cards.find((card: ICard) => card.isUnknownEstimation)?.index;
       this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: IServerParticipant) => {
         if (!result.find((e: IEstimation) => e.participantId === p.participantId)) {
-          const estimation = this.estimationRepository.upsertEstimation(teamName, p.participantId, cardSet.unknownEstimationIndex)
+          const estimation = this.estimationRepository.upsertEstimation(teamName, p.participantId, unknownEstimationIndex)
           result.push(estimation);
         }
       });

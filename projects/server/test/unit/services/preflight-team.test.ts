@@ -3,7 +3,7 @@ import { Mock } from 'moq.ts';
 
 import { ECardSet, EClientMessageType, EErrorCode, ICreate, ICreatemessage, IJoin, IJoinMessage, ILeaveMessage, IPauseMessage, IRejoinMessage } from '../../../../shared-lib/src';
 import { IStorageService } from '../../../src/storage/interfaces';
-import { Util } from './util';
+import { Util } from '../util';
 
 describe('preflight Create', () => {
   test('OK', () => {

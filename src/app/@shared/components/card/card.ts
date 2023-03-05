@@ -21,6 +21,10 @@ export class Card {
   public get isUnknownEstimation(): boolean {
     return this.card.isUnknownEstimation;
   }
+
+  public get isEstimation(): boolean {
+    return this.card.isEstimation;
+  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------

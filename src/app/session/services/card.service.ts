@@ -49,7 +49,8 @@ export class CardService {
           index: card.index,
           label: card.label,
           isIcon: card.isIcon,
-          isUnknownEstimation: card.isUnknownEstimation
+          isUnknownEstimation: card.isUnknownEstimation,
+          isEstimation: card.isEstimation
         }
       }),
       currentCardSet: this.currentCardSet

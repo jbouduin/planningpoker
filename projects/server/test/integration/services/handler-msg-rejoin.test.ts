@@ -35,7 +35,7 @@ describe('Rejoin => OK', () => {
     expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
     expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
     expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Rejoined)).toBe(1);
-    // TODO 2383 check the message contents of the rejoin
+    // TODO 2382 check the message contents of the rejoin
 
     // Test: participant 1 should have received no additional messages
     expect(participant.messagesReceivedAfterInitial).toBe(0);
@@ -43,21 +43,21 @@ describe('Rejoin => OK', () => {
     // Test: rejoining participant should have received join messages
     expect(rejoiningParticipant.messagesReceivedAfterInitial).toBe(0);
 
-    // TODO 2383 check if the rejoin messages reflect the current team status
+    // TODO 2382 check if the rejoin messages reflect the current team status
 
     // Test: check if unaffected team is unaffected
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
-  // TODO 2383 test('Rejoin after pause', () => { });
-  // TODO 2383 test('Rejoin during estimation', () => { });
+  // TODO 2382 test('Rejoin after pause', () => { });
+  // TODO 2382 test('Rejoin during estimation', () => { });
 });
 
 
 describe('Remove => Failure', () => {
-  // TODO 2383 test('Team not found', () => { });
-  // TODO 2383 test('Sender not found', () => { });
-  // TODO 2383 test('Sender already in a team', () => { });
-  // TODO 2383 test('Old participant not found', () => { });
-  // TODO 2383 test('Old participant in different team', () => { });
+  // TODO 2382 test('Team not found', () => { });
+  // TODO 2382 test('Sender not found', () => { });
+  // TODO 2382 test('Sender already in a team', () => { });
+  // TODO 2382 test('Old participant not found', () => { });
+  // TODO 2382 test('Old participant in different team', () => { });
 });

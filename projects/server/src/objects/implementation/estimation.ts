@@ -2,17 +2,17 @@ import { IEstimation } from '../../../../shared-lib/src';
 
 export class Estimation implements IEstimation {
 
-  //#region public properties ----------------------------------------
-  public revealed: boolean;
+  //#region IEstimation properties --------------------------------------------
+  // public revealed: boolean;
   public participantId: string;
-  public cardIndex: number;
+  public cardIndex: number | undefined;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(participantId: string, cardIndex: number, revealed = true) {
+  public constructor(participantId: string, cardIndex: number | undefined) {
     this.participantId = participantId;
     this.cardIndex = cardIndex;
-    this.revealed = revealed;
+    // this.revealed = revealed;
   }
   //#endregion
 }

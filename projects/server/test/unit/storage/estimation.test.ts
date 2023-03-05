@@ -12,15 +12,21 @@ describe('start- estimate - delete - restart', () => {
   const cardIndex2 = 2;
   const teamName = 'team';
 
-  test('create estimation', () => {
+  test('create estimation with value', () => {
     const participantId1 = 'participant';
     const cardIndex1 = 1;
-    const revealed1 = true;
     const factory: IFactoryService = new FactoryService();
-    const estimation = factory.createEstimation(participantId1, cardIndex1, revealed1);
+    const estimation = factory.createEstimation(participantId1, cardIndex1);
     expect(estimation.cardIndex).toBe(cardIndex1);
     expect(estimation.participantId).toBe(participantId1);
-    expect(estimation.revealed).toBe(revealed1);
+  });
+
+  test('create estimation without value', () => {
+    const participantId1 = 'participant';
+    const factory: IFactoryService = new FactoryService();
+    const estimation = factory.createEstimation(participantId1, undefined);
+    expect(estimation.cardIndex).toBeUndefined();
+    expect(estimation.participantId).toBe(participantId1);
   });
 
   test('upsert before start', () => {

@@ -1,26 +1,20 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 
-import { IWebSocket, ReadyState } from '../../../src/services/websocket';
 import { FactoryService } from '../../../src/storage/implementation/factory.service';
 import { ServerParticipantRepository } from '../../../src/storage/implementation/server-participant.repository';
 import { IFactoryService } from '../../../src/storage/interfaces/factory.service';
 import { IServerParticipantRepository } from '../../../src/storage/interfaces/server-participant.repository';
-
-const socket: IWebSocket = {
-  readyState: ReadyState.OPEN,
-  close: jest.fn(undefined),
-  send: jest.fn(undefined)
-};
+import { Util } from '../util';
 
 describe('IServerParticipantRepository', () => {
   test('create participant', () => {
     const factory: IFactoryService = new FactoryService();
-    const participant1 = factory.createParticipant(socket);
+    const participant1 = factory.createParticipant(Util.getSocket());
     expect(participant1.nick).toBe('participant 1');
     expect(participant1.participantId).not.toBeNull();
     expect(participant1.participantId.length).toBeGreaterThan(0);
 
-    const participant2 = factory.createParticipant(socket);
+    const participant2 = factory.createParticipant(Util.getSocket());
     expect(participant2.nick).toBe('participant 2');
     expect(participant2.participantId).not.toBeNull();
     expect(participant2.participantId.length).toBeGreaterThan(0);
@@ -31,7 +25,7 @@ describe('IServerParticipantRepository', () => {
 
 test('BaseRepository CR-D', () => {
   const factory: IFactoryService = new FactoryService();
-  const participant1 = factory.createParticipant(socket);
+  const participant1 = factory.createParticipant(Util.getSocket());
   const repository: IServerParticipantRepository = new ServerParticipantRepository();
   repository.add(participant1);
   const participant1Id = participant1.participantId;

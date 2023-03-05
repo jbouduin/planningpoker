@@ -70,7 +70,7 @@ export class CardSetDialogComponent implements AfterViewInit {
 
   public get noCardsSelected(): boolean {
     return this._cardSelectItems.length > 0 &&
-      this._cardSelectItems.filter((card: ICardSelectItem) => !card.card.isIcon && card.selected && !card.card.isUnknownEstimation).length < 2
+      this._cardSelectItems.filter((card: ICardSelectItem) => card.selected && card.card.isEstimation).length < 2
   }
   //#endregion
 
@@ -118,24 +118,20 @@ export class CardSetDialogComponent implements AfterViewInit {
   }
 
   public save(): void {
-    let unknownIndex = -1;
     const cardsInUse = this._cardSelectItems
       .filter((card: ICardSelectItem) => card.selected)
       .map((card: ICardSelectItem) => {
-        if (card.card.isUnknownEstimation) {
-          unknownIndex = card.card.index;
-        }
         return {
           index: card.card.index,
           label: card.card.label,
           isIcon: card.card.isIcon,
-          isUnknownEstimation: card.card.isUnknownEstimation
+          isUnknownEstimation: card.card.isUnknownEstimation,
+          isEstimation: card.card.isEstimation
         };
       })
     const result: ICardSet = {
       cardSet: this.cardSetControl.value,
-      cards: cardsInUse,
-      unknownEstimationIndex: unknownIndex
+      cards: cardsInUse
     }
     this.dialogRef.close(result);
   }
