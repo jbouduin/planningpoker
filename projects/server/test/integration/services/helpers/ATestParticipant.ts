@@ -52,7 +52,7 @@ export interface IATestParticipant {
   countMemberChangedMessages(changeType: EMemberChangeType, skipInitialMessages?: boolean): number;
 
   /**
-   * Counte the number of messages of a given type
+   * Count the number of messages of a given type
    * @param messageType - the message type
    * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
    * @returns the number found
@@ -61,8 +61,9 @@ export interface IATestParticipant {
 
   /**
    * Write the received messages as JSON to the console
+   * * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
    */
-  dumpMessages(): void;
+  dumpMessages(skipInitialMessages?: boolean): void;
 
   /**
    * Check if an error message was received with the given error code. This method does not skip the initial messages
@@ -116,7 +117,7 @@ export abstract class ATestParticipant implements IATestParticipant {
   public expectedNumberOfInitialMessages: number;
   public teamName: string;
 
-  public get totalMessagesReceived(): number  {
+  public get totalMessagesReceived(): number {
     return this.send.mock.calls.length;
   }
 
@@ -165,9 +166,13 @@ export abstract class ATestParticipant implements IATestParticipant {
       this.allMessages.filter((message: AServerMessage) => message.type === messageType).length;
   }
 
-  public dumpMessages(): void {
+  public dumpMessages(skipInitialMessages = true): void {
     /* eslint-disable no-console */
-    console.log(JSON.stringify(this.send.mock.calls, null, 2));
+    if (skipInitialMessages) {
+      console.log(JSON.stringify(this.send.mock.calls.slice(this.expectedNumberOfInitialMessages), null, 2));
+    } else {
+      console.log(JSON.stringify(this.send.mock.calls, null, 2));
+    }
     /* eslint-enable no-console */
   }
 
