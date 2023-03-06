@@ -1,12 +1,12 @@
 import { expect, jest } from "@jest/globals"
 import { IHandlerService } from "services/interfaces";
-import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, EServerMessageType, IErrorMessage, IMemberChangeMessage, IPokerStatusChangedMessage } from "../../../../../shared-lib/src";
+import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, EServerMessageType, IErrorMessage, IMemberChangeMessage, IPokerStatusChangedMessage, ISelfMessage } from "../../../../../shared-lib/src";
 
 import { IServerParticipant } from "../../../../src/objects";
 
 import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
 
-export interface IMemberChangedMessageCheckOptions {
+export interface IMemberExpectOptions {
   nick?: string;
   participantId?: string;
   observer?: boolean;
@@ -95,8 +95,9 @@ export interface IATestParticipant {
    */
   expectNextMessageIsError(errorCode: EErrorCode): IATestParticipant;
 
-  expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IMemberChangedMessageCheckOptions): IATestParticipant;
+  expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IMemberExpectOptions): IATestParticipant;
   expectNextMessageIsPokerStatus(status: EPokerStatus): IATestParticipant;
+  expectNextMessageIsSelf(options?: IMemberExpectOptions): IATestParticipant;
 
   /**
    * check if there are no more messages. Uses jest.expect internally
@@ -276,7 +277,7 @@ export abstract class ATestParticipant implements IATestParticipant {
     return this.expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) => expect(m.data.code).toBe(errorCode));
   }
 
-  public expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IMemberChangedMessageCheckOptions): IATestParticipant {
+  public expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IMemberExpectOptions): IATestParticipant {
     return this.expectNextMessageIs(
       EServerMessageType.MemberChanged,
       (m: IMemberChangeMessage) => {
@@ -306,6 +307,30 @@ export abstract class ATestParticipant implements IATestParticipant {
       EServerMessageType.PokerStatus,
       (m: IPokerStatusChangedMessage) => expect(m.data).toBe(status)
     );
+  }
+
+  public expectNextMessageIsSelf(options?: IMemberExpectOptions): IATestParticipant {
+    return this.expectNextMessageIs(
+      EServerMessageType.Self,
+      (m: ISelfMessage) => {
+        if (options) {
+          if (options.nick) {
+            expect(m.data.nick).toBe(options.nick);
+          }
+          if (options.observer) {
+            expect(m.data.observer).toBe(options.observer);
+          }
+          if (options.participantId) {
+            expect(m.data.participantId).toBe(options.participantId);
+          }
+          if (options.role) {
+            expect(m.data.role).toBe(options.role);
+          }
+          if (options.status) {
+            expect(m.data.status).toBe(options.status);
+          }
+        }
+      });
   }
 
   public expectNoMoreMessages(): void {
