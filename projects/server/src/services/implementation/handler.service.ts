@@ -192,10 +192,7 @@ export class HandlerService implements IHandlerService {
           this.handleRejoin(sender, teamName, <IRejoinMessage>message, ws);
           break;
         }
-        default: {
-          this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.UnknownVerb);
-          this.loggerService.error('Server', 'unexpected messagetype');
-        }
+        // The default (EErrorCode.UnknownVerb) is already handled in preflight
       } // end switch
     }
   }
