@@ -8,6 +8,7 @@
     "start": "ts-node ./src/server.ts",
     "dev": "nodemon",
     "prod": "npm run build && npm run start",
+    "test:ci": "jest -c jest.ci.config.ts",
     "test:unit": "jest -c jest.unit.config.ts --coverage",
     "test:integration": "jest -c jest.integration.config.ts --coverage",
     "lint": "eslint  -c ./.eslintrc src/**/*.ts test/**/*.ts"
