@@ -375,7 +375,7 @@ export class HandlerService implements IHandlerService {
       this.messageService.sendAllInfo(
         oldParticipant,
         team,
-        this.storage.getTeamMembers(teamName),
+        this.storage.getTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId),
         this.storage.getCardSet(teamName),
         this.storage.getEstimations(teamName)
       );
