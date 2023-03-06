@@ -99,6 +99,24 @@ describe('create => OK', () => {
     }
   });
 
+  test('Create with a custom card list without cards', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+    // Setup: get Cohn set for testing afterwards
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+
+    // Run: create the team
+    const scrumMaster: ITestScrumMaster = Util.createTeam(
+      handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, undefined);
+
+    // Test: check if the card set message contains the correct data
+    const cardSetMessage = scrumMaster.extractMessage<ICardSetMessage>(EServerMessageType.CardList, false);
+    expect(cardSetMessage).toBeDefined();
+    if (cardSetMessage) {
+      expect(cardSetMessage.data.cardSet).toBe(ECardSet.Cohn);
+      expect(cardSetMessage.data.cards).toHaveLength(cohn.cards.length);
+    }
+  });
 });
 
 describe('Create => Failure', () => {
