@@ -1,7 +1,7 @@
 import { Container } from "inversify";
 import { It, Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, EServerMessageType, ICardSet, ICreatemessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EServerMessageType, ICard, ICardSet, ICreatemessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../../src/services/service.types';
 import STORAGETYPES from '../../../../src/storage/storage.types';
@@ -140,4 +140,12 @@ export class Util {
     return new UnaffectedTeam(scrumMaster, participant, teamName);
   }
 
+  public static unknownEstimationIndex(cardSet: ECardSet): number {
+    return this
+      .getContainer()
+      .get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(cardSet)
+      .cards
+      .find((card: ICard) => card.isUnknownEstimation)
+      ?.index || -1;
+  }
 }

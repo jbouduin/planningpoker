@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals"
+import { expect, jest } from "@jest/globals"
 import { IHandlerService } from "services/interfaces";
 import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, EServerMessageType, IErrorMessage, IMemberChangeMessage } from "../../../../../shared-lib/src";
 
@@ -6,7 +6,13 @@ import { IServerParticipant } from "../../../../src/objects";
 
 import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
 
+export interface MessageValidator {
+  type: EServerMessageType,
+  fn: ((message: AServerMessage) => boolean) | undefined
+}
+
 export interface IATestParticipant {
+
   /**
    * Returns the server generated participantId (UUID) of the connected IServerParticipant
    */
@@ -14,17 +20,17 @@ export interface IATestParticipant {
 
   /**
    * The socket used by the participant
-   */
+  */
   readonly socket: IWebSocket;
 
   /**
    * The number of messages received after receiving the initial messages
-   */
+  */
   readonly messagesReceivedAfterInitial: number;
 
   /**
    * The total number of messages received
-   */
+  */
   readonly totalMessagesReceived: number;
 
   /**
@@ -35,7 +41,7 @@ export interface IATestParticipant {
 
   /**
    * Close the socket of the participant. This triggers IHandlerService.handleClose.
-   */
+  */
   closeSocket(): void;
 
   /**
@@ -43,7 +49,9 @@ export interface IATestParticipant {
    * @param changeType - the type of member change
    * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    * @returns the number found
-   */
+   *
+   * @deprecated use the message iterator to validate messages
+  */
   countMemberChangedMessages(changeType: EMemberChangeType, skipInitialMessages?: boolean): number;
 
   /**
@@ -51,28 +59,52 @@ export interface IATestParticipant {
    * @param messageType - the message type
    * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    * @returns the number found
-   */
+   *
+   * @deprecated use the message iterator to validate messages
+  */
   countMessagesOfType(messageType: EServerMessageType, skipInitialMessages?: boolean): number;
 
   /**
    * Write the received messages as JSON to the console
    * * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
-   */
+  */
   dumpMessages(skipInitialMessages?: boolean): void;
 
   /**
    * Check if an error message was received with the given error code. This method does not skip the initial messages
    * @param errorCode - The error code to be searched for
    * @returns true if the error message was found
-   */
+   *
+   * @deprecated use the message iterator to validate messages
+  */
   errorMessageReceived(errorCode: EErrorCode): boolean;
+
+  /**
+   * validates the next message in the iterator using the parameters.
+   * @param type - the message type. Uses jest.expect internally to validate that the type is correct
+   * @param validation - a validation method that should use jest.expect
+   */
+  expectNextMessageIs<T extends AServerMessage>(type: EServerMessageType, validation?: ((message: T) => void)): void;
+
+  /**
+   * validates if the next message is an error message with the given error code.
+   * @param errorCode - the expected error code
+   */
+  expectNextMessageIsError(errorCode: EErrorCode): void;
+
+  /**
+   * check if there are no more messages. Uses jest.expect internally
+   */
+  expectNoMoreMessages(): void;
 
   /**
    * Search for the x-th occurrence of a IMemberChangeMessage of the given change type
    * @param changeType - the type of member change
    * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    * @param occurrence - 0-based
-   */
+   *
+   * @deprecated use the message iterator to validate messages
+  */
   extractMemberChangedMessage(changeType: EMemberChangeType, skipInitialMessages?: boolean, occurrence?: number): IMemberChangeMessage | undefined;
 
   /**
@@ -85,17 +117,15 @@ export interface IATestParticipant {
   extractMessage<T = AServerMessage>(messageType: EServerMessageType, skipInitialMessages?: boolean, occurrence?: number): T | undefined;
 
   /**
-   * Returns true if the length of the array of message types is equal to the length of the array of messages
-   * AND
-   * if the messages arrived in the exact order as specified in the array
-   * @param types - array of EServerMessageType
+   * Initializes the message iterator, so subsequent calls to 'expectNextMessageIs' or 'expectNoMoreMessages' can be executed
    * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    */
-  messagesReceivedAsExpected(types: Array<EServerMessageType>, skipInitialMessages?: boolean): boolean;
+  initializeMessageIterator(skipInitialMessages?: boolean): void;
 
   /**
     * calls IHandlerService.handleMessage
     * @param message - a AClientMessage
+    * @param teamName - the target team of the message. This sets the target for all subsequent calls. If undefined, the previous team is targetted
   */
   sendMessage(message: AClientMessage, teamName?: string): void;
 }
@@ -211,19 +241,47 @@ export abstract class ATestParticipant implements IATestParticipant {
     return messageOfGivenChangeType.length >= occurrence ? messageOfGivenChangeType[occurrence] : undefined
   }
 
-  public messagesReceivedAsExpected(types: Array<EServerMessageType>, skipInitialMessages = true): boolean {
-    const messages = skipInitialMessages ? this.messagesAfterInitialMessages : this.allMessages;
-    let result = true;
-    if (types.length !== messages.length) {
-      result = false;
-    } else {
-      types.forEach((type: EServerMessageType, idx: number) => {
-        result = result && messages[idx].type === type;
-      });
-    }
-    return result;
+
+
+
+  private currentMessageIndex: number | undefined;
+  private messageIterator: Array<AServerMessage> | undefined;
+  public initializeMessageIterator(skipInitialMessages = true): void {
+    this.messageIterator = skipInitialMessages ? this.messagesAfterInitialMessages : this.allMessages;
+    this.currentMessageIndex = 0;
   }
 
+  public expectNextMessageIs<T extends AServerMessage>(type: EServerMessageType, validation?: ((message: T) => void)): void {
+    if ((this.currentMessageIndex === undefined) || !this.messageIterator) {
+
+      throw Error('Initialize iterator first');
+    } else {
+      const message = this.messageIterator[this.currentMessageIndex];
+      this.currentMessageIndex++;
+      expect(message.type).toBe(type);
+      if (validation) {
+        validation(<T>message);
+      }
+    }
+  }
+
+  public expectNextMessageIsError(errorCode: EErrorCode): void {
+    if ((this.currentMessageIndex === undefined) || !this.messageIterator) {
+
+      throw Error('Initialize iterator first');
+    } else {
+      this.expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) => expect(m.data.code).toBe(errorCode));
+    }
+  }
+
+  public expectNoMoreMessages(): void {
+    if ((this.currentMessageIndex === undefined) || !this.messageIterator) {
+
+      throw Error('Initialize iterator first');
+    } else {
+      expect(this.currentMessageIndex).toBe(this.messageIterator.length);
+    }
+  }
   public sendMessage(message: AClientMessage, teamName?: string): void {
     if (teamName) {
       this.teamName = teamName;
