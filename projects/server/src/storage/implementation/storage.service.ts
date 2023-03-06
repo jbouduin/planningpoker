@@ -158,7 +158,8 @@ export class StorageService implements IStorageService {
     const cardSet = this.cardSetRepository.getCardSet(teamName);
     const result = this.estimationRepository.getEstimations(teamName);
     if (cardSet) {
-      const unknownEstimationIndex = cardSet.cards.find((card: ICard) => card.isUnknownEstimation)?.index;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const unknownEstimationIndex = cardSet.cards.find((card: ICard) => card.isUnknownEstimation)!.index;
       this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: IServerParticipant) => {
         if (!result.find((e: IEstimation) => e.participantId === p.participantId)) {
           const estimation = this.estimationRepository.upsertEstimation(teamName, p.participantId, unknownEstimationIndex)
