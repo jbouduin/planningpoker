@@ -10,7 +10,6 @@ export interface IMessageService {
   broadcastReset(members: Array<IServerParticipant>): void;
   broadcastSessionEnded(members: Array<IServerParticipant>): void;
   broadcastTeamIdle(members: Array<IServerParticipant>): void;
-  sendErrorMessageToParticipant(to: IServerParticipant, code: EErrorCode): void;
   sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void;
   sendEstimations(to: IServerParticipant, estimations: Array<IEstimation>): void
   sendException(socket: IWebSocket, errorMessage: string): void;

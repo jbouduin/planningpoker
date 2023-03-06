@@ -52,11 +52,6 @@ export class MessageService implements IMessageService {
   //#endregion
 
   //#region IMessageService send message methods ------------------------------
-  public sendErrorMessageToParticipant(to: IServerParticipant, code: EErrorCode): void {
-    const message: AServerMessage = new ErrorMessage(code);
-    this.senderService.sendToParticipant(to, message);
-  }
-
   public sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void {
     const message: AServerMessage = new ErrorMessage(code);
     this.senderService.sendToSocket(ws, message);
