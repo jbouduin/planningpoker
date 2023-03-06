@@ -1,4 +1,5 @@
 Test if branch protection works
+it didn't
 # planningpoker
 
 This project was generated with [ngX-Rocket](https://github.com/ngx-rocket/generator-ngx-rocket/)
