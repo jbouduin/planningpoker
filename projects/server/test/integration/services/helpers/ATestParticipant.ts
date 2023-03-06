@@ -1,6 +1,6 @@
 import { expect, jest } from "@jest/globals"
 import { IHandlerService } from "services/interfaces";
-import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, EServerMessageType, IErrorMessage, IMemberChangeMessage } from "../../../../../shared-lib/src";
+import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, ERole, EServerMessageType, IErrorMessage, IMemberChangeMessage } from "../../../../../shared-lib/src";
 
 import { IServerParticipant } from "../../../../src/objects";
 
@@ -68,7 +68,7 @@ export interface IATestParticipant {
    * Write the received messages as JSON to the console
    * * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
   */
-  dumpMessages(skipInitialMessages?: boolean): void;
+  dumpMessages(skipInitialMessages?: boolean): IATestParticipant;
 
   /**
    * Check if an error message was received with the given error code. This method does not skip the initial messages
@@ -84,13 +84,13 @@ export interface IATestParticipant {
    * @param type - the message type. Uses jest.expect internally to validate that the type is correct
    * @param validation - a validation method that should use jest.expect
    */
-  expectNextMessageIs<T extends AServerMessage>(type: EServerMessageType, validation?: ((message: T) => void)): void;
+  expectNextMessageIs<T extends AServerMessage>(type: EServerMessageType, validation?: ((message: T) => void)): IATestParticipant;
 
   /**
    * validates if the next message is an error message with the given error code.
    * @param errorCode - the expected error code
    */
-  expectNextMessageIsError(errorCode: EErrorCode): void;
+  expectNextMessageIsError(errorCode: EErrorCode): IATestParticipant;
 
   /**
    * check if there are no more messages. Uses jest.expect internally
@@ -120,7 +120,7 @@ export interface IATestParticipant {
    * Initializes the message iterator, so subsequent calls to 'expectNextMessageIs' or 'expectNoMoreMessages' can be executed
    * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    */
-  initializeMessageIterator(skipInitialMessages?: boolean): void;
+  initializeMessageIterator(skipInitialMessages?: boolean): IATestParticipant;
 
   /**
     * calls IHandlerService.handleMessage
@@ -134,6 +134,8 @@ export abstract class ATestParticipant implements IATestParticipant {
 
   //#region private properties ------------------------------------------------
   private readonly handlerService: IHandlerService;
+  private currentMessageIndex: number | undefined;
+  private messageIterator: Array<AServerMessage> | undefined;
   private participant: IServerParticipant;
   private send: jest.Mock<(_message: string) => void>;
   private teamName: string;
@@ -170,7 +172,7 @@ export abstract class ATestParticipant implements IATestParticipant {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(handlerService: IHandlerService) {
+  public constructor(handlerService: IHandlerService, role = ERole.Developer) {
     this.handlerService = handlerService;
     this.send = jest.fn((_message: string) => this.noop());
     this.socket = {
@@ -179,6 +181,7 @@ export abstract class ATestParticipant implements IATestParticipant {
       send: this.send
     }
     this.participant = handlerService.handleConnect(this.socket);
+    this.participant.role = role;
     this.expectedNumberOfInitialMessages = 0;
     this.teamName = '';
   }
@@ -207,7 +210,7 @@ export abstract class ATestParticipant implements IATestParticipant {
       this.allMessages.filter((message: AServerMessage) => message.type === messageType).length;
   }
 
-  public dumpMessages(skipInitialMessages = true): void {
+  public dumpMessages(skipInitialMessages = true): IATestParticipant {
     /* eslint-disable no-console */
     if (skipInitialMessages) {
       console.log(JSON.stringify(this.send.mock.calls.slice(this.expectedNumberOfInitialMessages), null, 2));
@@ -215,6 +218,7 @@ export abstract class ATestParticipant implements IATestParticipant {
       console.log(JSON.stringify(this.send.mock.calls, null, 2));
     }
     /* eslint-enable no-console */
+    return this;
   }
 
   public errorMessageReceived(errorCode: EErrorCode): boolean {
@@ -241,21 +245,17 @@ export abstract class ATestParticipant implements IATestParticipant {
     return messageOfGivenChangeType.length >= occurrence ? messageOfGivenChangeType[occurrence] : undefined
   }
 
-
-
-
-  private currentMessageIndex: number | undefined;
-  private messageIterator: Array<AServerMessage> | undefined;
-  public initializeMessageIterator(skipInitialMessages = true): void {
+  public initializeMessageIterator(skipInitialMessages = true): IATestParticipant {
     this.messageIterator = skipInitialMessages ? this.messagesAfterInitialMessages : this.allMessages;
     this.currentMessageIndex = 0;
+    return this;
   }
 
-  public expectNextMessageIs<T extends AServerMessage>(type: EServerMessageType, validation?: ((message: T) => void)): void {
+  public expectNextMessageIs<T extends AServerMessage>(type: EServerMessageType, validation?: ((message: T) => void)): IATestParticipant {
     if ((this.currentMessageIndex === undefined) || !this.messageIterator) {
-
       throw Error('Initialize iterator first');
     } else {
+      expect(this.currentMessageIndex).toBeLessThan(this.messageIterator.length);
       const message = this.messageIterator[this.currentMessageIndex];
       this.currentMessageIndex++;
       expect(message.type).toBe(type);
@@ -263,15 +263,16 @@ export abstract class ATestParticipant implements IATestParticipant {
         validation(<T>message);
       }
     }
+    return this;
   }
 
-  public expectNextMessageIsError(errorCode: EErrorCode): void {
+  public expectNextMessageIsError(errorCode: EErrorCode): IATestParticipant {
     if ((this.currentMessageIndex === undefined) || !this.messageIterator) {
-
       throw Error('Initialize iterator first');
     } else {
       this.expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) => expect(m.data.code).toBe(errorCode));
     }
+    return this;
   }
 
   public expectNoMoreMessages(): void {

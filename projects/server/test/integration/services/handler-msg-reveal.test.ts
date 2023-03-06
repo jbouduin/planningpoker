@@ -4,7 +4,7 @@ import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 
-import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, EServerMessageType, IErrorMessage, IEstimateMessage, IEstimation, IEstimationListMessage, IMemberChangeMessage, IPokerStatusChangedMessage, IRevealMessage, IStartMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, ERole, EServerMessageType, IErrorMessage, IEstimateMessage, IEstimation, IEstimationListMessage, IMemberChangeMessage, IPokerStatusChangedMessage, IRevealMessage, IStartMessage } from '../../../../shared-lib/src';
 import { Util } from "./helpers/util";
 
 
@@ -67,49 +67,52 @@ describe('Reveal => OK', () => {
     scrumMaster.sendMessage(revealMessage);
 
     // Test: scrum master messages
-    scrumMaster.initializeMessageIterator();
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe( EMemberChangeType.Joined)
-    );
-    scrumMaster.expectNextMessageIs(EServerMessageType.ClearEstimations);
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.PokerStatus,
-      (m: IPokerStatusChangedMessage) => expect(m.data).toBe( EPokerStatus.Started)
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.EstimationList,
-      (m: IEstimationListMessage) => checkFirstEstimationList(m.data)
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.PokerStatus,
-      (m: IPokerStatusChangedMessage) => expect(m.data).toBe( EPokerStatus.Revealed)
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.EstimationList,
-      (m: IEstimationListMessage) => checkSecondEstimationList(m.data)
-    );
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.MemberChanged,
+        (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      )
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => checkFirstEstimationList(m.data)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Revealed)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => checkSecondEstimationList(m.data)
+      )
+      .expectNoMoreMessages();
 
     // Test: participant messages
-    participant.initializeMessageIterator();
-    participant.expectNextMessageIs(EServerMessageType.ClearEstimations);
-    participant.expectNextMessageIs(
-      EServerMessageType.PokerStatus,
-      (m: IPokerStatusChangedMessage) => m.data === EPokerStatus.Started
-    );
-    participant.expectNextMessageIs(
-      EServerMessageType.EstimationList,
-      (m: IEstimationListMessage) => checkFirstEstimationList(m.data)
-    );
-    participant.expectNextMessageIs(
-      EServerMessageType.PokerStatus,
-      (m: IPokerStatusChangedMessage) => expect(m.data) .toBe( EPokerStatus.Revealed)
-    );
-    participant.expectNextMessageIs(
-      EServerMessageType.EstimationList,
-      (m: IEstimationListMessage) => checkSecondEstimationList(m.data)
-    );
-    participant.expectNoMoreMessages();
+    participant
+      .initializeMessageIterator()
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => m.data === EPokerStatus.Started
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => checkFirstEstimationList(m.data)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Revealed)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => checkSecondEstimationList(m.data)
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -138,25 +141,26 @@ describe('Reveal => Failure', () => {
     scrumMaster.sendMessage(revealMessage);
 
     // Test: Scrum master messages
-    scrumMaster.initializeMessageIterator();
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe( EMemberChangeType.Joined)
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.Error,
-      (m: IErrorMessage) => expect(m.data.code).toBe( EErrorCode.EstimationNotStarted)
-    );
-    scrumMaster.expectNoMoreMessages();
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.MemberChanged,
+        (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.Error,
+        (m: IErrorMessage) => expect(m.data.code).toBe(EErrorCode.EstimationNotStarted)
+      )
+      .expectNoMoreMessages();
 
     // Test: participant should have received no messages
-    participant.initializeMessageIterator();
-    participant.expectNoMoreMessages();
+    participant
+      .initializeMessageIterator()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
-
 
   test('team not found', () => {
     const container = Util.getContainer();
@@ -186,38 +190,278 @@ describe('Reveal => Failure', () => {
     scrumMaster.sendMessage(revealMessage, Util.team2Name);
 
     // Test: scrum master messages
-    scrumMaster.initializeMessageIterator();
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangeMessage) => expect(m.data.memberStatusChange ).toBe( EMemberChangeType.Joined)
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.ClearEstimations);
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.PokerStatus,
-      (m: IPokerStatusChangedMessage) => expect( m.data).toBe( EPokerStatus.Started)
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.Error,
-      (m: IErrorMessage) => expect(m.data.code).toBe( EErrorCode.TeamDoesNotExist)
-    );
-    scrumMaster.expectNoMoreMessages();
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.MemberChanged,
+        (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.Error,
+        (m: IErrorMessage) => expect(m.data.code).toBe(EErrorCode.TeamDoesNotExist)
+      )
+      .expectNoMoreMessages();
 
     // Test: participant messages
-    participant.initializeMessageIterator();
-    participant.expectNextMessageIs(
-      EServerMessageType.ClearEstimations);
-    participant.expectNextMessageIs(
-      EServerMessageType.PokerStatus,
-      (m: IPokerStatusChangedMessage) => expect(m.data).toBe( EPokerStatus.Started)
-    );
-    participant.expectNoMoreMessages();
+    participant
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
-  // TODO 2381 test('Sender not found', () => { });
-  // TODO 2381 test('Sender not scrum master', () => { });
-  // TODO 2381 test('Sender not in any team', () => { });
-  // TODO 2381 test('Sender in different team ', () => { });
+
+  test('Sender not found', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: Run start
+    const message: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(message);
+
+    // Run: Reveal
+    const revealMessage: IRevealMessage = {
+      senderId: 'unknown participant id',
+      data: undefined,
+      type: EClientMessageType.Reveal
+    };
+    scrumMaster.sendMessage(revealMessage, Util.team2Name);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.MemberChanged,
+        (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.Error,
+        (m: IErrorMessage) => expect(m.data.code).toBe(EErrorCode.ParticipantNotFound)
+      )
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageIterator()
+    participant.expectNextMessageIs(
+      EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Sender not scrum master', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: Run start
+    const message: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(message);
+
+    // Run: Reveal
+    const revealMessage: IRevealMessage = {
+      senderId: participant.participantId,
+      data: undefined,
+      type: EClientMessageType.Reveal
+    };
+    participant.sendMessage(revealMessage);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.MemberChanged,
+        (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      )
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant.initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNextMessageIsError(EErrorCode.ScrumMasterRequired)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Sender not in any team', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+    const teamLessParticipant = Util.connectParticipant(handlerService, ERole.ScrumMaster);
+
+    // Setup: Run start
+    const message: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(message);
+
+    // Run: Reveal
+    const revealMessage: IRevealMessage = {
+      senderId: teamLessParticipant.participantId,
+      data: undefined,
+      type: EClientMessageType.Reveal
+    };
+    teamLessParticipant.sendMessage(revealMessage, Util.team1Name);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.MemberChanged,
+        (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      )
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant.initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNoMoreMessages();
+
+    // Test: teamless participant
+    teamLessParticipant
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Sender in different team ', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster1 = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const scrumMaster2 = Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
+    const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: Run start
+    const message: IStartMessage = {
+      senderId: scrumMaster1.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster1.sendMessage(message);
+
+    // Run: Reveal
+    const revealMessage: IRevealMessage = {
+      senderId: scrumMaster2.participantId,
+      data: undefined,
+      type: EClientMessageType.Reveal
+    };
+    scrumMaster2.sendMessage(revealMessage, Util.team1Name);
+
+    // Test: scrum master messages
+    scrumMaster1
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.MemberChanged,
+        (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      )
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant1
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(
+        EServerMessageType.PokerStatus,
+        (m: IPokerStatusChangedMessage) => expect(m.data).toBe(EPokerStatus.Started)
+      )
+      .expectNoMoreMessages();
+
+    // Test participant 2
+    scrumMaster2
+      .initializeMessageIterator()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
 });

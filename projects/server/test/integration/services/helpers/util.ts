@@ -1,7 +1,7 @@
 import { Container } from "inversify";
 import { It, Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, EServerMessageType, ICard, ICardSet, ICreatemessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, ERole, EServerMessageType, ICard, ICardSet, ICreatemessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../../src/services/service.types';
 import STORAGETYPES from '../../../../src/storage/storage.types';
@@ -75,8 +75,8 @@ export class Util {
     return container;
   }
 
-  public static connectParticipant(handlerService: IHandlerService): ITestParticipant {
-    return new TestParticipant(handlerService);
+  public static connectParticipant(handlerService: IHandlerService, role = ERole.Developer): ITestParticipant {
+    return new TestParticipant(handlerService, role);
   }
 
   public static joinTeam(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
