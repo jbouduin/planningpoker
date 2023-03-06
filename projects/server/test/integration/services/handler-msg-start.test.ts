@@ -100,13 +100,12 @@ describe('start => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // send start estimating to the wrong team
-    scrumMaster.teamName = Util.team2Name;
     const message: IStartMessage = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
     };
-    scrumMaster.sendMessage(message);
+    scrumMaster.sendMessage(message, Util.team2Name);
 
     // Test: scrum master should have received  1 join + 1 error
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
@@ -164,13 +163,12 @@ describe('start => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // send start estimating to another team
-    scrumMaster.teamName = unaffectedTeam.teamName;
     const message: IStartMessage = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
     };
-    scrumMaster.sendMessage(message);
+    scrumMaster.sendMessage(message, unaffectedTeam.teamName);
 
     // Test: scrum master should have received 1 MC join + 1 error
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);

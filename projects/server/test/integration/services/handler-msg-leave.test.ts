@@ -73,14 +73,13 @@ describe('Leaving => OK', () => {
 
     // participant 1 reconnects to leave
     const reconnect = Util.connectParticipant(handlerService);
-    reconnect.teamName = Util.team1Name;
     // participant 1 leaves
     const message: ILeaveMessage = {
       senderId: reconnect.participantId,
       data: participant.participantId,
       type: EClientMessageType.Leave
     };
-    reconnect.sendMessage(message);
+    reconnect.sendMessage(message, Util.team1Name);
     reconnect.closeSocket();
 
     // Test: scrum master should have received 2 MC join + 1 MC disconnected + 1 MC leave
@@ -203,14 +202,13 @@ describe('Leaving => Failure', () => {
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     // connect the participant
     const participant = Util.connectParticipant(handlerService);
-    participant.teamName = Util.team2Name;
     // send leave message for team 2
     const message: ILeaveMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Leave,
       data: participant.participantId
     };
-    participant.sendMessage(message);
+    participant.sendMessage(message, Util.team2Name);
 
     // Participant should only receive 1 init and 1 error message
     expect(participant.totalMessagesReceived).toBe(2);
@@ -232,17 +230,16 @@ describe('Leaving => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team
-    const scrumMaster=    Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     // participant connects
     const participant = Util.connectParticipant(handlerService);
-    participant.teamName = Util.team1Name;
     // send leave message
     const message: ILeaveMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Leave,
       data: participant.participantId
     };
-    participant.sendMessage(message);
+    participant.sendMessage(message, Util.team1Name);
 
     // Test: participant should only have received the init and the error message
     expect(participant.totalMessagesReceived).toBe(2);
@@ -264,16 +261,15 @@ describe('Leaving => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // create team with participant
-    const scrumMaster=    Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     // send leave message for another team
-    participant.teamName = unaffectedTeam.teamName;
     const message: ILeaveMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Leave,
       data: participant.participantId
     };
-    participant.sendMessage(message);
+    participant.sendMessage(message, unaffectedTeam.teamName);
 
     // Test: participant should only have received the error message
     expect(participant.messagesReceivedAfterInitial).toBe(1);

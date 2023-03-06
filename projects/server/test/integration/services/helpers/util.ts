@@ -1,7 +1,7 @@
 import { Container } from "inversify";
 import { It, Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, ICardSet, ICreatemessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EServerMessageType, ICardSet, ICreatemessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../../src/services/service.types';
 import STORAGETYPES from '../../../../src/storage/storage.types';
@@ -25,6 +25,24 @@ export class Util {
   public static observer2Name = '李四';
   public static team1Name = 'team1';
   public static team2Name = 'team2';
+
+  public static createMessageTypesExpected = [
+    EServerMessageType.Init,
+    EServerMessageType.Self,
+    EServerMessageType.TeamName,
+    EServerMessageType.CardList,
+    EServerMessageType.MemberList,
+    EServerMessageType.EstimationList
+  ];
+
+  public static joinMessageTypesExpected = [
+    EServerMessageType.Init,
+    EServerMessageType.Self,
+    EServerMessageType.TeamName,
+    EServerMessageType.CardList,
+    EServerMessageType.MemberList,
+    EServerMessageType.EstimationList
+  ];
 
   public static getContainer(): Container {
     const logMock = new Mock<ILoggerService>()
@@ -63,7 +81,6 @@ export class Util {
 
   public static joinTeam(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
     const participant = this.connectParticipant(handlerService);
-    participant.teamName = teamName;
     const message: IJoinMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
@@ -72,7 +89,7 @@ export class Util {
         observer: observer
       }
     };
-    participant.sendMessage(message);
+    participant.sendMessage(message, teamName);
     return participant;
   }
 
@@ -102,7 +119,6 @@ export class Util {
     cardSet?: ECardSet,
     cards?: ICardSet): ITestScrumMaster {
     const scrumMaster = this.connectParticipant(handlerService);
-    scrumMaster.teamName = teamName;
     const message: ICreatemessage = {
       type: EClientMessageType.Create,
       senderId: scrumMaster.participantId,
@@ -113,7 +129,7 @@ export class Util {
         cards: cards
       }
     }
-    scrumMaster.sendMessage(message);
+    scrumMaster.sendMessage(message, teamName);
     return scrumMaster;
   }
 

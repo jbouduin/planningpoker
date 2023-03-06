@@ -293,13 +293,12 @@ describe('Estimate => Failure', () => {
     scrumMaster.sendMessage(message);
 
     // Run: estimate
-    participant.teamName = Util.team2Name;
     const estimateMessage: IEstimateMessage = {
       senderId: participant.participantId,
       data: 2,
       type: EClientMessageType.Estimate
     };
-    participant.sendMessage(estimateMessage);
+    participant.sendMessage(estimateMessage, Util.team2Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 pokerstatus
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
@@ -386,8 +385,7 @@ describe('Estimate => Failure', () => {
       data: 2,
       type: EClientMessageType.Estimate
     };
-    teamLessParticipant.teamName = Util.team1Name;
-    teamLessParticipant.sendMessage(estimateMessage);
+    teamLessParticipant.sendMessage(estimateMessage, Util.team1Name);
 
     // Test: scrum master should have received 1 MC join + 1 clear + 1 pokerstatus
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
@@ -436,8 +434,7 @@ describe('Estimate => Failure', () => {
       data: 2,
       type: EClientMessageType.Estimate
     };
-    participant2.teamName = Util.team1Name;
-    participant2.sendMessage(estimateMessage);
+    participant2.sendMessage(estimateMessage, Util.team1Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 pokerstatus
     expect(scrumMaster1.messagesReceivedAfterInitial).toBe(3);

@@ -34,11 +34,6 @@ export interface IATestParticipant {
   readonly expectedNumberOfInitialMessages: number;
 
   /**
-   * The teamname as it would be used in the URL
-   */
-  teamName: string;
-
-  /**
    * Close the socket of the participant. This triggers IHandlerService.handleClose.
    */
   closeSocket(): void;
@@ -46,7 +41,7 @@ export interface IATestParticipant {
   /**
    * Count the number of IMemberChange messages of the given type
    * @param changeType - the type of member change
-   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    * @returns the number found
    */
   countMemberChangedMessages(changeType: EMemberChangeType, skipInitialMessages?: boolean): number;
@@ -54,14 +49,14 @@ export interface IATestParticipant {
   /**
    * Count the number of messages of a given type
    * @param messageType - the message type
-   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    * @returns the number found
    */
   countMessagesOfType(messageType: EServerMessageType, skipInitialMessages?: boolean): number;
 
   /**
    * Write the received messages as JSON to the console
-   * * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    */
   dumpMessages(skipInitialMessages?: boolean): void;
 
@@ -75,7 +70,7 @@ export interface IATestParticipant {
   /**
    * Search for the x-th occurrence of a IMemberChangeMessage of the given change type
    * @param changeType - the type of member change
-   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    * @param occurrence - 0-based
    */
   extractMemberChangedMessage(changeType: EMemberChangeType, skipInitialMessages?: boolean, occurrence?: number): IMemberChangeMessage | undefined;
@@ -83,23 +78,38 @@ export interface IATestParticipant {
   /**
    * Search for the x-th occurrence of a message of the given type
    * @param messageType - the message type
-   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default: yes
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    * @param occurrence - 0-based
    * @returns the x-th occurrence or undefined
-   */
+  */
   extractMessage<T = AServerMessage>(messageType: EServerMessageType, skipInitialMessages?: boolean, occurrence?: number): T | undefined;
 
   /**
-   * calls IHandlerService.handleMessage
-   * @param message - a AClientMessage
+   * Returns true if the length of the array of message types is equal to the length of the array of messages
+   * AND
+   * if the messages arrived in the exact order as specified in the array
+   * @param types - array of EServerMessageType
+   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
    */
-  sendMessage(message: AClientMessage): void;
+  messagesReceivedAsExpected(types: Array<EServerMessageType>, skipInitialMessages?: boolean): boolean;
+
+  /**
+    * calls IHandlerService.handleMessage
+    * @param message - a AClientMessage
+  */
+  sendMessage(message: AClientMessage, teamName?: string): void;
 }
 
 export abstract class ATestParticipant implements IATestParticipant {
 
+  //#region private properties ------------------------------------------------
+  private readonly handlerService: IHandlerService;
   private participant: IServerParticipant;
+  private send: jest.Mock<(_message: string) => void>;
+  private teamName: string;
+  //#endregion
 
+  //#region protected getters -------------------------------------------------
   protected get allMessages(): Array<AServerMessage> {
     return this.send.mock.calls
       .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]));
@@ -110,12 +120,11 @@ export abstract class ATestParticipant implements IATestParticipant {
       .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
       .filter((_message: AServerMessage, idx: number) => idx >= this.expectedNumberOfInitialMessages)
   }
+  //#endregion
 
-  public send: jest.Mock<(_message: string) => void>;
+  //#region IATestParticipant properties --------------------------------------
   public socket: IWebSocket;
-
   public expectedNumberOfInitialMessages: number;
-  public teamName: string;
 
   public get totalMessagesReceived(): number {
     return this.send.mock.calls.length;
@@ -128,9 +137,9 @@ export abstract class ATestParticipant implements IATestParticipant {
   public get participantId(): string {
     return this.participant.participantId;
   }
+  //#endregion
 
-  private readonly handlerService: IHandlerService;
-
+  //#region Constructor & C° --------------------------------------------------
   public constructor(handlerService: IHandlerService) {
     this.handlerService = handlerService;
     this.send = jest.fn((_message: string) => this.noop());
@@ -143,7 +152,9 @@ export abstract class ATestParticipant implements IATestParticipant {
     this.expectedNumberOfInitialMessages = 0;
     this.teamName = '';
   }
+  //#endregion
 
+  //#region IATestParticipant Methods -----------------------------------------
   public closeSocket(): void {
     this.handlerService.handleClose(this.socket);
     this.socket.readyState == ReadyState.CLOSED;
@@ -200,11 +211,28 @@ export abstract class ATestParticipant implements IATestParticipant {
     return messageOfGivenChangeType.length >= occurrence ? messageOfGivenChangeType[occurrence] : undefined
   }
 
-  public sendMessage(message: AClientMessage): void {
+  public messagesReceivedAsExpected(types: Array<EServerMessageType>, skipInitialMessages = true): boolean {
+    const messages = skipInitialMessages ? this.messagesAfterInitialMessages : this.allMessages;
+    let result = true;
+    if (types.length !== messages.length) {
+      result = false;
+    } else {
+      types.forEach((type: EServerMessageType, idx: number) => {
+        result = result && messages[idx].type === type;
+      });
+    }
+    return result;
+  }
+
+  public sendMessage(message: AClientMessage, teamName?: string): void {
+    if (teamName) {
+      this.teamName = teamName;
+    }
     this.handlerService.handleMessage(message, this.teamName, this.socket);
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
   private noop(..._args: Array<unknown>): void { }
   /* eslint-enable @typescript-eslint/no-empty-function */
+  //#endregion
 }

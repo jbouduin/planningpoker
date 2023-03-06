@@ -24,13 +24,12 @@ describe('Rejoin => OK', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    rejoiningParticipant.teamName = Util.team1Name;
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningParticipant.sendMessage(message);
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected + 1 MC rejoin
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
@@ -107,13 +106,12 @@ describe('Rejoin => OK', () => {
 
     // RUN: reconnect
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    rejoiningParticipant.teamName = Util.team1Name;
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
       data: disconnected.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningParticipant.sendMessage(message);
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
@@ -153,13 +151,12 @@ describe('Rejoin => OK', () => {
 
     // RUN: reconnect
     const rejoiningScrumMaster = Util.connectParticipant(handlerService);
-    rejoiningScrumMaster.teamName = Util.team1Name;
     const message: IRejoinMessage = {
       senderId: rejoiningScrumMaster.participantId,
       data: scrumMaster.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningScrumMaster.sendMessage(message);
+    rejoiningScrumMaster.sendMessage(message, Util.team1Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
@@ -199,13 +196,12 @@ describe('Rejoin => OK', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    rejoiningParticipant.teamName = Util.team1Name;
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningParticipant.sendMessage(message);
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC paused + 1 MC rejoin
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
@@ -285,13 +281,12 @@ describe('Rejoin => Failure', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    rejoiningParticipant.teamName = 'non existing team';
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningParticipant.sendMessage(message);
+    rejoiningParticipant.sendMessage(message, 'non existing team');
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
@@ -323,13 +318,12 @@ describe('Rejoin => Failure', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    rejoiningParticipant.teamName = Util.team1Name;
     const message: IRejoinMessage = {
       senderId: 'unknown participant id',
       data: participant.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningParticipant.sendMessage(message);
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
@@ -400,13 +394,12 @@ describe('Rejoin => Failure', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    rejoiningParticipant.teamName = Util.team1Name;
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
       data: 'unknown participant id',
       type: EClientMessageType.Rejoin
     };
-    rejoiningParticipant.sendMessage(message);
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
@@ -441,13 +434,12 @@ describe('Rejoin => Failure', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    rejoiningParticipant.teamName = Util.team2Name;
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningParticipant.sendMessage(message);
+    rejoiningParticipant.sendMessage(message, Util.team2Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);

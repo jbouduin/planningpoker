@@ -197,13 +197,12 @@ describe('Change scrum master => Failure', () => {
     const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change scrum master
-    scrumMaster.teamName = Util.team2Name;
     const message: IChangeScrumMasterMessage = {
       senderId: scrumMaster.participantId,
       data: participant1.participantId,
       type: EClientMessageType.ChangeScrumMaster
     };
-    scrumMaster.sendMessage(message);
+    scrumMaster.sendMessage(message, Util.team2Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 Error
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);

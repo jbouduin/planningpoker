@@ -181,7 +181,6 @@ describe('Join => Failure', () => {
     // Setup: create team
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.connectParticipant(handlerService);
-    participant.teamName = Util.team1Name;
     // Run: try to join with a wrong id
     const message: IJoinMessage = {
       senderId: 'some participant id',
@@ -191,7 +190,7 @@ describe('Join => Failure', () => {
         observer: false
       }
     };
-    participant.sendMessage(message);
+    participant.sendMessage(message, Util.team1Name);
 
     // Test: participant should only have received 1 Init and one error
     expect(participant.totalMessagesReceived).toBe(2);
@@ -211,7 +210,6 @@ describe('Join => Failure', () => {
 
     // Setup: connect the user
     const participant = Util.connectParticipant(handlerService);
-    participant.teamName = Util.team1Name;
 
     // Run: try to join a non-existing team
     const message: IJoinMessage = {
@@ -222,7 +220,7 @@ describe('Join => Failure', () => {
         observer: false
       }
     };
-    participant.sendMessage(message);
+    participant.sendMessage(message, Util.team1Name);
 
     // Test: participant should have received the init message and the error message
     expect(participant.totalMessagesReceived).toBe(2);
@@ -241,7 +239,6 @@ describe('Join => Failure', () => {
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     // Setup: connect the participant
     const participant = Util.connectParticipant(handlerService);
-    participant.teamName = Util.team2Name;
 
     // Run: try to join a non-existing team
     const message: IJoinMessage = {
@@ -252,7 +249,7 @@ describe('Join => Failure', () => {
         observer: false
       }
     };
-    participant.sendMessage(message);
+    participant.sendMessage(message, Util.team2Name);
 
     // Test: Participant should only receive 1 init and 1 error message
     expect(participant.totalMessagesReceived).toBe(2);
@@ -314,7 +311,6 @@ describe('Join => Failure', () => {
     const scrumMaster2 = Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
 
     // Run: participant tries to join team 2
-    participant.teamName = Util.team2Name;
     const message: IJoinMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
@@ -323,7 +319,7 @@ describe('Join => Failure', () => {
         observer: false
       }
     };
-    participant.sendMessage(message);
+    participant.sendMessage(message, Util.team2Name);
 
     // Test: user should have received the 1 error
     expect(participant.messagesReceivedAfterInitial).toBe(1);

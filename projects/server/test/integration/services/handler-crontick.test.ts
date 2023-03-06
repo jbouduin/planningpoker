@@ -12,20 +12,25 @@ describe('Cron tick', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create teams
+    // Setup: create 2 teams
     const scrumMaster1 = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const scrumMaster2 = Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
-    // participant 1 joining team 1
+
+    // Setup: participant 1 joining team 1
     const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-    // sleep for a second
+
+    // Setup: Sleep for a second
     await new Promise(r => setTimeout(r, 1000));
-    // participant 2 joining team 2
+
+    // Setup: participant 2 joining team 2
     const participant2 = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
-    // cron tick should remove team 1 but not team 2
+
+    // RUN: cron tick
     handlerService.handleCronTick(50);
-    // participants will close their sockets as they receive the idle message
-    handlerService.handleClose(scrumMaster1.socket);
-    handlerService.handleClose(participant1.socket);
+
+    // RUN: participants will close their sockets
+    scrumMaster1.closeSocket();
+    participant1.closeSocket();
 
     // Test: scrum master 1 should have received 1 MC join + 1 idle message
     expect(scrumMaster1.messagesReceivedAfterInitial).toBe(2);
