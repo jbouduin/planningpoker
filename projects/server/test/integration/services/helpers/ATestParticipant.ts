@@ -1,14 +1,17 @@
 import { expect, jest } from "@jest/globals"
 import { IHandlerService } from "services/interfaces";
-import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, ERole, EServerMessageType, IErrorMessage, IMemberChangeMessage } from "../../../../../shared-lib/src";
+import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, EServerMessageType, IErrorMessage, IMemberChangeMessage, IPokerStatusChangedMessage } from "../../../../../shared-lib/src";
 
 import { IServerParticipant } from "../../../../src/objects";
 
 import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
 
-export interface MessageValidator {
-  type: EServerMessageType,
-  fn: ((message: AServerMessage) => boolean) | undefined
+export interface IMemberChangedMessageCheckOptions {
+  nick?: string;
+  participantId?: string;
+  observer?: boolean;
+  role?: ERole;
+  status?: EParticipantStatus;
 }
 
 export interface IATestParticipant {
@@ -91,6 +94,9 @@ export interface IATestParticipant {
    * @param errorCode - the expected error code
    */
   expectNextMessageIsError(errorCode: EErrorCode): IATestParticipant;
+
+  expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IMemberChangedMessageCheckOptions): IATestParticipant;
+  expectNextMessageIsPokerStatus(status: EPokerStatus): IATestParticipant;
 
   /**
    * check if there are no more messages. Uses jest.expect internally
@@ -267,12 +273,39 @@ export abstract class ATestParticipant implements IATestParticipant {
   }
 
   public expectNextMessageIsError(errorCode: EErrorCode): IATestParticipant {
-    if ((this.currentMessageIndex === undefined) || !this.messageIterator) {
-      throw Error('Initialize iterator first');
-    } else {
-      this.expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) => expect(m.data.code).toBe(errorCode));
-    }
-    return this;
+    return this.expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) => expect(m.data.code).toBe(errorCode));
+  }
+
+  public expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IMemberChangedMessageCheckOptions): IATestParticipant {
+    return this.expectNextMessageIs(
+      EServerMessageType.MemberChanged,
+      (m: IMemberChangeMessage) => {
+        expect(m.data.memberStatusChange).toBe(changeType);
+        if (options) {
+          if (options.nick) {
+            expect(m.data.member.nick).toBe(options.nick);
+          }
+          if (options.observer) {
+            expect(m.data.member.observer).toBe(options.observer);
+          }
+          if (options.participantId) {
+            expect(m.data.member.participantId).toBe(options.participantId);
+          }
+          if (options.role) {
+            expect(m.data.member.role).toBe(options.role);
+          }
+          if (options.status) {
+            expect(m.data.member.status).toBe(status);
+          }
+        }
+      });
+  }
+
+  public expectNextMessageIsPokerStatus(status: EPokerStatus): IATestParticipant {
+    return this.expectNextMessageIs(
+      EServerMessageType.PokerStatus,
+      (m: IPokerStatusChangedMessage) => expect(m.data).toBe(status)
+    );
   }
 
   public expectNoMoreMessages(): void {

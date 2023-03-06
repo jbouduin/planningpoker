@@ -32,21 +32,28 @@ describe('Cron tick', () => {
     scrumMaster1.closeSocket();
     participant1.closeSocket();
 
-    // Test: scrum master 1 should have received 1 MC join + 1 idle message
-    expect(scrumMaster1.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster1.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster1.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster1
+      .initializeMessageIterator()
+      .expectNextMessageIs(EServerMessageType.MemberChanged)
+      .expectNextMessageIs(EServerMessageType.TeamIdle)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received idle message only
-    expect(participant1.messagesReceivedAfterInitial).toBe(1);
-    expect(participant1.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(1);
+    // Test: participant 1 messages
+    participant1
+      .initializeMessageIterator()
+      .expectNextMessageIs(EServerMessageType.TeamIdle)
+      .expectNoMoreMessages();
 
     // Test: scrum master 2 should have received join only
-    expect(scrumMaster2.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster2.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(0);
+    scrumMaster2
+      .initializeMessageIterator()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
 
     // Test: participant 2 should have received no additional messages
-    expect(participant2.messagesReceivedAfterInitial).toBe(0);
-    expect(participant2.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(0);
+    participant2
+      .initializeMessageIterator()
+      .expectNoMoreMessages();
   });
 });
