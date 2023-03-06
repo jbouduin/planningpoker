@@ -418,3 +418,19 @@ describe('preflight Estimate', () => {
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.InvalidEstimation);
   });
 });
+
+describe('preflight witdraw estimation', () => {
+  test('OK', () => {
+    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: undefined };
+    const storage = new Mock<IStorageService>()
+      .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
+      .returns(Util.getParticipant1())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .returns(true)
+      .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
+      .returns(Util.getTeam1(EPokerStatus.Started))
+      .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
+      .returns(Util.getCardSet());
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
+  });
+});

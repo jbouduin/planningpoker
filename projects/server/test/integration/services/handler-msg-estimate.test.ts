@@ -67,7 +67,71 @@ describe('Estimate => OK', () => {
     expect(unaffectedTeam.isUnaffected).toBe(true);
   });
 
-  // TODO 2380 test('Withdraw estimation', () => { });
+  test('Withdraw estimation', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: start estimation
+    const message: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(message);
+
+    // Setup: estimate
+    const estimateMessage: IEstimateMessage = {
+      senderId: participant.participantId,
+      data: 2,
+      type: EClientMessageType.Estimate
+    };
+    participant.sendMessage(estimateMessage);
+
+    const withDrawMessage = {
+      senderId: participant.participantId,
+      data: undefined,
+      type: EClientMessageType.Estimate
+    };
+    participant.sendMessage(withDrawMessage);
+
+    // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 pokerstatus + 2 estimation list
+    expect(scrumMaster.messagesReceivedAfterInitial).toBe(5);
+    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
+    expect(scrumMaster.countMessagesOfType(EServerMessageType.EstimationList)).toBe(2);
+    let estimationListMessage = scrumMaster.extractMessage<IEstimationListMessage>(EServerMessageType.EstimationList, true, 1);
+    expect(estimationListMessage).toBeDefined();
+    if (estimationListMessage) {
+      expect(estimationListMessage.data).toHaveLength(1);
+      expect(estimationListMessage.data[0].participantId).toBe(participant.participantId);
+      expect(estimationListMessage.data[0].cardIndex).toBeUndefined();
+    }
+
+    // Test: participant should have received 1 clear + 1 pokerstatus + 2 estimation list
+    expect(participant.messagesReceivedAfterInitial).toBe(4);
+    expect(participant.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
+    expect(participant.countMessagesOfType(EServerMessageType.EstimationList)).toBe(2);
+    estimationListMessage = participant.extractMessage<IEstimationListMessage>(EServerMessageType.EstimationList, true, 1);
+    expect(estimationListMessage).toBeDefined();
+    if (estimationListMessage) {
+      expect(estimationListMessage.data).toHaveLength(1);
+      expect(estimationListMessage.data[0].participantId).toBe(participant.participantId);
+      expect(estimationListMessage.data[0].cardIndex).toBeUndefined();
+    }
+
+    // Test: check if unaffected team is unaffected
+    expect(unaffectedTeam.isUnaffected).toBe(true);
+  });
+
   // TODO 2380 test('Update estimation', () => { });
 });
 
