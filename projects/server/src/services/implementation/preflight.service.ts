@@ -75,6 +75,8 @@ export class PreflightService implements IPreflightService {
         result = this.preflightRejoin(storageService, sender, teamName, <IRejoinMessage>message);
         break;
       }
+      default:
+        result = EErrorCode.UnknownVerb;
     } // end switch
 
     return result;

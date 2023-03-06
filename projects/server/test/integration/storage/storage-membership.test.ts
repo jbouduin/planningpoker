@@ -184,7 +184,7 @@ describe('Can rejoin', () => {
 });
 
 describe('Queries', () => {
-  // TODO 2367 if all members disconnected, first one who joins again becomes scrum master
+
   test('Get first connected team member: defined', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);

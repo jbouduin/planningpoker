@@ -192,10 +192,7 @@ export class HandlerService implements IHandlerService {
           this.handleRejoin(sender, teamName, <IRejoinMessage>message, ws);
           break;
         }
-        default: {
-          this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.UnknownVerb);
-          this.loggerService.error('Server', 'unexpected messagetype');
-        }
+        // The default (EErrorCode.UnknownVerb) is already handled in preflight
       } // end switch
     }
   }
@@ -234,9 +231,6 @@ export class HandlerService implements IHandlerService {
           EMemberChangeType.ChangedRole);
         this.messageService.sendSelf(sender);
         this.messageService.sendSelf(newScrumMaster);
-      }
-      else { // TODO 2376 check if we ever can come here -> this should be covered in preflight
-        this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ParticipantNotFound);
       }
     }
   }
@@ -385,11 +379,21 @@ export class HandlerService implements IHandlerService {
         this.storage.getCardSet(teamName),
         this.storage.getEstimations(teamName)
       );
-      // tell the others that participant rejoined
-      this.messageService.broadcastMemberChange(
-        this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId),
-        oldParticipant,
-        EMemberChangeType.Rejoined);
+      const connectedTeamMembers = this.storage
+        .getConnectedTeamMembers(teamName)
+        .filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId);
+      // if no one else is connected, make this one the new scrum master
+      if (connectedTeamMembers.length > 0) {
+        // tell the others that participant rejoined
+        this.messageService.broadcastMemberChange(
+          connectedTeamMembers,
+          oldParticipant,
+          EMemberChangeType.Rejoined);
+      } else if (oldParticipant.role !== ERole.ScrumMaster) {
+        oldParticipant.role = ERole.ScrumMaster;
+        this.messageService.sendSelf(oldParticipant);
+      }
+
     }
   }
 
