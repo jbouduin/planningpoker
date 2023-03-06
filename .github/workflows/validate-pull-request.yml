@@ -15,12 +15,14 @@ jobs: # list of things to do
     name: Validate the pull request # job name (unique id)
     runs-on: ubuntu-latest 
     steps: # list of steps      
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
          node-version: ${{ env.NODE_VERSION }}
          registry-url: https://registry.npmjs.org/
-      - uses: actions/checkout@v2        
+      - uses: actions/checkout@v3        
       - run: npm ci
+      - run: npm run lint:shared
+      - run: npm run build:shared
       - run: npm run lint:site
       - run: npm run lint:server
-      - run: npm run test:server
+      - run: npm run test:server:ci
