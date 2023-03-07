@@ -1,12 +1,12 @@
 import { expect, jest } from "@jest/globals"
 import { IHandlerService } from "services/interfaces";
-import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, EServerMessageType, IErrorMessage, IMemberChangeMessage, IPokerStatusChangedMessage, ISelfMessage } from "../../../../../shared-lib/src";
+import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, EServerMessageType, IErrorMessage, IInitMessage, IMemberChangeMessage, IParticipant, IPokerStatusChangedMessage, ISelfMessage } from "../../../../../shared-lib/src";
 
 import { IServerParticipant } from "../../../../src/objects";
 
 import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
 
-export interface IMemberExpectOptions {
+export interface IParticipantOptions {
   nick?: string;
   participantId?: string;
   observer?: boolean;
@@ -95,9 +95,10 @@ export interface IATestParticipant {
    */
   expectNextMessageIsError(errorCode: EErrorCode): IATestParticipant;
 
-  expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IMemberExpectOptions): IATestParticipant;
+  expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IParticipantOptions): IATestParticipant;
   expectNextMessageIsPokerStatus(status: EPokerStatus): IATestParticipant;
-  expectNextMessageIsSelf(options?: IMemberExpectOptions): IATestParticipant;
+  expectNextMessageIsSelf(options?: IParticipantOptions): IATestParticipant;
+  expectNextMessageIsInit(options?: IParticipantOptions): IATestParticipant;
 
   /**
    * check if there are no more messages. Uses jest.expect internally
@@ -277,28 +278,12 @@ export abstract class ATestParticipant implements IATestParticipant {
     return this.expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) => expect(m.data.code).toBe(errorCode));
   }
 
-  public expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IMemberExpectOptions): IATestParticipant {
+  public expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IParticipantOptions): IATestParticipant {
     return this.expectNextMessageIs(
       EServerMessageType.MemberChanged,
       (m: IMemberChangeMessage) => {
         expect(m.data.memberStatusChange).toBe(changeType);
-        if (options) {
-          if (options.nick) {
-            expect(m.data.member.nick).toBe(options.nick);
-          }
-          if (options.observer) {
-            expect(m.data.member.observer).toBe(options.observer);
-          }
-          if (options.participantId) {
-            expect(m.data.member.participantId).toBe(options.participantId);
-          }
-          if (options.role) {
-            expect(m.data.member.role).toBe(options.role);
-          }
-          if (options.status) {
-            expect(m.data.member.status).toBe(status);
-          }
-        }
+        this.checkParticipantOptions(m.data.member, options);
       });
   }
 
@@ -309,30 +294,23 @@ export abstract class ATestParticipant implements IATestParticipant {
     );
   }
 
-  public expectNextMessageIsSelf(options?: IMemberExpectOptions): IATestParticipant {
+  public expectNextMessageIsSelf(options?: IParticipantOptions): IATestParticipant {
     return this.expectNextMessageIs(
       EServerMessageType.Self,
-      (m: ISelfMessage) => {
-        if (options) {
-          if (options.nick) {
-            expect(m.data.nick).toBe(options.nick);
-          }
-          if (options.observer) {
-            expect(m.data.observer).toBe(options.observer);
-          }
-          if (options.participantId) {
-            expect(m.data.participantId).toBe(options.participantId);
-          }
-          if (options.role) {
-            expect(m.data.role).toBe(options.role);
-          }
-          if (options.status) {
-            expect(m.data.status).toBe(options.status);
-          }
-        }
-      });
+      (m: ISelfMessage) => this.checkParticipantOptions(m.data, options)
+    );
   }
 
+  expectNextMessageIsInit(options?: IParticipantOptions): IATestParticipant {
+    return this.expectNextMessageIs(
+      EServerMessageType.Init,
+      (m: IInitMessage) => {
+        expect(m.data.nick.length).toBeGreaterThan(0);
+        expect(m.data.participantId.length).toBeGreaterThan(0);
+        this.checkParticipantOptions(m.data, options);
+      }
+    );
+  }
   public expectNoMoreMessages(): void {
     if ((this.currentMessageIndex === undefined) || !this.messageIterator) {
 
@@ -341,6 +319,7 @@ export abstract class ATestParticipant implements IATestParticipant {
       expect(this.currentMessageIndex).toBe(this.messageIterator.length);
     }
   }
+
   public sendMessage(message: AClientMessage, teamName?: string): void {
     if (teamName) {
       this.teamName = teamName;
@@ -348,8 +327,29 @@ export abstract class ATestParticipant implements IATestParticipant {
     this.handlerService.handleMessage(message, this.teamName, this.socket);
   }
 
+  //#endregion
+
+  private checkParticipantOptions(participant: IParticipant, options?: IParticipantOptions): void {
+    if (options) {
+      if (options.nick) {
+        expect(participant.nick).toBe(options.nick);
+      }
+      if (options.observer) {
+        expect(participant.observer).toBe(options.observer);
+      }
+      if (options.participantId) {
+        expect(participant.participantId).toBe(options.participantId);
+      }
+      if (options.role) {
+        expect(participant.role).toBe(options.role);
+      }
+      if (options.status) {
+        expect(participant.status).toBe(options.status);
+      }
+    }
+  }
   /* eslint-disable @typescript-eslint/no-empty-function */
   private noop(..._args: Array<unknown>): void { }
   /* eslint-enable @typescript-eslint/no-empty-function */
-  //#endregion
+
 }

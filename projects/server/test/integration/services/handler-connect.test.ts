@@ -12,17 +12,13 @@ describe('Connect', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // connect a participant
+    // Run: connect a participant
     const connected = Util.connectParticipant(handlerService);
 
     // Test: init message
-    expect(connected.totalMessagesReceived).toBe(1);
-    expect(connected.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    const initMessage = connected.extractMessage<IInitMessage>(EServerMessageType.Init, false);
-    expect(initMessage).toBeDefined();
-    if (initMessage) {
-      expect(initMessage.data.nick.length).toBeGreaterThan(0);
-      expect(initMessage.data.participantId.length).toBeGreaterThan(0);
-    }
+    connected
+      .initializeMessageIterator(false)
+      .expectNextMessageIsInit()
+      .expectNoMoreMessages();
   });
 });
