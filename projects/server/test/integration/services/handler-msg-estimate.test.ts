@@ -64,7 +64,7 @@ describe('Estimate => OK', () => {
     }
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Withdraw estimation', () => {
@@ -129,7 +129,7 @@ describe('Estimate => OK', () => {
     }
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Update estimation', () => {
@@ -194,7 +194,7 @@ describe('Estimate => OK', () => {
     }
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });
 
@@ -228,7 +228,7 @@ describe('Estimate => Failure', () => {
     expect(participant.errorMessageReceived(EErrorCode.EstimationNotStarted));
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Card index out of range', () => {
@@ -270,7 +270,7 @@ describe('Estimate => Failure', () => {
     expect(participant.errorMessageReceived(EErrorCode.InvalidEstimation)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Team not found', () => {
@@ -313,7 +313,7 @@ describe('Estimate => Failure', () => {
     expect(participant.errorMessageReceived(EErrorCode.TeamDoesNotExist)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Sender not found', () => {
@@ -356,7 +356,7 @@ describe('Estimate => Failure', () => {
     expect(participant.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Sender not in any team', () => {
@@ -404,7 +404,7 @@ describe('Estimate => Failure', () => {
     expect(teamLessParticipant.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Sender in different team', () => {
@@ -452,7 +452,7 @@ describe('Estimate => Failure', () => {
     expect(participant2.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Sender is observer', () => {
@@ -495,6 +495,6 @@ describe('Estimate => Failure', () => {
     expect(observer.errorMessageReceived(EErrorCode.ObserverCanNotEstimate)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });

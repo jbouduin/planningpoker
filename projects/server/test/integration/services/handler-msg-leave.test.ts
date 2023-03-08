@@ -56,7 +56,7 @@ describe('Leaving => OK', () => {
     expect(participant.countMessagesOfType(EServerMessageType.Left)).toBe(1);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Developer leaving after being disconnected', () => {
@@ -112,7 +112,7 @@ describe('Leaving => OK', () => {
     expect(reconnect.countMessagesOfType(EServerMessageType.Left, false)).toBe(1);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   // TODO 2385 leaving during estimations should remove estimation if participant has made one
@@ -156,7 +156,7 @@ describe('Leaving => OK', () => {
 
     expect(observer.countMessagesOfType(EServerMessageType.EndSession)).toBe(1);
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });
 
@@ -188,7 +188,7 @@ describe('Leaving => Failure', () => {
     expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Team not found', () => {
@@ -219,7 +219,7 @@ describe('Leaving => Failure', () => {
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Sender not in any team', () => {
@@ -250,7 +250,7 @@ describe('Leaving => Failure', () => {
     expect(scrumMaster.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Sender in different team', () => {
@@ -281,6 +281,6 @@ describe('Leaving => Failure', () => {
     expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });

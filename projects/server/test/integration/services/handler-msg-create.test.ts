@@ -23,44 +23,45 @@ describe('create => OK', () => {
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, Util.team1Name, Util.scrumMaster1Nick, false, ECardSet.TShirt);
 
-    // Test: check the initial messages received by the scrum master
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.Init,
-      (m: IInitMessage) => {
-        expect(m.data.participantId).toBeDefined();
-        expect(m.data.participantId.length).toBeGreaterThan(0);
-      }
-    )
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.Self,
-      (m: ISelfMessage) => {
-        expect(m.data.nick).toBe(Util.scrumMaster1Nick);
-        expect(m.data.status).toBe(EParticipantStatus.Connected);
-        expect(m.data.role).toBe(ERole.ScrumMaster);
-        expect(m.data.observer).toBe(false);
-      }
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.TeamName,
-      (m: ITeamNameMessage) => expect(m.data).toBe(Util.team1Name)
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.CardList,
-      (m: ICardSetMessage) => {
-        expect(m.data.cardSet).toBe(ECardSet.TShirt)
-        expect(m.data.cards).toHaveLength(tshirt.cards.length);
-      }
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.MemberList,
-      (m: IMemberListMessage) => expect(m.data.length).toBe(0)
-    );
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.EstimationList,
-      (m: IEstimationListMessage) => expect(m.data.length).toBe(0)
-    );
-    scrumMaster.expectNoMoreMessages();
+    // Test: Scrum master initial messages
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(
+        EServerMessageType.Init,
+        (m: IInitMessage) => {
+          expect(m.data.participantId).toBeDefined();
+          expect(m.data.participantId.length).toBeGreaterThan(0);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.Self,
+        (m: ISelfMessage) => {
+          expect(m.data.nick).toBe(Util.scrumMaster1Nick);
+          expect(m.data.status).toBe(EParticipantStatus.Connected);
+          expect(m.data.role).toBe(ERole.ScrumMaster);
+          expect(m.data.observer).toBe(false);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.TeamName,
+        (m: ITeamNameMessage) => expect(m.data).toBe(Util.team1Name)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => {
+          expect(m.data.cardSet).toBe(ECardSet.TShirt)
+          expect(m.data.cards).toHaveLength(tshirt.cards.length);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.MemberList,
+        (m: IMemberListMessage) => expect(m.data.length).toBe(0)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data.length).toBe(0)
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -75,17 +76,18 @@ describe('create => OK', () => {
       handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.TShirt);
 
     // Test: check if the observer flag was send correctly
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Init);
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.Self,
-      (m: ISelfMessage) => expect(m.data.observer).toBe(true)
-    );
-    scrumMaster.expectNextMessageIs(EServerMessageType.TeamName);
-    scrumMaster.expectNextMessageIs(EServerMessageType.CardList);
-    scrumMaster.expectNextMessageIs(EServerMessageType.MemberList);
-    scrumMaster.expectNextMessageIs(EServerMessageType.EstimationList);
-    scrumMaster.expectNoMoreMessages();
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(
+        EServerMessageType.Self,
+        (m: ISelfMessage) => expect(m.data.observer).toBe(true)
+      )
+      .expectNextMessageIs(EServerMessageType.TeamName)
+      .expectNextMessageIs(EServerMessageType.CardList)
+      .expectNextMessageIs(EServerMessageType.MemberList)
+      .expectNextMessageIs(EServerMessageType.EstimationList)
+      .expectNoMoreMessages();
 
   });
 
@@ -101,17 +103,22 @@ describe('create => OK', () => {
       handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, customizedCohn);
 
     // Test: check if the card set message contains the correct data
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Init);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Self);
-    scrumMaster.expectNextMessageIs(EServerMessageType.TeamName);
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.CardList,
-      (m: ICardSetMessage) => {
-        expect(m.data.cardSet).toBe(ECardSet.Cohn);
-        expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
-      }
-    );
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.Self)
+      .expectNextMessageIs(EServerMessageType.TeamName)
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => {
+          expect(m.data.cardSet).toBe(ECardSet.Cohn);
+          expect(m.data.cards).toHaveLength(customizedCohn.cards.length)
+        }
+      )
+      .expectNextMessageIs(EServerMessageType.MemberList)
+      .expectNextMessageIs(EServerMessageType.EstimationList)
+      .expectNoMoreMessages();
+    ;
   });
 
   test('Create with a custom card list without cards', () => {
@@ -125,17 +132,21 @@ describe('create => OK', () => {
       handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, undefined);
 
     // Test: check if the card set message contains the correct data
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Init);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Self);
-    scrumMaster.expectNextMessageIs(EServerMessageType.TeamName);
-    scrumMaster.expectNextMessageIs(
-      EServerMessageType.CardList,
-      (m: ICardSetMessage) => {
-        expect(m.data.cardSet).toBe(ECardSet.Cohn);
-        expect(m.data.cards).toHaveLength(cohn.cards.length);
-      }
-    );
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.Self)
+      .expectNextMessageIs(EServerMessageType.TeamName)
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => {
+          expect(m.data.cardSet).toBe(ECardSet.Cohn);
+          expect(m.data.cards).toHaveLength(cohn.cards.length);
+        }
+      )
+      .expectNextMessageIs(EServerMessageType.MemberList)
+      .expectNextMessageIs(EServerMessageType.EstimationList)
+      .expectNoMoreMessages();
   });
 });
 
@@ -151,11 +162,12 @@ describe('Create => Failure', () => {
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, unaffectedTeam.teamName, Util.scrumMaster1Nick, false, ECardSet.TShirt);
 
-    // Test: scrum master should only have received the init and error message
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Init);
-    scrumMaster.expectNextMessageIsError(EErrorCode.TeamAlreadyExists);
-    scrumMaster.expectNoMoreMessages();
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIsError(EErrorCode.TeamAlreadyExists)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -183,14 +195,15 @@ describe('Create => Failure', () => {
     }
     scrumMaster.sendMessage(message, Util.team1Name);
 
-    // Test: the only messages received must be the init and the error message
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Init);
-    scrumMaster.expectNextMessageIsError(EErrorCode.ParticipantNotFound);
-    scrumMaster.expectNoMoreMessages();
+    // Test: Scrum master messages
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('create with an invalid custom card set: unknown missing', () => {
@@ -206,11 +219,12 @@ describe('Create => Failure', () => {
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, cohn);
 
-    // Test: Scrum Master should have received an error
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Init);
-    scrumMaster.expectNextMessageIsError(EErrorCode.UnknownEstimationCardMissing);
-    scrumMaster.expectNoMoreMessages();
+    // Test: Scrum Master messages
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIsError(EErrorCode.UnknownEstimationCardMissing)
+      .expectNoMoreMessages();
   });
 
   test('create with an invalid custom card set: less than two estimation cards', () => {
@@ -224,11 +238,12 @@ describe('Create => Failure', () => {
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, cohn);
 
-    // Test: Scrum Master should have received an error
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Init);
-    scrumMaster.expectNextMessageIsError(EErrorCode.MoreThanTwoEstimationCardsRequired);
-    scrumMaster.expectNoMoreMessages();
+    // Test: Scrum Master messages
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIsError(EErrorCode.MoreThanTwoEstimationCardsRequired)
+      .expectNoMoreMessages();
   });
 
   test('TeamName is empty', () => {
@@ -242,11 +257,12 @@ describe('Create => Failure', () => {
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, "", Util.scrumMaster1Nick, false, ECardSet.TShirt);
 
-    // Test: the scrum master should have an init and an error message
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Init);
-    scrumMaster.expectNextMessageIsError(EErrorCode.TeamNameMayNotBeEmtpy);
-    scrumMaster.expectNoMoreMessages();
+    // Test: Scrum master messages
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIsError(EErrorCode.TeamNameMayNotBeEmtpy)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -263,11 +279,12 @@ describe('Create => Failure', () => {
     const scrumMaster: ITestScrumMaster = Util.createTeam(
       handlerService, Util.team1Name, "", false, ECardSet.TShirt);
 
-    // Test: the scrum master should have an init and an error message
-    scrumMaster.initializeMessageIterator(false);
-    scrumMaster.expectNextMessageIs(EServerMessageType.Init);
-    scrumMaster.expectNextMessageIsError(EErrorCode.ParticipantNameMayNotBeEmpty);
-    scrumMaster.expectNoMoreMessages();
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIsError(EErrorCode.ParticipantNameMayNotBeEmpty)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();

@@ -58,7 +58,6 @@ describe('Change nick => OK', () => {
   });
 });
 
-
 describe('Change nick => Failure', () => {
   test('nick is null or empty', () => {
     const container = Util.getContainer();

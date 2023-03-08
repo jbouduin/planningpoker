@@ -12,44 +12,42 @@ describe('Pause => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with participant
-    const scrumMaster =    Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // Setup: create team with participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-    // change nick
+
+    // Run: pause
     const message: IPauseMessage = {
       senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Pause
     };
     participant.sendMessage(message);
-    // participant will close his socket as a result of the response
+    // Run: participant will close his socket as a result of the response
     participant.closeSocket();
 
-    // Test: scrum master 1 should have received create messages + 1 MC join + 1 MC Paused
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Paused)).toBe(1);
-    const memberChangedMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Paused);
-    expect(memberChangedMessage).toBeDefined();
-    if (memberChangedMessage) {
-      expect(memberChangedMessage.data.member.status).toBe(EParticipantStatus.Paused);
-      expect(memberChangedMessage.data.member.participantId).toBe(participant.participantId);
-      expect(memberChangedMessage.data.member.observer).toBe(false);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Paused,
+        { participantId: participant.participantId, status: EParticipantStatus.Paused }
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received 1 self
-    const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
-    expect(selfMessage).toBeDefined();
-    if (selfMessage) {
-      expect(selfMessage.data.status).toBe(EParticipantStatus.Paused);
-      expect(selfMessage.data.participantId).toBe(participant.participantId);
-    }
+    // Test: participant messages
+    participant
+      .initializeMessageIterator()
+      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused }
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });
 

@@ -87,7 +87,7 @@ describe('Rejoin => OK', () => {
     }
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('assign first reconnecting scrum master role', () => {
@@ -132,7 +132,7 @@ describe('Rejoin => OK', () => {
     }
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('first reconnecting is already scrum master', () => {
@@ -170,7 +170,7 @@ describe('Rejoin => OK', () => {
     expect(rejoiningScrumMaster.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Rejoin after pause', () => {
@@ -260,7 +260,7 @@ describe('Rejoin => OK', () => {
     }
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   // TODO 2385 test('Rejoin during estimation', () => { });
@@ -302,7 +302,7 @@ describe('Rejoin => Failure', () => {
     expect(rejoiningParticipant.errorMessageReceived(EErrorCode.TeamDoesNotExist)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Sender not found', () => {
@@ -339,7 +339,7 @@ describe('Rejoin => Failure', () => {
     expect(rejoiningParticipant.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Sender already in a team', () => {
@@ -378,7 +378,7 @@ describe('Rejoin => Failure', () => {
     expect(rejoiningParticipant.errorMessageReceived(EErrorCode.ParticipantAllReadyInTeam)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Old participant not found', () => {
@@ -415,7 +415,7 @@ describe('Rejoin => Failure', () => {
     expect(rejoiningParticipant.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Old participant in different team', () => {
@@ -456,6 +456,6 @@ describe('Rejoin => Failure', () => {
 
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });

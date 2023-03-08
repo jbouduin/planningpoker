@@ -57,7 +57,7 @@ describe('Remove => OK', () => {
     expect(participant.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });
 

@@ -50,7 +50,7 @@ describe('Start => OK', () => {
     }
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });
 
@@ -83,7 +83,7 @@ describe('start => Failure', () => {
     expect(participant.errorMessageReceived(EErrorCode.ScrumMasterRequired)).toBe(true);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Team not found', () => {
@@ -116,7 +116,7 @@ describe('start => Failure', () => {
     expect(participant.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Sender not found', () => {
@@ -146,7 +146,7 @@ describe('start => Failure', () => {
     expect(participant.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   // impossible scenario: scrum master not in a team
@@ -179,7 +179,7 @@ describe('start => Failure', () => {
     expect(participant.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('poker status is started', () => {
@@ -217,7 +217,7 @@ describe('start => Failure', () => {
     expect(participant.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('only observers connected', () => {
@@ -253,6 +253,6 @@ describe('start => Failure', () => {
     expect(observer2.messagesReceivedAfterInitial).toBe(0);
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 })

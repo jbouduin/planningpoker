@@ -150,14 +150,14 @@ export class PreflightService implements IPreflightService {
       result = EErrorCode.ParticipantNotInTeam;
     } else if (sender.role !== ERole.ScrumMaster) {
       result = EErrorCode.ScrumMasterRequired;
-    } else if (storage.getTeamOfParticipant(message.data)?.teamName !== teamName) {
-      result = EErrorCode.ParticipantNotInTeam;
     } else {
       const newScrumMaster = storage.getParticipant(message.data);
       if (!newScrumMaster) {
         result = EErrorCode.ParticipantNotFound;
       } else if (newScrumMaster.status !== EParticipantStatus.Connected) {
         result = EErrorCode.NewScrumMasterIsNotConnected;
+      } else if (storage.getTeamOfParticipant(message.data)?.teamName !== teamName) {
+        result = EErrorCode.ParticipantNotInTeam;
       }
     }
     return result;

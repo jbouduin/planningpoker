@@ -30,44 +30,40 @@ describe('Toggle observe => OK', () => {
     };
     participant.sendMessage(message);
 
-    // Test: scrum master 1 should have received 1 join + 1 MC observe
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Observe)).toBe(1);
-    const observeMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Observe);
-    expect(observeMessage).toBeDefined();
-    if (observeMessage) {
-      expect(observeMessage.data.member.observer).toBe(true);
-      expect(observeMessage.data.memberStatusChange).toBe(EMemberChangeType.Observe);
-      expect(observeMessage.data.member.participantId).toBe(participant.participantId);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Observe,
+        { participantId: participant.participantId, observer: true }
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received 1 self
-    expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.Self)).toBe(1);
-    const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
-    expect(selfMessage).toBeDefined();
-    if (selfMessage) {
-      expect(selfMessage.data.observer).toBe(true);
-      expect(selfMessage.data.participantId).toBe(participant.participantId);
-    }
+    // Test: participant messages
+    participant
+      .initializeMessageIterator()
+      .expectNextMessageIsSelf(
+        { participantId: participant.participantId, observer: true }
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Toggle observe for someone else', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with participant
+    // Setup: create team with participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // change observer role for someone else
+    // Setup: change observer role for someone else
     const message: IObserveMessage = {
       senderId: scrumMaster.participantId,
       data: {
@@ -78,30 +74,26 @@ describe('Toggle observe => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC observe
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Observe)).toBe(1);
-    const observeMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Observe);
-    expect(observeMessage).toBeDefined();
-    if (observeMessage) {
-      expect(observeMessage.data.member.observer).toBe(true);
-      expect(observeMessage.data.memberStatusChange).toBe(EMemberChangeType.Observe);
-      expect(observeMessage.data.member.participantId).toBe(participant.participantId);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Observe,
+        { participantId: participant.participantId, observer: true }
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received 1  self
-    expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.Self)).toBe(1);
-    const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
-    expect(selfMessage).toBeDefined();
-    if (selfMessage) {
-      expect(selfMessage.data.observer).toBe(true);
-      expect(selfMessage.data.participantId).toBe(participant.participantId);
-    }
+    // Test: participant messages
+    participant
+      .initializeMessageIterator()
+      .expectNextMessageIsSelf(
+        { participantId: participant.participantId, observer: true }
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });
 
@@ -111,7 +103,7 @@ describe('Toggle observe => Failure', () => {
   // TODO 2377 test('Sender not found', () => { });
   // TODO 2377 test('Sender not in any team', () => { });
   // TODO 2377 test('Sender in different team', () => { });
-  // TODO 2377 test('Send is not scrum master and changing another participant', () => { });
+  // TODO 2377 test('Sender is not scrum master and changing another participant', () => { });
   // TODO 2377 test('Other participant not found', () => { });
   // TODO 2377 test('Other participant in different team', () => { });
 });

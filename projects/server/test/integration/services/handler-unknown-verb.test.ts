@@ -25,11 +25,13 @@ describe('Unknown message type', () => {
     };
     scrumMaster.sendMessage(<AClientMessage>message);
 
-    // Test: scrum master should have received 1 Error
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.UnknownVerb)).toBe(true)
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIsError(EErrorCode.UnknownVerb)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 })
