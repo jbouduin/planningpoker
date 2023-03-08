@@ -150,14 +150,14 @@ export class PreflightService implements IPreflightService {
       result = EErrorCode.ParticipantNotInTeam;
     } else if (sender.role !== ERole.ScrumMaster) {
       result = EErrorCode.ScrumMasterRequired;
-    } else if (storage.getTeamOfParticipant(message.data)?.teamName !== teamName) {
-      result = EErrorCode.ParticipantNotInTeam;
     } else {
       const newScrumMaster = storage.getParticipant(message.data);
-      if (!newScrumMaster){
+      if (!newScrumMaster) {
         result = EErrorCode.ParticipantNotFound;
       } else if (newScrumMaster.status !== EParticipantStatus.Connected) {
         result = EErrorCode.NewScrumMasterIsNotConnected;
+      } else if (storage.getTeamOfParticipant(message.data)?.teamName !== teamName) {
+        result = EErrorCode.ParticipantNotInTeam;
       }
     }
     return result;
@@ -186,10 +186,12 @@ export class PreflightService implements IPreflightService {
       } else if (team.status !== EPokerStatus.Started) {
         result = EErrorCode.EstimationNotStarted;
       } else {
-        const cardSet = storage.getCardSet(teamName);
-        const theEstimation = cardSet.cards.find((card: ICard) => card.index === message.data);
-        if (theEstimation === undefined) {
-          result = EErrorCode.InvalidEstimation;
+        if (message.data) {
+          const cardSet = storage.getCardSet(teamName);
+          const theEstimation = cardSet.cards.find((card: ICard) => card.index === message.data);
+          if (theEstimation === undefined) {
+            result = EErrorCode.InvalidEstimation;
+          }
         }
       }
     }
@@ -356,7 +358,7 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotInTeam;
       } else if (team.status === EPokerStatus.Started) {
         result = EErrorCode.EstimationAlreadyStarted;
-      } else if (storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => !p.observer).length === 0){
+      } else if (storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => !p.observer).length === 0) {
         result = EErrorCode.OnlyObserversOnline;
       }
     }

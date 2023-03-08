@@ -1,9 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
-
-import SERVICETYPES from '../../../src/services/service.types';
+import { describe, test } from '@jest/globals';
 
 import { AClientMessage, EErrorCode } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Unknown message type', () => {
@@ -25,11 +24,13 @@ describe('Unknown message type', () => {
     };
     scrumMaster.sendMessage(<AClientMessage>message);
 
-    // Test: scrum master should have received 1 Error
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.UnknownVerb)).toBe(true)
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsError(EErrorCode.UnknownVerb)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 })

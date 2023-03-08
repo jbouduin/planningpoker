@@ -54,7 +54,7 @@ describe('start- estimate - delete - restart', () => {
     repository.startEstimating(teamName);
     repository.upsertEstimation(teamName, participantId1, cardIndex1);
     const estimation = repository.deleteEstimation(teamName, participantId1);
-    expect(estimation.cardIndex).toBeLessThan(0);
+    expect(estimation.cardIndex).toBeUndefined();
     const estimations = repository.getEstimations(teamName);
     expect(estimations.length).toBe(0);
   });

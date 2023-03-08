@@ -16,7 +16,7 @@ export enum EErrorCode {
   EstimationNotStarted = 402,
   EstimationAlreadyStarted = 403,
   OnlyObserversOnline = 404,
-  InvalidEstimation = 404,
+  InvalidEstimation = 405,
   ServerError = 500,
   NotImplemented = 501,
   UnknownVerb = 502

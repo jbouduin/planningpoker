@@ -1,10 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
-import { EMemberChangeType, EServerMessageType } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import { EMemberChangeType, EParticipantStatus, EServerMessageType } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Ping', () => {
@@ -21,24 +19,36 @@ describe('Ping', () => {
     // ping
     handlerService.handlePing();
 
-    // Test: scrum master should have received 3 MC join + 1 MC pause + 1 Ping
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(5);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Paused)).toBe(1);
-    expect(scrumMaster.countMessagesOfType(EServerMessageType.Ping)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.Ping)
+      .expectNoMoreMessages();
 
-    // Test: participant should have received 2 MC joins + 1 MC pause + 1 Ping
-    expect(participant.messagesReceivedAfterInitial).toBe(4);
-    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
-    expect(participant.countMemberChangedMessages(EMemberChangeType.Paused)).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.Ping)).toBe(1);
 
-    // Test: paused participant should have received 1 self (pause)
-    expect(paused.messagesReceivedAfterInitial).toBe(1);
-    expect(paused.countMessagesOfType(EServerMessageType.Self)).toBe(1);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.Ping)
+      .expectNoMoreMessages();
 
-    // Test: observer should have received 1 Ping
-    expect(observer.messagesReceivedAfterInitial).toBe(1);
-    expect(observer.countMessagesOfType(EServerMessageType.Ping)).toBe(1);
+    // Test: paused participant messages
+    paused
+      .initializeMessageQueue()
+      .expectNextMessageIsSelf({status: EParticipantStatus.Paused})
+      .expectNoMoreMessages();
+
+    // Test: observer messages
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.Ping)
+      .expectNoMoreMessages();
   });
 });

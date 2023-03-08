@@ -1,52 +1,86 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberChangeType, ERole, EServerMessageType, IRejoinMessage, ISelfMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationListMessage, IMemberListMessage, IPauseMessage, IRejoinMessage, ITeamNameMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
+import { IFactoryService } from '../../../src/storage/interfaces';
+import STORAGETYPES from '../../../src/storage/storage.types';
 import { Util } from "./helpers/util";
 
 describe('Rejoin => OK', () => {
   test('Rejoin after disconnect', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with one disconnected participant
-    const scrumMaster =     Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant =  Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
+    // Setup: create team with one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // create a new connection to rejoin
+    // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    rejoiningParticipant.teamName = Util.team1Name;
-    // rejoin
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningParticipant.sendMessage(message);
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected + 1 MC rejoin
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Rejoined)).toBe(1);
-    // TODO 2382 check the message contents of the rejoin
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Rejoined,
+        { participantId: participant.participantId, status: EParticipantStatus.Connected }
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have received join messages
-    expect(rejoiningParticipant.messagesReceivedAfterInitial).toBe(0);
-
-    // TODO 2382 check if the rejoin messages reflect the current team status
+    // Test: rejoining participant messages (init sequence)
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsSelf(
+        {
+          participantId: participant.participantId,
+          role: ERole.Developer,
+          observer: false,
+          status: EParticipantStatus.Connected
+        }
+      )
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => {
+          expect(m.data.cardSet).toBe(ECardSet.Cohn);
+          expect(m.data.cards).toHaveLength(cohn.cards.length);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.MemberList,
+        (m: IMemberListMessage) => {
+          expect(m.data).toHaveLength(1);
+          expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
+          expect(m.data[0].role).toBe(ERole.ScrumMaster);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('assign first reconnecting scrum master role', () => {
@@ -65,37 +99,35 @@ describe('Rejoin => OK', () => {
 
     // RUN: reconnect
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    rejoiningParticipant.teamName = Util.team1Name;
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
       data: disconnected.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningParticipant.sendMessage(message);
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(disconnected.messagesReceivedAfterInitial).toBe(0);
+    // Test: disconnected participant messages
+    disconnected
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have received a self message
-    expect(rejoiningParticipant.messagesReceivedAfterInitial).toBe(1);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Self)).toBe(1);
-    const selfMessage = rejoiningParticipant.extractMessage<ISelfMessage>(EServerMessageType.Self);
-    expect(selfMessage).toBeDefined();
-    if (selfMessage) {
-      expect(selfMessage.data.participantId).toBe(disconnected.participantId);
-      expect(selfMessage.data.role).toBe(ERole.ScrumMaster);
-    }
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue()
+      .expectNextMessageIsSelf({ participantId: disconnected.participantId, role: ERole.ScrumMaster });
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
-  test('assign first reconnecting is scrum master', () => {
+  test('first reconnecting is already scrum master', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
@@ -111,38 +143,341 @@ describe('Rejoin => OK', () => {
 
     // RUN: reconnect
     const rejoiningScrumMaster = Util.connectParticipant(handlerService);
-    rejoiningScrumMaster.teamName = Util.team1Name;
     const message: IRejoinMessage = {
       senderId: rejoiningScrumMaster.participantId,
       data: scrumMaster.participantId,
       type: EClientMessageType.Rejoin
     };
-    rejoiningScrumMaster.sendMessage(message);
+    rejoiningScrumMaster.sendMessage(message, Util.team1Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(disconnected.messagesReceivedAfterInitial).toBe(0);
+    // Test: disconnected participant messages
+    disconnected
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have received no additional messages
-    expect(rejoiningScrumMaster.messagesReceivedAfterInitial).toBe(0);
+    // Test: rejoining scrum master messages
+    rejoiningScrumMaster
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2382 test('Rejoin after pause', () => { });
-  // TODO 2382 test('Rejoin during estimation', () => { });
+  test('Rejoin after pause', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: participants sends pause message
+    const pauseMessage: IPauseMessage = {
+      senderId: participant.participantId,
+      data: undefined,
+      type: EClientMessageType.Pause
+    }
+    participant.sendMessage(pauseMessage);
+    participant.closeSocket();
+
+    // Run: create a new connection to rejoin and send rejoin message
+    const rejoiningParticipant = Util.connectParticipant(handlerService);
+    const message: IRejoinMessage = {
+      senderId: rejoiningParticipant.participantId,
+      data: participant.participantId,
+      type: EClientMessageType.Rejoin
+    };
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Rejoined,
+        { participantId: participant.participantId, status: EParticipantStatus.Connected }
+      )
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused });
+
+    // Test: rejoining participant messages (init sequence)
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsSelf(
+        {
+          participantId: participant.participantId,
+          role: ERole.Developer,
+          observer: false,
+          status: EParticipantStatus.Connected
+        }
+      )
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => {
+          expect(m.data.cardSet).toBe(ECardSet.Cohn);
+          expect(m.data.cards).toHaveLength(cohn.cards.length);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.MemberList,
+        (m: IMemberListMessage) => {
+          expect(m.data).toHaveLength(1);
+          expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
+          expect(m.data[0].role).toBe(ERole.ScrumMaster);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      )
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  // TODO 2385 test('Rejoin during estimation', () => { });
 });
 
 
-describe('Remove => Failure', () => {
-  // TODO 2382 test('Team not found', () => { });
-  // TODO 2382 test('Sender not found', () => { });
-  // TODO 2382 test('Sender already in a team', () => { });
-  // TODO 2382 test('Old participant not found', () => { });
-  // TODO 2382 test('Old participant in different team', () => { });
+describe('Rejoin => Failure', () => {
+  test('Sender not found', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: create a new connection to rejoin and send rejoin message
+    const rejoiningParticipant = Util.connectParticipant(handlerService);
+    const message: IRejoinMessage = {
+      senderId: Util.unknownParticipantId,
+      data: participant.participantId,
+      type: EClientMessageType.Rejoin
+    };
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Team not found', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: create a new connection to rejoin and rejoin message non existing team
+    const rejoiningParticipant = Util.connectParticipant(handlerService);
+    const message: IRejoinMessage = {
+      senderId: rejoiningParticipant.participantId,
+      data: participant.participantId,
+      type: EClientMessageType.Rejoin
+    };
+    rejoiningParticipant.sendMessage(message, Util.nonExistingTeam);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Sender already in a team', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: create the second team
+    Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
+
+    // Run: create a participant that is already in a team and send rejoin message
+    const rejoiningParticipant = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
+    const message: IRejoinMessage = {
+      senderId: rejoiningParticipant.participantId,
+      data: participant.participantId,
+      type: EClientMessageType.Rejoin
+    };
+    rejoiningParticipant.sendMessage(message);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue()
+      .expectNextMessageIsError(EErrorCode.ParticipantAllReadyInTeam)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Old participant not found', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: create a new connection to rejoin and send rejoin message
+    const rejoiningParticipant = Util.connectParticipant(handlerService);
+    const message: IRejoinMessage = {
+      senderId: rejoiningParticipant.participantId,
+      data: Util.unknownParticipantId,
+      type: EClientMessageType.Rejoin
+    };
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Old participant in different team', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: create a second team
+    Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
+
+    // Run: create a new connection to rejoin and send rejoin message
+    const rejoiningParticipant = Util.connectParticipant(handlerService);
+    const message: IRejoinMessage = {
+      senderId: rejoiningParticipant.participantId,
+      data: participant.participantId,
+      type: EClientMessageType.Rejoin
+    };
+    rejoiningParticipant.sendMessage(message, Util.team2Name);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
 });

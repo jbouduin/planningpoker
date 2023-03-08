@@ -9,7 +9,8 @@
   "plugins": [
     "eslint-plugin-tsdoc",
     "@typescript-eslint",
-    "ban"
+    "ban",
+    "deprecation"
   ],
   "extends": [
     "eslint:recommended",
@@ -44,6 +45,7 @@
       { "name": [ "test", "only" ] },
       { "name": [ "test", "skip" ] },
       { "name": [ "*", "dumpMessages" ] }
-    ]
+    ],
+    "deprecation/deprecation": "warn"
   }
 }

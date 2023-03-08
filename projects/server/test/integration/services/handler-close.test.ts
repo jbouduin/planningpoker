@@ -1,9 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
-import SERVICETYPES from '../../../src/services/service.types';
-
-import { EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ISelfMessage } from '../../../../shared-lib/src';
+import { EMemberChangeType, EParticipantStatus, ERole } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Close', () => {
@@ -11,134 +10,127 @@ describe('Close', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with two participants
-    const scrumMaster =    Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // Setup: create team with two participants
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer2Name, true);
 
-    // participant disconnects
+    // Run: participant disconnects
     participant.closeSocket()
 
-    // Test: scrum master should have received create messages + 2 MC join + 1 MC disconnect
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
-    let disconnectMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Disconnected);
-    expect(disconnectMessage).toBeDefined();
-    if (disconnectMessage) {
-      expect(disconnectMessage.data.member.participantId === participant.participantId);
-      expect(disconnectMessage.data.member.status === EParticipantStatus.Disconnected);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Disconnected,
+        { participantId: participant.participantId, status: EParticipantStatus.Disconnected }
+      )
+      .expectNoMoreMessages();
 
-    // Test: observer should have received 1 MC disconnect
-    expect(observer.messagesReceivedAfterInitial).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
-    disconnectMessage = observer.extractMemberChangedMessage(EMemberChangeType.Disconnected);
-    expect(disconnectMessage).toBeDefined();
-    if (disconnectMessage) {
-      expect(disconnectMessage.data.member.participantId === participant.participantId);
-      expect(disconnectMessage.data.member.status === EParticipantStatus.Disconnected);
-    }
+    // Test: observer messages
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Disconnected,
+        { participantId: participant.participantId, status: EParticipantStatus.Disconnected }
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant should have received 1 MC join only
-    expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('Scrum master disconnects', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with two connected and one disconnected participant
-    const scrumMaster= Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // Setup: create team with two connected and one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-    const observer = Util.joinTeam( handlerService, Util.team1Name, Util.observer1Name, true);
+    const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
     const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick)
 
-    // scrum master disconnects
+    // Run: scrum master disconnects
     scrumMaster.closeSocket();
 
-    // Test: scrum master should have received 3 MC join + 1 MC Disconnect
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: the 'first' connected participant must be assigned the scrum master role
+    // as data is stored in Maps, 'first' will return the participant who has connected 'first'
+    // if this changes, tests could fail
 
-    // Test: observer should have received 1 MC Join + 2 MC disconnect memberchange + 1 MC role change or 1 self
-    expect(observer.messagesReceivedAfterInitial).toBe(4);
-    expect(observer.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(2);
-    expect(
-      observer.countMemberChangedMessages(EMemberChangeType.ChangedRole) +
-      observer.countMessagesOfType(EServerMessageType.Self)
-    ).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    let secondSelfMessage = observer.extractMessage<ISelfMessage>(EServerMessageType.Self);
-    let otherMemberChangedRoleMessage = observer.extractMemberChangedMessage(EMemberChangeType.ChangedRole);
+    // Test: participant (will be the new scrum master) messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsSelf({ role: ERole.ScrumMaster })
+      .expectNoMoreMessages();
 
-    if (secondSelfMessage) {
-      expect(otherMemberChangedRoleMessage).toBeUndefined();
-      expect(secondSelfMessage.data.role).toBe(ERole.ScrumMaster);
-      expect(secondSelfMessage.data.participantId).toBe(observer.participantId);
-    }
-    if (otherMemberChangedRoleMessage) {
-      expect(secondSelfMessage).toBeUndefined();
-      expect(otherMemberChangedRoleMessage.data.memberStatusChange).toBe(EMemberChangeType.ChangedRole)
-      expect(otherMemberChangedRoleMessage.data.member.participantId).toBe(participant.participantId);
-      expect(otherMemberChangedRoleMessage.data.member.role).toBe(ERole.ScrumMaster);
-    }
+    // Test: observer messages
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, { participantId: disconnected.participantId })
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, { participantId: scrumMaster.participantId })
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.ChangedRole,
+        {
+          participantId: participant.participantId,
+          role: ERole.ScrumMaster
+      })
+      .expectNoMoreMessages();
 
-    // Test: participant should have received 2 MC join + 2 MC disconnect + 1 MC role change or a second self
-    expect(participant.messagesReceivedAfterInitial).toBe(5);
-    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
-    expect(participant.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(2);
-    expect(
-      participant.countMemberChangedMessages(EMemberChangeType.ChangedRole) +
-      participant.countMessagesOfType(EServerMessageType.Self)
-    ).toBe(1);
 
-    secondSelfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self);
-    otherMemberChangedRoleMessage = participant.extractMemberChangedMessage(EMemberChangeType.ChangedRole);
-
-    if (secondSelfMessage) {
-      expect(otherMemberChangedRoleMessage).toBeUndefined();
-      expect(secondSelfMessage.data.role).toBe(ERole.ScrumMaster);
-      expect(secondSelfMessage.data.participantId).toBe(participant.participantId);
-    }
-    if (otherMemberChangedRoleMessage) {
-      expect(secondSelfMessage).toBeUndefined();
-      expect(otherMemberChangedRoleMessage.data.memberStatusChange).toBe(EMemberChangeType.ChangedRole)
-      expect(otherMemberChangedRoleMessage.data.member.participantId).toBe(observer.participantId);
-      expect(otherMemberChangedRoleMessage.data.member.role).toBe(ERole.ScrumMaster);
-    }
-
-    // Test: disconnected should have received no messages
-    expect(disconnected.messagesReceivedAfterInitial).toBe(0);
+    // Test: disconnected messages
+    disconnected
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('A participant that is in no team disconnects', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // participant 2 connects and disconnects
+    // Run: participant connects and disconnects
     const participant = Util.connectParticipant(handlerService);
     participant.closeSocket();
 
+    // Test: participant messages
+    participant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit();
+
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });

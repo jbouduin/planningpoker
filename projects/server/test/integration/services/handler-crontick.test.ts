@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
 import { EMemberChangeType, EServerMessageType } from '../../../../shared-lib/src';
 
@@ -12,36 +12,48 @@ describe('Cron tick', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create teams
+    // Setup: create 2 teams
     const scrumMaster1 = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const scrumMaster2 = Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
-    // participant 1 joining team 1
+
+    // Setup: participant 1 joining team 1
     const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-    // sleep for a second
+
+    // Setup: Sleep for a second
     await new Promise(r => setTimeout(r, 1000));
-    // participant 2 joining team 2
+
+    // Setup: participant 2 joining team 2
     const participant2 = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
-    // cron tick should remove team 1 but not team 2
+
+    // RUN: cron tick
     handlerService.handleCronTick(50);
-    // participants will close their sockets as they receive the idle message
-    handlerService.handleClose(scrumMaster1.socket);
-    handlerService.handleClose(participant1.socket);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 idle message
-    expect(scrumMaster1.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster1.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster1.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(1);
+    // RUN: participants will close their sockets
+    scrumMaster1.closeSocket();
+    participant1.closeSocket();
 
-    // Test: participant 1 should have received idle message only
-    expect(participant1.messagesReceivedAfterInitial).toBe(1);
-    expect(participant1.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster1
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.MemberChanged)
+      .expectNextMessageIs(EServerMessageType.TeamIdle)
+      .expectNoMoreMessages();
+
+    // Test: participant 1 messages
+    participant1
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.TeamIdle)
+      .expectNoMoreMessages();
 
     // Test: scrum master 2 should have received join only
-    expect(scrumMaster2.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster2.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(0);
+    scrumMaster2
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
 
     // Test: participant 2 should have received no additional messages
-    expect(participant2.messagesReceivedAfterInitial).toBe(0);
-    expect(participant2.countMessagesOfType(EServerMessageType.TeamIdle)).toBe(0);
+    participant2
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
   });
 });

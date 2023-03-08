@@ -23,7 +23,7 @@ export class EstimationRepository implements IEstimationRepository {
     if (teamEstimations) {
       teamEstimations.delete(participantId);
     }
-    return new Estimation(participantId, -1);
+    return new Estimation(participantId, undefined);
   }
 
   public getEstimations(teamName: string): Array<IEstimation> {
