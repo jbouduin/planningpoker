@@ -1,10 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, EServerMessageType, IPokerStatusChangedMessage, IStartMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import { EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, ERole, EServerMessageType, IStartMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 
@@ -20,7 +18,7 @@ describe('Start => OK', () => {
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // start estimating
+    // Run: start estimating
     const message: IStartMessage = {
       senderId: scrumMaster.participantId,
       data: undefined,
@@ -28,26 +26,20 @@ describe('Start => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 poker status
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(scrumMaster.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
-    let pokerStatusMessage = scrumMaster.extractMessage<IPokerStatusChangedMessage>(EServerMessageType.PokerStatus);
-    expect(pokerStatusMessage).toBeDefined();
-    if (pokerStatusMessage) {
-      expect(pokerStatusMessage.data).toBe(EPokerStatus.Started);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNoMoreMessages();
 
     // Test: participant 1 should have received 1 clear + 1 poker status
-    expect(participant.messagesReceivedAfterInitial).toBe(2);
-    expect(participant.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
-    pokerStatusMessage = participant.extractMessage<IPokerStatusChangedMessage>(EServerMessageType.PokerStatus);
-    expect(pokerStatusMessage).toBeDefined();
-    if (pokerStatusMessage) {
-      expect(pokerStatusMessage.data).toBe(EPokerStatus.Started);
-    }
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -62,11 +54,11 @@ describe('start => Failure', () => {
     // Setup: Create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with participant
-    const scrumMaster=    Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    // Setup: create team with participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // send start estimating
+    // Run: send start estimating
     const message: IStartMessage = {
       senderId: participant.participantId,
       data: undefined,
@@ -74,13 +66,17 @@ describe('start => Failure', () => {
     };
     participant.sendMessage(message);
 
-    // Test: scrum master should have received 1 MC Join
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
 
-    // Test: participant should have received 1 error
-    expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.errorMessageReceived(EErrorCode.ScrumMasterRequired)).toBe(true);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsError(EErrorCode.ScrumMasterRequired)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -93,13 +89,13 @@ describe('start => Failure', () => {
     // Setup: Create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create the team
+    // Setup: create the team
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
 
-    // connect the participant
+    // Setup: connect the participant
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // send start estimating to the wrong team
+    // Run: send start estimating to the wrong team
     const message: IStartMessage = {
       senderId: scrumMaster.participantId,
       data: undefined,
@@ -107,13 +103,17 @@ describe('start => Failure', () => {
     };
     scrumMaster.sendMessage(message, Util.team2Name);
 
-    // Test: scrum master should have received  1 join + 1 error
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.TeamDoesNotExist)).toBe(true);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -126,10 +126,11 @@ describe('start => Failure', () => {
     // Setup: Create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team
+    // Setup: create team with participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-    // start estimating
+
+    // Run: start estimating
     const message: IStartMessage = {
       senderId: 'some participant id',
       data: undefined,
@@ -137,19 +138,53 @@ describe('start => Failure', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // Test: scrum master should have received 1 MC Join + 1 error
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // impossible scenario: scrum master not in a team
+  test('Sender is not in a team', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: Create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create a scrum master
+    const scrumMaster = Util.connectParticipant(handlerService, ERole.ScrumMaster);
+
+    // Setup: create a team
+    Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+
+    // Run: send start estimating
+    const message: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(message, Util.team1Name);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
 
   test('Sender in another team', () => {
     const container = Util.getContainer();
@@ -158,11 +193,11 @@ describe('start => Failure', () => {
     // Setup: Create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with participant
+    // Setup: create team with participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
-    // send start estimating to another team
+    // Run: send start estimating to another team
     const message: IStartMessage = {
       senderId: scrumMaster.participantId,
       data: undefined,
@@ -170,13 +205,17 @@ describe('start => Failure', () => {
     };
     scrumMaster.sendMessage(message, unaffectedTeam.teamName);
 
-    // Test: scrum master should have received 1 MC join + 1 error
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received nothing
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -204,17 +243,21 @@ describe('start => Failure', () => {
     // Run: start a second time
     scrumMaster.sendMessage(message);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 clear + 1 poker status + 1 error
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(scrumMaster.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.EstimationAlreadyStarted)).toBe(true);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsError(EErrorCode.EstimationAlreadyStarted)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should only have received 1 clear + 1 poker status
-    expect(participant.messagesReceivedAfterInitial).toBe(2);
-    expect(participant.countMessagesOfType(EServerMessageType.ClearEstimations)).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.PokerStatus)).toBe(1);
+    // Test: participant 1 should have received 1 clear + 1 poker status
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -240,17 +283,24 @@ describe('start => Failure', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // Test: scrum master 1 should have received 2 MC join + 1 error
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.OnlyObserversOnline)).toBe(true);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsError(EErrorCode.OnlyObserversOnline)
+      .expectNoMoreMessages();
 
-    // Test: observer 1 should only have received 1 MC Join
-    expect(observer1.messagesReceivedAfterInitial).toBe(1);
-    expect(observer1.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    // Test: observer 1 messages
+    observer1
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
 
-    // Test: observer 2 should have received no messages
-    expect(observer2.messagesReceivedAfterInitial).toBe(0);
+    // Test: observer 2 messages
+    observer2
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();

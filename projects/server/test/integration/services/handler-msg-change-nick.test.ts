@@ -1,10 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EMemberChangeType, EServerMessageType, IChangeNickMessage, ISelfMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import { EClientMessageType, EErrorCode, EMemberChangeType, IChangeNickMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 
@@ -31,7 +29,7 @@ describe('Change nick => OK', () => {
 
     // Test: scrum master should have received 2 MC join + 1 MC disconnect + 1 self
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
@@ -40,7 +38,7 @@ describe('Change nick => OK', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
       .expectNextMessageIsMemberChange(
@@ -50,7 +48,7 @@ describe('Change nick => OK', () => {
 
     // Test: disconnected participant messages
     disconnected
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -81,7 +79,7 @@ describe('Change nick => Failure', () => {
 
     // Test: scrum master should have received 2 MC join + 1 MC disconnect + 1 error
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
@@ -90,14 +88,14 @@ describe('Change nick => Failure', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
       .expectNoMoreMessages();
 
     // Test: disconnected participant messages
     disconnected
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

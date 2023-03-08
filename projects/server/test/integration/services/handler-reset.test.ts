@@ -22,7 +22,7 @@ describe('Reset', () => {
 
     // Test: scrum master messagaes
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
@@ -32,7 +32,7 @@ describe('Reset', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
@@ -41,13 +41,13 @@ describe('Reset', () => {
 
     // Test: paused participant messages
     paused
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsSelf({ status: EParticipantStatus.Paused })
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ServerReset)
       .expectNoMoreMessages();
   });

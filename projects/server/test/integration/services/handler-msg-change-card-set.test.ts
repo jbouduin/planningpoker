@@ -39,7 +39,7 @@ describe('Change card set => OK', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(
         EServerMessageType.CardList,
@@ -49,7 +49,7 @@ describe('Change card set => OK', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.CardList,
         (m: ICardSetMessage) => expectCardSetFn(m.data)
@@ -95,14 +95,14 @@ describe('Change card set => Failure', () => {
 
     // Test: scrum master should have received 1 MC join + 1 error
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.UnknownEstimationCardMissing)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -133,14 +133,14 @@ describe('Change card set => Failure', () => {
     scrumMaster.sendMessage(message);
 
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.MoreThanTwoEstimationCardsRequired)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

@@ -1,10 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 
-import SERVICETYPES from '../../../src/services/service.types';
-
-import { IHandlerService } from '../../../src/services/interfaces';
-
 import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, ERole, EServerMessageType, IErrorMessage, IEstimateMessage, IEstimation, IEstimationListMessage, IMemberChangeMessage, IPokerStatusChangedMessage, IRevealMessage, IStartMessage } from '../../../../shared-lib/src';
+import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 
@@ -68,7 +66,7 @@ describe('Reveal => OK', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.MemberChanged,
         (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
@@ -94,7 +92,7 @@ describe('Reveal => OK', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIs(
         EServerMessageType.PokerStatus,
@@ -142,7 +140,7 @@ describe('Reveal => Failure', () => {
 
     // Test: Scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.MemberChanged,
         (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
@@ -155,7 +153,7 @@ describe('Reveal => Failure', () => {
 
     // Test: participant should have received no messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -191,7 +189,7 @@ describe('Reveal => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.MemberChanged,
         (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
@@ -210,7 +208,7 @@ describe('Reveal => Failure', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.ClearEstimations)
       .expectNextMessageIs(
@@ -252,7 +250,7 @@ describe('Reveal => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.MemberChanged,
         (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
@@ -271,7 +269,7 @@ describe('Reveal => Failure', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
     participant.expectNextMessageIs(
       EServerMessageType.ClearEstimations)
       .expectNextMessageIs(
@@ -313,7 +311,7 @@ describe('Reveal => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.MemberChanged,
         (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
@@ -326,7 +324,7 @@ describe('Reveal => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant.initializeMessageIterator()
+    participant.initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.ClearEstimations)
       .expectNextMessageIs(
@@ -370,7 +368,7 @@ describe('Reveal => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.MemberChanged,
         (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
@@ -383,7 +381,7 @@ describe('Reveal => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant.initializeMessageIterator()
+    participant.initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.ClearEstimations)
       .expectNextMessageIs(
@@ -394,7 +392,7 @@ describe('Reveal => Failure', () => {
 
     // Test: teamless participant
     teamLessParticipant
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
@@ -433,7 +431,7 @@ describe('Reveal => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.MemberChanged,
         (m: IMemberChangeMessage) => expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
@@ -447,7 +445,7 @@ describe('Reveal => Failure', () => {
 
     // Test: participant messages
     participant1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.ClearEstimations)
       .expectNextMessageIs(
@@ -458,7 +456,7 @@ describe('Reveal => Failure', () => {
 
     // Test participant 2
     scrumMaster2
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
     // Test: check if unaffected team is unaffected

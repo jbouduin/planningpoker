@@ -1,9 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
-
-import SERVICETYPES from '../../../src/services/service.types';
+import { describe, test } from '@jest/globals';
 
 import { AClientMessage, EErrorCode } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Unknown message type', () => {
@@ -27,7 +26,7 @@ describe('Unknown message type', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsError(EErrorCode.UnknownVerb)
       .expectNoMoreMessages();
 

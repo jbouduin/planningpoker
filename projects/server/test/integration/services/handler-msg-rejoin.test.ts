@@ -1,13 +1,11 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationListMessage, IMemberListMessage, IPauseMessage, IRejoinMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationListMessage, IMemberListMessage, IPauseMessage, IRejoinMessage, ITeamNameMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
-import { Util } from "./helpers/util";
-import STORAGETYPES from '../../../src/storage/storage.types';
+import SERVICETYPES from '../../../src/services/service.types';
 import { IFactoryService } from '../../../src/storage/interfaces';
+import STORAGETYPES from '../../../src/storage/storage.types';
+import { Util } from "./helpers/util";
 
 describe('Rejoin => OK', () => {
   test('Rejoin after disconnect', () => {
@@ -31,60 +29,55 @@ describe('Rejoin => OK', () => {
     };
     rejoiningParticipant.sendMessage(message, Util.team1Name);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected + 1 MC rejoin
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Rejoined)).toBe(1);
-    const memberChangedMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Rejoined);
-    expect(memberChangedMessage).toBeDefined();
-    if (memberChangedMessage) {
-      expect(memberChangedMessage.data.member.participantId).toBe(participant.participantId);
-      expect(memberChangedMessage.data.member.status).toBe(EParticipantStatus.Connected);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Rejoined,
+        { participantId: participant.participantId, status: EParticipantStatus.Connected }
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have received join messages
-    expect(rejoiningParticipant.totalMessagesReceived).toBe(participant.expectedNumberOfInitialMessages);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Self, false)).toBe(1);
-    const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self, false);
-    expect(selfMessage).toBeDefined();
-    if (selfMessage) {
-      expect(selfMessage.data.participantId).toBe(participant.participantId);
-      expect(selfMessage.data.nick).toBe(Util.participant1Nick);
-      expect(selfMessage.data.status).toBe(EParticipantStatus.Connected);
-      expect(selfMessage.data.role).toBe(ERole.Developer);
-      expect(selfMessage.data.observer).toBe(false);
-    }
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.TeamName, false)).toBe(1);
-    const teamMessage = rejoiningParticipant.extractMessage<ITeamNameMessage>(EServerMessageType.TeamName, false);
-    if (teamMessage) {
-      expect(teamMessage.data).toBe(Util.team1Name);
-    }
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.CardList, false)).toBe(1);
-    const cardListMessage = rejoiningParticipant.extractMessage<ICardSetMessage>(EServerMessageType.CardList, false);
-    expect(cardListMessage).toBeDefined();
-    if (cardListMessage) {
-      expect(cardListMessage.data.cardSet).toBe(ECardSet.Cohn);
-      expect(cardListMessage.data.cards).toHaveLength(cohn.cards.length);
-    }
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.MemberList, false)).toBe(1);
-    const memberListMessage = rejoiningParticipant.extractMessage<IMemberListMessage>(EServerMessageType.MemberList, false);
-    expect(memberListMessage).toBeDefined();
-    if (memberListMessage) {
-      expect(memberListMessage.data).toHaveLength(1);
-      expect(memberListMessage.data[0].nick).toBe(Util.scrumMaster1Nick);
-      expect(memberListMessage.data[0].role).toBe(ERole.ScrumMaster);
-    }
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.EstimationList, false)).toBe(1);
-    const estimationListMessage = rejoiningParticipant.extractMessage<IEstimationListMessage>(EServerMessageType.EstimationList, false);
-    expect(estimationListMessage).toBeDefined();
-    if (estimationListMessage) {
-      expect(estimationListMessage.data).toHaveLength(0);
-    }
+    // Test: rejoining participant messages (init sequence)
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsSelf(
+        {
+          participantId: participant.participantId,
+          role: ERole.Developer,
+          observer: false,
+          status: EParticipantStatus.Connected
+        }
+      )
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => {
+          expect(m.data.cardSet).toBe(ECardSet.Cohn);
+          expect(m.data.cards).toHaveLength(cohn.cards.length);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.MemberList,
+        (m: IMemberListMessage) => {
+          expect(m.data).toHaveLength(1);
+          expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
+          expect(m.data[0].role).toBe(ERole.ScrumMaster);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -113,23 +106,22 @@ describe('Rejoin => OK', () => {
     };
     rejoiningParticipant.sendMessage(message, Util.team1Name);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(disconnected.messagesReceivedAfterInitial).toBe(0);
+    // Test: disconnected participant messages
+    disconnected
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have received a self message
-    expect(rejoiningParticipant.messagesReceivedAfterInitial).toBe(1);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Self)).toBe(1);
-    const selfMessage = rejoiningParticipant.extractMessage<ISelfMessage>(EServerMessageType.Self);
-    expect(selfMessage).toBeDefined();
-    if (selfMessage) {
-      expect(selfMessage.data.participantId).toBe(disconnected.participantId);
-      expect(selfMessage.data.role).toBe(ERole.ScrumMaster);
-    }
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue()
+      .expectNextMessageIsSelf({ participantId: disconnected.participantId, role: ERole.ScrumMaster });
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -159,15 +151,22 @@ describe('Rejoin => OK', () => {
     rejoiningScrumMaster.sendMessage(message, Util.team1Name);
 
     // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(disconnected.messagesReceivedAfterInitial).toBe(0);
+    // Test: disconnected participant messages
+    disconnected
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have received no additional messages
-    expect(rejoiningScrumMaster.messagesReceivedAfterInitial).toBe(0);
+    // Test: rejoining scrum master messages
+    rejoiningScrumMaster
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -203,61 +202,55 @@ describe('Rejoin => OK', () => {
     };
     rejoiningParticipant.sendMessage(message, Util.team1Name);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC paused + 1 MC rejoin
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Paused)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Rejoined)).toBe(1);
-    const memberChangedMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Rejoined);
-    expect(memberChangedMessage).toBeDefined();
-    if (memberChangedMessage) {
-      expect(memberChangedMessage.data.member.participantId).toBe(participant.participantId);
-      expect(memberChangedMessage.data.member.status).toBe(EParticipantStatus.Connected);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Rejoined,
+        { participantId: participant.participantId, status: EParticipantStatus.Connected }
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received a self message
-    expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.Self)).toBe(1);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused });
 
-    // Test: rejoining participant should have received join messages
-    expect(rejoiningParticipant.totalMessagesReceived).toBe(participant.expectedNumberOfInitialMessages);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Self, false)).toBe(1);
-    const selfMessage = participant.extractMessage<ISelfMessage>(EServerMessageType.Self, false);
-    expect(selfMessage).toBeDefined();
-    if (selfMessage) {
-      expect(selfMessage.data.participantId).toBe(participant.participantId);
-      expect(selfMessage.data.nick).toBe(Util.participant1Nick);
-      expect(selfMessage.data.status).toBe(EParticipantStatus.Connected);
-      expect(selfMessage.data.role).toBe(ERole.Developer);
-      expect(selfMessage.data.observer).toBe(false);
-    }
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.TeamName, false)).toBe(1);
-    const teamMessage = rejoiningParticipant.extractMessage<ITeamNameMessage>(EServerMessageType.TeamName, false);
-    if (teamMessage) {
-      expect(teamMessage.data).toBe(Util.team1Name);
-    }
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.CardList, false)).toBe(1);
-    const cardListMessage = rejoiningParticipant.extractMessage<ICardSetMessage>(EServerMessageType.CardList, false);
-    expect(cardListMessage).toBeDefined();
-    if (cardListMessage) {
-      expect(cardListMessage.data.cardSet).toBe(ECardSet.Cohn);
-      expect(cardListMessage.data.cards).toHaveLength(cohn.cards.length);
-    }
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.MemberList, false)).toBe(1);
-    const memberListMessage = rejoiningParticipant.extractMessage<IMemberListMessage>(EServerMessageType.MemberList, false);
-    expect(memberListMessage).toBeDefined();
-    if (memberListMessage) {
-      expect(memberListMessage.data).toHaveLength(1);
-      expect(memberListMessage.data[0].nick).toBe(Util.scrumMaster1Nick);
-      expect(memberListMessage.data[0].role).toBe(ERole.ScrumMaster);
-    }
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.EstimationList, false)).toBe(1);
-    const estimationListMessage = rejoiningParticipant.extractMessage<IEstimationListMessage>(EServerMessageType.EstimationList, false);
-    expect(estimationListMessage).toBeDefined();
-    if (estimationListMessage) {
-      expect(estimationListMessage.data).toHaveLength(0);
-    }
+    // Test: rejoining participant messages (init sequence)
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsSelf(
+        {
+          participantId: participant.participantId,
+          role: ERole.Developer,
+          observer: false,
+          status: EParticipantStatus.Connected
+        }
+      )
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => {
+          expect(m.data.cardSet).toBe(ECardSet.Cohn);
+          expect(m.data.cards).toHaveLength(cohn.cards.length);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.MemberList,
+        (m: IMemberListMessage) => {
+          expect(m.data).toHaveLength(1);
+          expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
+          expect(m.data[0].role).toBe(ERole.ScrumMaster);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -288,18 +281,24 @@ describe('Rejoin => Failure', () => {
     };
     rejoiningParticipant.sendMessage(message, 'non existing team');
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have an init and an error message
-    expect(rejoiningParticipant.totalMessagesReceived).toBe(2);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(rejoiningParticipant.errorMessageReceived(EErrorCode.TeamDoesNotExist)).toBe(true);
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -325,18 +324,24 @@ describe('Rejoin => Failure', () => {
     };
     rejoiningParticipant.sendMessage(message, Util.team1Name);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have an init and an error message
-    expect(rejoiningParticipant.totalMessagesReceived).toBe(2);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(rejoiningParticipant.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -356,7 +361,7 @@ describe('Rejoin => Failure', () => {
     // Setup: create the second team
     Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
 
-    // Run: create a new connection to rejoin and send rejoin message
+    // Run: create a participant that is already in a team and send rejoin message
     const rejoiningParticipant = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
@@ -365,17 +370,23 @@ describe('Rejoin => Failure', () => {
     };
     rejoiningParticipant.sendMessage(message);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have an init and an error message
-    expect(rejoiningParticipant.messagesReceivedAfterInitial).toBe(1);
-    expect(rejoiningParticipant.errorMessageReceived(EErrorCode.ParticipantAllReadyInTeam)).toBe(true);
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue()
+      .expectNextMessageIsError(EErrorCode.ParticipantAllReadyInTeam)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -401,18 +412,24 @@ describe('Rejoin => Failure', () => {
     };
     rejoiningParticipant.sendMessage(message, Util.team1Name);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have an init and an error message
-    expect(rejoiningParticipant.totalMessagesReceived).toBe(2);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(rejoiningParticipant.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -441,19 +458,24 @@ describe('Rejoin => Failure', () => {
     };
     rejoiningParticipant.sendMessage(message, Util.team2Name);
 
-    // Test: scrum master 1 should have received 1 MC join + 1 MC disconnected
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
 
-    // Test: participant 1 should have received no additional messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: rejoining participant should have an init and an error message
-    expect(rejoiningParticipant.totalMessagesReceived).toBe(2);
-    expect(rejoiningParticipant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(rejoiningParticipant.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
-
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();

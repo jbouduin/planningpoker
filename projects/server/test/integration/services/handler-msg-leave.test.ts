@@ -1,10 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
 import { EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EServerMessageType, ILeaveMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Leaving => OK', () => {
@@ -12,48 +10,50 @@ describe('Leaving => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with participant and observer
+    // Setup: create team with participant and observer
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
 
-    // participant leaves
+    // Run: participant leaves
     const message: ILeaveMessage = {
       senderId: participant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Leave
     };
     participant.sendMessage(message);
+    // Run: participant closes socket
     participant.closeSocket();
 
-    // Test: scrum master should have received 2 MC join + 1 MC leave
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
-    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Left);
-    expect(leftMessage).toBeDefined();
-    if (leftMessage) {
-      expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
-      expect(leftMessage.data.member.participantId).toBe(participant.participantId);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Left,
+        { participantId: participant.participantId, status: EParticipantStatus.Left }
+      )
+      .expectNoMoreMessages();
 
-    // Test: observer should have received 1 MC leave
-    expect(observer.messagesReceivedAfterInitial).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
-    leftMessage = observer.extractMemberChangedMessage(EMemberChangeType.Left);
-    expect(leftMessage).toBeDefined();
-    if (leftMessage) {
-      expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
-      expect(leftMessage.data.member.participantId).toBe(participant.participantId);
-    }
+    // Test: observer messages
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Left,
+        { participantId: participant.participantId, status: EParticipantStatus.Left }
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant should have received 1 MC join memberchange + 1 Left
-    expect(participant.messagesReceivedAfterInitial).toBe(2);
-    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.Left)).toBe(1);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.Left)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -63,17 +63,18 @@ describe('Leaving => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with participant and observer
+    // Setup: create team with participant and observer
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
 
-    // participant 1 reconnects to leave
+    // Run: participant 1 reconnects to leave
     const reconnect = Util.connectParticipant(handlerService);
-    // participant 1 leaves
+
+    // Run: participant 1 leaves
     const message: ILeaveMessage = {
       senderId: reconnect.participantId,
       data: participant.participantId,
@@ -82,34 +83,38 @@ describe('Leaving => OK', () => {
     reconnect.sendMessage(message, Util.team1Name);
     reconnect.closeSocket();
 
-    // Test: scrum master should have received 2 MC join + 1 MC disconnected + 1 MC leave
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(4);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Disconnected)).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
-    let leftMessage = scrumMaster.extractMemberChangedMessage(EMemberChangeType.Left);
-    expect(leftMessage).toBeDefined();
-    if (leftMessage) {
-      expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
-      expect(leftMessage.data.member.participantId).toBe(participant.participantId);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Left,
+        { participantId: participant.participantId, status: EParticipantStatus.Left }
+      )
+      .expectNoMoreMessages();
 
-    // Test: observer should have received + 1 MC disconnect + 1 MC leave
-    expect(observer.messagesReceivedAfterInitial).toBe(1);
-    expect(observer.countMemberChangedMessages(EMemberChangeType.Left)).toBe(1);
-    leftMessage = observer.extractMemberChangedMessage(EMemberChangeType.Left);
-    expect(leftMessage).toBeDefined();
-    if (leftMessage) {
-      expect(leftMessage.data.member.status).toBe(EParticipantStatus.Left);
-      expect(leftMessage.data.member.participantId).toBe(participant.participantId);
-    }
+    // Test: observer messages
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Left,
+        { participantId: participant.participantId, status: EParticipantStatus.Left }
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant should have received his init message
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: reconnected participant should have received init messages + his own leave acknowledge message
-    expect(reconnect.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(reconnect.countMessagesOfType(EServerMessageType.Left, false)).toBe(1);
+    // Test: reconnected participant messages
+    reconnect
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIs(EServerMessageType.Left)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -121,40 +126,49 @@ describe('Leaving => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with participant and observer
+    // Setup: create team with participant and observer
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
 
-    // scrum master leaves
+    // Run: scrum master leaves
     const message: ILeaveMessage = {
       senderId: scrumMaster.participantId,
       data: scrumMaster.participantId,
       type: EClientMessageType.Leave
     };
     scrumMaster.sendMessage(message);
-    // clients will close their socket as a reaction on the session ended message
+
+    // Run: clients will close their sockets as a reaction on the session ended message
     scrumMaster.closeSocket();
     participant.closeSocket();
     observer.closeSocket();
 
-    // Test: scrum master should have received 2 MC join  + 1 session ended
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(3);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(2);
-    expect(scrumMaster.countMessagesOfType(EServerMessageType.EndSession)).toBe(1);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.EndSession)
+      .expectNoMoreMessages();
 
     // Test: participant should have received 1 MC join + 1 session ended
-    expect(participant.messagesReceivedAfterInitial).toBe(2);
-    expect(participant.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.EndSession)).toBe(1);
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.EndSession)
+      .expectNoMoreMessages();
 
     // Test: observer should have received 1 session ended
-    expect(observer.messagesReceivedAfterInitial).toBe(1);
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.EndSession)
+      .expectNoMoreMessages();
 
-    expect(observer.countMessagesOfType(EServerMessageType.EndSession)).toBe(1);
+
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
@@ -165,13 +179,14 @@ describe('Leaving => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team
+    // Setup: create team
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-    // send leave message
+
+    // Run: send leave message
     const message: ILeaveMessage = {
       senderId: 'some participant id',
       type: EClientMessageType.Leave,
@@ -179,13 +194,17 @@ describe('Leaving => Failure', () => {
     };
     participant.sendMessage(message);
 
-    // Test: participant should only have received the error message
-    expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.errorMessageReceived(EErrorCode.ParticipantNotFound)).toBe(true);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
 
-    // Test: scrum master should only have received 1 MC Join
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -195,14 +214,14 @@ describe('Leaving => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create the team
+    // Setup: create the team with a participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // connect the participant
-    const participant = Util.connectParticipant(handlerService);
-    // send leave message for team 2
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: send leave message for team 2
     const message: ILeaveMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Leave,
@@ -210,13 +229,17 @@ describe('Leaving => Failure', () => {
     };
     participant.sendMessage(message, Util.team2Name);
 
-    // Participant should only receive 1 init and 1 error message
-    expect(participant.totalMessagesReceived).toBe(2);
-    expect(participant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(participant.errorMessageReceived(EErrorCode.TeamDoesNotExist)).toBe(true);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
 
-    // scrum master should not have received any additional messages
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -226,14 +249,16 @@ describe('Leaving => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team
+    // Setup: create team
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // participant connects
+
+    // Setup: connect participant
     const participant = Util.connectParticipant(handlerService);
-    // send leave message
+
+    // Run: send leave message
     const message: ILeaveMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Leave,
@@ -241,13 +266,17 @@ describe('Leaving => Failure', () => {
     };
     participant.sendMessage(message, Util.team1Name);
 
-    // Test: participant should only have received the init and the error message
-    expect(participant.totalMessagesReceived).toBe(2);
-    expect(participant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(participant.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
 
-    // Test: scrum master should not have received any additional messages
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -257,13 +286,14 @@ describe('Leaving => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team with participant
+    // Setup: create team with participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-    // send leave message for another team
+
+    // Run: send leave message for another team
     const message: ILeaveMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Leave,
@@ -271,14 +301,17 @@ describe('Leaving => Failure', () => {
     };
     participant.sendMessage(message, unaffectedTeam.teamName);
 
-    // Test: participant should only have received the error message
-    expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.Init, false)).toBe(1);
-    expect(participant.errorMessageReceived(EErrorCode.ParticipantNotInTeam)).toBe(true);
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
 
-    // Test: scrum master should only have received 1 MC Joined
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();

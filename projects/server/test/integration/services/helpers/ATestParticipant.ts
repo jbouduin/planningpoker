@@ -27,113 +27,83 @@ export interface IATestParticipant {
   readonly socket: IWebSocket;
 
   /**
-   * The number of messages received after receiving the initial messages
-  */
-  readonly messagesReceivedAfterInitial: number;
-
-  /**
-   * The total number of messages received
-  */
-  readonly totalMessagesReceived: number;
-
-  /**
-   * The number of initial messages the participant should receive.
-   * Value needs to be set in the constructor of descendant classes
-   */
-  readonly expectedNumberOfInitialMessages: number;
-
-  /**
    * Close the socket of the participant. This triggers IHandlerService.handleClose.
   */
   closeSocket(): void;
 
   /**
-   * Count the number of IMemberChange messages of the given type
-   * @param changeType - the type of member change
-   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
-   * @returns the number found
-   *
-   * @deprecated use the message iterator to validate messages
-  */
-  countMemberChangedMessages(changeType: EMemberChangeType, skipInitialMessages?: boolean): number;
-
-  /**
-   * Count the number of messages of a given type
-   * @param messageType - the message type
-   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
-   * @returns the number found
-   *
-   * @deprecated use the message iterator to validate messages
-  */
-  countMessagesOfType(messageType: EServerMessageType, skipInitialMessages?: boolean): number;
-
-  /**
-   * Write the received messages as JSON to the console
-   * * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
+   * Write the received messages as JSON to the console.
+   * This method is banned and only to be used for debugging
+   * @param skipInitialMessages - If set to false, the initial message sequence is dumped also. Default true
   */
   dumpMessages(skipInitialMessages?: boolean): IATestParticipant;
 
   /**
-   * Check if an error message was received with the given error code. This method does not skip the initial messages
-   * @param errorCode - The error code to be searched for
-   * @returns true if the error message was found
+   * Expects the next message to be of the given type, calling the validation function if defined.
+   * Sets the pointer to the next message in the queue
    *
-   * @deprecated use the message iterator to validate messages
-  */
-  errorMessageReceived(errorCode: EErrorCode): boolean;
-
-  /**
-   * validates the next message in the iterator using the parameters.
    * @param type - the message type. Uses jest.expect internally to validate that the type is correct
-   * @param validation - a validation method that should use jest.expect
+   * @param validation - a validation method. The method has to use jest.expect
    */
   expectNextMessageIs<T extends AServerMessage>(type: EServerMessageType, validation?: ((message: T) => void)): IATestParticipant;
 
   /**
-   * validates if the next message is an error message with the given error code.
+   * Expects the next message to be an with the given error code.
+   * Sets the pointer to the next message in the queue
+   *
    * @param errorCode - the expected error code
    */
   expectNextMessageIsError(errorCode: EErrorCode): IATestParticipant;
 
+  /**
+   * Expects the next message to be a member changed message.
+   * Sets the pointer to the next message in the queue
+   *
+   * @param changeType - the expected change type
+   * @param options - IParticipantOptions with expected values
+   */
   expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IParticipantOptions): IATestParticipant;
+
+  /**
+   * Expects the next message to be a poker status changed message with the given pokerstatus.
+   * Sets the pointer to the next message in the queue
+   *
+   * @param status - the expected poker status
+   */
   expectNextMessageIsPokerStatus(status: EPokerStatus): IATestParticipant;
+
+  /**
+   * Expects the next message to be a self message.
+   * Sets the pointer to the next message in the queue
+   *
+   * If no options are provided, or the participantId in the options is not set,
+   * the methods expects the participantId to be the same value as the property participantId
+
+   * @param options - IParticipantOptions with expected values
+   */
   expectNextMessageIsSelf(options?: IParticipantOptions): IATestParticipant;
+
+  /**
+   * Expects the next message to be an init message.
+   * @param options - IParticipantOptions with expected values
+   */
   expectNextMessageIsInit(options?: IParticipantOptions): IATestParticipant;
 
   /**
-   * check if there are no more messages. Uses jest.expect internally
+   * Expects that there are no more messages available.
    */
   expectNoMoreMessages(): void;
 
   /**
-   * Search for the x-th occurrence of a IMemberChangeMessage of the given change type
-   * @param changeType - the type of member change
-   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
-   * @param occurrence - 0-based
-   *
-   * @deprecated use the message iterator to validate messages
-  */
-  extractMemberChangedMessage(changeType: EMemberChangeType, skipInitialMessages?: boolean, occurrence?: number): IMemberChangeMessage | undefined;
-
-  /**
-   * Search for the x-th occurrence of a message of the given type
-   * @param messageType - the message type
-   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
-   * @param occurrence - 0-based
-   * @returns the x-th occurrence or undefined
-  */
-  extractMessage<T = AServerMessage>(messageType: EServerMessageType, skipInitialMessages?: boolean, occurrence?: number): T | undefined;
-
-  /**
-   * Initializes the message iterator, so subsequent calls to 'expectNextMessageIs' or 'expectNoMoreMessages' can be executed
-   * @param skipInitialMessages - pass 'true' when counting should start after the initial messages. Default true
+   * Sets the pointer to the next message to the first one in the queue.
+   * @param skipInitialMessages - pass 'false' when counting should start after the initial message sequence. Default true
    */
-  initializeMessageIterator(skipInitialMessages?: boolean): IATestParticipant;
+  initializeMessageQueue(skipInitialMessages?: boolean): IATestParticipant;
 
   /**
-    * calls IHandlerService.handleMessage
-    * @param message - a AClientMessage
-    * @param teamName - the target team of the message. This sets the target for all subsequent calls. If undefined, the previous team is targetted
+   * calls IHandlerService.handleMessage
+   * @param message - a AClientMessage
+   * @param teamName - the target team of the message. This sets the target for all subsequent calls. If undefined, the previously set team is targetted
   */
   sendMessage(message: AClientMessage, teamName?: string): void;
 }
@@ -149,7 +119,8 @@ export abstract class ATestParticipant implements IATestParticipant {
   private teamName: string;
   //#endregion
 
-  //#region protected getters -------------------------------------------------
+  //#region protected properties ----------------------------------------------
+  protected expectedNumberOfInitialMessages: number;
   protected get allMessages(): Array<AServerMessage> {
     return this.send.mock.calls
       .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]));
@@ -163,16 +134,7 @@ export abstract class ATestParticipant implements IATestParticipant {
   //#endregion
 
   //#region IATestParticipant properties --------------------------------------
-  public socket: IWebSocket;
-  public expectedNumberOfInitialMessages: number;
-
-  public get totalMessagesReceived(): number {
-    return this.send.mock.calls.length;
-  }
-
-  public get messagesReceivedAfterInitial(): number {
-    return this.send.mock.calls.length - this.expectedNumberOfInitialMessages;
-  }
+  public readonly socket: IWebSocket;
 
   public get participantId(): string {
     return this.participant.participantId;
@@ -201,23 +163,6 @@ export abstract class ATestParticipant implements IATestParticipant {
     this.socket.readyState == ReadyState.CLOSED;
   }
 
-  public countMemberChangedMessages(changeType: EMemberChangeType, skipInitialMessages?: boolean): number {
-    const allMemberChangedMessages = skipInitialMessages ?
-      this.messagesAfterInitialMessages.filter((message: AServerMessage) => message.type === EServerMessageType.MemberChanged) :
-      this.allMessages.filter((message: AServerMessage) => message.type === EServerMessageType.MemberChanged);
-
-    return allMemberChangedMessages
-      .map((m: AServerMessage) => <IMemberChangeMessage>m)
-      .filter((m: IMemberChangeMessage) => m.data.memberStatusChange === changeType)
-      .length;
-  }
-
-  public countMessagesOfType(messageType: EServerMessageType, skipInitialMessages = true): number {
-    return skipInitialMessages ?
-      this.messagesAfterInitialMessages.filter((message: AServerMessage) => message.type === messageType).length :
-      this.allMessages.filter((message: AServerMessage) => message.type === messageType).length;
-  }
-
   public dumpMessages(skipInitialMessages = true): IATestParticipant {
     /* eslint-disable no-console */
     if (skipInitialMessages) {
@@ -229,31 +174,7 @@ export abstract class ATestParticipant implements IATestParticipant {
     return this;
   }
 
-  public errorMessageReceived(errorCode: EErrorCode): boolean {
-    const errorMessage = this.extractMessage<IErrorMessage>(EServerMessageType.Error, false);
-    return (errorMessage !== undefined) && errorMessage.data.code === errorCode;
-  }
-
-  public extractMessage<T = AServerMessage>(messageType: EServerMessageType, skipInitialMessages = true, occurrence = 0): T | undefined {
-    const allMessagesOfType = skipInitialMessages ?
-      this.messagesAfterInitialMessages.filter((message: AServerMessage) => message.type === messageType) :
-      this.allMessages.filter((message: AServerMessage) => message.type === messageType);
-
-    return allMessagesOfType.length >= occurrence ? <T>allMessagesOfType[occurrence] : undefined
-  }
-
-  public extractMemberChangedMessage(changeType: EMemberChangeType, skipInitialMessages = true, occurrence = 0): IMemberChangeMessage | undefined {
-    const allMemberChangedMessages = skipInitialMessages ?
-      this.messagesAfterInitialMessages.filter((message: AServerMessage) => message.type === EServerMessageType.MemberChanged) :
-      this.allMessages.filter((message: AServerMessage) => message.type === EServerMessageType.MemberChanged);
-
-    const messageOfGivenChangeType = allMemberChangedMessages
-      .map((m: AServerMessage) => <IMemberChangeMessage>m)
-      .filter((m: IMemberChangeMessage) => m.data.memberStatusChange === changeType);
-    return messageOfGivenChangeType.length >= occurrence ? messageOfGivenChangeType[occurrence] : undefined
-  }
-
-  public initializeMessageIterator(skipInitialMessages = true): IATestParticipant {
+  public initializeMessageQueue(skipInitialMessages = true): IATestParticipant {
     this.messageIterator = skipInitialMessages ? this.messagesAfterInitialMessages : this.allMessages;
     this.currentMessageIndex = 0;
     return this;
@@ -295,6 +216,14 @@ export abstract class ATestParticipant implements IATestParticipant {
   }
 
   public expectNextMessageIsSelf(options?: IParticipantOptions): IATestParticipant {
+    if (!options) {
+      options = { participantId: this.participantId };
+    } else {
+      if (!options.participantId) {
+        options.participantId = this.participantId
+      }
+    }
+
     return this.expectNextMessageIs(
       EServerMessageType.Self,
       (m: ISelfMessage) => this.checkParticipantOptions(m.data, options)

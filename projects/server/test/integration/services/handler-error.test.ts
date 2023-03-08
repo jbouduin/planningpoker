@@ -1,10 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
-import { EErrorCode, EServerMessageType, IErrorMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import { EServerMessageType, IErrorMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Handle Error', () => {
@@ -23,7 +21,7 @@ describe('Handle Error', () => {
 
     // Test scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(
         EServerMessageType.Error,
         (m: IErrorMessage) => m.data.message === 'test error'

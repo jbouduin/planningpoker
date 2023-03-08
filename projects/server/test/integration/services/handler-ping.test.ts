@@ -1,10 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
 import { EMemberChangeType, EParticipantStatus, EServerMessageType } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Ping', () => {
@@ -23,7 +21,7 @@ describe('Ping', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
@@ -34,7 +32,7 @@ describe('Ping', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
@@ -43,13 +41,13 @@ describe('Ping', () => {
 
     // Test: paused participant messages
     paused
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsSelf({status: EParticipantStatus.Paused})
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.Ping)
       .expectNoMoreMessages();
   });

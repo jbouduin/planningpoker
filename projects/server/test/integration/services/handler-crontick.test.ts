@@ -34,26 +34,26 @@ describe('Cron tick', () => {
 
     // Test: scrum master messages
     scrumMaster1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.MemberChanged)
       .expectNextMessageIs(EServerMessageType.TeamIdle)
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
     participant1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.TeamIdle)
       .expectNoMoreMessages();
 
     // Test: scrum master 2 should have received join only
     scrumMaster2
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant 2 should have received no additional messages
     participant2
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
   });
 });

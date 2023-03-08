@@ -7,19 +7,11 @@ export class UnaffectedTeam {
   public readonly participant: ITestParticipant;
   public readonly teamName: string;
 
-  /**
-   * @deprecated use the message iterator to validate messages
-   */
-  public get isUnaffected(): boolean {
-    // '1'  as the scrum master will have received the join message of the participant
-    return this.scrumMaster.messagesReceivedAfterInitial + this.participant.messagesReceivedAfterInitial === 1;
-  }
-
   public expectIsUnaffected(): void {
-    this.scrumMaster.initializeMessageIterator();
+    this.scrumMaster.initializeMessageQueue();
     this.scrumMaster.expectNextMessageIs(EServerMessageType.MemberChanged);
     this.scrumMaster.expectNoMoreMessages();
-    this.participant.initializeMessageIterator();
+    this.participant.initializeMessageQueue();
     this.participant.expectNoMoreMessages();
   }
 

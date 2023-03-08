@@ -329,6 +329,7 @@ export class HandlerService implements IHandlerService {
           this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== leaving.participantId),
           leaving,
           EMemberChangeType.Left);
+        // TODO 2389 use self to acknowledge instead of ILeftMessage
         this.messageService.sendLeft(sender);
       }
       if (sender.participantId !== message.data) {

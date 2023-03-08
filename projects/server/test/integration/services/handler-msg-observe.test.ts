@@ -1,10 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberChangeType, EServerMessageType, IObserveMessage, ISelfMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import { EClientMessageType, EMemberChangeType, IObserveMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 
@@ -32,7 +30,7 @@ describe('Toggle observe => OK', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(
         EMemberChangeType.Observe,
@@ -42,7 +40,7 @@ describe('Toggle observe => OK', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsSelf(
         { participantId: participant.participantId, observer: true }
       )
@@ -76,7 +74,7 @@ describe('Toggle observe => OK', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(
         EMemberChangeType.Observe,
@@ -86,7 +84,7 @@ describe('Toggle observe => OK', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsSelf(
         { participantId: participant.participantId, observer: true }
       )

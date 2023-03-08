@@ -1,10 +1,7 @@
-import { describe, expect, test } from '@jest/globals';
-
-import { EServerMessageType, IInitMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
+import { describe, test } from '@jest/globals';
 
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Connect', () => {
@@ -17,7 +14,7 @@ describe('Connect', () => {
 
     // Test: init message
     connected
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNoMoreMessages();
   });

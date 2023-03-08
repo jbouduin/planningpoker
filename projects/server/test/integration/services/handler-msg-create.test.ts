@@ -1,7 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
 import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICard, ICardSetMessage, ICreatemessage, IEstimationListMessage, IInitMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
-
 import SERVICETYPES from '../../../src/services/service.types';
 import STORAGETYPES from '../../../src/storage/storage.types';
 
@@ -25,7 +24,7 @@ describe('create => OK', () => {
 
     // Test: Scrum master initial messages
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(
         EServerMessageType.Init,
         (m: IInitMessage) => {
@@ -77,7 +76,7 @@ describe('create => OK', () => {
 
     // Test: check if the observer flag was send correctly
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIs(
         EServerMessageType.Self,
@@ -104,7 +103,7 @@ describe('create => OK', () => {
 
     // Test: check if the card set message contains the correct data
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIs(EServerMessageType.Self)
       .expectNextMessageIs(EServerMessageType.TeamName)
@@ -118,7 +117,7 @@ describe('create => OK', () => {
       .expectNextMessageIs(EServerMessageType.MemberList)
       .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
-    ;
+
   });
 
   test('Create with a custom card list without cards', () => {
@@ -133,7 +132,7 @@ describe('create => OK', () => {
 
     // Test: check if the card set message contains the correct data
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIs(EServerMessageType.Self)
       .expectNextMessageIs(EServerMessageType.TeamName)
@@ -164,7 +163,7 @@ describe('Create => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIsError(EErrorCode.TeamAlreadyExists)
       .expectNoMoreMessages();
@@ -197,7 +196,7 @@ describe('Create => Failure', () => {
 
     // Test: Scrum master messages
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
@@ -221,7 +220,7 @@ describe('Create => Failure', () => {
 
     // Test: Scrum Master messages
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIsError(EErrorCode.UnknownEstimationCardMissing)
       .expectNoMoreMessages();
@@ -240,7 +239,7 @@ describe('Create => Failure', () => {
 
     // Test: Scrum Master messages
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIsError(EErrorCode.MoreThanTwoEstimationCardsRequired)
       .expectNoMoreMessages();
@@ -259,7 +258,7 @@ describe('Create => Failure', () => {
 
     // Test: Scrum master messages
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIsError(EErrorCode.TeamNameMayNotBeEmtpy)
       .expectNoMoreMessages();
@@ -281,7 +280,7 @@ describe('Create => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIsError(EErrorCode.ParticipantNameMayNotBeEmpty)
       .expectNoMoreMessages();

@@ -1,13 +1,11 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationListMessage, IJoinMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-import STORAGETYPES from '../../../src/storage/storage.types';
-
+import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationListMessage, IJoinMessage, IMemberListMessage, ITeamNameMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
-import { Util } from "./helpers/util";
+import SERVICETYPES from '../../../src/services/service.types';
 import { IFactoryService } from '../../../src/storage/interfaces';
+import STORAGETYPES from '../../../src/storage/storage.types';
+import { Util } from "./helpers/util";
 
 describe('Join => OK', () => {
   test('Join', () => {
@@ -24,7 +22,7 @@ describe('Join => OK', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(
         EMemberChangeType.Joined,
         {
@@ -38,7 +36,7 @@ describe('Join => OK', () => {
 
     // Test: participant messages (init sequence)
     participant
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNextMessageIsSelf(
         {
@@ -87,13 +85,13 @@ describe('Join => OK', () => {
 
     // Test: scrum master messages - observer flag should be set
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined, { observer: true })
       .expectNoMoreMessages();
 
     // Test: participant messages (init sequence) - observer flag should be set
     participant
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNextMessageIsSelf({ observer: true })
       .expectNextMessageIs(EServerMessageType.TeamName)
@@ -123,7 +121,7 @@ describe('Join => OK', () => {
 
     // Test: participant messages (init sequence) - check card list
     participant
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNextMessageIsSelf()
       .expectNextMessageIs(EServerMessageType.TeamName)
@@ -160,7 +158,7 @@ describe('Join => OK', () => {
 
     // Test: scrum master 1 messages
     scrumMaster1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(
         EMemberChangeType.Joined,
         { participantId: participant1.participantId }
@@ -173,7 +171,7 @@ describe('Join => OK', () => {
 
     // Test: participant 1 messages
     participant1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(
         EMemberChangeType.Joined,
         { participantId: participant2.participantId }
@@ -182,12 +180,12 @@ describe('Join => OK', () => {
 
     // Test: participant 2 messages
     participant2
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: scrum master 2 should have received create messages + 2 MC join
     scrumMaster2
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(
         EMemberChangeType.Joined,
         { participantId: participant3.participantId }
@@ -200,7 +198,7 @@ describe('Join => OK', () => {
 
     // Test: participant 3 messages
     participant3
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(
         EMemberChangeType.Joined,
         { participantId: participant4.participantId }
@@ -209,7 +207,7 @@ describe('Join => OK', () => {
 
     // Test: participant 4 messages
     participant4
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -244,12 +242,12 @@ describe('Join => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
@@ -278,7 +276,7 @@ describe('Join => Failure', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
       .expectNoMoreMessages();
@@ -309,12 +307,12 @@ describe('Join => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
       .expectNoMoreMessages();
@@ -347,13 +345,13 @@ describe('Join => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsError(EErrorCode.ParticipantAllReadyInTeam)
       .expectNoMoreMessages();
 
@@ -387,18 +385,18 @@ describe('Join => Failure', () => {
 
     // Test: scrum master 1 messages
     scrumMaster1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: scrum master 2 messages
     scrumMaster2
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsError(EErrorCode.ParticipantAllReadyInTeam)
       .expectNoMoreMessages();
 
@@ -419,12 +417,12 @@ describe('Join => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNextMessageIsError(EErrorCode.ParticipantNameMayNotBeEmpty)
       .expectNoMoreMessages();

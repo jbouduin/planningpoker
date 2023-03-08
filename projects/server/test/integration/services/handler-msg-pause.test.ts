@@ -1,10 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberChangeType, EParticipantStatus, EServerMessageType, IPauseMessage, ISelfMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import { EClientMessageType, EMemberChangeType, EParticipantStatus, IPauseMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Pause => OK', () => {
@@ -31,7 +29,7 @@ describe('Pause => OK', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(
         EMemberChangeType.Paused,
@@ -41,7 +39,7 @@ describe('Pause => OK', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsSelf({ status: EParticipantStatus.Paused }
       )
       .expectNoMoreMessages();

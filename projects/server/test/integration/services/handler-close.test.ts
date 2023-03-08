@@ -1,9 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
-import SERVICETYPES from '../../../src/services/service.types';
-
-import { EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ISelfMessage } from '../../../../shared-lib/src';
+import { EMemberChangeType, EParticipantStatus, ERole } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Close', () => {
@@ -24,7 +23,7 @@ describe('Close', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(
@@ -35,7 +34,7 @@ describe('Close', () => {
 
     // Test: observer messages
     observer
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(
         EMemberChangeType.Disconnected,
         { participantId: participant.participantId, status: EParticipantStatus.Disconnected }
@@ -44,7 +43,7 @@ describe('Close', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNoMoreMessages();
 
@@ -74,7 +73,7 @@ describe('Close', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
@@ -83,7 +82,7 @@ describe('Close', () => {
 
     // Test: participant (will be the new scrum master) messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
@@ -93,7 +92,7 @@ describe('Close', () => {
 
     // Test: observer messages
     observer
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, { participantId: disconnected.participantId })
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, { participantId: scrumMaster.participantId })
@@ -108,7 +107,7 @@ describe('Close', () => {
 
     // Test: disconnected messages
     disconnected
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -128,7 +127,7 @@ describe('Close', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator(false)
+      .initializeMessageQueue(false)
       .expectNextMessageIsInit();
 
     // Test: check if unaffected team is unaffected

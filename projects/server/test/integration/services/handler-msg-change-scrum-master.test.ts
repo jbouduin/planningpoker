@@ -1,10 +1,8 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 
-import SERVICETYPES from '../../../src/services/service.types';
-
-import { EClientMessageType, EErrorCode, EMemberChangeType, ERole, EServerMessageType, IChangeScrumMasterMessage, ISelfMessage } from '../../../../shared-lib/src';
-
+import { EClientMessageType, EErrorCode, EMemberChangeType, ERole, IChangeScrumMasterMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
 
 describe('Change scrum master => OK', () => {
@@ -30,7 +28,7 @@ describe('Change scrum master => OK', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(
@@ -41,7 +39,7 @@ describe('Change scrum master => OK', () => {
 
     // Test: participant 1 messages
     participant1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(
         EMemberChangeType.ChangedRole,
@@ -51,7 +49,7 @@ describe('Change scrum master => OK', () => {
 
     // Test: participant 2 messages
     participant2
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(
         EMemberChangeType.ChangedRole,
         { participantId: scrumMaster.participantId, role: ERole.Developer })
@@ -88,7 +86,7 @@ describe('Change scrum master => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
@@ -97,14 +95,14 @@ describe('Change scrum master => Failure', () => {
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
       .expectNoMoreMessages();
 
     // Test: disconnected participant messages
     disconnected
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -136,19 +134,19 @@ describe('Change scrum master => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
     participant1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: participant 2 messages
     participant2
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -176,14 +174,14 @@ describe('Change scrum master => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -211,14 +209,14 @@ describe('Change scrum master => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
     participant1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -246,14 +244,14 @@ describe('Change scrum master => Failure', () => {
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
     participant1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -278,28 +276,24 @@ describe('Change scrum master => Failure', () => {
       data: participant1.participantId,
       type: EClientMessageType.ChangeScrumMaster
     };
-
     participant2.sendMessage(message);
 
     // Test: scrum master messages
     scrumMaster
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNoMoreMessages();
-
 
     // Test: participant 1 messages
     participant1
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNoMoreMessages();
-    expect(participant1.messagesReceivedAfterInitial).toBe(1);
-    expect(participant1.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
 
     // Test: participant 2 should have received 1 error
     participant2
-      .initializeMessageIterator()
+      .initializeMessageQueue()
       .expectNextMessageIsError(EErrorCode.ScrumMasterRequired)
       .expectNoMoreMessages();
 
