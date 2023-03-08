@@ -150,6 +150,39 @@ describe('create => OK', () => {
 });
 
 describe('Create => Failure', () => {
+  test('Sender not found', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: connect a user
+    const scrumMaster = Util.connectParticipant(handlerService);
+
+    // Run: create the team passing an unknown participantId
+    const message: ICreatemessage = {
+      type: EClientMessageType.Create,
+      senderId: Util.unknownParticipantId,
+      data: {
+        nick: Util.scrumMaster1Nick,
+        observer: false,
+        cardSet: ECardSet.Cohn
+      }
+    }
+    scrumMaster.sendMessage(message, Util.team1Name);
+
+    // Test: Scrum master messages
+    scrumMaster
+      .initializeMessageQueue(false)
+      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
   test('Team already exists', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -166,39 +199,6 @@ describe('Create => Failure', () => {
       .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIsError(EErrorCode.TeamAlreadyExists)
-      .expectNoMoreMessages();
-
-    // Test: check if unaffected team is unaffected
-    unaffectedTeam.expectIsUnaffected();
-  });
-
-  test('Sender not found', () => {
-    const container = Util.getContainer();
-    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
-
-    // Setup: create unaffected Team
-    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
-
-    // Setup: connect a user
-    const scrumMaster = Util.connectParticipant(handlerService);
-
-    // Run: create the team passing an unknown participantId
-    const message: ICreatemessage = {
-      type: EClientMessageType.Create,
-      senderId: 'some participant id',
-      data: {
-        nick: Util.scrumMaster1Nick,
-        observer: false,
-        cardSet: ECardSet.Cohn
-      }
-    }
-    scrumMaster.sendMessage(message, Util.team1Name);
-
-    // Test: Scrum master messages
-    scrumMaster
-      .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
-      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

@@ -1,6 +1,6 @@
 import { describe, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberChangeType, EParticipantStatus, IPauseMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, IPauseMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
@@ -51,9 +51,78 @@ describe('Pause => OK', () => {
 
 
 describe('Pause => Failure', () => {
-  // TODO 2378 test('team not found', () => { });
   // TODO 2378 test('Sender not found', () => { });
-  // TODO 2378 test('Sender not in any team', () => { });
-  // TODO 2378 test('Sender in different team', () => { });
-  // TODO 2378 test('scrum master may not pause', () => { });
+
+  test('team not found', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: pause
+    const message: IPauseMessage = {
+      senderId: participant.participantId,
+      data: undefined,
+      type: EClientMessageType.Pause
+    };
+    participant.sendMessage(message, Util.nonExistingTeam);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Sender not in any team', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.connectParticipant(handlerService);
+
+    // Run: pause
+    const message: IPauseMessage = {
+      senderId: participant.participantId,
+      data: undefined,
+      type: EClientMessageType.Pause
+    };
+    participant.sendMessage(message, Util.team1Name);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  // TODO 2378 test('Sender in another team', () => { });
+
 });

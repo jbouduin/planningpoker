@@ -261,49 +261,6 @@ describe('Rejoin => OK', () => {
 
 
 describe('Rejoin => Failure', () => {
-  test('Team not found', () => {
-    const container = Util.getContainer();
-    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
-
-    // Setup: create unaffected Team
-    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
-
-    // Setup: create team with one disconnected participant
-    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
-
-    // Run: create a new connection to rejoin and send rejoin message
-    const rejoiningParticipant = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
-      senderId: rejoiningParticipant.participantId,
-      data: participant.participantId,
-      type: EClientMessageType.Rejoin
-    };
-    rejoiningParticipant.sendMessage(message, 'non existing team');
-
-    // Test: scrum master messages
-    scrumMaster
-      .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNoMoreMessages();
-
-    // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
-
-    // Test: rejoining participant messages
-    rejoiningParticipant
-      .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
-      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
-      .expectNoMoreMessages();
-
-    // Test: check if unaffected team is unaffected
-    unaffectedTeam.expectIsUnaffected();
-  });
-
   test('Sender not found', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -318,7 +275,7 @@ describe('Rejoin => Failure', () => {
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
     const message: IRejoinMessage = {
-      senderId: 'unknown participant id',
+      senderId: Util.unknownParticipantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
     };
@@ -341,6 +298,49 @@ describe('Rejoin => Failure', () => {
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Team not found', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one disconnected participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: create a new connection to rejoin and rejoin message non existing team
+    const rejoiningParticipant = Util.connectParticipant(handlerService);
+    const message: IRejoinMessage = {
+      senderId: rejoiningParticipant.participantId,
+      data: participant.participantId,
+      type: EClientMessageType.Rejoin
+    };
+    rejoiningParticipant.sendMessage(message, Util.nonExistingTeam);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: rejoining participant messages
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -407,7 +407,7 @@ describe('Rejoin => Failure', () => {
     const rejoiningParticipant = Util.connectParticipant(handlerService);
     const message: IRejoinMessage = {
       senderId: rejoiningParticipant.participantId,
-      data: 'unknown participant id',
+      data: Util.unknownParticipantId,
       type: EClientMessageType.Rejoin
     };
     rejoiningParticipant.sendMessage(message, Util.team1Name);

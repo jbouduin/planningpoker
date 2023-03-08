@@ -25,6 +25,8 @@ export class Util {
   public static observer2Name = '李四';
   public static team1Name = 'team1';
   public static team2Name = 'team2';
+  public static nonExistingTeam = '假想组';
+  public static unknownParticipantId = 'unknown participant id';
 
   public static createMessageTypesExpected = [
     EServerMessageType.Init,

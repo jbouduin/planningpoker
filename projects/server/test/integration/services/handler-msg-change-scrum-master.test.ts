@@ -64,6 +64,122 @@ describe('Change scrum master => OK', () => {
 });
 
 describe('Change scrum master => Failure', () => {
+  test('Sender not found', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with two participants
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: change scrum master
+    const message: IChangeScrumMasterMessage = {
+      senderId: Util.unknownParticipantId,
+      data: participant1.participantId,
+      type: EClientMessageType.ChangeScrumMaster
+    };
+    scrumMaster.sendMessage(message);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
+      .expectNoMoreMessages();
+
+    // Test: participant 1 messages
+    participant1
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Team not found', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with one participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: change scrum master
+    const message: IChangeScrumMasterMessage = {
+      senderId: scrumMaster.participantId,
+      data: participant.participantId,
+      type: EClientMessageType.ChangeScrumMaster
+    };
+    scrumMaster.sendMessage(message, Util.nonExistingTeam);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Sender not in any team', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with two participants
+    const scrumMaster1 = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: connect a scrum master
+    const scrumMaster2 = Util.connectParticipant(handlerService, ERole.ScrumMaster);
+
+    // Run: change scrum master to participant 1
+    const message: IChangeScrumMasterMessage = {
+      senderId: scrumMaster2.participantId,
+      data: participant1.participantId,
+      type: EClientMessageType.ChangeScrumMaster
+    };
+    scrumMaster2.sendMessage(message, Util.team1Name);
+
+    // Test: scrum master messages
+    scrumMaster1
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNoMoreMessages();
+
+    // Test: participant 1 messages
+    participant1
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: scrum master 2 messages
+    scrumMaster2
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  // TODO 2376 test('Sender in another team', () => { });
+
   test('New Scrum master is not connected', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -188,76 +304,6 @@ describe('Change scrum master => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  test('Team not found', () => {
-    const container = Util.getContainer();
-    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
-
-    // Setup: create unaffected Team
-    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
-
-    // Setup: create team with one participant
-    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-
-    // Run: change scrum master
-    const message: IChangeScrumMasterMessage = {
-      senderId: scrumMaster.participantId,
-      data: participant1.participantId,
-      type: EClientMessageType.ChangeScrumMaster
-    };
-    scrumMaster.sendMessage(message, Util.team2Name);
-
-    // Test: scrum master messages
-    scrumMaster
-      .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
-      .expectNoMoreMessages();
-
-    // Test: participant 1 messages
-    participant1
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
-
-    // Test: check if unaffected team is unaffected
-    unaffectedTeam.expectIsUnaffected();
-  });
-
-  test('Sender not found', () => {
-    const container = Util.getContainer();
-    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
-
-    // Setup: create unaffected Team
-    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
-
-    // Setup: create team with two participants
-    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-
-    // Run: change scrum master
-    const message: IChangeScrumMasterMessage = {
-      senderId: 'unknown participant',
-      data: participant1.participantId,
-      type: EClientMessageType.ChangeScrumMaster
-    };
-    scrumMaster.sendMessage(message);
-
-    // Test: scrum master messages
-    scrumMaster
-      .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
-      .expectNoMoreMessages();
-
-    // Test: participant 1 messages
-    participant1
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
-
-    // Test: check if unaffected team is unaffected
-    unaffectedTeam.expectIsUnaffected();
-  });
-
   test('Sender not scrum master', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -301,6 +347,5 @@ describe('Change scrum master => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2376 test('Sender not in any team', () => { });
-  // TODO 2376 test('Sender in another team', () => { });
+
 });

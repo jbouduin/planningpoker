@@ -272,7 +272,7 @@ describe('Join => Failure', () => {
         observer: false
       }
     };
-    participant.sendMessage(message, Util.team1Name);
+    participant.sendMessage(message, Util.nonExistingTeam);
 
     // Test: participant messages
     participant
@@ -303,7 +303,7 @@ describe('Join => Failure', () => {
         observer: false
       }
     };
-    participant.sendMessage(message, Util.team2Name);
+    participant.sendMessage(message, Util.nonExistingTeam);
 
     // Test: scrum master messages
     scrumMaster
@@ -315,44 +315,6 @@ describe('Join => Failure', () => {
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
       .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
-      .expectNoMoreMessages();
-
-    // Test: check if unaffected team is unaffected
-    unaffectedTeam.expectIsUnaffected();
-  });
-
-  test('Sender already in the team', () => {
-    const container = Util.getContainer();
-    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
-
-    // Setup: create unaffected Team
-    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
-
-    // Setup: create the team with the participant
-    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
-
-    // Run: try to join the team again
-    const message: IJoinMessage = {
-      senderId: participant.participantId,
-      type: EClientMessageType.Join,
-      data: {
-        nick: Util.participant1Nick,
-        observer: false
-      }
-    };
-    participant.sendMessage(message);
-
-    // Test: scrum master messages
-    scrumMaster
-      .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNoMoreMessages();
-
-    // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNextMessageIsError(EErrorCode.ParticipantAllReadyInTeam)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -392,6 +354,44 @@ describe('Join => Failure', () => {
     // Test: scrum master 2 messages
     scrumMaster2
       .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsError(EErrorCode.ParticipantAllReadyInTeam)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Sender already in the team', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create the team with the participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: try to join the team again
+    const message: IJoinMessage = {
+      senderId: participant.participantId,
+      type: EClientMessageType.Join,
+      data: {
+        nick: Util.participant1Nick,
+        observer: false
+      }
+    };
+    participant.sendMessage(message);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
