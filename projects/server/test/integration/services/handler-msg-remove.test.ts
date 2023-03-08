@@ -62,7 +62,7 @@ describe('Remove => OK', () => {
 
 
 describe('Remove => Failure', () => {
-  // TODO 2379 test('Sender not found', () => { });
+  // TODO 2390 test('Sender not found', () => { });
 
   test('Team not found', () => {
     const container = Util.getContainer();
@@ -152,7 +152,8 @@ describe('Remove => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2379 test('Sender in another team', () => { });
+  // TODO 2390 test('Sender in another team', () => { });
+
   test('Sender not scrum master', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);

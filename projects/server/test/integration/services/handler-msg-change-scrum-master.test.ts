@@ -178,7 +178,7 @@ describe('Change scrum master => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2376 test('Sender in another team', () => { });
+  // TODO 2391 test('Sender in another team', () => { });
 
   test('New Scrum master is not connected', () => {
     const container = Util.getContainer();

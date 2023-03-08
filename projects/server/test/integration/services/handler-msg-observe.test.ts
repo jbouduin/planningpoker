@@ -98,7 +98,7 @@ describe('Toggle observe => OK', () => {
 
 
 describe('Toggle observe => Failure', () => {
-  // TODO 2377 test('Sender not found', () => { });
+  // TODO 2390 test('Sender not found', () => { });
 
   test('Team not found', () => {
     const container = Util.getContainer();
@@ -185,7 +185,7 @@ describe('Toggle observe => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2377 test('Sender in another team', () => { });
+  // TODO 2391 test('Sender in another team', () => { });
 
   test('Sender is not scrum master and changing another participant', () => {
     const container = Util.getContainer();

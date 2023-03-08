@@ -62,7 +62,7 @@ describe('Change card set => OK', () => {
 });
 
 describe('Change card set => Failure', () => {
-  // TODO 2374 test('Sender not found', () => { });
+  // TODO 2390 test('Sender not found', () => { });
 
   test('Team not found', () => {
     const container = Util.getContainer();
@@ -148,7 +148,7 @@ describe('Change card set => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2374 test('Sender in another team', () => { });
+  // TODO 2391 test('Sender in another team', () => { });
 
   test('Sender not scrum master', () => {
     const container = Util.getContainer();

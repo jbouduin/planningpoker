@@ -51,7 +51,7 @@ describe('Pause => OK', () => {
 
 
 describe('Pause => Failure', () => {
-  // TODO 2378 test('Sender not found', () => { });
+  // TODO 2390 test('Sender not found', () => { });
 
   test('team not found', () => {
     const container = Util.getContainer();
@@ -123,6 +123,6 @@ describe('Pause => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2378 test('Sender in another team', () => { });
+  // TODO 2391 test('Sender in another team', () => { });
 
 });
