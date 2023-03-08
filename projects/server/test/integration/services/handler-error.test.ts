@@ -12,25 +12,25 @@ describe('Handle Error', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
-    // create unaffected Team
+    // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // create team
+    // Setup: create team
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
 
-    // raise an error
+    // Run: raise an error
     handlerService.handleError(scrumMaster.socket, new Error('test error'));
 
-    // test
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(1);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.ServerError)).toBe(true);
-    const errorMessage = scrumMaster.extractMessage<IErrorMessage>(EServerMessageType.Error);
-    expect(errorMessage).toBeDefined();
-    if (errorMessage) {
-      expect(errorMessage.data.message).toBe('test error');
-    }
+    // Test scrum master messages
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.Error,
+        (m: IErrorMessage) => m.data.message === 'test error'
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });
