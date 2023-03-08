@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EServerMessageType, ICard, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EServerMessageType, ICard, ICardSet, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 import STORAGETYPES from '../../../src/storage/storage.types';
@@ -20,11 +20,15 @@ describe('Change card set => OK', () => {
     // Setup: customize a card set
     const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
     customizedCohn.cards.splice(9, 3);
+    const expectCardSetFn = (c: ICardSet) => {
+      expect(c.cardSet).toBe(customizedCohn.cardSet);
+      expect(c.cards).toHaveLength(customizedCohn.cards.length);
+    }
 
-    // Setup: create team
+    // Setup: create team with a single participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // Setup: participant joining team 1
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
     // Run: change card set
     const message: IChangeCardSetMessage = {
       senderId: scrumMaster.participantId,
@@ -33,29 +37,27 @@ describe('Change card set => OK', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // Test: scrum master should have received 1 MC join + 1 card list
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.countMessagesOfType(EServerMessageType.CardList)).toBe(1);
-    let updatedCardSetMessage = scrumMaster.extractMessage<ICardSetMessage>(EServerMessageType.CardList);
-    expect(updatedCardSetMessage).toBeDefined();
-    if (updatedCardSetMessage) {
-      expect(updatedCardSetMessage.data.cardSet).toBe(customizedCohn.cardSet);
-      expect(updatedCardSetMessage.data.cards).toHaveLength(customizedCohn.cards.length);
-    }
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => expectCardSetFn(m.data)
+      )
+      .expectNoMoreMessages();
 
-    // Test: participant should have received card list message only
-    expect(participant.messagesReceivedAfterInitial).toBe(1);
-    expect(participant.countMessagesOfType(EServerMessageType.CardList)).toBe(1);
-    updatedCardSetMessage = participant.extractMessage<ICardSetMessage>(EServerMessageType.CardList);
-    expect(updatedCardSetMessage).toBeDefined();
-    if (updatedCardSetMessage) {
-      expect(updatedCardSetMessage.data.cardSet).toBe(customizedCohn.cardSet);
-      expect(updatedCardSetMessage.data.cards).toHaveLength(customizedCohn.cards.length);
-    }
+    // Test: participant messages
+    participant
+      .initializeMessageIterator()
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => expectCardSetFn(m.data)
+      )
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });
 
@@ -74,7 +76,7 @@ describe('Change card set => Failure', () => {
     // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // Setup: customize a card set
+    // Setup: customize a card set - remove the unknown estimation card
     const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
     const indexOfUnknown = customizedCohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
     customizedCohn.cards.splice(indexOfUnknown, 1);
@@ -92,15 +94,19 @@ describe('Change card set => Failure', () => {
     scrumMaster.sendMessage(message);
 
     // Test: scrum master should have received 1 MC join + 1 error
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.UnknownEstimationCardMissing)).toBe(true);
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsError(EErrorCode.UnknownEstimationCardMissing)
+      .expectNoMoreMessages();
 
-    // Test: participant should have received no messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageIterator()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 
   test('card set invalid: Less than two estimation cards', () => {
@@ -110,14 +116,14 @@ describe('Change card set => Failure', () => {
     // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // Setup: customize a card set
+    // Setup: customize a card set - remove all but one estimation card
     const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
     customizedCohn.cards.splice(1, 11);
 
-    // Setup: create team
+    // Setup: create team with one participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
-    // Setup: participant joining team 1
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
     // Run: change card set
     const message: IChangeCardSetMessage = {
       senderId: scrumMaster.participantId,
@@ -126,15 +132,18 @@ describe('Change card set => Failure', () => {
     };
     scrumMaster.sendMessage(message);
 
-    // Test: scrum master should have received 1 MC join + 1 error
-    expect(scrumMaster.messagesReceivedAfterInitial).toBe(2);
-    expect(scrumMaster.countMemberChangedMessages(EMemberChangeType.Joined)).toBe(1);
-    expect(scrumMaster.errorMessageReceived(EErrorCode.MoreThanTwoEstimationCardsRequired)).toBe(true);
+    scrumMaster
+      .initializeMessageIterator()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsError(EErrorCode.MoreThanTwoEstimationCardsRequired)
+      .expectNoMoreMessages();
 
-    // Test: participant should have received no messages
-    expect(participant.messagesReceivedAfterInitial).toBe(0);
+    // Test: participant messages
+    participant
+      .initializeMessageIterator()
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
-    expect(unaffectedTeam.isUnaffected).toBe(true);
+    unaffectedTeam.expectIsUnaffected();
   });
 });
