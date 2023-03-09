@@ -55,7 +55,7 @@ export class SerializationService implements ISerializationService {
     }
     else {
       return {
-        error: EErrorCode.TeamDoesNotExist,
+        error: EErrorCode.TeamNotFound,
         errorMessage: `Team '${teamName}' not found`
       }
     }

@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
+import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreateMessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { IServerParticipant, ITeam, LooseObject } from "../../objects";
 import { IFactoryService, IStorageService } from '../../storage/interfaces';
 import { IHandlerService, ILoggerService, IMessageService } from "../interfaces";
@@ -140,7 +140,7 @@ export class HandlerService implements IHandlerService {
   //#region message handling methods ------------------------------------------
   private processMessage(sender: IServerParticipant, message: AClientMessage, teamName: string, ws: IWebSocket): void {
     if (message.type === EClientMessageType.Create) {
-      this.handleCreate(sender, teamName, <ICreatemessage>message);
+      this.handleCreate(sender, teamName, <ICreateMessage>message);
     }
     else {
       switch (message.type) {
@@ -235,7 +235,7 @@ export class HandlerService implements IHandlerService {
     }
   }
 
-  private handleCreate(sender: IServerParticipant, teamName: string, message: ICreatemessage): void {
+  private handleCreate(sender: IServerParticipant, teamName: string, message: ICreateMessage): void {
     this.loggerService.info('Server', `Create: '${sender.nick}' is creating '${teamName}'`);
     const cardSet = message.data.cardSet === ECardSet.Custom ?
       message.data.cards || this.factoryService.createCardSet(ECardSet.Cohn) :

@@ -104,7 +104,7 @@ describe('start => Failure', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
     // Test: participant messages

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { IErrorMessage, AServerMessage } from '@shared-lib';
+import { IErrorMessage } from '@shared-lib';
 
 import { enumMarker } from '@core/marker';
 import { SnackbarService } from '../services';
@@ -38,7 +38,7 @@ export class ErrorHandlerService {
 
     const result =
       code === EErrorCode.TeamAlreadyExists ||
-      code === EErrorCode.TeamDoesNotExist ||
+      code === EErrorCode.TeamNotFound ||
       code === EErrorCode.ParticipantNotFound;
     return result;
   }

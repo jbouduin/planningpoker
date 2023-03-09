@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, EErrorCode, ICard, IChangeCardSetMessage, ICreate, ICreatemessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, ICard, IChangeCardSetMessage, ICreate, ICreateMessage } from '../../../../shared-lib/src';
 import { FactoryService } from '../../../src/storage/implementation/factory.service';
 import { IStorageService } from '../../../src/storage/interfaces';
 import { Util } from '../util';
@@ -13,7 +13,7 @@ describe('cardSet OK', () => {
       cardSet: ECardSet.Cohn,
       nick: Util.scrummasterName
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
+    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -31,7 +31,7 @@ describe('cardSet OK', () => {
       nick: Util.scrummasterName,
       cards: cohn
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
+    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -87,7 +87,7 @@ describe('cardSet not OK', () => {
       nick: Util.scrummasterName,
       cards: cohn
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
+    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -124,7 +124,7 @@ describe('cardSet not OK', () => {
       nick: Util.scrummasterName,
       cards: cohn
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
+    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())

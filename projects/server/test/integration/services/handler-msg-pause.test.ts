@@ -81,7 +81,7 @@ describe('Pause => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

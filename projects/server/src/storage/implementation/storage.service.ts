@@ -104,7 +104,7 @@ export class StorageService implements IStorageService {
     let result: EErrorCode;
     const team = this.teamRepository.get(teamName);
     if (!team) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else {
       const member = this.participantRepository.get(participantId);
       if (member) {

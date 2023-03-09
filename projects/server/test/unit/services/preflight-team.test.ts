@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, EErrorCode, ICreate, ICreatemessage, IJoin, IJoinMessage, ILeaveMessage, IPauseMessage, IRejoinMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, ICreate, ICreateMessage, IJoin, IJoinMessage, ILeaveMessage, IPauseMessage, IRejoinMessage } from '../../../../shared-lib/src';
 import { IStorageService } from '../../../src/storage/interfaces';
 import { Util } from '../util';
 
@@ -12,7 +12,7 @@ describe('preflight Create', () => {
       cardSet: ECardSet.Cohn,
       nick: Util.participant1Name
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -27,7 +27,7 @@ describe('preflight Create', () => {
       cardSet: ECardSet.Cohn,
       nick: Util.participant1Name
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -42,7 +42,7 @@ describe('preflight Create', () => {
       cardSet: ECardSet.Cohn,
       nick: Util.participant1Name
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(undefined)
@@ -57,7 +57,7 @@ describe('preflight Create', () => {
       cardSet: ECardSet.Cohn,
       nick: Util.participant1Name
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -72,7 +72,7 @@ describe('preflight Create', () => {
       cardSet: ECardSet.Cohn,
       nick: ''
     };
-    const message: ICreatemessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -128,7 +128,7 @@ describe('preflight Join', () => {
       .returns(false)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
       .returns(undefined);
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamDoesNotExist);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamNotFound);
   });
 
   test('Failure => sender already member', () => {
@@ -213,7 +213,7 @@ describe('preflight Leave - Normal', () => {
       .returns(false)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamDoesNotExist);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamNotFound);
   });
 
   test('Failure => sender not in team', () => {
@@ -284,7 +284,7 @@ describe('preflight Leave - After Disconnect', () => {
       .returns(undefined)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant2Name))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamDoesNotExist);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamNotFound);
   });
 
   test('Failure => sender in team', () => {
@@ -396,7 +396,7 @@ describe('preflight Pause', () => {
       .returns(false)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamDoesNotExist);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamNotFound);
   });
 
   test('Failure => sender not in team', () => {
@@ -467,7 +467,7 @@ describe("preflight Rejoin", () => {
       .returns(undefined)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant2Name))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamDoesNotExist);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamNotFound);
   });
 
   test('Failure => sender in team', () => {

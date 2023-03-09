@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { IServerParticipant } from "objects";
 
-import { AClientMessage, EClientMessageType, EErrorCode, EParticipantStatus, EPokerStatus, ERole, ICard, ICardSet, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
+import { AClientMessage, EClientMessageType, EErrorCode, EParticipantStatus, EPokerStatus, ERole, ICard, ICardSet, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreateMessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
 import { IStorageService } from "../../storage/interfaces";
 import { IPreflightService } from "../interfaces";
 
@@ -25,7 +25,7 @@ export class PreflightService implements IPreflightService {
     let result: EErrorCode;
     switch (message.type) {
       case (EClientMessageType.Create):
-        result = this.preflightCreate(storageService, teamName, <ICreatemessage>message);
+        result = this.preflightCreate(storageService, teamName, <ICreateMessage>message);
         break;
       case (EClientMessageType.ChangeCardSet): {
         result = this.preflightChangeCardSet(storageService, sender, teamName, <IChangeCardSetMessage>message);
@@ -89,7 +89,7 @@ export class PreflightService implements IPreflightService {
    * - nickname may not be empty
    * - cards, if given, must be a valid card set
    */
-  private preflightCreate(storage: IStorageService, teamName: string, message: ICreatemessage): EErrorCode {
+  private preflightCreate(storage: IStorageService, teamName: string, message: ICreateMessage): EErrorCode {
     let result = EErrorCode.NoError;
     if (storage.teamExists(teamName)) {
       result = EErrorCode.TeamAlreadyExists;
@@ -113,7 +113,7 @@ export class PreflightService implements IPreflightService {
   private preflightChangeCardSet(storage: IStorageService, sender: IServerParticipant, teamName: string, message: IChangeCardSetMessage): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
       result = EErrorCode.ParticipantNotInTeam;
     } else if (sender.role !== ERole.ScrumMaster) {
@@ -145,7 +145,7 @@ export class PreflightService implements IPreflightService {
   private preflightChangeScrumMaster(storage: IStorageService, sender: IServerParticipant, teamName: string, message: IChangeScrumMasterMessage): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
       result = EErrorCode.ParticipantNotInTeam;
     } else if (sender.role !== ERole.ScrumMaster) {
@@ -173,7 +173,7 @@ export class PreflightService implements IPreflightService {
   private preflightEstimate(storage: IStorageService, sender: IServerParticipant, teamName: string, message: IEstimateMessage): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (sender.observer) {
       result = EErrorCode.ObserverCanNotEstimate;
     } else {
@@ -208,7 +208,7 @@ export class PreflightService implements IPreflightService {
     if (message.data.nick.length === 0) {
       result = EErrorCode.ParticipantNameMayNotBeEmpty;
     } else if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else {
       const teamOfSender = storage.getTeamOfParticipant(sender.participantId);
       if (teamOfSender) {
@@ -230,7 +230,7 @@ export class PreflightService implements IPreflightService {
   private preflightLeave(storage: IStorageService, sender: IServerParticipant, teamName: string, message: ILeaveMessage): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (message.data === sender.participantId) {
       if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
@@ -260,7 +260,7 @@ export class PreflightService implements IPreflightService {
   private preflightObserve(storage: IStorageService, sender: IServerParticipant, teamName: string, message: IObserveMessage): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
       result = EErrorCode.ParticipantNotInTeam;
     } else if (sender.participantId !== message.data.member) {
@@ -282,7 +282,7 @@ export class PreflightService implements IPreflightService {
   private preflightPause(storage: IStorageService, sender: IServerParticipant, teamName: string): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
       result = EErrorCode.ParticipantNotInTeam;
     }
@@ -299,7 +299,7 @@ export class PreflightService implements IPreflightService {
   private preflightRemove(storage: IStorageService, sender: IServerParticipant, teamName: string, message: IRemoveMessage): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (sender.role !== ERole.ScrumMaster) {
       result = EErrorCode.ScrumMasterRequired;
     } else if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
@@ -321,7 +321,7 @@ export class PreflightService implements IPreflightService {
   private preflightReveal(storage: IStorageService, sender: IServerParticipant, teamName: string): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (sender.role !== ERole.ScrumMaster) {
       result = EErrorCode.ScrumMasterRequired;
     } else {
@@ -347,7 +347,7 @@ export class PreflightService implements IPreflightService {
   private preflightStart(storage: IStorageService, sender: IServerParticipant, teamName: string): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (sender.role !== ERole.ScrumMaster) {
       result = EErrorCode.ScrumMasterRequired;
     } else {
@@ -375,7 +375,7 @@ export class PreflightService implements IPreflightService {
   private preflightRejoin(storage: IStorageService, sender: IServerParticipant, teamName: string, message: IRejoinMessage): EErrorCode {
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
+      result = EErrorCode.TeamNotFound;
     } else if (storage.getTeamOfParticipant(sender.participantId)) {
       result = EErrorCode.ParticipantAllReadyInTeam;
     } else {

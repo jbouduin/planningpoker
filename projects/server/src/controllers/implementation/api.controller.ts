@@ -34,7 +34,7 @@ export class ApiController implements IApiController {
     const response: LooseObject = {};
     response.errorCode = this.storageService.canRejoin(participantId, teamName);
     switch (response.errorCode) {
-      case EErrorCode.TeamDoesNotExist:
+      case EErrorCode.TeamNotFound:
         response.canRejoin = false;
         response.message = 'team does not exist';
         break;
