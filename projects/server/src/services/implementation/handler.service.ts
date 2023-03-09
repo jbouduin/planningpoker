@@ -206,7 +206,6 @@ export class HandlerService implements IHandlerService {
   }
 
   private handleChangeCardSet(teamName: string, message: IChangeCardSetMessage): void {
-    // TODO NOW prevent a change during estimations
     this.storage.setCardSet(teamName, message.data);
     this.messageService.broadcastCardSet(
       this.storage.getConnectedTeamMembers(teamName),
