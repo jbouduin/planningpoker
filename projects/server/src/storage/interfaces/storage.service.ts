@@ -4,7 +4,19 @@ import { IServerParticipant, ITeam } from "../../objects";
 export interface IStorageService {
   //#region participant -------------------------------------------------------
   addParticipant(participant: IServerParticipant): void;
+
+  /**
+   * Deletes the participant from the participant repository
+   *
+   * If a team name is provided:
+   * - the last access time of the team is updated
+   * - the participant is removed from the membership repository
+   * - the participant is removed from the estimation repository
+   * @param participantId - the participant id
+   * @param teamName - the team name
+   */
   deleteParticipant(participantId: string, teamName: string | undefined): void;
+
   filterParticipants(filter: (participant: IServerParticipant) => boolean): Array<IServerParticipant>;
   getParticipant(participantId: string): IServerParticipant | undefined;
   participantExists(participantId: string): boolean;

@@ -267,9 +267,10 @@ export class HandlerService implements IHandlerService {
       else {
         result = this.storage.deleteEstimation(teamName, sender.participantId);
       }
-      this.storage
-        .getConnectedTeamMembers(teamName)
-        .forEach((p: IServerParticipant) => { this.messageService.sendEstimations(p, [result]); });
+      this.messageService.broadcastEstimations(
+        this.storage.getConnectedTeamMembers(teamName),
+        [result]
+      );
     }
   }
 
@@ -315,7 +316,6 @@ export class HandlerService implements IHandlerService {
       this.loggerService.info('Server', `End game: '${sender.nick}' is ending '${teamName}'`);
       this.messageService.broadcastSessionEnded(this.storage.getConnectedTeamMembers(teamName));
       this.storage.deleteTeam(teamName);
-
     } else {
       const leaving = sender.participantId !== message.data ?
         this.storage.getParticipant(message.data) :
@@ -329,6 +329,9 @@ export class HandlerService implements IHandlerService {
           this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== leaving.participantId),
           leaving,
           EMemberChangeType.Left);
+        // TODO NOW if the team is currently estimating resend the current estimations
+
+        // Aknowledge to the sender
         sender.status = EParticipantStatus.Left;
         this.messageService.sendSelf(sender);
       }
@@ -404,9 +407,10 @@ export class HandlerService implements IHandlerService {
       this.storage.getConnectedTeamMembers(teamName),
       result[0]
     );
-    this.storage
-      .getConnectedTeamMembers(teamName)
-      .forEach((p: IServerParticipant) => { this.messageService.sendEstimations(p, result[1]); });
+    this.messageService.broadcastEstimations(
+      this.storage.getConnectedTeamMembers(teamName),
+      result[1]
+    );
   }
 
   private handleStart(teamName: string): void {
