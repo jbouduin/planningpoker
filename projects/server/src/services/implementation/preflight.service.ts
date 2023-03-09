@@ -108,19 +108,27 @@ export class PreflightService implements IPreflightService {
   /**
    * - team must exist
    * - sender must be in the team
+   * - team may not be estimating
    * - cardset must be valid
    */
   private preflightChangeCardSet(storage: IStorageService, sender: IServerParticipant, teamName: string, message: IChangeCardSetMessage): EErrorCode {
-    // TODO NOW prevent a change during estimations
+
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
       result = EErrorCode.TeamNotFound;
-    } else if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
-      result = EErrorCode.ParticipantNotInTeam;
-    } else if (sender.role !== ERole.ScrumMaster) {
-      result = EErrorCode.ScrumMasterRequired;
     } else {
-      result = this.checkCardSet(message.data);
+      const team = storage.getTeamOfParticipant(sender.participantId);
+      if (!team) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (team.teamName !== teamName) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (team.status === EPokerStatus.Started) {
+        result = EErrorCode.ChangeCardSetNotAllowedDuringEstimation;
+      } else if (sender.role !== ERole.ScrumMaster) {
+        result = EErrorCode.ScrumMasterRequired;
+      } else {
+        result = this.checkCardSet(message.data);
+      }
     }
     return result;
   }
@@ -242,7 +250,7 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotInTeam;
       } else if (sender.role === ERole.ScrumMaster) {
         if (team.status === EPokerStatus.Started) {
-          result = EErrorCode.ScrumMasterCanNotLeaveDuringEstimation
+          result = EErrorCode.LeaveNotAllowedDuringEstimation
         }
       }
     } else {

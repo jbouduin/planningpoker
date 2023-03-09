@@ -275,7 +275,7 @@ describe('preflight ChangeCardSet', () => {
       .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
-      .returns(undefined);
+      .returns(Util.getTeam2());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
   });
 
@@ -289,6 +289,24 @@ describe('preflight ChangeCardSet', () => {
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
       .returns(Util.getTeam1());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.ScrumMasterRequired);
+  });
+
+  test('Change cardset not allowed during estimation', () => {
+    const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
+    cohn.cards.splice(1, 11);
+    const message: IChangeCardSetMessage = {
+      type: EClientMessageType.ChangeCardSet,
+      senderId: Util.scrummasterName,
+      data: cohn
+    };
+    const storage = new Mock<IStorageService>()
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .returns(true)
+      .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
+      .returns(Util.getTeam1(EPokerStatus.Started));
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.ChangeCardSetNotAllowedDuringEstimation);
   });
 });
 

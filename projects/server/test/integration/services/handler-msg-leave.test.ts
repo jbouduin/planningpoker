@@ -411,7 +411,7 @@ describe('Leaving when connected => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  test.only('Scrum Master can not leave during estimation', () => {
+  test('Scrum Master can not leave during estimation', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
@@ -447,7 +447,7 @@ describe('Leaving when connected => Failure', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIsError(EErrorCode.ScrumMasterCanNotLeaveDuringEstimation)
+      .expectNextMessageIsError(EErrorCode.LeaveNotAllowedDuringEstimation)
       .expectNoMoreMessages();
 
     // Test: participant messages

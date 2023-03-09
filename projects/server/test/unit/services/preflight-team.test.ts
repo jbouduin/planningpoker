@@ -247,7 +247,7 @@ describe('preflight Leave - Normal', () => {
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
       .returns(Util.getTeam1(EPokerStatus.Started));
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.ScrumMasterCanNotLeaveDuringEstimation);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.LeaveNotAllowedDuringEstimation);
   });
 })
 
