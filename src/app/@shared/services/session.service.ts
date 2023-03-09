@@ -4,7 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, map, Observable, ReplaySubject, Subject } from 'rxjs';
 
-import { AClientMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IInitMessage, ISelfMessage, AServerMessage } from '@shared-lib';
+import { AClientMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IInitMessage, ISelfMessage, AServerMessage, IErrorMessage } from '@shared-lib';
 
 import { environment } from '@env/environment';
 import { MessageBoxComponent, MessageBoxParams } from '../components';
@@ -81,14 +81,14 @@ export class SessionService {
     this.snackbarService = snackbarService;
     this.translateService = translateService;
     this.log = new Logger('SessionService');
-    // assign the private properties
+    // initialize the private properties
     this.currentRoute = '/';
     this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
     this.webSocket = null;
-    // assign the public readonly properties
+    // initialize the public readonly properties
     this.incomingMessage = new ReplaySubject<AServerMessage>();
     this.reset = new Subject<void>();
-    // assign the public properties
+    // initialize the public properties
     this.resumeIn = 0;
     this.status = ESessionStatus.Inactive;
     // subscribe to router
@@ -246,129 +246,6 @@ export class SessionService {
   }
   //#endregion
 
-  //#region Private message handling methods ----------------------------------
-  private handleServerMessage(message: AServerMessage): void {
-    switch (message.type) {
-      case EServerMessageType.Error:
-        if (this.errorHandlerService.handleErrorMessage(message)) {
-          this.resetServices();
-        }
-        break;
-      case EServerMessageType.EndSession:
-        this.handleEndSession();
-        break;
-      case EServerMessageType.Left:
-        this.status = ESessionStatus.Inactive;
-        this.disconnect();
-        this.localStorage.clear();
-        this.navigateTo('/home');
-        break;
-      case EServerMessageType.ServerReset:
-        this.handleServerReset();
-        break;
-      case EServerMessageType.TeamIdle:
-        this.handleTeamIdle();
-        break;
-      case EServerMessageType.Init:
-        if (this.initialMessage) {
-          this.initialMessage.senderId = (<IInitMessage>message).data.participantId;
-          this.sendMessage(this.initialMessage);
-          this.initialMessage = undefined;
-        }
-        this.me = new Member((<IInitMessage>message).data, true);
-        this.localStorage.participantId = this.me.participantId;
-        this.status = ESessionStatus.Active;
-        this.navigateTo('/game');
-        break;
-      case EServerMessageType.Self:
-        if (this.me.role === ERole.Developer && (<ISelfMessage>message).data.role === ERole.ScrumMaster) {
-          this.snackbarService.showInfo(
-            this.translateService.instant('Game.Snackbar.You_are_now_scrum-master')
-          );
-        }
-        this.me = new Member((<ISelfMessage>message).data, true);
-        this.localStorage.nick = this.me.nick;
-        this.localStorage.participantId = this.me.participantId;
-        if (this.me.status === EParticipantStatus.Paused) {
-          this.status = ESessionStatus.Suspended;
-          this.disconnect();
-        }
-    }
-  }
-
-  private handleServerReset(): void {
-    const params = new MessageBoxParams();
-    params.showCancelButton = false;
-    params.title = this.translateService.instant('MessageBox.The_server_has_been_reset.Title');
-    params.text = this.translateService.instant('MessageBox.The_server_has_been_reset.Text');
-    this.dialog.open(MessageBoxComponent, {
-      width: '250px',
-      data: params
-    });
-    this.resetServices();
-  }
-
-  private handleEndSession(): void {
-    if (this.me.role !== ERole.ScrumMaster) {
-      const params = new MessageBoxParams();
-      params.showCancelButton = false;
-      params.title = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Title');
-      params.text = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Text');
-
-      this.dialog.open(MessageBoxComponent, {
-        width: '250px',
-        data: params
-      });
-    }
-    this.resetServices();
-  }
-
-  private handleTeamIdle(): void {
-    const params = new MessageBoxParams();
-    params.showCancelButton = false;
-    params.title = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Title');
-    params.text = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Text');
-    this.dialog.open(MessageBoxComponent, {
-      width: '250px',
-      data: params
-    });
-    this.resetServices();
-  }
-  //#endregion
-
-
-
-  //#region private automatic reconnect related methods -----------------------
-  private initiateAutomaticReconnect(): void {
-    this.resumeIn = 30;
-    this.status = ESessionStatus.ReconnectPending;
-    this.resumeTimer = window.setInterval(this.reconnectTick.bind(this), 1000);
-  }
-
-  private reconnectTick(): void {
-    this.resumeIn--;
-    if (this.resumeIn === 0) {
-      this.rejoin();
-    }
-  }
-  //#endregion
-
-  //#region private helper methods --------------------------------------------
-  private resetServices() {
-    this.status = ESessionStatus.Inactive;
-    this.disconnect();
-    this.reset.next();
-    this.navigateTo('/home');
-  }
-
-  private navigateTo(route: string): void {
-    if (this.currentRoute !== route) {
-      this.log.debug(`navigating to '${route}'`);
-      this.router.navigate([route]);
-    }
-  }
-  //#endregion
-
   //#region Websocket related methods -----------------------------------------
   public connect(teamName: string): void {
     const url = `${environment.ws}/${encodeURI(teamName)}`
@@ -419,9 +296,8 @@ export class SessionService {
       if (event.code !== 1000) {
         this.log.debug('in onClose event code', event);
         this.snackbarService.showError(this.translateService.instant('Socket.Error.You_Have_been_disconnected'));
-
       }
-      // this.connectionStatus = EConnectionStatus.Disconnected;
+
     }
     this.webSocket = null;
   }
@@ -449,4 +325,138 @@ export class SessionService {
     }
   }
   //#endregion
+
+  //#region Private message handling methods ----------------------------------
+  private handleServerMessage(message: AServerMessage): void {
+    switch (message.type) {
+      case EServerMessageType.Error:
+        this.handleError(<IErrorMessage>message)
+        break;
+      case EServerMessageType.EndSession:
+        this.handleEndSession();
+        break;
+      case EServerMessageType.ServerReset:
+        this.handleServerReset();
+        break;
+      case EServerMessageType.TeamIdle:
+        this.handleTeamIdle();
+        break;
+      case EServerMessageType.Init:
+        this.handleInit(<IInitMessage>message)
+        break;
+      case EServerMessageType.Self:
+        this.handleSelf(<ISelfMessage>message);
+        break;
+    }
+  }
+
+  private handleEndSession(): void {
+    if (this.me.role !== ERole.ScrumMaster) {
+      const params = new MessageBoxParams();
+      params.showCancelButton = false;
+      params.title = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Title');
+      params.text = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Text');
+
+      this.dialog.open(MessageBoxComponent, {
+        width: '250px',
+        data: params
+      });
+    }
+    this.resetServices();
+  }
+
+  private handleError(message: IErrorMessage): void {
+    if (this.errorHandlerService.handleErrorMessage(message)) {
+      this.resetServices();
+    }
+  }
+
+  private handleInit(message: IInitMessage): void {
+    if (this.initialMessage) {
+      this.initialMessage.senderId = message.data.participantId;
+      this.sendMessage(this.initialMessage);
+      this.initialMessage = undefined;
+    }
+    this.me = new Member(message.data, true);
+    this.localStorage.participantId = this.me.participantId;
+    this.status = ESessionStatus.Active;
+    this.navigateTo('/game');
+  }
+
+  private handleSelf(message: ISelfMessage): void {
+    if (message.data.status === EParticipantStatus.Left) {
+      this.localStorage.clear();
+      this.resetServices();
+    } else {
+      if (this.me.role === ERole.Developer && message.data.role === ERole.ScrumMaster) {
+        this.snackbarService.showInfo(
+          this.translateService.instant('Game.Snackbar.You_are_now_scrum-master')
+        );
+      }
+      this.me = new Member((<ISelfMessage>message).data, true);
+      this.localStorage.nick = this.me.nick;
+      this.localStorage.participantId = this.me.participantId;
+      if (this.me.status === EParticipantStatus.Paused) {
+        this.status = ESessionStatus.Suspended;
+        this.disconnect();
+      }
+    }
+  }
+
+  private handleServerReset(): void {
+    const params = new MessageBoxParams();
+    params.showCancelButton = false;
+    params.title = this.translateService.instant('MessageBox.The_server_has_been_reset.Title');
+    params.text = this.translateService.instant('MessageBox.The_server_has_been_reset.Text');
+    this.dialog.open(MessageBoxComponent, {
+      width: '250px',
+      data: params
+    });
+    this.resetServices();
+  }
+
+  private handleTeamIdle(): void {
+    const params = new MessageBoxParams();
+    params.showCancelButton = false;
+    params.title = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Title');
+    params.text = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Text');
+    this.dialog.open(MessageBoxComponent, {
+      width: '250px',
+      data: params
+    });
+    this.resetServices();
+  }
+  //#endregion
+
+  //#region private automatic reconnect related methods -----------------------
+  private initiateAutomaticReconnect(): void {
+    this.resumeIn = 30;
+    this.status = ESessionStatus.ReconnectPending;
+    this.resumeTimer = window.setInterval(this.reconnectTick.bind(this), 1000);
+  }
+
+  private reconnectTick(): void {
+    this.resumeIn--;
+    if (this.resumeIn === 0) {
+      this.rejoin();
+    }
+  }
+  //#endregion
+
+  //#region private helper methods --------------------------------------------
+  private resetServices() {
+    this.status = ESessionStatus.Inactive;
+    this.disconnect();
+    this.reset.next();
+    this.navigateTo('/home');
+  }
+
+  private navigateTo(route: string): void {
+    if (this.currentRoute !== route) {
+      this.log.debug(`navigating to '${route}'`);
+      this.router.navigate([route]);
+    }
+  }
+  //#endregion
+
 }

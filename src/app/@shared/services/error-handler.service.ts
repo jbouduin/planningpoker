@@ -30,8 +30,8 @@ export class ErrorHandlerService {
 
   //#region public methods ----------------------------------------------------
 
-  public handleErrorMessage(message: AServerMessage): boolean {
-    const code = (<IErrorMessage>message).data.code;
+  public handleErrorMessage(message: IErrorMessage): boolean {
+    const code = message.data.code;
     this.snackbarService.showError(
       this.translateService.instant(`${this.errorCodePrefix}${EErrorCode[code]}`)
     );
