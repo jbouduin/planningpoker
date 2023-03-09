@@ -1,11 +1,10 @@
 import { inject, injectable } from "inversify";
 
-import SERVICETYPES from "../service.types";
-
 import { AServerMessage, EErrorCode, EMemberChangeType, EPokerStatus, ICardSet, IEstimation, IMemberChange, IParticipant } from "../../../../shared-lib/src";
-import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, LeftMessage, MemberChangeMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
-import { ITeam, IServerParticipant } from "../../objects";
+import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, MemberChangeMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
+import { IServerParticipant, ITeam } from "../../objects";
 import { IMessageService, ISenderService } from "../interfaces";
+import SERVICETYPES from "../service.types";
 import { IWebSocket } from "../websocket";
 
 @injectable()
@@ -59,11 +58,6 @@ export class MessageService implements IMessageService {
 
   public sendInit(to: IServerParticipant): void {
     const message: AServerMessage = new InitMessage(this.prepareParticipantsData([to])[0]);
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  public sendLeft(to: IServerParticipant): void {
-    const message: AServerMessage = new LeftMessage();
     this.senderService.sendToParticipant(to, message);
   }
 

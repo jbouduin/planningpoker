@@ -10,7 +10,7 @@ export interface IClientMessage<T> {
 export type IChangeCardSetMessage = IClientMessage<ICardSet>;
 export type IChangeNickMessage = IClientMessage<string>;
 export type IChangeScrumMasterMessage = IClientMessage<string>;
-export type ICreatemessage = IClientMessage<ICreate>;
+export type ICreateMessage = IClientMessage<ICreate>;
 export type IEstimateMessage = IClientMessage<number | undefined>;
 export type IJoinMessage = IClientMessage<IJoin>;
 export type ILeaveMessage = IClientMessage<string>;
@@ -24,7 +24,7 @@ export type AClientMessage =
   IChangeCardSetMessage |
   IChangeNickMessage |
   IChangeScrumMasterMessage |
-  ICreatemessage |
+  ICreateMessage |
   IEstimateMessage |
   IJoinMessage |
   IObserveMessage |

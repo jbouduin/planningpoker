@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICard, ICardSetMessage, ICreatemessage, IEstimationListMessage, IInitMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICard, ICardSetMessage, ICreateMessage, IEstimationListMessage, IInitMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
 import SERVICETYPES from '../../../src/services/service.types';
 import STORAGETYPES from '../../../src/storage/storage.types';
 
@@ -161,7 +161,7 @@ describe('Create => Failure', () => {
     const scrumMaster = Util.connectParticipant(handlerService);
 
     // Run: create the team passing an unknown participantId
-    const message: ICreatemessage = {
+    const message: ICreateMessage = {
       type: EClientMessageType.Create,
       senderId: Util.unknownParticipantId,
       data: {

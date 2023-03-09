@@ -117,7 +117,7 @@ describe('Can rejoin', () => {
       .addParticipant(participant);
     // test
     expect(container.get<IStorageService>(STORAGETYPES.StorageService).canRejoin(participant.participantId, Util.team1Name))
-      .toBe(EErrorCode.TeamDoesNotExist);
+      .toBe(EErrorCode.TeamNotFound);
   });
 
   test('Can not: participant does not exist', () => {

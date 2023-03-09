@@ -313,7 +313,7 @@ describe('Estimate => Failure', () => {
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

@@ -148,7 +148,6 @@ export class TeamService {
         this.handleSelf(new Member((<ISelfMessage>message).data, true));
         break;
       case EServerMessageType.EndSession:
-      case EServerMessageType.Left:
       case EServerMessageType.ServerReset:
       case EServerMessageType.TeamIdle:
         this.resetService();
@@ -169,6 +168,9 @@ export class TeamService {
   private handleSelf(me: Member): void {
     this.myParticipantId = me.participantId;
     this.allMembers.set(me.participantId, me);
+    if (me.status === EParticipantStatus.Left) {
+      this.resetService();
+    }
   }
 
   private handleMemberChanged(memberChange: IMemberChange): void {

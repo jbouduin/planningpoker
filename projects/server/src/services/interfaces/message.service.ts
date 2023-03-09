@@ -14,7 +14,6 @@ export interface IMessageService {
   sendEstimations(to: IServerParticipant, estimations: Array<IEstimation>): void
   sendException(socket: IWebSocket, errorMessage: string): void;
   sendInit(to: IServerParticipant): void;
-  sendLeft(to: IServerParticipant): void;
   sendPing(to: IServerParticipant): void;
   sendSelf(to: IServerParticipant): void;
   sendAllInfo(to: IServerParticipant, team: ITeam, members: Array<IServerParticipant>, cardSet: ICardSet, estimations: Array<IEstimation>): void;

@@ -278,7 +278,7 @@ describe('Join => Failure', () => {
     participant
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
-      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
   });
 
@@ -314,7 +314,7 @@ describe('Join => Failure', () => {
     participant
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
-      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

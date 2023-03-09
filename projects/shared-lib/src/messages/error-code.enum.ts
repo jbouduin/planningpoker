@@ -1,7 +1,7 @@
 export enum EErrorCode {
   NoError = 0,
   TeamAlreadyExists = 100,
-  TeamDoesNotExist = 101,
+  TeamNotFound = 101,
   TeamNameMayNotBeEmtpy = 102,
   ParticipantNotFound = 200,
   ParticipantNotInTeam = 201,

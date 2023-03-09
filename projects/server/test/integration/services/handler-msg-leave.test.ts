@@ -52,7 +52,7 @@ describe('Leaving when connected => OK', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.Left)
+      .expectNextMessageIsSelf({status: EParticipantStatus.Left})
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -168,7 +168,7 @@ describe('Leaving after being disconnected', () => {
     reconnect
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
-      .expectNextMessageIs(EServerMessageType.Left)
+      .expectNextMessageIsSelf({ participantId: reconnect.participantId, status: EParticipantStatus.Left })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -240,7 +240,7 @@ describe('Leaving when connected => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsError(EErrorCode.TeamDoesNotExist)
+      .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -491,7 +491,7 @@ describe('Leaving after being disconnected => Failure', () => {
 
     // Setup: create team 2
     const scrumMaster2 = Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
-    const participant2= Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
+    const participant2 = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
 
     // Run: participant reconnects to leave
     const reconnect = Util.connectParticipant(handlerService);
@@ -539,7 +539,5 @@ describe('Leaving after being disconnected => Failure', () => {
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
-
-
   });
 });

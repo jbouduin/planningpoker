@@ -4,7 +4,6 @@ export * from './end-session-message';
 export * from './error-message';
 export * from './estimation-list-message';
 export * from './init-message';
-export * from './left-message';
 export * from './member-change-message';
 export * from './member-list-message';
 export * from './ping-message';

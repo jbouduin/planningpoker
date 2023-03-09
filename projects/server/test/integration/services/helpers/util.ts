@@ -1,7 +1,7 @@
 import { Container } from "inversify";
 import { It, Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, ERole, EServerMessageType, ICard, ICardSet, ICreatemessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, ERole, EServerMessageType, ICard, ICardSet, ICreateMessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../../src/services/service.types';
 import STORAGETYPES from '../../../../src/storage/storage.types';
@@ -121,7 +121,7 @@ export class Util {
     cardSet?: ECardSet,
     cards?: ICardSet): ITestScrumMaster {
     const scrumMaster = this.connectParticipant(handlerService);
-    const message: ICreatemessage = {
+    const message: ICreateMessage = {
       type: EClientMessageType.Create,
       senderId: scrumMaster.participantId,
       data: {

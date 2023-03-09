@@ -42,7 +42,7 @@ describe('preflight Observe - toggle self', () => {
       .returns(false)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamDoesNotExist);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamNotFound);
   });
 
   test('Failure => sender not in team', () => {
@@ -129,7 +129,7 @@ describe('preflight Observe - toggle other', () => {
       .returns(Util.getTeam1())
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant2Name))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamDoesNotExist);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamNotFound);
   });
 
   test('Failure => sender not in team', () => {
@@ -320,7 +320,7 @@ describe('preflight Remove', () => {
       .returns(Util.getTeam1())
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant2Name))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamDoesNotExist);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamNotFound);
   });
 
   test('Failure => sender not in team', () => {
@@ -473,7 +473,7 @@ describe("preflight ChangeScrumMaster", () => {
       .returns(Util.getTeam1())
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant2Name))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamDoesNotExist);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.TeamNotFound);
   });
 
   test('Failure => sender in no team', () => {

@@ -220,7 +220,7 @@ describe('Reveal => Failure', () => {
       )
       .expectNextMessageIs(
         EServerMessageType.Error,
-        (m: IErrorMessage) => expect(m.data.code).toBe(EErrorCode.TeamDoesNotExist)
+        (m: IErrorMessage) => expect(m.data.code).toBe(EErrorCode.TeamNotFound)
       )
       .expectNoMoreMessages();
 
