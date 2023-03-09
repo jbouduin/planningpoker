@@ -6,7 +6,7 @@ import { FactoryService } from '../../../src/storage/implementation/factory.serv
 import { IStorageService } from '../../../src/storage/interfaces';
 import { Util } from '../util';
 
-describe('cardSet OK', () => {
+describe('preflight cardSet OK', () => {
   test('create OK with standard cardset', () => {
     const data: ICreate = {
       observer: false,
@@ -76,7 +76,7 @@ describe('cardSet OK', () => {
   });
 });
 
-describe('cardSet not OK', () => {
+describe('preflight cardSet not OK', () => {
   test('Create with unknown estimation missing', () => {
     const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
     const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
@@ -150,4 +150,4 @@ describe('cardSet not OK', () => {
       .returns(Util.getTeam1());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.MoreThanTwoEstimationCardsRequired);
   });
-})
+});

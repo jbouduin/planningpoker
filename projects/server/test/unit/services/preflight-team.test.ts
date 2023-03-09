@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, EErrorCode, ICreate, ICreateMessage, IJoin, IJoinMessage, ILeaveMessage, IPauseMessage, IRejoinMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, EPokerStatus, ICreate, ICreateMessage, IJoin, IJoinMessage, ILeaveMessage, IPauseMessage, IRejoinMessage } from '../../../../shared-lib/src';
 import { IStorageService } from '../../../src/storage/interfaces';
 import { Util } from '../util';
 
@@ -236,6 +236,18 @@ describe('preflight Leave - Normal', () => {
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
       .returns(Util.getTeam2());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.ParticipantNotInTeam);
+  });
+
+  test('Failure => scrum master can not leave during estimation', () => {
+    const message: ILeaveMessage = { type: EClientMessageType.Leave, senderId: Util.scrummasterName, data: Util.scrummasterName };
+    const storage = new Mock<IStorageService>()
+      .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
+      .returns(Util.getScrummaster())
+      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .returns(true)
+      .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
+      .returns(Util.getTeam1(EPokerStatus.Started));
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.LeaveNotAllowedDuringEstimation);
   });
 })
 

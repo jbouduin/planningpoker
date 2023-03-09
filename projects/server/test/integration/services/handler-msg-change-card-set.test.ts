@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, ERole, EServerMessageType, ICard, ICardSet, ICardSetMessage, IChangeCardSetMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, ERole, EServerMessageType, ICard, ICardSet, ICardSetMessage, IChangeCardSetMessage, IStartMessage } from '../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../src/services/service.types';
 import STORAGETYPES from '../../../src/storage/storage.types';
@@ -148,7 +148,95 @@ describe('Change card set => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2391 test('Sender in another team', () => { });
+  test('Sender in another team', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: customize a card set
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    customizedCohn.cards.splice(9, 3);
+
+    // Setup: create team with a single participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Run: change card set
+    const message: IChangeCardSetMessage = {
+      senderId: scrumMaster.participantId,
+      data: customizedCohn,
+      type: EClientMessageType.ChangeCardSet
+    };
+    scrumMaster.sendMessage(message, unaffectedTeam.teamName);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
+
+  test('Team is estimating', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: customize a card set
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    customizedCohn.cards.splice(9, 3);
+
+    // Setup: create team with a single participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: start estimating
+    const startMessage: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(startMessage);
+
+    // Run: change card set
+    const changeCardSetmessage: IChangeCardSetMessage = {
+      senderId: scrumMaster.participantId,
+      data: customizedCohn,
+      type: EClientMessageType.ChangeCardSet
+    };
+    scrumMaster.sendMessage(changeCardSetmessage);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsError(EErrorCode.ChangeCardSetNotAllowedDuringEstimation)
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
 
   test('Sender not scrum master', () => {
     const container = Util.getContainer();

@@ -29,6 +29,10 @@ export class MessageService implements IMessageService {
     members.forEach((p: IServerParticipant) => this.sendClearEstimations(p));
   }
 
+  public broadcastEstimations(members: Array<IServerParticipant>, estimations: Array<IEstimation>): void {
+    members.forEach((p: IServerParticipant) => this.sendEstimations(p, estimations));
+  }
+
   public broadcastPokerStatus(members: Array<IServerParticipant>, status: EPokerStatus): void {
     members.forEach((p: IServerParticipant) => this.sendPokerStatusChanged(p, status));
   }
@@ -84,11 +88,6 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendEstimations(to: IServerParticipant, estimations: Array<IEstimation>): void {
-    const message: AServerMessage = new EstimationListMessage(estimations);
-    this.senderService.sendToParticipant(to, message);
-  }
-
   public sendException(socket: IWebSocket, errorMessage: string): void {
     const message: AServerMessage = new ErrorMessage(EErrorCode.ServerError, errorMessage);
     this.senderService.sendToSocket(socket, message);
@@ -103,6 +102,11 @@ export class MessageService implements IMessageService {
 
   private sendClearEstimations(to: IServerParticipant): void {
     const message: AServerMessage = new ClearEstimationsMessage();
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  private sendEstimations(to: IServerParticipant, estimations: Array<IEstimation>): void {
+    const message: AServerMessage = new EstimationListMessage(estimations);
     this.senderService.sendToParticipant(to, message);
   }
 

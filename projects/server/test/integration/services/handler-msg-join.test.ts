@@ -214,8 +214,69 @@ describe('Join => OK', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2385 test('Join a team that is currently estimating', () => { });
+  test('Join a team that is estimating', () => {
+    const container = Util.getContainer();
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create the team with participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Joined,
+        {
+          participantId: participant.participantId,
+          role: ERole.Developer,
+          observer: false,
+          status: EParticipantStatus.Connected
+        }
+      )
+      .expectNoMoreMessages();
+
+    // Test: participant messages (init sequence)
+    participant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsSelf(
+        {
+          participantId: participant.participantId,
+          role: ERole.Developer,
+          observer: false,
+          status: EParticipantStatus.Connected
+        }
+      )
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => {
+          expect(m.data.cardSet).toBe(ECardSet.Cohn);
+          expect(m.data.cards).toHaveLength(cohn.cards.length);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.MemberList,
+        (m: IMemberListMessage) => {
+          expect(m.data).toHaveLength(1);
+          expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
+          expect(m.data[0].role).toBe(ERole.ScrumMaster);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      )
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
 });
 
 describe('Join => Failure', () => {
@@ -430,4 +491,4 @@ describe('Join => Failure', () => {
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
-})
+});

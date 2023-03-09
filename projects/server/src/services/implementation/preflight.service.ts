@@ -107,19 +107,28 @@ export class PreflightService implements IPreflightService {
 
   /**
    * - team must exist
-   * - send must be in the team
+   * - sender must be in the team
+   * - team may not be estimating
    * - cardset must be valid
    */
   private preflightChangeCardSet(storage: IStorageService, sender: IServerParticipant, teamName: string, message: IChangeCardSetMessage): EErrorCode {
+
     let result = EErrorCode.NoError;
     if (!storage.teamExists(teamName)) {
       result = EErrorCode.TeamNotFound;
-    } else if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
-      result = EErrorCode.ParticipantNotInTeam;
-    } else if (sender.role !== ERole.ScrumMaster) {
-      result = EErrorCode.ScrumMasterRequired;
     } else {
-      result = this.checkCardSet(message.data);
+      const team = storage.getTeamOfParticipant(sender.participantId);
+      if (!team) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (team.teamName !== teamName) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (team.status === EPokerStatus.Started) {
+        result = EErrorCode.ChangeCardSetNotAllowedDuringEstimation;
+      } else if (sender.role !== ERole.ScrumMaster) {
+        result = EErrorCode.ScrumMasterRequired;
+      } else {
+        result = this.checkCardSet(message.data);
+      }
     }
     return result;
   }
@@ -220,6 +229,7 @@ export class PreflightService implements IPreflightService {
 
   /**
    * - team must exist
+   * - if sender is scrum master team may not be estimation
    * - if this is a normal leave
    *   - sender must be in team
    * - if this is a leave after disconnect (participant is sending a leave on behalf of his previous participantId)
@@ -232,8 +242,16 @@ export class PreflightService implements IPreflightService {
     if (!storage.teamExists(teamName)) {
       result = EErrorCode.TeamNotFound;
     } else if (message.data === sender.participantId) {
-      if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
+      const team = storage.getTeamOfParticipant(sender.participantId);
+      if (!team) {
         result = EErrorCode.ParticipantNotInTeam;
+      }
+      else if (team.teamName !== teamName) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (sender.role === ERole.ScrumMaster) {
+        if (team.status === EPokerStatus.Started) {
+          result = EErrorCode.LeaveNotAllowedDuringEstimation
+        }
       }
     } else {
       if (storage.getTeamOfParticipant(sender.participantId)) {
