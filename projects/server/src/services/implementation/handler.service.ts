@@ -329,6 +329,7 @@ export class HandlerService implements IHandlerService {
           this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== leaving.participantId),
           leaving,
           EMemberChangeType.Left);
+        sender.status = EParticipantStatus.Left;
         this.messageService.sendSelf(sender);
       }
       if (sender.participantId !== message.data) {
