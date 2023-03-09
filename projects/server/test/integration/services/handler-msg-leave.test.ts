@@ -1,6 +1,6 @@
-import { describe, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EServerMessageType, ILeaveMessage } from '../../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, EServerMessageType, IEstimateMessage, IEstimationListMessage, ILeaveMessage, IStartMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from "./helpers/util";
@@ -52,14 +52,106 @@ describe('Leaving when connected => OK', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsSelf({status: EParticipantStatus.Left})
+      .expectNextMessageIsSelf({ status: EParticipantStatus.Left })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2385 leaving during estimations should remove estimation if participant has made one
+  test('leaving during estimations', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with participant and observer
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+    const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
+
+    // Setup: start estimating
+    const startMessage: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(startMessage);
+
+    // Setup: participant estimates
+    const estimateMessage: IEstimateMessage = {
+      senderId: participant.participantId,
+      data: 2,
+      type: EClientMessageType.Estimate
+    };
+    participant.sendMessage(estimateMessage);
+
+    // Run: participant leaves
+    const leaveMessage: ILeaveMessage = {
+      senderId: participant.participantId,
+      data: participant.participantId,
+      type: EClientMessageType.Leave
+    };
+    participant.sendMessage(leaveMessage);
+    // Run: participant closes socket
+    participant.closeSocket();
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      )
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Left,
+        { participantId: participant.participantId, status: EParticipantStatus.Left }
+      ).expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      )
+      .expectNoMoreMessages();
+
+    // Test: observer messages
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      )
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Left,
+        { participantId: participant.participantId, status: EParticipantStatus.Left }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      )
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      )
+      .expectNextMessageIsSelf({ status: EParticipantStatus.Left })
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
 
   test('Scrum Master leaving', () => {
     const container = Util.getContainer();

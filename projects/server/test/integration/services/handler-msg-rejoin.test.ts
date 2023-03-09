@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationListMessage, IMemberListMessage, IPauseMessage, IRejoinMessage, ITeamNameMessage } from '../../../../shared-lib/src';
+import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, EServerMessageType, ICardSetMessage, IEstimateMessage, IEstimationListMessage, IMemberListMessage, IPauseMessage, IRejoinMessage, IStartMessage, ITeamNameMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { IFactoryService } from '../../../src/storage/interfaces';
@@ -256,7 +256,114 @@ describe('Rejoin => OK', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  // TODO 2385 test('Rejoin during estimation', () => { });
+  test('Rejoin during estimation', () => {
+    const container = Util.getContainer();
+    const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+
+    // Setup: create unaffected Team
+    const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
+
+    // Setup: create team with two participant
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const participant1 = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
+    const participant2 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
+
+    // Setup: start estimating
+    const startMessage: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(startMessage);
+
+    // Setup: participant estimates
+    const estimateMessage: IEstimateMessage = {
+      senderId: participant2.participantId,
+      data: 2,
+      type: EClientMessageType.Estimate
+    };
+    participant2.sendMessage(estimateMessage);
+
+    // Run: create a new connection to rejoin and send rejoin message
+    const rejoiningParticipant = Util.connectParticipant(handlerService);
+    const message: IRejoinMessage = {
+      senderId: rejoiningParticipant.participantId,
+      data: participant1.participantId,
+      type: EClientMessageType.Rejoin
+    };
+    rejoiningParticipant.sendMessage(message, Util.team1Name);
+
+    // Test: scrum master messages
+    scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      )
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Rejoined,
+        { participantId: participant1.participantId, status: EParticipantStatus.Connected }
+      )
+      .expectNoMoreMessages();
+
+    // Test: participant messages
+    participant1
+      .initializeMessageQueue()
+      .expectNoMoreMessages();
+
+    participant2
+      .initializeMessageQueue()
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      )
+      .expectNextMessageIsMemberChange(
+        EMemberChangeType.Rejoined,
+        { participantId: participant1.participantId, status: EParticipantStatus.Connected }
+      )
+      .expectNoMoreMessages();
+    // Test: rejoining participant messages (init sequence)
+    rejoiningParticipant
+      .initializeMessageQueue(false)
+      .expectNextMessageIsInit()
+      .expectNextMessageIsSelf(
+        {
+          participantId: participant1.participantId,
+          role: ERole.Developer,
+          observer: false,
+          status: EParticipantStatus.Connected
+        }
+      )
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
+      .expectNextMessageIs(
+        EServerMessageType.CardList,
+        (m: ICardSetMessage) => {
+          expect(m.data.cardSet).toBe(ECardSet.Cohn);
+          expect(m.data.cards).toHaveLength(cohn.cards.length);
+        }
+      )
+      .expectNextMessageIs(
+        EServerMessageType.MemberList,
+        (m: IMemberListMessage) => expect(m.data).toHaveLength(2)
+      )
+      .expectNextMessageIs(
+        EServerMessageType.EstimationList,
+        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      )
+      .expectNoMoreMessages();
+
+    // Test: check if unaffected team is unaffected
+    unaffectedTeam.expectIsUnaffected();
+  });
 });
 
 
