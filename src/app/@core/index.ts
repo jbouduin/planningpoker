@@ -1,4 +1,3 @@
-export * from './marker';
 export * from './pipes/markdown.pipe';
 export * from './until-destroyed';
 
