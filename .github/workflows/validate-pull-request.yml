@@ -2,43 +2,45 @@ name: Validate Pull Request
 
 on:
   workflow_dispatch:
-  pull_request: 
+  pull_request:
     branches:
       - master
       - v*.*.*
 
-env: 
+env:
   NODE_VERSION: 16
 
 jobs: # list of things to do
   validate-pull-request:
     name: Validate the pull request # job name (unique id)
-    runs-on: ubuntu-latest 
-    steps: 
+    runs-on: ubuntu-latest
+    steps:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
          node-version: ${{ env.NODE_VERSION }}
          registry-url: https://registry.npmjs.org/
-         
+
       - name: Check out
-        uses: actions/checkout@v3              
-      
+        uses: actions/checkout@v3
+
       - name: Install packages
         run: |
           npm ci
           cd projects/server
-          npm ci   
-      
+          npm ci
+
       - name: Lint and build shared
         run: |
           npm run lint:shared
           npm run build:shared
-      
-      - name: Lint Site
-        run: npm run lint:site
-        
+
+      - name: Lint Site and check translations
+        run: |
+          npm run test:translations
+          npm run lint:site
+
       - name: Lint and Test server
-        run: | 
+        run: |
           npm run lint:server
           npm run test:server:ci
