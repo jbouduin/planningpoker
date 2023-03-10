@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
+import { enumMarker } from '@jbouduin/ngx-translate-extract-marker';
 import { TranslateService } from '@ngx-translate/core';
 
-import { IErrorMessage, AServerMessage } from '@shared-lib';
-
-import { enumMarker } from '@core/marker';
+import { IErrorMessage } from '@shared-lib';
 import { SnackbarService } from '../services';
 
 // required because of ngx-translate-extract
-import { EErrorCode } from '../../../../projects/shared-lib/lib/messages/error-code.enum';
+import { EErrorCode } from '../../../../projects/shared-lib/src/messages/error-code.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -30,15 +29,15 @@ export class ErrorHandlerService {
 
   //#region public methods ----------------------------------------------------
 
-  public handleErrorMessage(message: AServerMessage): boolean {
-    const code = (<IErrorMessage>message).data.code;
+  public handleErrorMessage(message: IErrorMessage): boolean {
+    const code = message.data.code;
     this.snackbarService.showError(
       this.translateService.instant(`${this.errorCodePrefix}${EErrorCode[code]}`)
     );
 
     const result =
       code === EErrorCode.TeamAlreadyExists ||
-      code === EErrorCode.TeamDoesNotExist ||
+      code === EErrorCode.TeamNotFound ||
       code === EErrorCode.ParticipantNotFound;
     return result;
   }

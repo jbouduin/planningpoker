@@ -4,9 +4,9 @@ import 'reflect-metadata';
 import SERVICETYPES from '../../services/service.types';
 import STORAGETYPES from '../../storage/storage.types';
 
-import { EErrorCode } from '../../../../shared-lib/lib';
+import { EErrorCode } from '../../../../shared-lib/src';
 import { LooseObject } from '../../objects';
-import { IHandlerService } from '../../services/interfaces';
+import { IHandlerService, ISerializationService } from '../../services/interfaces';
 import { IStorageService } from '../../storage/interfaces';
 import { ISystemController } from '../interfaces';
 
@@ -15,21 +15,24 @@ export class SystemController implements ISystemController {
 
   //#region Private properties ------------------------------------------------
   private readonly handlerService: IHandlerService;
+  private readonly serializationService: ISerializationService;
   private readonly storageService: IStorageService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
-    @inject(SERVICETYPES.HandlerService) HandlerService: IHandlerService,
+    @inject(SERVICETYPES.HandlerService) handlerService: IHandlerService,
+    @inject(SERVICETYPES.SerializationService) serializationService: ISerializationService,
     @inject(STORAGETYPES.StorageService) storageService: IStorageService) {
-    this.handlerService = HandlerService;
+    this.handlerService = handlerService;
+    this.serializationService = serializationService;
     this.storageService = storageService;
   }
   //#endregion
 
   //#region ISystemController methods -----------------------------------------
-  public disconnectParticipant(uuid: string): LooseObject {
-    const participant = this.storageService.getParticipant(uuid);
+  public disconnectParticipant(participantId: string): LooseObject {
+    const participant = this.storageService.getParticipant(participantId);
     const response: LooseObject = {}
     if (participant) {
       participant.socket.close();
@@ -47,16 +50,16 @@ export class SystemController implements ISystemController {
   }
 
   public getTeam(teamName: string): LooseObject {
-    return this.storageService.serializeTeam(teamName);
+    return this.serializationService.serializeTeam(teamName);
   }
 
   public getAllTeams(): LooseObject {
-    return this.storageService.serializeAllTeams();
+    return this.serializationService.serializeAllTeams();
 
   }
 
   public getParticipants(): LooseObject {
-    return this.storageService.serializeParticipants();
+    return this.serializationService.serializeParticipants();
   }
   //#endregion
 }

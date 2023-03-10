@@ -4,13 +4,17 @@
     <span class="member-nick">{{nick}}</span>
   </div>
   <mat-icon class="member-icon">{{connectionStatusIcon}}</mat-icon>
-  <button *ngIf="canStopEstimating || canStartEstimating" mat-icon-button class="small-icon-button" [matMenuTriggerFor]="menu">
+  <button *ngIf="canStopEstimating || canStartEstimating" mat-icon-button class="small-icon-button"
+    [matMenuTriggerFor]="menu">
     <mat-icon>more_horiz</mat-icon>
   </button>
   <mat-menu #menu="matMenu">
     <button *ngIf="canStopEstimating" mat-menu-item (click)="startObserverClick()">{{stopEstimatingLabel}}</button>
     <button *ngIf="canStartEstimating" mat-menu-item (click)="stopObserverClick()">{{startEstimatingLabel}}</button>
     <button *ngIf="canChangeNick" mat-menu-item (click)="changeNickClick()">{{changeNickLabel}}</button>
-    <button *ngIf="canChangeScrumMaster" mat-menu-item (click)="changeScrumMasterClick()">{{changeScrumMasterLabel}}</button>
+    <button *ngIf="canChangeScrumMaster" mat-menu-item
+      (click)="changeScrumMasterClick()">{{changeScrumMasterLabel}}</button>
+    <button *ngIf="canRemoveParticipant" mat-menu-item
+      (click)="removeParticipantClick()">{{removeParticipantLabel}}</button>
   </mat-menu>
 </div>

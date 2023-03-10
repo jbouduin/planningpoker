@@ -43,7 +43,6 @@ export class ContentPageComponent implements OnDestroy{
       .subscribe((data: Data) => this.processSubscriptions(this.currentLang, data.content));
     this.httpServiceSubscription = this.httpService.getContent
       .subscribe((response: [number, string]) => {
-        console.log(response)
         this._content[response[0]] = response[1];
       });
   }
@@ -77,8 +76,6 @@ export class ContentPageComponent implements OnDestroy{
         this.httpService.currentPath = [0, `${this.currentLang}/imprint.md`];
         this.httpService.currentPath = [1, `${this.currentLang}/caveat.md`];
       }
-
-      console.log(`${this.currentLang} ${this.currentContent}`);
     }
   }
   //#endregion

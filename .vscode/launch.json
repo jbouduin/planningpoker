@@ -1,6 +1,7 @@
 {
   "version": "0.2.0",
   "configurations": [
+
     {
       "name": "Debug server",
       "request": "launch",
@@ -14,5 +15,33 @@
       ],
       "type": "node"
     },
+    {
+      "name": "Jest: current test",
+      "type": "node",
+      "request": "launch",
+      "localRoot": "${workspaceFolder}/projects/server",
+      "runtimeArgs": [
+        "--inspect-brk",
+        "./node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "${fileBasenameNoExtension}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+      // "args": [ "${fileBasenameNoExtension}", "--config", "jest.config.ts" ],
+    },
+    {
+      "name": "Jest: all server tests",
+      "type": "node",
+      "request": "launch",
+      "localRoot": "${workspaceFolder}/projects/server",
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceRoot}/node_modules/jest/bin/jest.js",
+        "--runInBand"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
   ]
 }

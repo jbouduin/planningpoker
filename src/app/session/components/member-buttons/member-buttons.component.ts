@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { PokerService } from '@session/services';
 
 import { EParticipantStatus } from '@shared-lib';
 
@@ -13,11 +14,16 @@ import { SessionService } from '@shared/services';
 export class MemberButtonsComponent {
 
   //#region Private Properties ------------------------------------------------
+  private readonly pokerService: PokerService;
   private readonly sessionService: SessionService;
   private readonly translateService: TranslateService;
   //#endregion
 
   //#region getters -----------------------------------------------------------
+  public get canLeave(): boolean {
+    return this.sessionService.scrumMaster ?
+      !this.pokerService.canPoker : true
+  }
   public get canPause(): boolean {
     return this.sessionService.myStatus === EParticipantStatus.Connected;
   }
@@ -34,7 +40,8 @@ export class MemberButtonsComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(sessionService: SessionService, translateService: TranslateService) {
+  public constructor(pokerService: PokerService, sessionService: SessionService, translateService: TranslateService) {
+    this.pokerService = pokerService;
     this.sessionService = sessionService;
     this.translateService = translateService;
   }

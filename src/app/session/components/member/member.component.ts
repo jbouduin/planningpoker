@@ -59,6 +59,10 @@ export class MemberComponent {
   public get changeScrumMasterLabel(): string {
     return this.translateService.instant('Member.Component.MenuItem.Change_scrummaster');
   }
+
+  public get removeParticipantLabel(): string {
+    return this.translateService.instant('Member.Component.MenuItem.Remove_participant');
+  }
   //#endregion
 
   //#region public getter methods authorization -------------------------------
@@ -91,6 +95,17 @@ export class MemberComponent {
       return false;
     }
   }
+
+  public get canRemoveParticipant(): boolean {
+    if (this.member) {
+      return this.sessionService.scrumMaster &&
+        this.member.participantId !== this.sessionService.myParticipantId &&
+        this.member.status === EParticipantStatus.Disconnected;
+    }
+    else {
+      return false;
+    }
+  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -111,11 +126,15 @@ export class MemberComponent {
   }
 
   public startObserverClick(): void {
-    this.teamService.switchObserving(true, this.member?.uuid || '');
+    this.teamService.switchObserving(true, this.member?.participantId || '');
   }
 
   public stopObserverClick(): void {
-    this.teamService.switchObserving(false, this.member?.uuid || '');
+    this.teamService.switchObserving(false, this.member?.participantId || '');
+  }
+
+  public removeParticipantClick(): void {
+    this.teamService.removeParticipant(this.member?.participantId || '');
   }
   //#endregion
 }

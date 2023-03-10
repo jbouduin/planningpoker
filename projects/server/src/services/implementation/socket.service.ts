@@ -4,8 +4,8 @@ import { inject, injectable } from 'inversify';
 
 import SERVICETYPES from '../service.types';
 
-import { AClientMessage } from '../../../../shared-lib/lib';
-import { ISocketService, IHandlerService } from '../interfaces';
+import { AClientMessage } from '../../../../shared-lib/src';
+import { ISocketService, IHandlerService, ILoggerService } from '../interfaces';
 
 
 @injectable()
@@ -13,12 +13,16 @@ export class SocketService implements ISocketService {
 
   //#region Private properties ------------------------------------------------
   private readonly handlerService: IHandlerService;
+  private readonly loggerService: ILoggerService;
   private pingInterval: number;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(@inject(SERVICETYPES.HandlerService) handlerService: IHandlerService) {
-    console.log(`${new Date().toISOString()}: SocketService constructor`);
+  public constructor(
+    @inject(SERVICETYPES.HandlerService) handlerService: IHandlerService,
+    @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService) {
+    loggerService.info('Server' ,`SocketService constructor`);
+    this.loggerService = loggerService;
     this.handlerService = handlerService;
     this.pingInterval = 0;
   }
@@ -30,8 +34,9 @@ export class SocketService implements ISocketService {
     const wss = expressWs.getWss();
     wss.on('connection', (ws, req) => {
       const newParticipant = this.handlerService.handleConnect(ws);
-      console.log(`${new Date().toISOString()}: connection from client '${req.headers['sec-websocket-key'] || 'unknown'}' registered as '${newParticipant.nick}'`);
+      this.loggerService.info('Socket', `connection from client '${req.headers['sec-websocket-key'] || 'unknown'}' registered as '${newParticipant.nick}'`);
       ws.on('close', (_number: number, _reason: Buffer) => {
+
         this.handlerService.handleClose(ws);
       });
     });
@@ -42,17 +47,14 @@ export class SocketService implements ISocketService {
         ws.on('message', (msg: string) => {
           try {
             const message: AClientMessage = JSON.parse(msg);
-            console.log(`${new Date().toISOString()}: <= ${message.type}: ${JSON.stringify(message)}`);
+            this.loggerService.info('Socket', `/${req.params.team} <= ${message.type} - ${JSON.stringify(message)}`);
             this.handlerService.handleMessage(message, req.params.team, ws);
-          } catch (err) {
-            this.handlerService.handleError(ws, err);
+          } catch (error) {
+            this.handlerService.handleError(ws, error as Error);
           }
         });
       });
 
-    if (this.pingInterval > 0) {
-      setInterval(() => { this.handlerService.handlePing() }, this.pingInterval);
-    }
     expressWs.app.use('/game', router);
   }
   //#endregion

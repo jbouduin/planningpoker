@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
-import { EMemberStatusChange, EParticipantStatus, ERole, EServerMessageType, IMemberChangedMessage, IMemberListMessage, IMemberStatusChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, AServerMessage } from '@shared-lib';
+import { EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, IMemberChangeMessage, IMemberListMessage, IMemberChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, AServerMessage } from '@shared-lib';
 
 import { environment } from '@env/environment';
 import { MessageBoxComponent, MessageBoxParams } from '@shared/components';
-import { ChangeNickMessage, ChangeScrumMasterMessage, ObserveMessage } from '@shared/messages';
+import { ChangeNickMessage, ChangeScrumMasterMessage, ObserveMessage, RemoveMessage } from '@shared/messages';
 import { LocalStorageService, Member, SessionService, SnackbarService } from '@shared/services';
 import { ChangeNickDialogComponent, ChangeScrumMasterDialogComponent } from '../components';
 
@@ -25,7 +25,7 @@ export class TeamService {
   private readonly snackbarService: SnackbarService;
   private readonly translateService: TranslateService;
   private allMembers: Map<string, Member>;
-  private myUuid: string;
+  private myParticipantId: string;
   //#endregion
 
   //#region public properties -------------------------------------------------
@@ -49,7 +49,7 @@ export class TeamService {
   }
 
   public get canPoker(): boolean {
-    const me = this.allMembers.get(this.myUuid);
+    const me = this.allMembers.get(this.myParticipantId);
     return me !== undefined && !me.observer;
   }
 
@@ -74,9 +74,9 @@ export class TeamService {
     this.translateService = translateService;
     this.allMembers = new Map<string, Member>();
     this.teamName = '';
-    this.myUuid = '';
+    this.myParticipantId = '';
     this.sessionService.incomingMessage.subscribe((serverMessage: AServerMessage) => this.handleServerMessage(serverMessage));
-   this.sessionService.reset.subscribe(() => this.resetService());
+    this.sessionService.reset.subscribe(() => this.resetService());
   }
   //#endregion
 
@@ -102,7 +102,7 @@ export class TeamService {
 
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
-        const message = new ChangeNickMessage(this.myUuid, result);
+        const message = new ChangeNickMessage(this.myParticipantId, result);
         this.sessionService.sendMessage(message);
       }
     });
@@ -116,38 +116,19 @@ export class TeamService {
 
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
-        const message = new ChangeScrumMasterMessage(this.myUuid, result);
+        const message = new ChangeScrumMasterMessage(this.myParticipantId, result);
         this.sessionService.sendMessage(message);
       }
     });
   }
 
-  public getMember(uuid: string): Member | undefined {
-    return this.allMembers.get(uuid);
+  public getMember(participantId: string): Member | undefined {
+    return this.allMembers.get(participantId);
   }
 
-  public handleServerMessage(message: AServerMessage): void {
-    switch (message.type) {
-      case EServerMessageType.Self:
-        this.handleSelf(new Member((<ISelfMessage>message).data, true));
-        break;
-      case EServerMessageType.EndSession:
-      case EServerMessageType.Left:
-      case EServerMessageType.ServerReset:
-      case EServerMessageType.TeamIdle:
-        this.resetService();
-        break;
-      case EServerMessageType.MemberChanged:
-        this.handleMemberChanged((<IMemberChangedMessage>message).data);
-        break;
-      case EServerMessageType.MemberList:
-        this.handleMemberList((<IMemberListMessage>message).data);
-        break;
-      case EServerMessageType.TeamName:
-        this.teamName = (<ITeamNameMessage>message).data;
-        this.localStorageService.team = this.teamName;
-        break;
-    }
+  public removeParticipant(participantId: string): void {
+    const message = new RemoveMessage(this.myParticipantId, participantId);
+    this.sessionService.sendMessage(message);
   }
 
   public switchObserving(observe: boolean, member: string): void {
@@ -155,29 +136,55 @@ export class TeamService {
       member: member,
       observer: observe
     };
-    const message = new ObserveMessage(this.myUuid, data);
+    const message = new ObserveMessage(this.myParticipantId, data);
     this.sessionService.sendMessage(message);
   }
   //#endregion
 
   //#region private methods -----------------------------------------
-  private handleSelf(me: Member): void {
-    this.myUuid = me.uuid;
-    this.allMembers.set(me.uuid, me);
+  private handleServerMessage(message: AServerMessage): void {
+    switch (message.type) {
+      case EServerMessageType.Self:
+        this.handleSelf(new Member((<ISelfMessage>message).data, true));
+        break;
+      case EServerMessageType.EndSession:
+      case EServerMessageType.ServerReset:
+      case EServerMessageType.TeamIdle:
+        this.resetService();
+        break;
+      case EServerMessageType.MemberChanged:
+        this.handleMemberChanged((<IMemberChangeMessage>message).data);
+        break;
+      case EServerMessageType.MemberList:
+        this.handleMemberList((<IMemberListMessage>message).data);
+        break;
+      case EServerMessageType.TeamName:
+        this.teamName = (<ITeamNameMessage>message).data;
+        this.localStorageService.teamName = this.teamName;
+        break;
+    }
   }
 
-  private handleMemberChanged(memberChange: IMemberStatusChange): void {
-    if (memberChange.memberStatusChange != EMemberStatusChange.Left) {
+  private handleSelf(me: Member): void {
+    this.myParticipantId = me.participantId;
+    this.allMembers.set(me.participantId, me);
+    if (me.status === EParticipantStatus.Left) {
+      this.resetService();
+    }
+  }
+
+  private handleMemberChanged(memberChange: IMemberChange): void {
+    if (memberChange.memberStatusChange != EMemberChangeType.Left) {
       this.allMembers.set(
-        memberChange.member.uuid,
+        memberChange.member.participantId,
         new Member(memberChange.member, false)
       );
     } else {
-      this.allMembers.delete(memberChange.member.uuid);
+      this.allMembers.delete(memberChange.member.participantId);
     }
 
     switch (memberChange.memberStatusChange) {
-      case EMemberStatusChange.ChangedRole:
+      case EMemberChangeType.ChangedRole:
         if (memberChange.member.role === ERole.ScrumMaster) {
           this.snackbarService.showInfo(
             this.translateService.instant(
@@ -187,7 +194,7 @@ export class TeamService {
           );
         }
         break;
-      case EMemberStatusChange.Disconnected:
+      case EMemberChangeType.Disconnected:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_was_disconnected',
@@ -195,7 +202,7 @@ export class TeamService {
           )
         );
         break;
-      case EMemberStatusChange.Joined:
+      case EMemberChangeType.Joined:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_has_joined',
@@ -203,7 +210,7 @@ export class TeamService {
           )
         );
         break;
-      case EMemberStatusChange.Left:
+      case EMemberChangeType.Left:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_has_left',
@@ -211,7 +218,7 @@ export class TeamService {
           )
         );
         break;
-      case EMemberStatusChange.Paused:
+      case EMemberChangeType.Paused:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_is_having_a_break',
@@ -219,7 +226,7 @@ export class TeamService {
           )
         );
         break;
-      case EMemberStatusChange.Rejoined:
+      case EMemberChangeType.Rejoined:
         this.snackbarService.showInfo(
           this.translateService.instant(
             'Game.Snackbar.$member_is_back',
@@ -231,20 +238,21 @@ export class TeamService {
   }
 
   private handleMemberList(members: Array<IParticipant>): void {
-    const me = this.allMembers.get(this.myUuid);
+    const me = this.allMembers.get(this.myParticipantId);
     this.allMembers.clear();
     if (me) {
-      this.allMembers.set(this.myUuid, me);
+      this.allMembers.set(this.myParticipantId, me);
     }
     members.forEach(
-      (participant: IParticipant) => this.allMembers.set(participant.uuid, new Member(participant, participant.uuid === this.myUuid))
+      (participant: IParticipant) => this.allMembers.set(participant.participantId, new Member(participant, participant.participantId === this.myParticipantId))
     );
   }
+
   private resetService(): void {
     this.localStorageService.clear();
     this.allMembers.clear();
     this.teamName = '';
-    this.myUuid = '';
+    this.myParticipantId = '';
   }
   //#endregion
 }

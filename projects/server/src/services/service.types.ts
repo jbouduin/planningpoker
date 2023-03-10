@@ -1,12 +1,13 @@
 const SERVICETYPES = {
-  CardService: Symbol('CardService'),
   CronService: Symbol('CronService'),
-  FactoryService: Symbol('FactoryService'),
+  EnvironmentService: Symbol('EnvironmentService'),
   HandlerService: Symbol('HandlerService'),
+  LoggerService: Symbol('LoggerService,'),
   MessageService: Symbol('MessageService'),
   PreflightService: Symbol('PreflightService'),
   RouteService: Symbol('RouteService'),
   SenderService: Symbol('SenderService'),
+  SerializationService: Symbol('SerializationService'),
   SocketService: Symbol('SocketService')
 };
 

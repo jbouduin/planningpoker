@@ -3,19 +3,19 @@ import { inject, injectable } from "inversify";
 import STORAGETYPES from '../../storage/storage.types';
 import SERVICETYPES from "../service.types";
 
-import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberStatusChange, EParticipantStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreatemessage, IEstimateMessage, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage } from "../../../../shared-lib/lib";
-import { Estimation, ITeam, LooseObject, Participant } from "../../objects";
-import { IStorageService } from '../../storage/interfaces';
-import { ICardService, IMessageService } from "../interfaces";
+import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreateMessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "../../../../shared-lib/src";
+import { IServerParticipant, ITeam, LooseObject } from "../../objects";
+import { IFactoryService, IStorageService } from '../../storage/interfaces';
+import { IHandlerService, ILoggerService, IMessageService } from "../interfaces";
 import { IPreflightService } from "../interfaces/preflight.service";
 import { IWebSocket } from '../websocket';
 
-
 @injectable()
-export class HandlerService {
+export class HandlerService implements IHandlerService {
 
   //#region Private properties ------------------------------------------------
-  private readonly cardService: ICardService;
+  private readonly factoryService: IFactoryService;
+  private readonly loggerService: ILoggerService;
   private readonly messageService: IMessageService;
   private readonly preflightService: IPreflightService;
   private readonly storage: IStorageService;
@@ -23,11 +23,13 @@ export class HandlerService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
-    @inject(SERVICETYPES.CardService) cardService: ICardService,
+    @inject(STORAGETYPES.FactoryService) factoryService: IFactoryService,
+    @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService,
     @inject(SERVICETYPES.MessageService) messageService: IMessageService,
     @inject(SERVICETYPES.PreflightService) preflightService: IPreflightService,
     @inject(STORAGETYPES.StorageService) storage: IStorageService) {
-    this.cardService = cardService;
+    this.factoryService = factoryService;
+    this.loggerService = loggerService;
     this.messageService = messageService;
     this.preflightService = preflightService;
     this.storage = storage;
@@ -39,66 +41,79 @@ export class HandlerService {
     // if an existing connection closes
     // set the connection status to disconnected
     // if the user was in a game: send other participants an update
-    const closed = this.storage.filterParticipants((participant: Participant) => participant.socket == ws)[0];
+    const closed = this.storage.filterParticipants((p: IServerParticipant) => p.socket == ws)[0];
     if (closed) {
       if (closed.status !== EParticipantStatus.Paused) {
-        console.log(`${new Date().toISOString()}: '${closed.nick}'' has been disconnected`);
+        this.loggerService.info('Server', `'${closed.nick}'' has been disconnected`);
         closed.status = EParticipantStatus.Disconnected;
-        const team = this.storage.getTeamOfParticipant(closed.uuid);
+        const team = this.storage.getTeamOfParticipant(closed.participantId);
         if (team) {
-          console.log('sending disconnection to other participants');
-          this.messageService.broadcastMemberChange(team, closed, EMemberStatusChange.Disconnected);
+          this.loggerService.info('Server', 'sending disconnection to other participants');
+          this.messageService.broadcastMemberChange(
+            this.storage.getConnectedTeamMembers(team.teamName).filter((p: IServerParticipant) => p.participantId !== closed.participantId),
+            closed,
+            EMemberChangeType.Disconnected
+          );
           if (closed.role === ERole.ScrumMaster) {
             // assign some random participant the scrum master role
-            const connected = team.filterMembers((p: Participant) => p.status === EParticipantStatus.Connected);
-            if (connected.length > 0) {
+            const newScrumMaster = this.storage.getFirstConnectedTeamMember(team.teamName);
+            if (newScrumMaster) {
               closed.role = ERole.Developer;
-              const newScrumMaster = connected[0];
               newScrumMaster.role = ERole.ScrumMaster;
-              this.messageService.broadcastMemberChange(team, newScrumMaster, EMemberStatusChange.ChangedRole);
+              this.messageService.broadcastMemberChange(
+                this.storage.getConnectedTeamMembers(team.teamName).filter((p: IServerParticipant) => p.participantId !== newScrumMaster.participantId),
+                newScrumMaster,
+                EMemberChangeType.ChangedRole
+              );
               this.messageService.sendSelf(newScrumMaster);
             }
           }
+          // if the team is estimating remove the senders estimation and send an update to the others
+          if (team.status === EPokerStatus.Started) {
+            this.storage.deleteEstimation(team.teamName, closed.participantId)
+            const estimations = this.storage.getEstimations(team.teamName);
+            this.messageService.broadcastEstimations(
+              this.storage.getConnectedTeamMembers(team.teamName),
+              estimations);
+          }
+        } else {
+          this.storage.deleteParticipant(closed.participantId, undefined);
         }
       }
     }
   }
 
-  public handleConnect(ws: IWebSocket): Participant {
-    const newParticipant = this.storage.createParticipant(ws);
-    // send the participant himself back, so he knows his assigned uuid
+  public handleConnect(ws: IWebSocket): IServerParticipant {
+    const newParticipant = this.factoryService.createParticipant(ws);
+    this.storage.addParticipant(newParticipant);
+    // send the participant himself back, so he knows his assigned participantId
     this.messageService.sendInit(newParticipant);
     return newParticipant;
   }
 
   public handleCronTick(maxIdleTime: number): void {
-    console.log(`${new Date().toISOString()}: Cron tick`);
-    for (const team of this.storage.filterTeams((team: ITeam) => team.idleTime > maxIdleTime)) {
-      console.log(`Cron Tick: deleting '${team.teamName}'`);
-      team.allMembers.forEach((participant: Participant) => {
-        this.messageService.sendTeamIdleMessage(participant);
-        this.storage.deleteParticipant(participant.uuid);
+    this.loggerService.info('Server', `Cron tick`);
+    this.storage
+      .filterTeams((team: ITeam) => Date.now() - team.lastAccessTime > maxIdleTime)
+      .forEach((team: ITeam) => {
+        this.loggerService.info('Server', `Cron Tick: deleting '${team.teamName}'`);
+        this.messageService.broadcastTeamIdle(this.storage.getConnectedTeamMembers(team.teamName));
+        this.storage.deleteTeam(team.teamName);
       });
-      this.storage.deleteTeam(team.teamName);
-    }
   }
 
-  public handleError(ws: IWebSocket, err: unknown): void {
-    console.log(`${new Date().toISOString()}: ERROR ${err}`);  //eslint-disable-line
-
-    if (err instanceof Error) {
-      this.messageService.sendException(ws, err.message);
-    } else {
-      this.messageService.sendException(ws, JSON.stringify(err));
-    }
+  public handleError(ws: IWebSocket, error: Error): void {
+    this.loggerService.logError('Server', error)
+    this.messageService.sendException(ws, error.message);
   }
 
   public handleMessage(message: AClientMessage, teamName: string, ws: IWebSocket): void {
     const preflight = this.preflightService.preflight(this.storage, message, teamName);
+
     if (preflight !== EErrorCode.NoError) {
       this.messageService.sendErrorMessageToSocket(ws, preflight);
     } else {
-      const participant = this.storage.getParticipant(message.senderUuid);
+      const participant = this.storage.getParticipant(message.senderId);
       if (participant) {
         this.processMessage(participant, message, teamName, ws)
       }
@@ -106,263 +121,330 @@ export class HandlerService {
   }
 
   public handlePing(): void {
-    console.log(`${new Date().toISOString()}: ping`);
+    this.loggerService.info('Server', `ping`);
     this.storage
-      .filterParticipants((participant: Participant) => participant.status === EParticipantStatus.Connected)
+      .filterParticipants((participant: IServerParticipant) => participant.status === EParticipantStatus.Connected)
       .forEach(participant => this.messageService.sendPing(participant));
   }
 
   public handleReset(): LooseObject {
     const response: LooseObject = {};
-    response.teams = 0;
+    response.teams = this.storage.allTeams.length;
     response.totalMembers = 0;
     response.removedTeams = new Array<LooseObject>();
-    for (const team of this.storage.filterTeams((_team: ITeam) => true)) {
+    this.storage.allTeams().forEach((team: ITeam) => {
+      this.loggerService.info('Server', `System reset: removing '${team.teamName}'`);
+      const connectedTeamMembers = this.storage.getConnectedTeamMembers(team.teamName);
       const removedTeam: LooseObject = {};
-      console.log(`System reset: removing '${team.teamName}'`);
       removedTeam.team = team.teamName;
-      removedTeam.members = 0;
-      removedTeam.removedMembers = new Array<string>();
-      team.allMembers.forEach((participant: Participant) => {
-        this.messageService.sendReset(participant);
-        this.storage.deleteParticipant(participant.uuid);
-        removedTeam.removedMembers.push(`${participant.nick} - ${participant.uuid}`);
-        response.totalMembers++;
-        removedTeam.members++;
-      });
-      response.removedTeams.push(removedTeam);
-      this.storage.deleteTeam(team.teamName);
-      response.teams++;
-    }
+      removedTeam.removedMembers = this.storage.deleteTeam(team.teamName).map((p: IServerParticipant) => `${p.nick} - ${p.participantId}`)
+      response.totalMembers += removedTeam.removedMembers.length;
+      this.messageService.broadcastReset(connectedTeamMembers);
+    });
     return response;
   }
   //#endregion
 
-  //#region private methods ---------------------------------------------------
-  private processMessage(sender: Participant, message: AClientMessage, teamName: string, ws: IWebSocket): void {
+  //#region message handling methods ------------------------------------------
+  private processMessage(sender: IServerParticipant, message: AClientMessage, teamName: string, ws: IWebSocket): void {
     if (message.type === EClientMessageType.Create) {
-      this.handleCreate(sender, <ICreatemessage>message);
+      this.handleCreate(sender, teamName, <ICreateMessage>message);
     }
     else {
-      const team = this.storage.getTeam(teamName);
-      if (team) {
-        switch (message.type) {
-          case (EClientMessageType.ChangeCardSet): {
-            this.handleChangeCardSet(<IChangeCardSetMessage>message, team);
-            break;
-          }
-          case (EClientMessageType.ChangeNick): {
-            this.handleChangeNick(sender, <IChangeNickMessage>message, team);
-            break;
-          }
-          case (EClientMessageType.ChangeScrumMaster): {
-            this.handleChangeScrumMaster(sender, <IChangeScrumMasterMessage>message, team);
-            break;
-          }
-          case (EClientMessageType.Estimate): {
-            this.handleEstimate(sender, <IEstimateMessage>message, team);
-            break;
-          }
-          case (EClientMessageType.Join): {
-            this.handleJoin(sender, <IJoinMessage>message, team);
-            break;
-          }
-          case (EClientMessageType.Disconnect): {
-            this.handleKillMe(sender);
-            break;
-          }
-          case (EClientMessageType.Leave): {
-            this.handleLeave(sender, <ILeaveMessage>message, team);
-            break;
-          }
-          case (EClientMessageType.Observe): {
-            this.handleObserve(<IObserveMessage>message, team);
-            break;
-          }
-          case (EClientMessageType.Pause): {
-            this.handlePause(sender, team);
-            break;
-          }
-          case (EClientMessageType.Reveal): {
-            this.handleReveal(sender, team);
-            break;
-          }
-          case (EClientMessageType.Start): {
-            this.handleStart(sender, team);
-            break;
-          }
-          case (EClientMessageType.Rejoin): {
-            this.handleRejoin(sender, <IRejoinMessage>message, ws);
-            break;
-          }
-          default: {
-            this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.UnknownVerb);
-            console.log('unexpected messagetype');
-          }
-        } // end switch
-      }
+      switch (message.type) {
+        case (EClientMessageType.ChangeCardSet): {
+          this.handleChangeCardSet(teamName, <IChangeCardSetMessage>message);
+          break;
+        }
+        case (EClientMessageType.ChangeNick): {
+          this.handleChangeNick(sender, teamName, <IChangeNickMessage>message);
+          break;
+        }
+        case (EClientMessageType.ChangeScrumMaster): {
+          this.handleChangeScrumMaster(sender, teamName, <IChangeScrumMasterMessage>message);
+          break;
+        }
+        case (EClientMessageType.Estimate): {
+          this.handleEstimate(sender, teamName, <IEstimateMessage>message);
+          break;
+        }
+        case (EClientMessageType.Join): {
+          this.handleJoin(sender, teamName, <IJoinMessage>message,);
+          break;
+        }
+        case (EClientMessageType.Leave): {
+          this.handleLeave(sender, teamName, <ILeaveMessage>message);
+          break;
+        }
+        case (EClientMessageType.Observe): {
+          this.handleObserve(teamName, <IObserveMessage>message);
+          break;
+        }
+        case (EClientMessageType.Pause): {
+          this.handlePause(sender, teamName);
+          break;
+        }
+        case (EClientMessageType.Remove): {
+          this.handleRemove(teamName, <IRemoveMessage>message);
+          break;
+        }
+        case (EClientMessageType.Reveal): {
+          this.handleReveal(teamName);
+          break;
+        }
+        case (EClientMessageType.Start): {
+          this.handleStart(teamName);
+          break;
+        }
+        case (EClientMessageType.Rejoin): {
+          this.handleRejoin(sender, teamName, <IRejoinMessage>message, ws);
+          break;
+        }
+        // The default (EErrorCode.UnknownVerb) is already handled in preflight
+      } // end switch
     }
   }
 
-  private handleChangeCardSet(message: IChangeCardSetMessage, team: ITeam): void {
-    team.cardSet = message.data;
-    this.messageService.broadcastCardSet(team);
+  private handleChangeCardSet(teamName: string, message: IChangeCardSetMessage): void {
+    this.storage.setCardSet(teamName, message.data);
+    this.messageService.broadcastCardSet(
+      this.storage.getConnectedTeamMembers(teamName),
+      message.data);
   }
 
-  private handleChangeNick(sender: Participant, message: IChangeNickMessage, team: ITeam): void {
+  private handleChangeNick(sender: IServerParticipant, teamName: string, message: IChangeNickMessage): void {
     if (sender.nick !== message.data) {
       sender.nick = message.data;
-      this.messageService.broadcastMemberChange(team, sender, EMemberStatusChange.ChangedNick);
+      this.messageService.broadcastMemberChange(
+        this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+        sender,
+        EMemberChangeType.ChangedNick);
       this.messageService.sendSelf(sender);
     }
   }
 
-  private handleChangeScrumMaster(sender: Participant, message: IChangeNickMessage, team: ITeam): void {
-    if (sender.uuid !== message.data) {
-      const newScrumMaster = team.getMember(message.data);
+  private handleChangeScrumMaster(sender: IServerParticipant, teamName: string, message: IChangeNickMessage): void {
+    if (sender.participantId !== message.data) {
+      const newScrumMaster = this.storage.getParticipant(message.data);
       if (newScrumMaster) {
         sender.role = ERole.Developer;
         newScrumMaster.role = ERole.ScrumMaster;
-        this.messageService.broadcastMemberChange(team, sender, EMemberStatusChange.ChangedRole);
-        this.messageService.broadcastMemberChange(team, newScrumMaster, EMemberStatusChange.ChangedRole);
+        this.messageService.broadcastMemberChange(
+          this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+          sender,
+          EMemberChangeType.ChangedRole);
+        this.messageService.broadcastMemberChange(
+          this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== newScrumMaster.participantId),
+          newScrumMaster,
+          EMemberChangeType.ChangedRole);
         this.messageService.sendSelf(sender);
         this.messageService.sendSelf(newScrumMaster);
       }
-      else {
-        this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ParticipantNotFound);
-      }
     }
   }
 
-  private handleCreate(sender: Participant, message: ICreatemessage): void {
-    console.log(`Create: '${sender.nick}' is creating '${message.data.team}'`);
-    const newGame = this.storage.createTeam(
-      message.data.team,
-      message.data.cardSet === ECardSet.Custom ?
-        message.data.cards || this.cardService.getCardSet(ECardSet.Cohn) :
-        this.cardService.getCardSet(message.data.cardSet));
+  private handleCreate(sender: IServerParticipant, teamName: string, message: ICreateMessage): void {
+    this.loggerService.info('Server', `Create: '${sender.nick}' is creating '${teamName}'`);
+    const cardSet = message.data.cardSet === ECardSet.Custom ?
+      message.data.cards || this.factoryService.createCardSet(ECardSet.Cohn) :
+      this.factoryService.createCardSet(message.data.cardSet);
+    // create the team
+    const newTeam = this.factoryService.createTeam(teamName);
+    this.storage.addTeam(newTeam, cardSet);
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
     sender.role = ERole.ScrumMaster;
-    newGame.upsertMember(sender);
-    this.storage.joinTeam(message.senderUuid, message.data.team);
+    // join the team
+    this.storage.joinTeam(teamName, sender.participantId);
     // provide the sender with the current game state
-    this.messageService.sendTeamInfo(sender, newGame);
+    this.messageService.sendAllInfo(
+      sender,
+      newTeam,
+      new Array<IServerParticipant>(),
+      cardSet,
+      new Array<IEstimation>());
   }
 
-  private handleEstimate(sender: Participant, message: IEstimateMessage, team: ITeam): void {
-    const estimation = new Estimation(sender.uuid, message.data);
-    if (estimation.card >= 0) {
-      team.upsertEstimation(estimation);
+  private handleEstimate(sender: IServerParticipant, teamName: string, message: IEstimateMessage): void {
+    let result: IEstimation;
+    const team = this.storage.getTeam(teamName);
+    if (team) {
+      if (message.data) {
+        result = this.storage.upsertEstimation(teamName, sender.participantId, message.data);
+      }
+      else {
+        result = this.storage.deleteEstimation(teamName, sender.participantId);
+      }
+      this.messageService.broadcastEstimations(
+        this.storage.getConnectedTeamMembers(teamName),
+        [result]
+      );
     }
-    else {
-      team.deleteEstimation(estimation.participantUuid);
-    }
-    this.messageService.broadcastEstimation(team, estimation);
   }
 
-  private handleJoin(sender: Participant, message: IJoinMessage, team: ITeam): void {
-    console.log(`Join: '${sender.nick}' is joining '${message.data.team}'`);
+  private handleJoin(sender: IServerParticipant, teamName: string, message: IJoinMessage): void {
+    this.loggerService.info('Server', `Join: '${sender.nick}' is joining '${teamName}'`);
     sender.role = ERole.Developer;
     sender.observer = message.data.observer;
     sender.nick = message.data.nick;
-    team.upsertMember(sender);
-    this.storage.joinTeam(message.senderUuid, message.data.team);
-    // provide the sender with the curren game state
-    this.messageService.sendTeamInfo(sender, team);
-    // tell the others someone joined
-    this.messageService.broadcastMemberChange(team, sender, EMemberStatusChange.Joined);
+    const team = this.storage.getTeam(teamName);
+    if (team) {
+      this.storage.joinTeam(teamName, sender.participantId);
+      // send the current team state (except for the poker status)
+      this.messageService.sendAllInfo(
+        sender,
+        team,
+        this.storage.getTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+        this.storage.getCardSet(teamName),
+        this.storage.getEstimations(teamName)
+      );
+      // tell the others someone joined
+      this.messageService.broadcastMemberChange(
+        this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+        sender,
+        EMemberChangeType.Joined);
+    }
   }
 
-  private handleKillMe(sender: Participant): void {
-    console.log(`Kill: '${sender.nick}' asked to be disconnected`);
-    sender.socket.close();
+  private handleRemove(teamName: string, message: IRemoveMessage): void {
+    const toRemove = this.storage.getParticipant(message.data);
+    if (toRemove) {
+      this.storage.deleteParticipant(toRemove.participantId, teamName);
+      // tell the others someone left
+      toRemove.status = EParticipantStatus.Left;
+      this.messageService.broadcastMemberChange(
+        this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => toRemove.participantId !== p.participantId),
+        toRemove,
+        EMemberChangeType.Left);
+    }
   }
 
-  private handleLeave(sender: Participant, _message: ILeaveMessage, team: ITeam): void {
+  private handleLeave(sender: IServerParticipant, teamName: string, message: ILeaveMessage): void {
     if (sender.role === ERole.ScrumMaster) {
-      console.log(`End game: '${sender.nick}' is ending '${team.teamName}'`);
-      this.messageService.broadcastSessionEnded(team, sender);
-      team
-        .filterMembers(_participant => true)
-        .forEach(participant => this.storage.deleteParticipant(participant.uuid));
-      this.storage.deleteTeam(team.teamName);
-      // aknowledge to the scrum master
-      this.messageService.sendSessionEnded(sender);
+      this.loggerService.info('Server', `End game: '${sender.nick}' is ending '${teamName}'`);
+      this.messageService.broadcastSessionEnded(this.storage.getConnectedTeamMembers(teamName));
+      this.storage.deleteTeam(teamName);
     } else {
-
-      const leaving = sender.uuid !== _message.data ?
-        this.storage.getParticipant(_message.data) :
+      // if the data is not equal to the senders participantId
+      // this is a previously disconnecte user that does not want to come back
+      const leaving = message.data !== sender.participantId ?
+        this.storage.getParticipant(message.data) :
         sender;
       if (leaving) {
-        console.log(`Leave: '${leaving.nick}' is leaving '${team.teamName}'`);
-        team.removeMember(leaving.uuid);
-        this.storage.deleteParticipant(leaving.uuid);
+        this.loggerService.info('Server', `Leave: '${leaving.nick}' is leaving '${teamName}'`);
+        this.storage.deleteParticipant(leaving.participantId, teamName);
         // tell the others someone left
         leaving.status = EParticipantStatus.Left;
-        this.messageService.broadcastMemberChange(team, leaving, EMemberStatusChange.Left);
-        this.messageService.sendLeft(sender);
+        this.messageService.broadcastMemberChange(
+          this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== leaving.participantId),
+          leaving,
+          EMemberChangeType.Left);
+        // Acknowledge to the sender
+        sender.status = EParticipantStatus.Left;
+        this.messageService.sendSelf(sender);
+      }
+      if (message.data !== sender.participantId) {
+        this.storage.deleteParticipant(sender.participantId, teamName);
+      } else {
+        const team = this.storage.getTeam(teamName);
+        if (team && team.status === EPokerStatus.Started) {
+          const estimations = this.storage.getEstimations(teamName);
+          this.messageService.broadcastEstimations(
+            this.storage.getConnectedTeamMembers(teamName),
+            estimations);
+        }
       }
     }
-
   }
 
-  private handleObserve(message: IObserveMessage, team: ITeam): void {
+  private handleObserve(teamName: string, message: IObserveMessage): void {
     const member = this.storage.getParticipant(message.data.member);
     if (member && member.observer !== message.data.observer) {
       member.observer = message.data.observer;
-      this.messageService.broadcastMemberChange(team, member, EMemberStatusChange.Observe);
+      this.messageService.broadcastMemberChange(
+        this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== member.participantId),
+        member,
+        EMemberChangeType.Observe);
       this.messageService.sendSelf(member);
     }
   }
 
-  private handlePause(sender: Participant, game: ITeam): void {
-    console.log(`Pause: '${sender.nick}'`);
-    // send the data back as aknowledgment
+  private handlePause(sender: IServerParticipant, teamName: string): void {
+    this.loggerService.info('Server', `Pause: '${sender.nick}'`);
     sender.status = EParticipantStatus.Paused;
+    // inform the others
+    this.messageService.broadcastMemberChange(
+      this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+      sender,
+      EMemberChangeType.Paused);
+    // if the team is estimating remove the senders estimation and send an update to the others
+    const team = this.storage.getTeam(teamName);
+    if (team && team.status === EPokerStatus.Started) {
+      this.storage.deleteEstimation(teamName, sender.participantId);
+      const estimations = this.storage.getEstimations(teamName);
+      this.messageService.broadcastEstimations(
+        this.storage.getConnectedTeamMembers(teamName),
+        estimations);
+    }
+    // Acknowledge to the sender
     this.messageService.sendSelf(sender);
-    this.messageService.broadcastMemberChange(game, sender, EMemberStatusChange.Paused);
   }
 
-  private handleRejoin(sender: Participant, message: IRejoinMessage, ws: any): void {
-    console.log(`Rejoin: '${message.senderUuid}' => '${message.data}' `);
+  private handleRejoin(sender: IServerParticipant, teamName: string, message: IRejoinMessage, ws: IWebSocket): void {
+    this.loggerService.info('Server', `Rejoin: '${message.senderId}' => '${message.data}' `);
     // find the original participant and the game he was in
     const oldParticipant = this.storage.getParticipant(message.data);
-    const teamToRejoin = this.storage.getTeamOfParticipant(message.data);
-
-    if (teamToRejoin && oldParticipant) {
+    const team = this.storage.getTeam(teamName);
+    if (oldParticipant && team) {
       // remove the sender
-      this.storage.deleteParticipant(sender.uuid);
+      this.storage.deleteParticipant(sender.participantId, teamName);
       // update the original participant
       oldParticipant.status = EParticipantStatus.Connected;
       oldParticipant.socket = ws;
-      // update the sender
-      this.messageService.sendSelf(oldParticipant);
-      // provide the rejoining participant with the curren game state
-      this.messageService.sendTeamInfo(oldParticipant, teamToRejoin);
-      // tell the others that participant rejoined
-      this.messageService.broadcastMemberChange(teamToRejoin, oldParticipant, EMemberStatusChange.Rejoined);
+      // send the current team state (except for the poker status)
+      this.messageService.sendAllInfo(
+        oldParticipant,
+        team,
+        this.storage.getTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId),
+        this.storage.getCardSet(teamName),
+        this.storage.getEstimations(teamName)
+      );
+      // if no one else is connected, make this one the new scrum master
+      const connectedTeamMembers = this.storage
+        .getConnectedTeamMembers(teamName)
+        .filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId);
+      if (connectedTeamMembers.length > 0) {
+        // tell the others that participant rejoined
+        this.messageService.broadcastMemberChange(
+          connectedTeamMembers,
+          oldParticipant,
+          EMemberChangeType.Rejoined);
+      } else if (oldParticipant.role !== ERole.ScrumMaster) {
+        oldParticipant.role = ERole.ScrumMaster;
+        this.messageService.sendSelf(oldParticipant);
+      }
     }
   }
 
-  private handleReveal(sender: Participant, team: ITeam): void {
-    if (sender.role !== ERole.ScrumMaster) {
-      this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ScrumMasterRequired);
-    } else {
-      team.reveal();
-      this.messageService.broadcastPokerStatus(team);
-      this.messageService.broadcastAllEstimations(team);
-    }
+  private handleReveal(teamName: string): void {
+    const result = this.storage.reveal(teamName);
+    this.messageService.broadcastPokerStatus(
+      this.storage.getConnectedTeamMembers(teamName),
+      result[0]
+    );
+    this.messageService.broadcastEstimations(
+      this.storage.getConnectedTeamMembers(teamName),
+      result[1]
+    );
   }
 
-  private handleStart(sender: Participant, team: ITeam): void {
-    if (sender.role !== ERole.ScrumMaster) {
-      this.messageService.sendErrorMessageToParticipant(sender, EErrorCode.ScrumMasterRequired);
-    } else {
-      team.startEstimating();
-      this.messageService.broadcastClearEstimations(team);
-      this.messageService.broadcastPokerStatus(team);
-    }
+  private handleStart(teamName: string): void {
+    const result = this.storage.startEstimating(teamName);
+    this.messageService.broadcastClearEstimations(this.storage.getConnectedTeamMembers(teamName));
+    this.messageService.broadcastPokerStatus(
+      this.storage.getConnectedTeamMembers(teamName),
+      result
+    );
   }
   //#endregion
 }

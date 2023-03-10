@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "pretty": true,
     "sourceMap": true,
@@ -9,15 +9,18 @@
     "strict": true,
     "baseUrl": "./src",
     "lib": [ "es6", "dom" ],
-    "types": [ "reflect-metadata", "node" ],
+    "types": [ "reflect-metadata", "node", "jest" ],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "allowJs": true
   },
   "references": [
     { "path": "../shared-lib" }
   ],
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "test/**/*.ts"
   ],
   "exclude": [
     "node_modules"

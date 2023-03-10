@@ -1,11 +1,12 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "CommonJS",
         "moduleResolution": "node",
         "pretty": true,
         "declaration": true,
         "declarationMap": true,
-        "rootDir": "./lib",
+        "outDir": "./dist",
+        "rootDir": "./src",
         "composite": true,
         "target": "es6",
         "strict": true,
@@ -15,7 +16,7 @@
         "emitDecoratorMetadata": true
     },
     "include": [
-        "**/*.ts"
+        "src/**/*.ts"
     ],
     "exclude": [
         "node_modules"

@@ -22,7 +22,7 @@
     "baseUrl": "./",
     "paths": {
       "@shared-lib": [
-        "projects/shared-lib/lib"
+        "projects/shared-lib/src"
       ],
       "@core/*": [
         "src/app/@core/*"

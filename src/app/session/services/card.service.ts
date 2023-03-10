@@ -49,7 +49,8 @@ export class CardService {
           index: card.index,
           label: card.label,
           isIcon: card.isIcon,
-          isUnknownEstimation: card.isUnknownEstimation
+          isUnknownEstimation: card.isUnknownEstimation,
+          isEstimation: card.isEstimation
         }
       }),
       currentCardSet: this.currentCardSet
@@ -58,7 +59,7 @@ export class CardService {
 
     dialogRef.afterClosed().subscribe((result: ICardSet) => {
       if (result) {
-        const message = new ChangeCardSetMessage(this.sessionService.myUuid, result);
+        const message = new ChangeCardSetMessage(this.sessionService.myParticipantId, result);
         this.sessionService.sendMessage(message);
       }
     });

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
+import { versionInfo } from '@core/services/version-info';
 import { ESessionStatus, SessionService } from '@shared/services';
 
 @Component({
@@ -31,6 +32,10 @@ export class HeaderComponent {
 
   public get routeLabelLegal(): string {
     return this.translateService.instant('Navigation.RouteLabel.Legal');
+  }
+
+  public get version(): string {
+    return `Planning-poker v${versionInfo.version}`;
   }
   //#endregion
 

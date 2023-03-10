@@ -1,6 +1,6 @@
 <div class="button-row">
   <div class="game-button">
-    <button mat-stroked-button color="primary" (click)="leave()">
+    <button *ngIf="canLeave" mat-stroked-button color="primary" (click)="leave()">
       {{leaveLabel}}
     </button>
   </div>

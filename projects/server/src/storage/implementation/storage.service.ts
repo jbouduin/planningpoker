@@ -1,174 +1,202 @@
-import { injectable } from "inversify";
-import { v4 as Uuid } from 'uuid';
+import { inject, injectable } from "inversify";
 
-import { EErrorCode, ERole, ICardSet } from "../../../../shared-lib/lib";
-import { ITeam, LooseObject, Team } from "../../objects";
-import { Participant } from "../../objects/participant";
-import { IWebSocket } from "../../services/websocket";
-import { IStorageService } from "../../storage/interfaces";
+import STORAGETYPES from "../storage.types";
+
+import { EErrorCode, EPokerStatus, ICard, ICardSet, IEstimation } from "../../../../shared-lib/src";
+import { IServerParticipant, ITeam } from "../../objects";
+import { ICardSetRepository, IEstimationRepository, IFactoryService, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
 
 @injectable()
 export class StorageService implements IStorageService {
 
   //#region Private properties ------------------------------------------------
-  private readonly participants: Map<string, Participant>;
-  private readonly memberTeamMap: Map<string, string>;
-  private readonly teams: Map<string, ITeam>;
+  private readonly cardSetRepository: ICardSetRepository;
+  private readonly estimationRepository: IEstimationRepository;
+  // private readonly factoryService: IFactoryService;
+  private readonly membershipRepository: IMembershipRepository;
+  private readonly participantRepository: IServerParticipantRepository;
+  private readonly teamRepository: ITeamRepository;
   private cnt: number;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor() {
-    this.participants = new Map<string, Participant>();
-    this.memberTeamMap = new Map<string, string>();
-    this.teams = new Map<string, ITeam>();
+  public constructor(
+    @inject(STORAGETYPES.CardSetRepository) cardSetRepository: ICardSetRepository,
+    @inject(STORAGETYPES.EstimationRepository) estimationRepository: IEstimationRepository,
+    @inject(STORAGETYPES.FactoryService) factoryService: IFactoryService,
+    @inject(STORAGETYPES.MembershipRepository) membershipRepository: IMembershipRepository,
+    @inject(STORAGETYPES.ServerParticipantRepository) participantRepository: IServerParticipantRepository,
+    @inject(STORAGETYPES.TeamRepository) teamRepository: ITeamRepository) {
+    this.cardSetRepository = cardSetRepository;
+    this.estimationRepository = estimationRepository;
+    // this.factoryService = factoryService;
+    this.membershipRepository = membershipRepository;
+    this.participantRepository = participantRepository;
+    this.teamRepository = teamRepository;
     this.cnt = 0;
   }
   //#endregion
 
-  //#region IStorageService methods -------------------------------------------
-  public canRejoin(uuid: string, teamName: string): EErrorCode {
-    let result = EErrorCode.NoError;
-    if (!this.teamExists(teamName)) {
-      result = EErrorCode.TeamDoesNotExist;
-    } else if (!this.participantExists(uuid)) {
-      result = EErrorCode.ParticipantNotFound;
-    } else if (!this.participantInTeam(uuid, teamName)) {
-      result = EErrorCode.ParticipantNotInTeam;
+  //#region participant -------------------------------------------------------
+  public addParticipant(participant: IServerParticipant): void {
+    this.participantRepository.add(participant);
+  }
+
+  public deleteParticipant(participantId: string, teamName: string | undefined): void {
+    if (teamName) {
+      this.teamRepository.setLastAccessTime(teamName);
+      this.membershipRepository.leaveTeam(teamName, participantId);
+      this.estimationRepository.removeParticipant(teamName, participantId);
     }
-    return result;
+    this.participantRepository.remove(participantId);
   }
 
-  public createParticipant(socket: IWebSocket): Participant {
-    const result = new Participant(`participant ${++this.cnt}`, Uuid(), ERole.Unknown, socket);
-    this.participants.set(result.uuid, result);
-    return result;
+  public filterParticipants(filter: (participant: IServerParticipant) => boolean): Array<IServerParticipant> {
+    return this.participantRepository.getAll().filter(filter);
   }
 
-  public createTeam(teamName: string, cardSet: ICardSet): ITeam {
-    const result = new Team(teamName, cardSet);
-    this.teams.set(teamName, result);
-    return result;
+  public getParticipant(participantId: string): IServerParticipant | undefined {
+    return this.participantRepository.get(participantId);
   }
 
-  public deleteParticipant(participantUuid: string): void {
-    this.memberTeamMap.delete(participantUuid);
-    this.participants.delete(participantUuid);
+  public participantExists(participantId: string): boolean {
+    return this.participantRepository.exists(participantId);
+  }
+  //#endregion
+
+  //#region Team --------------------------------------------------------------
+  public addTeam(team: ITeam, cardSet: ICardSet): void {
+    this.cardSetRepository.setCardSet(team.teamName, cardSet);
+    this.teamRepository.add(team);
   }
 
-  public deleteTeam(teamName: string): void {
-    this.teams.delete(teamName);
+  public allTeams(): Array<ITeam> {
+    return this.teamRepository.getAll();
   }
 
-  public filterParticipants(filter: (participant: Participant) => boolean): Array<Participant> {
-    const result = new Array<Participant>();
-    for (const participant of this.participants.values()) {
-      if (filter(participant) === true) {
-        result.push(participant);
-      }
-    }
-    return result;
+
+
+  public deleteTeam(teamName: string): Array<IServerParticipant> {
+    this.cardSetRepository.removeCardSet(teamName);
+    this.estimationRepository.removeTeam(teamName);
+    const members = this.membershipRepository.getTeamMembers(teamName);
+    this.membershipRepository.removeTeam(teamName);
+    members.forEach((p: IServerParticipant) => this.participantRepository.remove(p.participantId));
+    this.teamRepository.remove(teamName);
+    return members;
   }
 
   public filterTeams(filter: (team: ITeam) => boolean): Array<ITeam> {
-    const result = new Array<ITeam>();
-    for (const team of this.teams.values()) {
-      if (filter(team) === true) {
-        result.push(team);
-      }
-    }
-    return result;
-  }
-
-  public getParticipant(uuid: string): Participant | undefined {
-    return this.participants.get(uuid);
+    return this.teamRepository.getAll().filter(filter);
   }
 
   public getTeam(teamName: string): ITeam | undefined {
-    return this.teams.get(teamName);
-  }
-
-  public getTeamOfParticipant(participantUuid: string): ITeam | undefined {
-    const gameName = this.memberTeamMap.get(participantUuid);
-    return gameName ? this.teams.get(gameName) : undefined;
-  }
-
-  public joinTeam(participantUuid: string, teamName: string): void {
-    this.memberTeamMap.set(participantUuid, teamName);
-  }
-
-  public participantExists(uuid: string): boolean {
-    return this.participants.has(uuid);
-  }
-
-  public participantInTeam(uuid: string, teamName: string): boolean {
-    return this.memberTeamMap.get(uuid) === teamName;
-  }
-
-  public serializeAllTeams(): LooseObject {
-    const result: LooseObject = {
-      teams: new Array<LooseObject>()
-    };
-
-    for (const team of this.teams.values()) {
-      const gameDump: LooseObject = {
-        team: team.teamName,
-        status: team.status,
-        members: new Array<LooseObject>()
-      }
-      team.allMembers.forEach((menber: Participant) => gameDump.members.push({
-        name: menber.nick,
-        role: menber.role,
-        status: menber.status,
-        observer: menber.observer,
-        uuid: menber.uuid
-      }));
-      result.teams.push(gameDump);
-    }
-    return result;
-  }
-
-  public serializeTeam(teamName: string): LooseObject {
-    const team = this.teams.get(teamName);
-    if (team) {
-      const result: LooseObject = {
-        team: team.teamName,
-        status: team.status,
-        members: new Array<LooseObject>()
-      }
-      team.allMembers.forEach((member: Participant) => result.members.push({
-        name: member.nick,
-        role: member.role,
-        status: member.status,
-        observer: member.observer,
-        uuid: member.uuid
-      }));
-      return result;
-    }
-    else {
-      return {
-        error: EErrorCode.TeamDoesNotExist,
-        errorMessage: `Team '${teamName}' not found`
-      }
-    }
-  }
-
-  public serializeParticipants(): LooseObject {
-    const result = new Array<LooseObject>();
-    for (const participant of this.participants.values()) {
-      result.push({
-        name: participant.nick,
-        role: participant.role,
-        status: participant.status,
-        observer: participant.observer,
-        uuid: participant.uuid
-      })
-    }
-    return result;
+    return this.teamRepository.get(teamName);
   }
 
   public teamExists(teamName: string): boolean {
-    return this.teams.has(teamName);
+    return this.teamRepository.exists(teamName);
   }
   //#endregion
+
+  //#region membership methods ------------------------------------------------
+  public canRejoin(participantId: string, teamName: string): EErrorCode {
+    let result: EErrorCode;
+    const team = this.teamRepository.get(teamName);
+    if (!team) {
+      result = EErrorCode.TeamNotFound;
+    } else {
+      const member = this.participantRepository.get(participantId);
+      if (member) {
+        result = this.membershipRepository.participantIsMemberOf(participantId, teamName) ? EErrorCode.NoError : EErrorCode.ParticipantNotInTeam
+      } else {
+        result = EErrorCode.ParticipantNotFound;
+      }
+    }
+    return result;
+  }
+
+  public getConnectedTeamMembers(teamName: string): Array<IServerParticipant> {
+    return this.membershipRepository.getConnectedTeamMembers(teamName);
+  }
+
+  public getFirstConnectedTeamMember(teamName: string): IServerParticipant | undefined {
+    const connectedTeamMembers = this.membershipRepository.getConnectedTeamMembers(teamName);
+    return connectedTeamMembers.length > 0 ? connectedTeamMembers[0] : undefined;
+  }
+
+  public getTeamOfParticipant(participantId: string): ITeam | undefined {
+    return this.membershipRepository.getTeamOfParticipant(participantId);
+  }
+
+  public getTeamMembers(teamName: string): Array<IServerParticipant> {
+    return this.membershipRepository.getTeamMembers(teamName);
+  }
+
+  public joinTeam(teamName: string, participantId: string): void {
+    this.teamRepository.setLastAccessTime(teamName);
+    this.membershipRepository.joinTeam(teamName, participantId);
+  }
+
+  public leaveTeam(teamName: string, participantId: string): void {
+    this.teamRepository.setLastAccessTime(teamName);
+    this.membershipRepository.leaveTeam(teamName, participantId);
+  }
+  //#endregion
+
+  //#region estimations -------------------------------------------------------
+  public deleteEstimation(teamName: string, participantId: string): IEstimation {
+    this.teamRepository.setLastAccessTime(teamName);
+    return this.estimationRepository.deleteEstimation(teamName, participantId);
+  }
+
+  public getEstimations(teamName: string): Array<IEstimation> {
+    return this.estimationRepository.getEstimations(teamName);
+  }
+
+  public reveal(teamName: string): [EPokerStatus, Array<IEstimation>] {
+    const cardSet = this.cardSetRepository.getCardSet(teamName);
+    const result = this.estimationRepository.getEstimations(teamName);
+    if (cardSet) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const unknownEstimationIndex = cardSet.cards.find((card: ICard) => card.isUnknownEstimation)!.index;
+      this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: IServerParticipant) => {
+        if (!result.find((e: IEstimation) => e.participantId === p.participantId)) {
+          const estimation = this.estimationRepository.upsertEstimation(teamName, p.participantId, unknownEstimationIndex)
+          result.push(estimation);
+        }
+      });
+    }
+    this.teamRepository.setStatus(teamName, EPokerStatus.Revealed);
+    return [EPokerStatus.Revealed, result];
+  }
+
+  public startEstimating(teamName: string): EPokerStatus {
+    this.teamRepository.setStatus(teamName, EPokerStatus.Started);
+    this.estimationRepository.startEstimating(teamName);
+    return EPokerStatus.Started;
+  }
+
+  public upsertEstimation(teamName: string, participantId: string, cardIndex: number): IEstimation {
+    this.teamRepository.setLastAccessTime(teamName);
+    return this.estimationRepository.upsertEstimation(teamName, participantId, cardIndex);
+  }
+  //#endregion
+
+  //#region Cardset -----------------------------------------------------------
+  public setCardSet(teamName: string, cardSet: ICardSet): void {
+    this.teamRepository.setLastAccessTime(teamName);
+    this.cardSetRepository.setCardSet(teamName, cardSet);
+  }
+
+  public getCardSet(teamName: string): ICardSet {
+    const result = this.cardSetRepository.getCardSet(teamName);
+    if (result) {
+      return result;
+    } else {
+      throw new Error('Team has no cardset');
+    }
+  }
+  //#endregion
+
 }

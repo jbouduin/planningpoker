@@ -1,24 +1,20 @@
+import { EErrorCode, EMemberChangeType, EPokerStatus, ICardSet, IEstimation } from "../../../../shared-lib/src";
+import { ITeam, IServerParticipant } from "../../objects";
 import { IWebSocket } from "../websocket";
-import { EErrorCode, EMemberStatusChange } from "../../../../shared-lib/lib";
-import { Estimation, ITeam, Participant } from "../../objects";
 
 export interface IMessageService {
-  broadcastAllEstimations(team: ITeam): void;
-  broadcastCardSet(team: ITeam): void;
-  broadcastClearEstimations(team: ITeam): void;
-  broadcastEstimation(team: ITeam, estimation: Estimation): void;
-  broadcastPokerStatus(team: ITeam): void;
-  broadcastMemberChange(team: ITeam, changedMember: Participant, change: EMemberStatusChange): void;
-  broadcastSessionEnded(team: ITeam, participant: Participant): void;
-  sendErrorMessageToParticipant(to: Participant, code: EErrorCode): void;
+  broadcastCardSet(members: Array<IServerParticipant>, cardSet: ICardSet): void;
+  broadcastClearEstimations(members: Array<IServerParticipant>): void;
+  broadcastEstimations(members: Array<IServerParticipant>, estimations: Array<IEstimation>): void
+  broadcastPokerStatus(members: Array<IServerParticipant>, status: EPokerStatus): void;
+  broadcastMemberChange(members: Array<IServerParticipant>, changedMember: IServerParticipant, change: EMemberChangeType): void;
+  broadcastReset(members: Array<IServerParticipant>): void;
+  broadcastSessionEnded(members: Array<IServerParticipant>): void;
+  broadcastTeamIdle(members: Array<IServerParticipant>): void;
   sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void;
   sendException(socket: IWebSocket, errorMessage: string): void;
-  sendInit(to: Participant): void;
-  sendLeft(to: Participant): void;
-  sendPing(to: Participant): void;
-  sendReset(to: Participant): void;
-  sendSelf(to: Participant): void;
-  sendSessionEnded(to: Participant): void;
-  sendTeamIdleMessage(to: Participant): void;
-  sendTeamInfo(to: Participant, game: ITeam): void;
+  sendInit(to: IServerParticipant): void;
+  sendPing(to: IServerParticipant): void;
+  sendSelf(to: IServerParticipant): void;
+  sendAllInfo(to: IServerParticipant, team: ITeam, members: Array<IServerParticipant>, cardSet: ICardSet, estimations: Array<IEstimation>): void;
 }
