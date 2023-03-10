@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
+import { enumMarker } from '@jbouduin/ngx-translate-extract-marker';
 import { TranslateService } from '@ngx-translate/core';
-
-import { enumMarker } from '@core/marker';
 
 // required because of ngx-translate-extract
 import { ECardSet } from '../../../../projects/shared-lib/src/interfaces/card-set.enum';

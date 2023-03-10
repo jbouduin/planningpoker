@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
+import { enumMarker } from '@jbouduin/ngx-translate-extract-marker';
 import { TranslateService } from '@ngx-translate/core';
 
 import { IErrorMessage } from '@shared-lib';
-
-import { enumMarker } from '@core/marker';
 import { SnackbarService } from '../services';
 
 // required because of ngx-translate-extract
