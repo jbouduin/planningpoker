@@ -18,24 +18,31 @@ import { untilDestroyed } from './@core';
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-  //#region  Constructor & C°
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private titleService: Title,
-    private translateService: TranslateService,
-    private i18nService: I18nService
-  ) {
+  //#region private properties ------------------------------------------------
+  private router: Router;
+  private activatedRoute: ActivatedRoute;
+  private titleService: Title;
+  private translateService: TranslateService;
+  private i18nService: I18nService;
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  constructor(router: Router, activatedRoute: ActivatedRoute, titleService: Title, translateService: TranslateService, i18nService: I18nService) {
+    this.router = router;
+    this.activatedRoute = activatedRoute;
+    this.titleService = titleService;
+    this.translateService = translateService;
+    this.i18nService = i18nService;
   }
   //#endregion
 
-  //#region  Angular interface methods
-
+  //#region Angular lifecycle methods -----------------------------------------
   ngOnInit() {
     // Setup logger
     if (environment.production) {
       Logger.enableProductionMode();
     }
+
     // Setup translations
     this.i18nService.init(environment.defaultLanguage, environment.supportedLanguages);
 
@@ -66,6 +73,5 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.i18nService.destroy();
   }
-
   //#endregion
 }

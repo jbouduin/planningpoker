@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from '../material.module';
 import { CardComponent, CardSetDialogComponent, MessageBoxComponent, SnackbarComponent } from './components';
-import { LoaderComponent } from './components/';
 
 @NgModule({
   imports: [
@@ -15,7 +14,6 @@ import { LoaderComponent } from './components/';
   ],
   declarations: [
     MessageBoxComponent,
-    LoaderComponent,
     SnackbarComponent,
     CardComponent,
     CardSetDialogComponent

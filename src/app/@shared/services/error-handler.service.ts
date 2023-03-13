@@ -3,7 +3,7 @@ import { enumMarker } from '@jbouduin/ngx-translate-extract-marker';
 import { TranslateService } from '@ngx-translate/core';
 
 import { IErrorMessage } from '@shared-lib';
-import { SnackbarService } from '../services';
+import { SnackbarService } from '../services/snackbar.service';
 
 // required because of ngx-translate-extract
 import { EErrorCode } from '../../../../projects/shared-lib/src/messages/error-code.enum';

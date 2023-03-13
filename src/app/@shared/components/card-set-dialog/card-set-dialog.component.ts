@@ -4,8 +4,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ECardSet, ICard, ICardSet } from '@shared-lib';
-
-import { CardSetService, HttpService, ICardSetSelectItem } from '../../services';
+import { HttpService } from '@shared/services/http.service';
+import { CardSetService, ICardSetSelectItem } from '../../services/card-set.service';
 import { Card } from '../card/card';
 import { ICardSetDialogParams } from './card-set-dialog.params';
 

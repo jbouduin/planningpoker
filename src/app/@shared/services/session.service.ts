@@ -4,10 +4,12 @@ import { NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, map, Observable, ReplaySubject, Subject } from 'rxjs';
 
-import { AClientMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IInitMessage, ISelfMessage, AServerMessage, IErrorMessage } from '@shared-lib';
+import { AClientMessage, AServerMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IErrorMessage, IInitMessage, ISelfMessage } from '@shared-lib';
 
+import { Logger } from '@core/services';
 import { environment } from '@env/environment';
-import { MessageBoxComponent, MessageBoxParams } from '../components';
+import { MessageBoxComponent } from '../components/message-box/message-box.component';
+import { MessageBoxParams } from '../components/message-box/message-box.params';
 import { CreateMessage, JoinMessage, LeaveMessage, PauseMessage, RejoinMessage } from '../messages';
 import { ICanRejoinResult } from './can-rejoin-result';
 import { ErrorHandlerService } from './error-handler.service';
@@ -16,7 +18,6 @@ import { LocalStorageService } from './local-storage.service';
 import { Member } from './member';
 import { ESessionStatus } from './session-status.enum';
 import { SnackbarService } from './snackbar.service';
-import { Logger } from '@core/services';
 
 @Injectable({
   providedIn: 'root'
