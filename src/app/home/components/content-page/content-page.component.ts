@@ -3,7 +3,7 @@ import { ActivatedRoute, Data } from '@angular/router';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
-import { HttpService } from '@shared/services';
+import { HttpService } from '@shared/services/http.service';
 
 @Component({
   selector: 'home-content-page',

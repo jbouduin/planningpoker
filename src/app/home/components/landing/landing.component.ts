@@ -1,11 +1,12 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params } from '@angular/router';
-import { ICanRejoinResult } from '@shared/services';
 import { TranslateService } from '@ngx-translate/core';
 
-import { MessageBoxComponent, MessageBoxParams } from '@shared/components';
-import { SessionService } from '@shared/services';
+import { MessageBoxComponent } from '@shared/components/message-box/message-box.component';
+import { MessageBoxParams } from '@shared/components/message-box/message-box.params';
+import { ICanRejoinResult } from '@shared/services/can-rejoin-result';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'home-landing',
@@ -77,5 +78,3 @@ export class LandingComponent implements AfterViewInit {
   }
   //#endregion
 }
-
-

@@ -6,7 +6,7 @@ import { filter, map, Observable, ReplaySubject, Subject } from 'rxjs';
 
 import { AClientMessage, AServerMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IErrorMessage, IInitMessage, ISelfMessage } from '@shared-lib';
 
-import { Logger } from '@core/services';
+import { Logger } from '@core/services/logger.service';
 import { environment } from '@env/environment';
 import { MessageBoxComponent } from '../components/message-box/message-box.component';
 import { MessageBoxParams } from '../components/message-box/message-box.params';

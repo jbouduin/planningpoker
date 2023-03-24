@@ -4,7 +4,7 @@ import { PokerService } from '@session/services';
 
 import { EParticipantStatus } from '@shared-lib';
 
-import { SessionService } from '@shared/services';
+import { SessionService } from '@shared/services/session.service';
 
 @Component({
   selector: 'session-member-buttons',

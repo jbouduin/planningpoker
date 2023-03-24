@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
-import { Member } from '@shared/services';
+import { Member } from '@shared/services/member';
 
 @Component({
   selector: 'session-change-scrum-master-dialog',

@@ -5,9 +5,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { merge } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
-import { I18nService, Logger } from '@core/services';
+import { Logger } from '@core/services/logger.service';
+import { I18nService } from '@core/services/i18n.service';
 import { environment } from '@env/environment';
-import { untilDestroyed } from './@core';
+import { untilDestroyed } from '@core/until-destroyed';
 
 // const log = new Logger('App');
 
