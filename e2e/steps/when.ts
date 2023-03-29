@@ -4,12 +4,12 @@ import { browser } from '@wdio/globals';
 import startPage from '../pages/start.page.js';
 import { EUser } from '../support/user.enum.js';
 
-When(/^I create team (\w+) as (.+)$/, async (teamName: string, user: EUser) => {
-  await startPage.createTeam(teamName, user);
+When(/^as (\w+) I create team (\w+) (.+)$/, async (user: EUser, teamName: string, observing: string) => {
+  await startPage.createTeam(teamName, user, observing === 'observing');
 });
 
-When(/^I join team (\w+) as (.+)$/, async (teamName: string, user: EUser) => {
-  await startPage.joinTeam(teamName, user);
+When(/^as (\w+) I join team (\w+) (.+)$/, async (user: EUser, teamName: string, observing: string) => {
+  await startPage.joinTeam(teamName, user, observing === 'observing');
 });
 
 When(/^as (\w+) I change my language to (.*)$/, async (user: EUser, language: string) => {
