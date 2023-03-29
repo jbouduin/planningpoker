@@ -111,6 +111,7 @@
           "options": {
             "lintFilePatterns": [
               "src/**/*.ts",
+              "e2e/**/*.ts",
               "src/**/*.html"
             ]
           }

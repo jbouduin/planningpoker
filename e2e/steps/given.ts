@@ -1,12 +1,12 @@
 import { Given } from '@wdio/cucumber-framework';
+import StartPage from '../pages/start.page.js';
+import { EUser } from '../support/user.enum.js';
 
-import LoginPage from '../pages/login.page.js';
+Given(/^I am on the (\w+) page as (.*)$/, async (page: string, user: EUser) => {
+  await StartPage.open(user);
+});
 
-
-const pages = {
-  login: LoginPage
-}
-
-Given(/^I am on the (\w+) page$/, async (page) => {
-  await pages[page].open()
+Given(/^the (\w+) has created team (.+)$/, async (user: EUser, teamName: string) => {
+  await StartPage.open(user);
+  await StartPage.createTeam(teamName, user);
 });

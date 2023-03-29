@@ -4,10 +4,10 @@
   </div>
   <div class="join-wrapper">
     <div *ngIf="showCreate" class="card-wrapper">
-      <home-join [isCreate]="true"></home-join>
+      <home-join id="create-team" [isCreate]="true"></home-join>
     </div>
     <div class="card-wrapper">
-      <home-join [isCreate]="false" [teamParam]="teamParam"></home-join>
+      <home-join id="join-team" [isCreate]="false" [teamParam]="teamParam"></home-join>
     </div>
   </div>
 </div>

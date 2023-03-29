@@ -5,14 +5,44 @@ export const config: WebdriverIO.Config  = {
   ...sharedConfig,
   ...{
     // services: ['selenium-standalone'],
-    services: ['devtools'],
-    capabilities: [
-      {
-        browserName: 'chrome',
-        'wdio:devtoolsOptions': {
-          headless: false
+    services: [],
+    capabilities: {
+      scrumMaster: {
+        capabilities: {
+          browserName: 'chrome',
+          'goog:chromeOptions': {
+            args: ['--incognito']
+          }
         }
       },
+      // developerA: {
+      //   capabilities: {
+      //     browserName: 'chrome',
+      //     'goog:chromeOptions': {
+      //       args: ['--incognito']
+      //     }
+      //   }
+      // },
+      // developerB: {
+      //   capabilities: {
+      //     browserName: 'chrome',
+      //     'goog:chromeOptions': {
+      //       args: ['--incognito']
+      //     }
+      //   }
+      // },
+      observer: {
+        capabilities: {
+          browserName: 'chrome',
+          'goog:chromeOptions': {
+            args: ['--incognito']
+          }
+        }
+      }
+    }
+    //     'wdio:devtoolsOptions': {
+    //   headless: false
+    // },
       // {
       //   browserName: 'firefox',
       //     "moz:firefoxOptions": {
@@ -20,6 +50,6 @@ export const config: WebdriverIO.Config  = {
       //       //args: ['-headless']
       //   }
       // },
-    ]
+
   }
 };
