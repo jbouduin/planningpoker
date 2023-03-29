@@ -34,19 +34,18 @@ class GamePage extends Page {
   //#endregion
 
   //#region Member panel ------------------------------------------------------
-  public memberScrumMaster(user: EUser) {
-    return browser[user].$("<session-member-panel />").$("/div/div[0]").$("<session-member />");
+  public async memberScrumMaster(user: EUser) {
+    return browser[user].$("<session-member-panel />").$("//div/div[1]").$("<session-member />");
   }
 
   public memberDevelopers(user: EUser) {
-    return browser[user].$("<session-member-panel />").$("/div/div[1]").$$("<session-member />");
+    return browser[user].$("<session-member-panel />").$("//div/div[2]").$$("<session-member />");
   }
 
   public memberObservers(user: EUser) {
-    return browser[user].$("<session-member-panel />").$("/div/div[2]").$$("<session-member />");
+    return browser[user].$("<session-member-panel />").$("//div/div[3]").$$("<session-member />");
   }
   //#endregion
-
 
   //#region scrum master actions ----------------------------------------------
   public async dismissTeam(): Promise<void> {

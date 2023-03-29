@@ -12,9 +12,27 @@ When(/^as (\w+) I join team (\w+) (.+)$/, async (user: EUser, teamName: string, 
   await startPage.joinTeam(teamName, user, observing === 'observing');
 });
 
+When(/^as (\w+) I rejoin my team$/, async (user: EUser) => {
+  await startPage.open(user);
+  const btn = await startPage.dialogSubmitButton(user);
+  await browser[user].waitUntil(() => btn.isClickable());
+  await btn.click();
+});
+
+When(/^as (\w+) I do not rejoin my team$/, async (user: EUser) => {
+  await startPage.open(user);
+  const btn = await startPage.dialogCancelButton(user);
+  await browser[user].waitUntil(() => btn.isClickable());
+  await btn.click();
+});
+
 When(/^as (\w+) I change my language to (.*)$/, async (user: EUser, language: string) => {
   await browser[user].$("<shell-language-selector />").$('<button />').click();
   const btn = await browser[user].$(`//*[@id="${language}"]`);
   await browser[user].waitUntil(() => btn.isClickable());
   btn.click();
+});
+
+When(/^as (\w+) I return to the start page$/, async (user: EUser) => {
+  await startPage.open(user);
 });

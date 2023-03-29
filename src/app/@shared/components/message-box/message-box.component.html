@@ -3,6 +3,6 @@
   {{text}}
 </div>
 <div mat-dialog-actions>
-  <button mat-button *ngIf="showCancelButton" (click)="cancel()">{{cancelButtonLabel}}</button>
-  <button id="yes-button" mat-button [mat-dialog-close]="true">{{okButtonLabel}}</button>
+  <button id="cancel-button" mat-button *ngIf="showCancelButton" (click)="cancel()">{{cancelButtonLabel}}</button>
+  <button id="submit-button" mat-button [mat-dialog-close]="true">{{okButtonLabel}}</button>
 </div>
