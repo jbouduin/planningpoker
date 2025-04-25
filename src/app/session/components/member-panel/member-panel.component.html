@@ -1,13 +1,13 @@
 <div class="side-nav-container">
   <!-- Scrum-master -->
-  <div class="participants">
+  <div id="scrum-master" class="participants">
     <mat-card-title>{{scrumMasterHeader}}</mat-card-title>
     <mat-card-content class="participant-list">
       <session-member [member]="scrumMaster"></session-member>
     </mat-card-content>
   </div>
   <!-- Developers -->
-  <div class="participants">
+  <div id="developers" class="participants">
     <mat-card-title>{{developersHeader}}</mat-card-title>
     <mat-card-content class="participant-list">
       <div *ngFor="let developer of developers">
@@ -16,7 +16,7 @@
     </mat-card-content>
   </div>
   <!-- Observers -->
-  <div class="participants">
+  <div id="observers" class="participants">
     <mat-card-title>{{observersHeader}}</mat-card-title>
     <mat-card-content class="participant-list">
       <div *ngFor="let observer of observers">

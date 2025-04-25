@@ -44,6 +44,7 @@ Feature: Join a team
   Scenario: Clicking yes should bring back to game
     Given the scrumMaster has created team TeamB estimating
     And the observer has joined team TeamB estimating
+    And as observer I returned to the start page
     When as observer I rejoin my team
     Then as observer I should see the game board for TeamB
     And  as scrumMaster I can dismiss TeamB
@@ -51,6 +52,7 @@ Feature: Join a team
   Scenario: Clicking no should stay on start
     Given the scrumMaster has created team TeamB estimating
     And the observer has joined team TeamB estimating
+    And as observer I returned to the start page
     When as observer I do not rejoin my team
     Then as observer I should see the start page
     And  as scrumMaster I can dismiss TeamB

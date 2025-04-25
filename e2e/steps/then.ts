@@ -1,10 +1,10 @@
-import { browser, expect } from '@wdio/globals';
 import { Then } from '@wdio/cucumber-framework';
-
+import { browser, expect } from '@wdio/globals';
 import gamePage from '../pages/game.page.js';
+import memberListComponent from '../pages/member-list.component.js';
 import startPage from '../pages/start.page.js';
-import { EUser } from '../support/user.enum.js';
 import Translations from '../support/translations.js';
+import { EUser } from '../support/user.enum.js';
 
 //#region Location check ------------------------------------------------------
 Then(/^as (\w+) I should see the game board for (.*)$/, async (user: EUser, teamName: string) => {
@@ -78,15 +78,15 @@ Then(/^as (\w+) I should see (\w+) as (.*)$/, async (user: EUser, otherUser: EUs
   }
 
   if (role === 'scrum master') {
-    const sm = await gamePage.memberScrumMaster(user);
+    const sm = await memberListComponent.memberScrumMaster(user);
     await expect(sm).toBeExisting();
     await expect(sm).toHaveTextContaining(otherUser);
   } else if (role === 'developer') {
-    const dev = await gamePage.memberDevelopers(user);
+    const dev = await memberListComponent.memberDevelopers(user);
     await expect(dev).toBeExisting();
     await expect(dev).toHaveTextContaining(otherUser);
   } else if (role === 'observer') {
-    const obs = await gamePage.memberObservers(user);
+    const obs = await memberListComponent.memberObservers(user);
     await expect(obs).toBeExisting();
     await expect(obs).toHaveTextContaining(otherUser);
   }

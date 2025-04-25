@@ -8,7 +8,7 @@ import { filter, map, switchMap } from 'rxjs/operators';
 import { Logger } from '@core/services/logger.service';
 import { I18nService } from '@core/services/i18n.service';
 import { environment } from '@env/environment';
-import { untilDestroyed } from '@core/until-destroyed';
+// import { untilDestroyed } from '@core/until-destroyed';
 
 // const log = new Logger('App');
 
@@ -61,7 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }),
         filter( route => route.outlet === 'primary'),
         switchMap( route => route.data),
-        untilDestroyed(this)
+        // NOW untilDestroyed(this)
       )
       .subscribe( event => {
         const title = event.title;

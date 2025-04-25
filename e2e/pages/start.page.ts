@@ -40,8 +40,9 @@ class StartPage extends Page {
     await this.createTeamName(user).setValue(teamName);
     await this.createUserName(user).setValue(user);
     if (observing) {
-      const cb = await this.createObserve(user)
-      cb.click();
+      const cb = await this.createObserve(user);
+      browser[user].waitUntil(() => cb.isClickable());
+      await cb.click();
     }
     const btn = await this.buttonCreate(user);
     browser[user].waitUntil(() => btn.isClickable());
@@ -52,8 +53,9 @@ class StartPage extends Page {
     await this.joinTeamName(user).setValue(teamName);
     await this.joinUserName(user).setValue(user);
     if (observing) {
-      const cb = await this.joinObserve(user)
-      cb.click();
+      const cb = await this.joinObserve(user);
+      browser[user].waitUntil(() => cb.isClickable());
+      await cb.click();
     }
     const btn = await this.buttonJoin(user);
     browser[user].waitUntil(() => btn.isClickable());
@@ -61,8 +63,7 @@ class StartPage extends Page {
   }
 
   public open(user: EUser) {
-    const result = super.open(user, '');
-    return result;
+    return super.open(user, 'home');
   }
 }
 
