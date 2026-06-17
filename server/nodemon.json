@@ -1,0 +1,10 @@
+{
+  "ignore": ["**/*.test.ts", "**/*.spec.ts", ".git", "node_modules"],
+  "watch": ["src", "../shared-lib/src"],
+  "exec": "npm run start",
+  "ext": "ts",
+  "env": {
+    "NODE_ENV": "development",
+    "DEBUG": "socket.io*"
+  }
+}
