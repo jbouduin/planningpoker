@@ -8,7 +8,8 @@
     </button>
   </ng-template>
   <mat-menu #languageMenu="matMenu">
-    <button mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">
+    <!-- TODO htmlhint rule id-class-value has been disabled because of the id -->
+    <button id="{{ language }}" mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">
       {{ language }}
     </button>
   </mat-menu>

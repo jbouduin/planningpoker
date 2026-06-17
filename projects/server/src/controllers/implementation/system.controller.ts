@@ -31,6 +31,18 @@ export class SystemController implements ISystemController {
   //#endregion
 
   //#region ISystemController methods -----------------------------------------
+  public deleteTeam(teamname: string): LooseObject {
+    const team = this.storageService.getTeam(teamname);
+    const response: LooseObject = {}
+    if (team) {
+      this.storageService.deleteTeam(teamname);
+    } else {
+      response.status = EErrorCode.TeamNotFound;
+      response.message = 'team not found';
+    }
+    return response;
+  }
+
   public disconnectParticipant(participantId: string): LooseObject {
     const participant = this.storageService.getParticipant(participantId);
     const response: LooseObject = {}

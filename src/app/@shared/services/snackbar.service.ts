@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 
-import { ESnackbarType, SnackbarParams } from '../components';
-import { SnackbarComponent } from '../components/';
+import { ESnackbarType } from '../components/snackbar/snackbar-type.enum';
+import { SnackbarParams } from '../components/snackbar/snackbar.params';
+import { SnackbarComponent } from '../components/snackbar/snackbar.component';
 
 @Injectable({
   providedIn: 'root'

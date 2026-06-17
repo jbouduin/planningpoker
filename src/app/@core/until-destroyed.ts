@@ -1,8 +1,11 @@
-import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+// import { Observable, Subject } from 'rxjs';
+// import { takeUntil } from 'rxjs/operators';
 
-const untilDestroyedSymbol = Symbol('untilDestroyed');
+// const untilDestroyedSymbol = Symbol('untilDestroyed');
 
+// type Instance = {
+
+// }
 /**
  * RxJS operator that unsubscribe from observables on destory.
  * Code forked from https://github.com/NetanelBasal/ngx-take-until-destroy
@@ -34,6 +37,8 @@ const untilDestroyedSymbol = Symbol('untilDestroyed');
  * }
  * ```
  */
+
+/* NOW this does not compile anymore
 export function untilDestroyed(instance: object, destroyMethodName = 'ngOnDestroy') {
   return <T>(source: Observable<T>) => {
     const originalDestroy = instance[destroyMethodName];
@@ -60,3 +65,4 @@ export function untilDestroyed(instance: object, destroyMethodName = 'ngOnDestro
     return source.pipe(takeUntil<T>(instance[untilDestroyedSymbol]));
   };
 }
+*/

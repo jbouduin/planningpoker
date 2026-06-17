@@ -1,7 +1,7 @@
 <div class="member">
   <mat-icon class="member-icon">{{person}}</mat-icon>
   <div class="member-nick-container">
-    <span class="member-nick">{{nick}}</span>
+    <span id="{{ nick }}" class="member-nick">{{nick}}</span>
   </div>
   <mat-icon class="member-icon">{{connectionStatusIcon}}</mat-icon>
   <button *ngIf="canStopEstimating || canStartEstimating" mat-icon-button class="small-icon-button"
