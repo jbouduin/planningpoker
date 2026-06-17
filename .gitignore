@@ -62,3 +62,4 @@ logs
 Thumbs.db
 
 version-info.ts
+*.log
