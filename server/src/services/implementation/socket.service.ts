@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Request, Router } from 'express';
 import * as expressWs from 'express-ws';
 import { inject, injectable } from 'inversify';
 
@@ -30,7 +30,8 @@ export class SocketService implements ISocketService {
 
   //#region Interface members -------------------------------------------------
   public initializeService(expressWs: expressWs.Instance): void {
-    const router = Router();
+    // const router = expressWs.app.router;
+    const app = expressWs.app;
     const wss = expressWs.getWss();
     wss.on('connection', (ws, req) => {
       const newParticipant = this.handlerService.handleConnect(ws);
@@ -41,21 +42,23 @@ export class SocketService implements ISocketService {
       });
     });
 
-    router.ws(
+    app.ws(
       '/:team',
       (ws, req, _next) => {
+        const team = req.params.team as string;
+
         ws.on('message', (msg: string) => {
           try {
             const message: AClientMessage = JSON.parse(msg);
             this.loggerService.info('Socket', `/${req.params.team} <= ${message.type} - ${JSON.stringify(message)}`);
-            this.handlerService.handleMessage(message, req.params.team, ws);
+            this.handlerService.handleMessage(message, team, ws);
           } catch (error) {
             this.handlerService.handleError(ws, error as Error);
           }
         });
       });
 
-    expressWs.app.use('/game', router);
+    // expressWs.app.use('/game', router);
   }
   //#endregion
 

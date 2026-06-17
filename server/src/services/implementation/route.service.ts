@@ -39,11 +39,14 @@ export class RouteService implements IRouteService {
     this.setApiRoutes(router);
 
     // fallback
-    router.all(
-      '*',
-      (_request: Request, response: Response) => {
-        response.sendStatus(404);
-      });
+    // router.all(
+    //   '',
+    //   (_request: Request, response: Response) => {
+    //     response.sendStatus(404);
+    //   });
+    router.use((_request: Request, response: Response) => {
+      response.sendStatus(404);
+    });
 
     expressWs.app.use('/', router);
   }
@@ -81,7 +84,7 @@ export class RouteService implements IRouteService {
 
     router.get(
       `${this.systemPath}/team/:name`,
-      (request: Request, response: Response) => {
+      (request: Request<{ name: string }>, response: Response) => {
         try {
           response
             .type('application/json')
@@ -95,7 +98,7 @@ export class RouteService implements IRouteService {
 
     router.delete(
       `${this.systemPath}/team/:name`,
-      (request: Request, response: Response) => {
+      (request: Request<{ name: string; }>, response: Response) => {
         try {
           response
             .type('application/json')
@@ -123,7 +126,7 @@ export class RouteService implements IRouteService {
 
     router.post(
       `${this.systemPath}/participant/:participantId/disconnect`,
-      (request: Request, response: Response) => {
+      (request: Request<{ participantId: string; }>, response: Response) => {
         try {
           response
             .type('application/json')
@@ -139,7 +142,7 @@ export class RouteService implements IRouteService {
   private setApiRoutes(router: Router): void {
     router.get(
       '/team/:name/participant/:participantId',
-      (request: Request, response: Response) => {
+      (request: Request<{ name: string, participantId: string }>, response: Response) => {
         try {
           response
             .type('application/json')
