@@ -63,3 +63,4 @@ Thumbs.db
 
 version-info.ts
 *.log
+*.deleteme
