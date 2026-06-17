@@ -95,9 +95,10 @@ export class SessionService {
     // subscribe to router
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd)) // eslint-disable-line
-      .subscribe(event => this.currentRoute = event.urlAfterRedirect);
+      .subscribe(event => this.currentRoute = event.urlAfterRedirects);
   }
   //#endregion
+
 
   //#region public session related methods ---------------------------------
   public createSession(team: string, nick: string, observer: boolean, cardSet: ECardSet, cards: ICardSet | undefined): void {
