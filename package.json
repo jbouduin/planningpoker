@@ -15,7 +15,7 @@
     "lint:shared": "cd projects/shared-lib && eslint -c .eslintrc --ext .js,.jsx,.ts,.tsx",
     "test:site": "ng test",
     "test:site-coverage": "ng test  --code-coverage --no-watch",
-    "test:translations": "npm run translations && node test-translations",
+    "test:translations": "npm run translations && node test-translations.cjs",
     "test:server:ci": "cd projects/server && npm run test:ci",
     "e2e": "ng e2e",
     "generate": "ng generate",

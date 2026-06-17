@@ -42,9 +42,11 @@ export default class Page {
     const nick = await this.getLocalStorageItem(user, this.nickKey);
     const team = await this.getLocalStorageItem(user, this.teamNameKey);
     const uuid = await this.getLocalStorageItem(user, this.participantIdKey);
+    /* eslint-disable no-console */
     console.log(`nick: ${nick}`);
     console.log(`team: ${team}`);
     console.log(`uuid: ${uuid}`);
+    /* eslint-enable no-console */
   }
 
   public async clearLocalStorage(user: EUser) {

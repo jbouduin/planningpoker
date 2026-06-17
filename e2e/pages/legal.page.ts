@@ -1,4 +1,4 @@
-import { browser } from "@wdio/globals";
+// import { browser } from "@wdio/globals";
 import { EUser } from "../support/user.enum.js";
 import Page from './page.js';
 
