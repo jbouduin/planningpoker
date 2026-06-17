@@ -4,8 +4,6 @@ import { NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, map, Observable, ReplaySubject, Subject } from 'rxjs';
 
-import { AClientMessage, AServerMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IErrorMessage, IInitMessage, ISelfMessage } from '@shared-lib';
-
 import { Logger } from '@core/services/logger.service';
 import { environment } from '@env/environment';
 import { MessageBoxComponent } from '../components/message-box/message-box.component';
@@ -18,6 +16,7 @@ import { LocalStorageService } from './local-storage.service';
 import { Member } from './member';
 import { ESessionStatus } from './session-status.enum';
 import { SnackbarService } from './snackbar.service';
+import { AClientMessage, AServerMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IErrorMessage, IInitMessage, ISelfMessage } from '../../../../projects/shared-lib/src';
 
 @Injectable({
   providedIn: 'root'
@@ -95,7 +94,7 @@ export class SessionService {
     // subscribe to router
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd)) // eslint-disable-line
-      .subscribe(event => this.currentRoute = event.urlAfterRedirect);
+      .subscribe(event => this.currentRoute = event.urlAfterRedirects);
   }
   //#endregion
 
