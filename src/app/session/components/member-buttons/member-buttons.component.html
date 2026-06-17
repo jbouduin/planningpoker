@@ -1,11 +1,11 @@
 <div class="button-row">
   <div class="game-button">
-    <button *ngIf="canLeave" mat-stroked-button color="primary" (click)="leave()">
+    <button id="leave-button" *ngIf="canLeave" mat-stroked-button color="primary" (click)="leave()">
       {{leaveLabel}}
     </button>
   </div>
   <div class="game-button">
-    <button *ngIf="canPause" mat-stroked-button color="warning" (click)="pause()">
+    <button id="pause-button" *ngIf="canPause" mat-stroked-button color="warning" (click)="pause()">
       {{pauseButtonLabel}}
     </button>
   </div>

@@ -5,9 +5,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { merge } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
-import { I18nService, Logger } from '@core/services';
+import { Logger } from '@core/services/logger.service';
+import { I18nService } from '@core/services/i18n.service';
 import { environment } from '@env/environment';
-import { untilDestroyed } from './@core';
+// import { untilDestroyed } from '@core/until-destroyed';
 
 // const log = new Logger('App');
 
@@ -18,24 +19,31 @@ import { untilDestroyed } from './@core';
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-  //#region  Constructor & C°
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private titleService: Title,
-    private translateService: TranslateService,
-    private i18nService: I18nService
-  ) {
+  //#region private properties ------------------------------------------------
+  private router: Router;
+  private activatedRoute: ActivatedRoute;
+  private titleService: Title;
+  private translateService: TranslateService;
+  private i18nService: I18nService;
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  constructor(router: Router, activatedRoute: ActivatedRoute, titleService: Title, translateService: TranslateService, i18nService: I18nService) {
+    this.router = router;
+    this.activatedRoute = activatedRoute;
+    this.titleService = titleService;
+    this.translateService = translateService;
+    this.i18nService = i18nService;
   }
   //#endregion
 
-  //#region  Angular interface methods
-
+  //#region Angular lifecycle methods -----------------------------------------
   ngOnInit() {
     // Setup logger
     if (environment.production) {
       Logger.enableProductionMode();
     }
+
     // Setup translations
     this.i18nService.init(environment.defaultLanguage, environment.supportedLanguages);
 
@@ -53,7 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }),
         filter( route => route.outlet === 'primary'),
         switchMap( route => route.data),
-        untilDestroyed(this)
+        // NOW untilDestroyed(this)
       )
       .subscribe( event => {
         const title = event.title;
@@ -66,6 +74,5 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.i18nService.destroy();
   }
-
   //#endregion
 }

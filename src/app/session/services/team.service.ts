@@ -3,12 +3,16 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
-import { EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, IMemberChangeMessage, IMemberListMessage, IMemberChange, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage, AServerMessage } from '@shared-lib';
+import { AServerMessage, EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, IMemberChange, IMemberChangeMessage, IMemberListMessage, IObserverChange, IParticipant, ISelfMessage, ITeamNameMessage } from '@shared-lib';
 
 import { environment } from '@env/environment';
-import { MessageBoxComponent, MessageBoxParams } from '@shared/components';
+import { MessageBoxComponent } from '@shared/components/message-box/message-box.component';
+import { MessageBoxParams } from '@shared/components/message-box/message-box.params';
 import { ChangeNickMessage, ChangeScrumMasterMessage, ObserveMessage, RemoveMessage } from '@shared/messages';
-import { LocalStorageService, Member, SessionService, SnackbarService } from '@shared/services';
+import { LocalStorageService } from '@shared/services/local-storage.service';
+import { Member } from '@shared/services/member';
+import { SessionService } from '@shared/services/session.service';
+import { SnackbarService } from '@shared/services/snackbar.service';
 import { ChangeNickDialogComponent, ChangeScrumMasterDialogComponent } from '../components';
 
 

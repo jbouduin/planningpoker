@@ -3,7 +3,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { EParticipantStatus, ERole } from '@shared-lib';
 
-import { Member, SessionService } from '@shared/services';
+import { Member } from '@shared/services/member';
+import { SessionService } from '@shared/services/session.service';
 import { TeamService } from '../../services';
 
 @Component({

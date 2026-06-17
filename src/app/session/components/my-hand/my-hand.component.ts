@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { Card } from '@shared/components';
+import { Card } from '@shared/components/card/card';
 import { CardService } from '../../services/card.service';
 import { PokerService } from '../../services/poker.service';
 import { TeamService } from '../../services/team.service';

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { SessionService } from '@shared/services';
+import { SessionService } from '@shared/services/session.service';
 import { CardService } from '../../services/card.service';
 import { PokerService } from '../../services/poker.service';
 

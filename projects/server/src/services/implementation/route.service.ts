@@ -69,7 +69,6 @@ export class RouteService implements IRouteService {
       `${this.systemPath}/team`,
       (_request: Request, response: Response) => {
         try {
-          throw new RangeError('test');
           response
             .type('application/json')
             .send(this.systemController.getAllTeams());
@@ -87,6 +86,20 @@ export class RouteService implements IRouteService {
           response
             .type('application/json')
             .send(this.systemController.getTeam(request.params.name));
+        } catch (error) {
+          this.loggerService.logError('Server', error as Error);
+          response.sendStatus(500);
+        }
+      }
+    );
+
+    router.delete(
+      `${this.systemPath}/team/:name`,
+      (request: Request, response: Response) => {
+        try {
+          response
+            .type('application/json')
+            .send(this.systemController.deleteTeam(request.params.name));
         } catch (error) {
           this.loggerService.logError('Server', error as Error);
           response.sendStatus(500);

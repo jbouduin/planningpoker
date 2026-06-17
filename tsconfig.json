@@ -4,13 +4,12 @@
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
-    "module": "esnext",
+    "module": "ESNext",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
     "strict": true,
-    "suppressImplicitAnyIndexErrors": true,
     "target": "ES2022",
     "typeRoots": [
       "node_modules/@types"
