@@ -43,7 +43,7 @@ export class SocketService implements ISocketService {
     });
 
     app.ws(
-      '/:team',
+      '/ws/game/:team',
       (ws, req, _next) => {
         const team = req.params.team as string;
 
