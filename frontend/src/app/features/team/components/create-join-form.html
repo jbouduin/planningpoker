@@ -1,0 +1,43 @@
+<mat-card appearance="outlined" [formGroup]="formData">
+  <mat-card-title>
+    {{gameHeader}}
+  </mat-card-title>
+
+  <mat-card-content>
+    <div>
+      <mat-form-field>
+        <mat-label>{{teamNameLabel}}</mat-label>
+        <input id="team-input" matInput placeholder="{{teamNamePlaceHolder}}" formControlName="team" required />
+        <mat-error>{{ getErrorMessage('team') }}</mat-error>
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field>
+        <mat-label>{{nickNameLabel}}</mat-label>
+        <input id="nick-input" matInput placeholder="{{nickNamePlaceHolder}}" formControlName="nick" required />
+        <mat-error>{{ getErrorMessage('nick') }}</mat-error>
+      </mat-form-field>
+    </div>
+    <div *ngIf="isCreate">
+      <mat-form-field appearance="fill">
+        <mat-label>{{cardSetLabel}}</mat-label>
+        <mat-select formControlName="cardSet">
+          <mat-option *ngFor="let cardSet of cardSetValues" [value]="cardSet.set">
+            {{cardSet.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-checkbox id="observe" [(ngModel)]="observer" [ngModelOptions]="{standalone: true}">
+        {{observerLabel}}
+      </mat-checkbox>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions class="action-wrapper">
+    <button mat-stroked-button color="primary" [disabled]="formData.invalid" (click)="submit()">
+      <span>{{submitButtonLabel}}</span>
+    </button>
+  </mat-card-actions>
+</mat-card>
