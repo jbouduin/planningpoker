@@ -4,8 +4,7 @@ import STORAGETYPES from "../../storage/storage.types";
 import SERVICETYPES from "../../services/service.types";
 
 import { IFactoryService, IStorageService } from "../../storage/interfaces";
-import { ECardSet, EErrorCode, ICardSet } from "shared-lib";
-import { LooseObject } from "../../objects";
+import { ECardSet, EErrorCode, ICanRejoinResponse, ICardSet } from "shared-lib";
 import { IApiController } from "../interfaces";
 import { ILoggerService } from "../../services/interfaces";
 
@@ -30,24 +29,33 @@ export class ApiController implements IApiController {
   //#endregion
 
   //#region IApiController methods --------------------------------------------
-  public canRejoin(teamName: string, participantId: string): LooseObject {
-    const response: LooseObject = {};
-    response.errorCode = this.storageService.canRejoin(participantId, teamName);
-    switch (response.errorCode) {
+  public canRejoin(teamName: string, participantId: string): ICanRejoinResponse {
+    let response: ICanRejoinResponse;
+    const errorCode = this.storageService.canRejoin(participantId, teamName);
+    switch (errorCode) {
       case EErrorCode.TeamNotFound:
-        response.canRejoin = false;
-        response.message = 'team does not exist';
+        response = {
+          canRejoin: false,
+          message: 'team does not exist'
+        };
         break;
       case EErrorCode.ParticipantNotFound:
-        response.canRejoin = false;
-        response.message = 'participant does not exist';
+        response = {
+          canRejoin: false,
+          message: 'participant does not exist'
+        };
         break;
       case EErrorCode.ParticipantNotInTeam:
-        response.canRejoin = false;
-        response.message = 'participant is not a teammember';
+        response = {
+          canRejoin: false,
+          message: 'participant is not a teammember'
+        };
         break;
       default:
-        response.canRejoin = true
+        response = {
+          canRejoin: true,
+          message: ''
+        };
     }
     this.loggerService.info('Server', `check if ${participantId} can rejoin ${teamName}: ${JSON.stringify(response)}`);
     return response;

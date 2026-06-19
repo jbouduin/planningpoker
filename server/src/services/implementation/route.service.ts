@@ -141,7 +141,7 @@ export class RouteService implements IRouteService {
 
   private setApiRoutes(router: Router): void {
     router.get(
-      '/team/:name/participant/:participantId',
+      '/api/team/:name/participant/:participantId',
       (request: Request<{ name: string, participantId: string }>, response: Response) => {
         try {
           response
@@ -155,7 +155,7 @@ export class RouteService implements IRouteService {
     );
 
     router.get(
-      '/cardsets',
+      '/api/cardsets',
       (_request: Request, response: Response) => {
         try {
           response
