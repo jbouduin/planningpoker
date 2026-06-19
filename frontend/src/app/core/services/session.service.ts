@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, signal, WritableSignal } from "@angular/core";
 import { filter, map, Observable, of } from "rxjs";
 import { AClientMessage, AServerMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IErrorMessage, IInitMessage, ISelfMessage, ITeamNameMessage } from "shared-lib";
 import { SnackbarService } from "../../shared/service/snackbar.service";
@@ -24,21 +24,11 @@ export class SessionService {
 
   //#region private properties ------------------------------------------------
   private initialMessage?: AClientMessage;
-  private me: Member;
-  private _teamName: string;
   //#endregion
 
-  //#region private setters ---------------------------------------------------
-  private set teamName(value: string) {
-    this._teamName = value;
-    this.localStorage.teamName = this.teamName;
-  }
-  //#endregion
-
-  //#region public getters ----------------------------------------------------
-  public get teamName(): string {
-    return this._teamName;
-  }
+  //#region Signals -----------------------------------------------------------
+  public teamName: WritableSignal<string | null>;
+  public me: WritableSignal<Member | null>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -48,12 +38,10 @@ export class SessionService {
     this.log = new Logger("SessionService");
     this.snackbarService = snackbarService;
     this.socketService = socketService;
-    this._teamName = localStorage.teamName || '';
-    this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
+    this.teamName = signal<string | null>(null);
+    this.me = signal<Member | null>(null) // new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
     socketService.incomingMessage
-      .pipe(
-        filter((msg: AServerMessage) => isSessionMessage(msg))
-      )
+      .pipe(filter((msg: AServerMessage) => isSessionMessage(msg)))
       .subscribe((msg: SessionMessage) => this.handleServerMessage(msg));
   }
   //#endregion
@@ -97,7 +85,7 @@ export class SessionService {
     this.initialMessage = new CreateMessage(
       '',
       {
-        observer: observer || false,
+        observer: observer,
         nick: nick,
         cardSet: cardSet,
         cards: cards
@@ -165,7 +153,7 @@ export class SessionService {
   }
 
   private handleEndSession(): void {
-    if (this.me.role !== ERole.ScrumMaster) {
+    if (this.me()?.role !== ERole.ScrumMaster) {
       this.snackbarService.showInfo('MessageBox.The_scrummaster_has_ended_the_session.Text');
       //   const params = new MessageBoxParams();
       //   params.showCancelButton = false;
@@ -178,7 +166,7 @@ export class SessionService {
       //   });
     }
     console.log("End session handler");
-    // this.resetServices();
+    this.resetService();
   }
 
   private handleServerReset(): void {
@@ -192,7 +180,7 @@ export class SessionService {
     // });
     this.snackbarService.showInfo('MessageBox.The_server_has_been_reset.Title');
     console.warn("Server reset handler");
-    // this.resetServices();
+    this.resetService();
   }
 
   private handleTeamIdle(): void {
@@ -205,8 +193,7 @@ export class SessionService {
     //   data: params
     // });
     this.snackbarService.showInfo('MessageBox.The_was_idle_for_to_long.Text');
-    console.warn("Team idle handler");
-    // this.resetServices();
+    this.resetService();
   }
 
   private handleInit(message: IInitMessage): void {
@@ -215,25 +202,26 @@ export class SessionService {
       this.socketService.sendMessage(this.initialMessage);
       this.initialMessage = undefined;
     }
-    this.me = new Member(message.data, true);
-    this.localStorage.participantId = this.me.participantId;
+    this.me.set(new Member(message.data, true));
+    this.localStorage.participantId = message.data.participantId;
+    this.localStorage.nick = message.data.nick;
     // this.status = ESessionStatus.Active;
     // this.navigateTo('/game');
   }
 
   private handleSelf(message: ISelfMessage): void {
+    const previous = this.me();
     if (message.data.status === EParticipantStatus.Left) {
       this.localStorage.clear();
-      // this.resetServices();
+      this.resetService();
     } else {
-      if (this.me.role === ERole.Developer && message.data.role === ERole.ScrumMaster) {
-        //   this.snackbar.showInfo(     this.translateService.instant('Game.Snackbar.You_are_now_scrum-master'));
+      if (previous?.role === ERole.Developer && message.data.role === ERole.ScrumMaster) {
         this.snackbarService.showInfo('Game.Snackbar.You_are_now_scrum-master');
       }
-      this.me = new Member((<ISelfMessage>message).data, true);
-      this.localStorage.nick = this.me.nick;
-      this.localStorage.participantId = this.me.participantId;
-      if (this.me.status === EParticipantStatus.Paused) {
+      this.me.set(new Member(message.data, true));
+      this.localStorage.nick = message.data.nick;
+      this.localStorage.participantId = message.data.participantId;
+      if (message.data.status === EParticipantStatus.Paused) {
         // this.status = ESessionStatus.Suspended;
         this.socketService.disconnect();
       }
@@ -241,7 +229,13 @@ export class SessionService {
   }
 
   private handleTeamName(message: ITeamNameMessage): void {
-    this.teamName = message.data;
+    this.teamName.set(message.data);
+    this.localStorage.teamName = message.data;
+  }
+
+  private resetService(): void {
+    this.me.set(null);
+    this.teamName.set(null);
   }
   //#endregion
 

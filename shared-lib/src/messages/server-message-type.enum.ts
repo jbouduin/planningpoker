@@ -1,4 +1,5 @@
 export enum EServerMessageType {
+  // TODO rename this to CardSet
   CardList = 'card-list',
   ClearEstimations = 'clear-estimations',
   EndSession = 'end-session',

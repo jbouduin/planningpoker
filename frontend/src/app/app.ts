@@ -6,29 +6,34 @@ import { CreateComponent } from './features/team/create/create.component';
 import { JoinComponent } from './features/team/join/join.component';
 import { TeamService } from './features/team/services/team.service';
 import { ApiService } from './core/services/api.service';
+import { FormsModule  } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CreateComponent, JoinComponent],
+  imports: [CommonModule, RouterOutlet, CreateComponent, JoinComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App implements AfterViewInit{
   private readonly localStorageService: LocalStorageService;
-  private readonly sessionService: SessionService;
+  protected readonly gameService: GameService;
+  protected readonly sessionService: SessionService;
+  protected readonly teamService: TeamService;
   protected readonly title = signal('frontend');
 
   /**
    * Inject the core services so they are instantiated.
    * Later we can probably remove it
    */
-  constructor(sessionService: SessionService, _gameService: GameService, _teamService: TeamService, _apiService: ApiService, localStorageService: LocalStorageService) {
-    this.sessionService = sessionService;
+  constructor(sessionService: SessionService, gameService: GameService, teamService: TeamService, _apiService: ApiService, localStorageService: LocalStorageService) {
+    this.gameService = gameService;
     this.localStorageService = localStorageService;
+    this.sessionService = sessionService;
+    this.teamService = teamService;
   }
 
   public ngAfterViewInit(): void {
-    console.log("in afterviewinit");
     this.sessionService.canRejoin().subscribe((result: ICanRejoinResult) => {
       if (result.canRejoin) {
         console.log(result);
