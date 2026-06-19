@@ -5,12 +5,16 @@ import { LocalStorageService } from './local-storage.service';
 import { Member } from './member';
 import { ESessionStatus } from './session-status.enum';
 import { Injectable } from '@angular/core';
+import { Logger } from './logger';
+import { SnackbarService } from '../../shared/service/snackbar.service';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
 
   //#region private readonly properties ---------------------------------------
-  private localStorage: LocalStorageService;
+  private readonly localStorage: LocalStorageService;
+  private readonly log: Logger;
+  private readonly snackbar: SnackbarService;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -28,8 +32,10 @@ export class SocketService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(localStorage: LocalStorageService) {
+  public constructor(localStorage: LocalStorageService, snackbar: SnackbarService) {
     this.localStorage = localStorage;
+    this.log = new Logger("SocketService");
+    this.snackbar = snackbar;
     this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
     this.resumeIn = 0;
     this.webSocket = null;
@@ -40,33 +46,7 @@ export class SocketService {
   //#endregion
 
   //#region Session Lifecycle methods -----------------------------------------
-  public createSession(team: string, nick: string, observer: boolean, cardSet: ECardSet, cards: ICardSet | undefined): void {
-    // this.log.debug(`creating: ${nick}@${team}`);
-    this.status = ESessionStatus.Connecting;
-    this.initialMessage = new CreateMessage(
-      '',
-      {
-        observer: observer || false,
-        nick: nick,
-        cardSet: cardSet,
-        cards: cards
-      }
-    );
-    this.connect(team);
-  }
 
-  public joinSession(team: string, nick: string, observer: boolean): void {
-    // this.log.debug(`joining: ${nick}@${team}`);
-    this.status = ESessionStatus.Connecting;
-    this.initialMessage = new JoinMessage(
-      '',
-      {
-        observer: observer,
-        nick: nick
-      }
-    );
-    this.connect(team);
-  }
 
   public quitSession(): void { }
 
@@ -75,7 +55,7 @@ export class SocketService {
     const team = this.localStorage.teamName;
     const participantId = this.localStorage.participantId;
     if (team && participantId) {
-      // this.log.debug(`rejoining ${team} as ${participantId}`);
+      this.log.debug(`rejoining ${team} as ${participantId}`);
       if (this.status !== ESessionStatus.ReconnectPending) {
         this.status = ESessionStatus.Reconnecting;
       } else {
@@ -84,7 +64,8 @@ export class SocketService {
       this.initialMessage = new RejoinMessage('', participantId);
       this.connect(team);
     } else {
-      // this.snackbarService.showWarning(this.translateService.instant('Session.Service.Warning.Can_not_rejoin'));
+      // this.snackbar.showWarning(this.translateService.instant('Session.Service.Warning.Can_not_rejoin'));
+      this.snackbar.showWarning("Can not rejoin");
       this.resetServices();
     }
   }
@@ -96,7 +77,7 @@ export class SocketService {
   public connect(teamName: string): void {
     // const url = `${environment.ws}/${encodeURI(teamName)}`;
     const url = `ws://localhost:3001/ws/game/${encodeURI(teamName)}`;
-    console.log("opening ws using url" + url);
+    this.log.debug("opening ws using url" + url);
     this.webSocket = new WebSocket(url);
     this.webSocket.onopen = this.onOpen.bind(this);
     this.webSocket.onmessage = this.onMessage.bind(this);
@@ -112,7 +93,7 @@ export class SocketService {
 
   public sendMessage(message: AClientMessage): void {
     if (this.canPerformActionOnSocket()) {
-      // this.log.debug(`=> ${message.type}`, message.data);
+      this.log.debug(`=> ${message.type}`, message.data);
       this.webSocket?.send(JSON.stringify(message));
     }
   }
@@ -128,28 +109,28 @@ export class SocketService {
     if (event.code == 1006) {
       switch (this.status) {
         case ESessionStatus.Connecting:
-          // this.log.debug('in onClose case: Starting');
-          console.log('in onClose case: Starting');
-          // this.snackbarService.showError(this.translateService.instant('Socket.Error.Could_not_connect'));
+          this.log.debug('in onClose case: Starting');
+          // this.snackbar.showError(this.translateService.instant('Socket.Error.Could_not_connect'));
+          this.snackbar.showError("Could not connect");
           this.status = ESessionStatus.Inactive;
           break;
         case ESessionStatus.Resuming:
-          // this.log.debug('in onClose case: Resuming');
-          console.log('in onClose case: Resuming');
-          // this.snackbarService.showError(this.translateService.instant('Socket.Error.Unable_to_reestablish_the_connection'));
+          this.log.debug('in onClose case: Resuming');
+          // this.snackbar.showError(this.translateService.instant('Socket.Error.Unable_to_reestablish_the_connection'));
+          this.snackbar.showError("Unable to re-establish the connection");
           this.initiateAutomaticReconnect();
           break;
         default:
-          // this.log.debug('in onClose case: default');
-          console.log('in onClose case: default');
-          // this.snackbarService.showError(this.translateService.instant('Socket.Error.You_Have_been_disconnected'));
+          this.log.debug('in onClose case: default');
+          // this.snackbar.showError(this.translateService.instant('Socket.Error.You_Have_been_disconnected'));
+          this.snackbar.showError("You have been disconnected");
           this.initiateAutomaticReconnect();
       }
     } else {
       if (event.code !== 1000) {
-        // this.log.debug('in onClose event code', event);
-        console.log('in onClose event code', event);
-        // this.snackbarService.showError(this.translateService.instant('Socket.Error.You_Have_been_disconnected'));
+        this.log.debug('in onClose event code', event);
+        // this.snackbar.showError(this.translateService.instant('Socket.Error.You_Have_been_disconnected'));
+        this.snackbar.showError("You have been disconnected");
       }
 
     }
@@ -158,16 +139,15 @@ export class SocketService {
 
   private onMessage(event: MessageEvent<string>): void {
     const message: AServerMessage = JSON.parse(event.data);
-    // this.log.debug(`<= ${message.type}`, message.data);
-    console.log(`<= ${message.type}`, message.data);
+    this.log.debug(`<= ${message.type}`, message.data);
     this.incomingMessage.next(message);
   }
 
   private onError(_event: Event): void {
     if (this.status !== ESessionStatus.Resuming && this.status != ESessionStatus.Connecting) {
-      // this.log.debug(`in onError not connecting and not reconnecting : ${this.status}`);
-      console.log(`in onError not connecting and not reconnecting : ${this.status}`)
-      // this.snackbarService.showError(this.translateService.instant('Socket.Error.Communication_error'));
+      this.log.debug(`in onError not connecting and not reconnecting : ${this.status}`);
+      // this.snackbar.showError(this.translateService.instant('Socket.Error.Communication_error'));
+      this.snackbar.showError("Communication error");
     }
   }
   //#endregion
@@ -194,7 +174,8 @@ export class SocketService {
     if (this.webSocket?.readyState === WebSocket.OPEN) {
       return true;
     } else {
-      // this.snackbarService.showError(this.translateService.instant('Socket.Error.There_is_no_connection_with_the_server'));
+      // this.snackbar.showError(this.translateService.instant('Socket.Error.There_is_no_connection_with_the_server'));
+      this.snackbar.showError("There is no connection with the server");
       return false;
     }
   }

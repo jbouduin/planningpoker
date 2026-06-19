@@ -2,7 +2,6 @@ import { AServerMessage, EServerMessageType } from "shared-lib";
 import { SessionMessage } from "../types";
 
 export function isSessionMessage(msg: AServerMessage): msg is SessionMessage {
-  console.log("in isSessionmessage ?", msg.type)
   return [
     EServerMessageType.Init,
     EServerMessageType.Self,

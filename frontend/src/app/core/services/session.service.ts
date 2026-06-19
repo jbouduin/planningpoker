@@ -1,16 +1,21 @@
 import { Injectable } from "@angular/core";
-import { SocketService } from "./socket.service";
-import { AClientMessage, AServerMessage, EParticipantStatus, ERole, EServerMessageType, IErrorMessage, IInitMessage, ISelfMessage, ITeamNameMessage } from "shared-lib";
-import { isSessionMessage, SessionMessage } from "../messaging";
 import { filter } from "rxjs";
+import { AClientMessage, AServerMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IErrorMessage, IInitMessage, ISelfMessage, ITeamNameMessage } from "shared-lib";
+import { SnackbarService } from "../../shared/service/snackbar.service";
+import { isSessionMessage, SessionMessage } from "../messaging";
 import { LocalStorageService } from "./local-storage.service";
 import { Member } from "./member";
+import { SocketService } from "./socket.service";
+import { Logger } from "./logger";
+import { CreateMessage, JoinMessage } from "../../shared/dto";
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
 
   //#region private readonly properties ---------------------------------------
   private readonly localStorage: LocalStorageService;
+  private readonly log: Logger;
+  private readonly snackbar: SnackbarService;
   private readonly socketService: SocketService;
   //#endregion
 
@@ -34,8 +39,10 @@ export class SessionService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(socketService: SocketService, localStorage: LocalStorageService) {
+  public constructor(socketService: SocketService, snackbar: SnackbarService, localStorage: LocalStorageService) {
     this.localStorage = localStorage;
+    this.log = new Logger("SessionService");
+    this.snackbar = snackbar;
     this.socketService = socketService;
     this._teamName = '';
     this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
@@ -45,6 +52,36 @@ export class SessionService {
       )
       .subscribe((msg: SessionMessage) => this.handleServerMessage(msg));
   }
+  //#endregion
+
+  //#region Public methods ----------------------------------------------------
+  public createSession(team: string, nick: string, observer: boolean, cardSet: ECardSet, cards: ICardSet | undefined): void {
+      this.log.debug(`creating: ${nick}@${team}`);
+      // this.status = ESessionStatus.Connecting;
+      this.initialMessage = new CreateMessage(
+        '',
+        {
+          observer: observer || false,
+          nick: nick,
+          cardSet: cardSet,
+          cards: cards
+        }
+      );
+      this.socketService.connect(team);
+    }
+
+    public joinSession(team: string, nick: string, observer: boolean): void {
+      this.log.debug(`joining: ${nick}@${team}`);
+      // this.status = ESessionStatus.Connecting;
+      this.initialMessage = new JoinMessage(
+        '',
+        {
+          observer: observer,
+          nick: nick
+        }
+      );
+      this.socketService.connect(team);
+    }
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------
@@ -82,10 +119,12 @@ export class SessionService {
     // if (this.errorHandlerService.handleErrorMessage(message)) {
     //   this.resetServices();
     // }
+    this.snackbar.showError(`Error: ${message.data.code}: ${message.data.message}`);
   }
 
   private handleEndSession(): void {
-    // if (this.me.role !== ERole.ScrumMaster) {
+    if (this.me.role !== ERole.ScrumMaster) {
+      this.snackbar.showInfo("The scrum master has ended the session");
     //   const params = new MessageBoxParams();
     //   params.showCancelButton = false;
     //   params.title = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Title');
@@ -95,7 +134,7 @@ export class SessionService {
     //     width: '250px',
     //     data: params
     //   });
-    // }
+    }
     console.log("End session handler");
     // this.resetServices();
   }
@@ -109,6 +148,7 @@ export class SessionService {
     //   width: '250px',
     //   data: params
     // });
+    this.snackbar.showInfo("The server has been reset");
     console.warn("Server reset handler");
     // this.resetServices();
   }
@@ -122,6 +162,7 @@ export class SessionService {
     //   width: '250px',
     //   data: params
     // });
+    this.snackbar.showInfo("The team was idle for to long");
     console.warn("Team idle handler");
     // this.resetServices();
   }
@@ -143,11 +184,10 @@ export class SessionService {
       this.localStorage.clear();
       // this.resetServices();
     } else {
-      // if (this.me.role === ERole.Developer && message.data.role === ERole.ScrumMaster) {
-      //   this.snackbarService.showInfo(
-      //     this.translateService.instant('Game.Snackbar.You_are_now_scrum-master')
-      //   );
-      // }
+      if (this.me.role === ERole.Developer && message.data.role === ERole.ScrumMaster) {
+        //   this.snackbar.showInfo(     this.translateService.instant('Game.Snackbar.You_are_now_scrum-master'));
+        this.snackbar.showInfo("You are now scrum master");
+      }
       this.me = new Member((<ISelfMessage>message).data, true);
       this.localStorage.nick = this.me.nick;
       this.localStorage.participantId = this.me.participantId;

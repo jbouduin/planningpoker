@@ -6,12 +6,8 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ECardSet } from 'shared-lib';
-import { SocketService } from '../../../core';
-
-import {
-  MatFormFieldModule
-} from '@angular/material/form-field';
-
+import { SessionService } from '../../../core';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
 import type { ECardSet as ECardSetType } from 'shared-lib';
 
@@ -33,7 +29,7 @@ export class CreateJoinForm {
   //#endregion
 
   //#region private properties ------------------------------------------------
-  private readonly sessionService: SocketService
+  private readonly sessionService: SessionService;
   private _cardSetValues: Array<ICardSetSelectItem>;
   //#endregion
 
@@ -84,7 +80,7 @@ export class CreateJoinForm {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(sessionService: SocketService, private formBuilder: FormBuilder) {
+  public constructor(sessionService: SessionService, private formBuilder: FormBuilder) {
     this.sessionService = sessionService;
     this._cardSetValues = this.getCardSetValues();
     this.formData = this.formBuilder.group({
