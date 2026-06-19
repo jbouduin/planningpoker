@@ -20,10 +20,10 @@ export interface ICardSetSelectItem {
 @Component({
   selector: 'app-create-join-form',
   imports: [FormsModule, ReactiveFormsModule, MatInputModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatOptionModule, MatSelectModule, CommonModule],
-  templateUrl: './create-join-form.html',
-  styleUrl: './create-join-form.scss',
+  templateUrl: './create-join-form.component.html',
+  styleUrl: './create-join-form.component.scss',
 })
-export class CreateJoinForm {
+export class CreateJoinFormComponent {
   //#region Input -------------------------------------------------------------
   @Input({ required: true }) isCreate!: boolean;
   //#endregion

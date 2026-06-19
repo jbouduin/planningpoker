@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CreateJoinForm } from './create-join-form';
+import { CreateJoinFormComponent } from './create-join-form.component';
 
 describe('CreateJoinForm', () => {
-  let component: CreateJoinForm;
-  let fixture: ComponentFixture<CreateJoinForm>;
+  let component: CreateJoinFormComponent;
+  let fixture: ComponentFixture<CreateJoinFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateJoinForm],
+      imports: [CreateJoinFormComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CreateJoinForm);
+    fixture = TestBed.createComponent(CreateJoinFormComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
