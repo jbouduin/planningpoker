@@ -1,9 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CreateComponent } from './features/team/create/create.component';
-import { JoinComponent } from './features/team/join/join.component';
 import { SessionService } from './core';
 import { GameService } from './features/game/services/game.service';
+import { CreateComponent } from './features/team/create/create.component';
+import { JoinComponent } from './features/team/join/join.component';
 import { TeamService } from './features/team/services/team.service';
 
 @Component({
@@ -13,13 +13,14 @@ import { TeamService } from './features/team/services/team.service';
   styleUrl: './app.scss'
 })
 export class App {
+  // private readonly i18nService: I18nService;
   protected readonly title = signal('frontend');
 
   /**
    * Inject the core services so they are instantiated.
    * Later we can probably remove it
    */
-  constructor(sessionService: SessionService, _gameService: GameService, _teamService: TeamService) {
-    console.log(sessionService.teamName);
+  constructor(_sessionService: SessionService, _gameService: GameService, _teamService: TeamService) {
+
   }
 }

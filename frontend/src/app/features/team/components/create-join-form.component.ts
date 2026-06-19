@@ -1,15 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe } from '@ngx-translate/core';
+import type { ECardSet as ECardSetType } from 'shared-lib';
 import { ECardSet } from 'shared-lib';
 import { SessionService } from '../../../core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
-import type { ECardSet as ECardSetType } from 'shared-lib';
 
 
 export interface ICardSetSelectItem {
@@ -19,7 +20,18 @@ export interface ICardSetSelectItem {
 
 @Component({
   selector: 'app-create-join-form',
-  imports: [FormsModule, ReactiveFormsModule, MatInputModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatOptionModule, MatSelectModule, CommonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatOptionModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    TranslatePipe
+  ],
   templateUrl: './create-join-form.component.html',
   styleUrl: './create-join-form.component.scss',
 })
@@ -39,43 +51,16 @@ export class CreateJoinFormComponent {
   //#endregion
 
   //#region Getters -----------------------------------------------------------
-  public get cardSetLabel(): string {
-    return "Card set"; // this.translateService.instant('Component.Select.CardSet.Label');
-  }
-
   public get cardSetValues(): Array<ICardSetSelectItem> {
     return this._cardSetValues;
   }
 
   public get gameHeader(): string {
-    return this.isCreate ?
-      "Create a Team" : // this.translateService.instant('Join.Component.Header.Start_a_team') :
-      "Join a Team"; //this.translateService.instant('Join.Component.Header.Join_a_team');
-  }
-  public get nickNameLabel(): string {
-    return "Nick"; // this.translateService.instant('Component.Input.Nick.Label');
-  }
-
-  public get nickNamePlaceHolder(): string {
-    return "Enter your nickname"; //this.translateService.instant('Component.Input.Nick.PlaceHolder');
-  }
-
-  public get observerLabel(): string {
-    return "I will not estimate";  // this.translateService.instant('Join.Component.Checkbox.Observer.Label');
+    return this.isCreate ? 'Join.Component.Header.Start_a_team' : 'Join.Component.Header.Join_a_team';
   }
 
   public get submitButtonLabel(): string {
-    return this.isCreate ?
-      "Create Team" : // this.translateService.instant('Join.Component.Button.Start.Label') :
-      "Join Team"; //this.translateService.instant('Join.Component.Button.Join.Label');
-  }
-
-  public get teamNameLabel(): string {
-    return "Team name";  // this.translateService.instant('Join.Component.Input.Team.Label');
-  }
-
-  public get teamNamePlaceHolder(): string {
-    return "Enter a team name";  // this.translateService.instant('Join.Component.Input.Team.PlaceHolder');
+    return this.isCreate ? 'Join.Component.Button.Start.Label' : 'Join.Component.Button.Join.Label';
   }
   //#endregion
 
@@ -94,7 +79,7 @@ export class CreateJoinFormComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return "Field is mandatory"; // this.translateService.instant('Component.Error.Mandatory');
+      return 'Component.Error.Mandatory';
     }
     return undefined;
   }

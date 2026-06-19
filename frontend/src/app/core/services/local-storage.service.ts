@@ -4,15 +4,29 @@ import { Injectable } from '@angular/core';
 export class LocalStorageService {
 
   //#region Private readonly properties ---------------------------------------
+  private readonly currentLanguageKey: string = 'current_lang';
   private readonly nickKey: string = 'current_nick';
   private readonly teamNameKey: string = 'current_teamName';
   private readonly participantIdKey: string = 'current_participantId';
+  private _currentLang: string | null;
   private _nick: string | null;
   private _teamName: string | null;
   private _participantId: string | null;
   //#endregion
 
   //#region getters/setters ---------------------------------------------------
+  public get currentLang(): string | null {
+    return this._currentLang;
+  }
+
+  public set currentLang(value: string | null) {
+    this._currentLang = value;
+    if (value) {
+      localStorage.setItem(this.currentLanguageKey, value);
+    } else {
+      localStorage.removeItem(this.currentLanguageKey);
+    }
+  }
   public get nick(): string | null {
     return this._nick;
   }
@@ -55,6 +69,7 @@ export class LocalStorageService {
 
   //#region Constructor & C° --------------------------------------------------
   constructor() {
+    this._currentLang = localStorage.getItem(this.currentLanguageKey);
     this._nick = localStorage.getItem(this.nickKey);
     this._teamName = localStorage.getItem(this.teamNameKey);
     this._participantId = localStorage.getItem(this.participantIdKey);

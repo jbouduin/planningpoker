@@ -15,7 +15,7 @@ export class SessionService {
   //#region private readonly properties ---------------------------------------
   private readonly localStorage: LocalStorageService;
   private readonly log: Logger;
-  private readonly snackbar: SnackbarService;
+  private readonly snackbarService: SnackbarService;
   private readonly socketService: SocketService;
   //#endregion
 
@@ -39,10 +39,10 @@ export class SessionService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(socketService: SocketService, snackbar: SnackbarService, localStorage: LocalStorageService) {
+  public constructor(socketService: SocketService, snackbarService: SnackbarService, localStorage: LocalStorageService) {
     this.localStorage = localStorage;
     this.log = new Logger("SessionService");
-    this.snackbar = snackbar;
+    this.snackbarService = snackbarService;
     this.socketService = socketService;
     this._teamName = '';
     this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
@@ -119,12 +119,12 @@ export class SessionService {
     // if (this.errorHandlerService.handleErrorMessage(message)) {
     //   this.resetServices();
     // }
-    this.snackbar.showError(`Error: ${message.data.code}: ${message.data.message}`);
+    this.snackbarService.showError(`Error: ${message.data.code}: ${message.data.message}`);
   }
 
   private handleEndSession(): void {
     if (this.me.role !== ERole.ScrumMaster) {
-      this.snackbar.showInfo("The scrum master has ended the session");
+      this.snackbarService.showInfo('MessageBox.The_scrummaster_has_ended_the_session.Text');
     //   const params = new MessageBoxParams();
     //   params.showCancelButton = false;
     //   params.title = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Title');
@@ -148,7 +148,7 @@ export class SessionService {
     //   width: '250px',
     //   data: params
     // });
-    this.snackbar.showInfo("The server has been reset");
+    this.snackbarService.showInfo('MessageBox.The_server_has_been_reset.Title');
     console.warn("Server reset handler");
     // this.resetServices();
   }
@@ -162,7 +162,7 @@ export class SessionService {
     //   width: '250px',
     //   data: params
     // });
-    this.snackbar.showInfo("The team was idle for to long");
+    this.snackbarService.showInfo('MessageBox.The_was_idle_for_to_long.Text');
     console.warn("Team idle handler");
     // this.resetServices();
   }
@@ -186,7 +186,7 @@ export class SessionService {
     } else {
       if (this.me.role === ERole.Developer && message.data.role === ERole.ScrumMaster) {
         //   this.snackbar.showInfo(     this.translateService.instant('Game.Snackbar.You_are_now_scrum-master'));
-        this.snackbar.showInfo("You are now scrum master");
+        this.snackbarService.showInfo('Game.Snackbar.You_are_now_scrum-master');
       }
       this.me = new Member((<ISelfMessage>message).data, true);
       this.localStorage.nick = this.me.nick;

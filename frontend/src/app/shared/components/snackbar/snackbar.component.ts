@@ -4,10 +4,11 @@ import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar'
 import { ESnackbarType } from './snackbar-type.enum';
 import { SnackbarParams } from './snackbar.params';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-snackbar',
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, TranslatePipe],
   templateUrl: './snackbar.component.html',
   styleUrl: './snackbar.component.scss',
 })
