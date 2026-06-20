@@ -9,7 +9,7 @@ describe('Snackbar', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SnackbarComponent],
+      imports: [SnackbarComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SnackbarComponent);

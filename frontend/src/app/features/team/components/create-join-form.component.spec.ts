@@ -8,7 +8,7 @@ describe('CreateJoinForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateJoinFormComponent],
+      imports: [CreateJoinFormComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateJoinFormComponent);

@@ -1,6 +1,6 @@
-import { IJoin, EClientMessageType, IJoinMessage } from "shared-lib";
+import { IJoin, EClientMessageType, IJoinMessage } from 'shared-lib';
 
-import { BaseClientMessage } from "./base-client-message";
+import { BaseClientMessage } from './base-client-message';
 
 export class JoinMessage extends BaseClientMessage<IJoin> implements IJoinMessage {
   //#region Constructor & C° --------------------------------------------------

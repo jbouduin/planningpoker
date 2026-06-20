@@ -1,15 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 
-
 import { SnackbarParams } from '../components/snackbar/snackbar.params';
 import { SnackbarComponent } from '../components/snackbar/snackbar.component';
 import { ESnackbarType } from '../components/snackbar/snackbar-type.enum';
 
-
 @Injectable({ providedIn: 'root' })
 export class SnackbarService {
-
   //#region Private properties ------------------------------------------------
   private readonly snackbar: MatSnackBar;
   private readonly queue: Array<SnackbarParams>;
@@ -48,12 +45,10 @@ export class SnackbarService {
   }
 
   private open(params: SnackbarParams): void {
-    this.current = this.snackbar.openFromComponent(
-      SnackbarComponent,
-      {
-        data: params,
-        duration: 5000
-      });
+    this.current = this.snackbar.openFromComponent(SnackbarComponent, {
+      data: params,
+      duration: 5000
+    });
     this.current.afterDismissed().subscribe(() => {
       this.current = undefined;
       if (this.queue.length > 0) {

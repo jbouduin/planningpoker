@@ -1,7 +1,6 @@
 import { IParticipant, EParticipantStatus, ERole } from 'shared-lib';
 
 export class Member {
-
   //#region Public properties -------------------------------------------------
   public status: EParticipantStatus;
   public nick: string;

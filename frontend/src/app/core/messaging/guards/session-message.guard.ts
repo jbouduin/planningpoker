@@ -1,5 +1,5 @@
-import { AServerMessage, EServerMessageType } from "shared-lib";
-import { SessionMessage } from "../types";
+import { AServerMessage, EServerMessageType } from 'shared-lib';
+import { SessionMessage } from '../types';
 
 export function isSessionMessage(msg: AServerMessage): msg is SessionMessage {
   return [

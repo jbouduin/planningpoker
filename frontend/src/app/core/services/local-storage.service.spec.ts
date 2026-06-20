@@ -5,13 +5,11 @@ describe('LocalStorageService', () => {
   let service: LocalStorageService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-
-    });
+    TestBed.configureTestingModule({});
     service = TestBed.inject(LocalStorageService);
   });
 
   it('LocalStorageService should be created', () => {
-      expect(service).toBeTruthy();
+    expect(service).toBeTruthy();
   });
 });

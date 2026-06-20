@@ -5,6 +5,6 @@ import { CreateJoinFormComponent } from '../components/create-join-form.componen
   selector: 'app-create',
   imports: [CreateJoinFormComponent],
   templateUrl: './create.component.html',
-  styleUrl: './create.component.scss',
+  styleUrl: './create.component.scss'
 })
 export class CreateComponent {}

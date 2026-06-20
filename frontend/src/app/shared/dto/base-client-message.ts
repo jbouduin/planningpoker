@@ -1,4 +1,4 @@
-import { EClientMessageType, IClientMessage } from "shared-lib";
+import { EClientMessageType, IClientMessage } from 'shared-lib';
 
 // TODO check if we should put messages in the features directory
 export abstract class BaseClientMessage<T> implements IClientMessage<T> {

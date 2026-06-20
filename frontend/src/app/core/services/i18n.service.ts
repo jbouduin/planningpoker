@@ -13,7 +13,7 @@ import { LocalStorageService } from './local-storage.service';
  * @param s The string to extract for translation.
  * @return The same string.
  */
-export function extract(s: string) {
+export function extract(s: string): string {
   return s;
 }
 
@@ -54,7 +54,7 @@ export class I18nService {
     // If no exact match is found, search without the region
     if (language && !isSupportedLanguage) {
       language = language.split('-')[0];
-      language = this.supportedLanguages.find(supportedLanguage => supportedLanguage.startsWith(language)) || '';
+      language = this.supportedLanguages.find((supportedLanguage) => supportedLanguage.startsWith(language)) || '';
       isSupportedLanguage = Boolean(language);
     }
 
@@ -70,7 +70,7 @@ export class I18nService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(localStorage: LocalStorageService, translateService: TranslateService) {
-    this.log = new Logger("I18nService");
+    this.log = new Logger('I18nService');
 
     this.localStorage = localStorage;
     this.translateService = translateService;
@@ -79,7 +79,7 @@ export class I18nService {
     translateService.setTranslation('en-US', enUS);
   }
 
-  public destroy() {
+  public destroy(): void {
     if (this.langChangeSubscription) {
       this.langChangeSubscription.unsubscribe();
     }
@@ -92,7 +92,7 @@ export class I18nService {
    * @param defaultLanguage The default language to use.
    * @param supportedLanguages The list of supported languages.
    */
-  public init(defaultLanguage: string, supportedLanguages: Array<string>) {
+  public init(defaultLanguage: string, supportedLanguages: Array<string>): void {
     this.defaultLanguage = defaultLanguage;
     this.supportedLanguages = supportedLanguages;
     this.language = '';

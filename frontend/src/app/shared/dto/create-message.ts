@@ -1,6 +1,6 @@
-import { EClientMessageType, ICreate, ICreateMessage } from "shared-lib";
+import { EClientMessageType, ICreate, ICreateMessage } from 'shared-lib';
 
-import { BaseClientMessage } from "./base-client-message";
+import { BaseClientMessage } from './base-client-message';
 
 export class CreateMessage extends BaseClientMessage<ICreate> implements ICreateMessage {
   //#region Constructor & C° --------------------------------------------------

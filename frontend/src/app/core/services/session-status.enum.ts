@@ -17,7 +17,7 @@ export enum ESessionStatus {
   /**
    * The user is taking a break
    * The socket is closed
-  */
+   */
   Suspended = 'suspended',
   /**
    * The leave message has been sent to the server, but has not been aknowledged

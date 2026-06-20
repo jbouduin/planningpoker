@@ -7,14 +7,26 @@
     <div>
       <mat-form-field>
         <mat-label>{{ 'Join.Component.Input.Team.Label' | translate }}</mat-label>
-        <input id="team-input" matInput placeholder="{{ 'Join.Component.Input.Team.PlaceHolder' | translate }}" formControlName="team" required />
+        <input
+          id="team-input"
+          matInput
+          placeholder="{{ 'Join.Component.Input.Team.PlaceHolder' | translate }}"
+          formControlName="team"
+          required
+        />
         <mat-error>{{ getErrorMessage('team') | translate }}</mat-error>
       </mat-form-field>
     </div>
     <div>
       <mat-form-field>
         <mat-label>{{ 'Component.Input.Nick.Label' | translate }}</mat-label>
-        <input id="nick-input" matInput placeholder="{{'Component.Input.Nick.PlaceHolder' | translate}}" formControlName="nick" required />
+        <input
+          id="nick-input"
+          matInput
+          placeholder="{{ 'Component.Input.Nick.PlaceHolder' | translate }}"
+          formControlName="nick"
+          required
+        />
         <mat-error>{{ getErrorMessage('nick') | translate }}</mat-error>
       </mat-form-field>
     </div>
@@ -23,13 +35,13 @@
         <mat-label>{{ 'Component.Select.CardSet.Label' | translate }}</mat-label>
         <mat-select formControlName="cardSet">
           <mat-option *ngFor="let cardSet of cardSetValues" [value]="cardSet.set">
-            {{cardSet.label}}
+            {{ cardSet.label }}
           </mat-option>
         </mat-select>
       </mat-form-field>
     </div>
     <div>
-      <mat-checkbox id="observe" [(ngModel)]="observer" [ngModelOptions]="{standalone: true}">
+      <mat-checkbox id="observe" [(ngModel)]="observer" [ngModelOptions]="{ standalone: true }">
         {{ 'Join.Component.Checkbox.Observer.Label' | translate }}
       </mat-checkbox>
     </div>

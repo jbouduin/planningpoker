@@ -1,5 +1,5 @@
-import { AServerMessage, EServerMessageType } from "shared-lib";
-import { GameMessage } from "../types";
+import { AServerMessage, EServerMessageType } from 'shared-lib';
+import { GameMessage } from '../types';
 
 export function isGameMessage(msg: AServerMessage): msg is GameMessage {
   return [

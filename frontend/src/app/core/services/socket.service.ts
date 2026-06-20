@@ -10,7 +10,6 @@ import { ESessionStatus } from './session-status.enum';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
-
   //#region private readonly properties ---------------------------------------
   private readonly localStorage: LocalStorageService;
   private readonly log: Logger;
@@ -34,9 +33,18 @@ export class SocketService {
   //#region Constructor & C° --------------------------------------------------
   public constructor(localStorage: LocalStorageService, snackbarService: SnackbarService) {
     this.localStorage = localStorage;
-    this.log = new Logger("SocketService");
+    this.log = new Logger('SocketService');
     this.snackbarService = snackbarService;
-    this.me = new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
+    this.me = new Member(
+      {
+        nick: '',
+        observer: true,
+        role: ERole.Unknown,
+        status: EParticipantStatus.Unknown,
+        participantId: ''
+      },
+      true
+    );
     this.resumeIn = 0;
     this.webSocket = null;
     this.incomingMessage = new ReplaySubject<AServerMessage>();
@@ -47,8 +55,9 @@ export class SocketService {
 
   //#region Session Lifecycle methods -----------------------------------------
 
-
-  public quitSession(): void { }
+  public quitSession(): void {
+    this.log.warn('Not implemented');
+  }
 
   public rejoin(): void {
     window.clearInterval(this.resumeTimer);
@@ -69,14 +78,16 @@ export class SocketService {
     }
   }
 
-  public suspendSession(): void { }
+  public suspendSession(): void {
+    this.log.warn('not implemented');
+  }
   //#endregion
 
   //#region Websocket methods -------------------------------------------------
   public connect(teamName: string): void {
     // const url = `${environment.ws}/${encodeURI(teamName)}`;
     const url = `ws://localhost:3001/ws/game/${encodeURI(teamName)}`;
-    this.log.debug("opening ws using url" + url);
+    this.log.debug('opening ws using url' + url);
     this.webSocket = new WebSocket(url);
     this.webSocket.onopen = this.onOpen.bind(this);
     this.webSocket.onmessage = this.onMessage.bind(this);
@@ -127,13 +138,12 @@ export class SocketService {
         this.log.debug('in onClose event code', event);
         this.snackbarService.showError('Socket.Error.You_Have_been_disconnected');
       }
-
     }
     this.webSocket = null;
   }
 
   private onMessage(event: MessageEvent<string>): void {
-    const message: AServerMessage = JSON.parse(event.data);
+    const message: AServerMessage = JSON.parse(event.data) as AServerMessage;
     this.log.debug(`<= ${message.type}`, message.data);
     this.incomingMessage.next(message);
   }
@@ -161,8 +171,6 @@ export class SocketService {
   }
   //#endregion
 
-
-
   //#region Auxiliary methods: other ------------------------------------------
   private canPerformActionOnSocket(): boolean {
     if (this.webSocket?.readyState === WebSocket.OPEN) {
@@ -173,14 +181,14 @@ export class SocketService {
     }
   }
 
-  private resetServices() {
+  private resetServices(): void {
     this.status = ESessionStatus.Inactive;
     this.disconnect();
     this.reset.next();
     this.navigateTo('/home');
   }
 
-  private navigateTo(route: string): void {
+  private navigateTo(_route: string): void {
     // if (this.currentRoute !== route) {
     //   this.log.debug(`navigating to '${route}'`);
     //   this.router.navigate([route]);

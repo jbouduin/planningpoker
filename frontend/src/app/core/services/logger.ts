@@ -6,6 +6,7 @@ enum LogLevel {
   Debug
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export class Logger {
   //#region static ------------------------------------------------------------
   /**
@@ -22,7 +23,7 @@ export class Logger {
    * Enables production mode.
    * Sets logging level to LogLevel.Warning.
    */
-  public static enableProductionMode() {
+  public static enableProductionMode(): void {
     Logger.level = LogLevel.Warning;
   }
   //#endregion
@@ -38,26 +39,34 @@ export class Logger {
   //#endregion
 
   //#region Logging methods ----------------------------------------------------
-  public debug(message: string, ...objects: Array<any>) {
+  /* eslint-disable no-console */
+  public debug(message: string, ...objects: Array<any>): void {
     this.log(console.log, LogLevel.Debug, message, objects);
   }
 
-  public info(message: string, ...objects: Array<any>) {
+  public info(message: string, ...objects: Array<any>): void {
     this.log(console.info, LogLevel.Info, message, objects);
   }
 
-  public warn(message: string, ...objects: Array<any>) {
+  public warn(message: string, ...objects: Array<any>): void {
     this.log(console.warn, LogLevel.Warning, message, objects);
   }
 
-  public error(message: string, ...objects: Array<any>) {
+  public error(message: string, ...objects: Array<any>): void {
     this.log(console.error, LogLevel.Error, message, objects);
   }
+  /* eslint-enable no-console */
   //#endregion
 
   //#region Private methods ---------------------------------------------------
-  private log(func: (message: any, ...args: Array<any>) => void, level: LogLevel, msg: string, objects: Array<any>) {
+  private log(
+    func: (message: any, ...args: Array<any>) => void,
+    level: LogLevel,
+    msg: string,
+    objects: Array<any>
+  ): void {
     if (level <= Logger.level && objects.length > 0) {
+      // eslint-disable-next-line  @typescript-eslint/no-unsafe-assignment
       func.apply(console, [`[${this.source}] ${msg}`, ...objects]);
     }
   }

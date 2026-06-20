@@ -1,6 +1,6 @@
-import { EClientMessageType, ILeaveMessage } from "shared-lib";
+import { EClientMessageType, ILeaveMessage } from 'shared-lib';
 
-import { BaseClientMessage } from "./base-client-message";
+import { BaseClientMessage } from './base-client-message';
 
 export class LeaveMessage extends BaseClientMessage<string> implements ILeaveMessage {
   //#region Constructor & C° --------------------------------------------------

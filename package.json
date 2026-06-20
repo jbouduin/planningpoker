@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "format": "prettier . --write"
+    "format": "prettier . --check",
+    "format:write": "prettier . --write --loglevel silent"
   },
   "repository": {
     "type": "git",

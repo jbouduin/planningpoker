@@ -1,19 +1,30 @@
-import { Injectable, signal, WritableSignal } from "@angular/core";
-import { filter, map, Observable, of } from "rxjs";
-import { AClientMessage, AServerMessage, ECardSet, EParticipantStatus, ERole, EServerMessageType, ICardSet, IErrorMessage, IInitMessage, ISelfMessage, ITeamNameMessage } from "shared-lib";
-import { SnackbarService } from "../../shared/service/snackbar.service";
-import { isSessionMessage, SessionMessage } from "../messaging";
-import { LocalStorageService } from "./local-storage.service";
-import { Member } from "./member";
-import { SocketService } from "./socket.service";
-import { Logger } from "./logger";
-import { CreateMessage, JoinMessage, RejoinMessage } from "../../shared/dto";
-import { ApiService } from "./api.service";
-import { ICanRejoinResult } from "./can-rejoin-result";
+import { Injectable, signal, WritableSignal } from '@angular/core';
+import { filter, map, Observable, of } from 'rxjs';
+import {
+  AClientMessage,
+  AServerMessage,
+  ECardSet,
+  EParticipantStatus,
+  ERole,
+  EServerMessageType,
+  ICardSet,
+  IErrorMessage,
+  IInitMessage,
+  ISelfMessage,
+  ITeamNameMessage
+} from 'shared-lib';
+import { SnackbarService } from '../../shared/service/snackbar.service';
+import { isSessionMessage, SessionMessage } from '../messaging';
+import { LocalStorageService } from './local-storage.service';
+import { Member } from './member';
+import { SocketService } from './socket.service';
+import { Logger } from './logger';
+import { CreateMessage, JoinMessage, RejoinMessage } from '../../shared/dto';
+import { ApiService } from './api.service';
+import { ICanRejoinResult } from './can-rejoin-result';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
-
   //#region private readonly properties ---------------------------------------
   private readonly apiService: ApiService;
   private readonly localStorage: LocalStorageService;
@@ -32,14 +43,19 @@ export class SessionService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(apiService: ApiService, socketService: SocketService, snackbarService: SnackbarService, localStorage: LocalStorageService) {
+  public constructor(
+    apiService: ApiService,
+    socketService: SocketService,
+    snackbarService: SnackbarService,
+    localStorage: LocalStorageService
+  ) {
     this.apiService = apiService;
     this.localStorage = localStorage;
-    this.log = new Logger("SessionService");
+    this.log = new Logger('SessionService');
     this.snackbarService = snackbarService;
     this.socketService = socketService;
     this.teamName = signal<string | null>(null);
-    this.me = signal<Member | null>(null) // new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
+    this.me = signal<Member | null>(null); // new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
     socketService.incomingMessage
       .pipe(filter((msg: AServerMessage) => isSessionMessage(msg)))
       .subscribe((msg: SessionMessage) => this.handleServerMessage(msg));
@@ -53,24 +69,25 @@ export class SessionService {
     const participantId = this.localStorage.participantId;
     if (team && nick && participantId) {
       // this.status = ESessionStatus.Suspended;
-      return this.apiService.checkCanRejoin(team, participantId).pipe(map((can: boolean) => {
-        const result: ICanRejoinResult = {
-          nick: nick,
-          team: team,
-          participantId: participantId,
-          canRejoin: can
-        };
-        return result;
-      }));
-    }
-    else {
+      return this.apiService.checkCanRejoin(team, participantId).pipe(
+        map((can: boolean) => {
+          const result: ICanRejoinResult = {
+            nick: nick,
+            team: team,
+            participantId: participantId,
+            canRejoin: can
+          };
+          return result;
+        })
+      );
+    } else {
       const result: ICanRejoinResult = {
         nick: nick,
         team: team,
         participantId: participantId,
         canRejoin: false
       };
-      return of(result);;
+      return of(result);
     }
   }
 
@@ -79,31 +96,31 @@ export class SessionService {
     // this.resetServices();
   }
 
-  public createSession(team: string, nick: string, observer: boolean, cardSet: ECardSet, cards: ICardSet | undefined): void {
+  public createSession(
+    team: string,
+    nick: string,
+    observer: boolean,
+    cardSet: ECardSet,
+    cards: ICardSet | undefined
+  ): void {
     this.log.debug(`creating: ${nick}@${team}`);
     // this.status = ESessionStatus.Connecting;
-    this.initialMessage = new CreateMessage(
-      '',
-      {
-        observer: observer,
-        nick: nick,
-        cardSet: cardSet,
-        cards: cards
-      }
-    );
+    this.initialMessage = new CreateMessage('', {
+      observer: observer,
+      nick: nick,
+      cardSet: cardSet,
+      cards: cards
+    });
     this.socketService.connect(team);
   }
 
   public joinSession(team: string, nick: string, observer: boolean): void {
     this.log.debug(`joining: ${nick}@${team}`);
     // this.status = ESessionStatus.Connecting;
-    this.initialMessage = new JoinMessage(
-      '',
-      {
-        observer: observer,
-        nick: nick
-      }
-    );
+    this.initialMessage = new JoinMessage('', {
+      observer: observer,
+      nick: nick
+    });
     this.socketService.connect(team);
   }
 
@@ -116,7 +133,6 @@ export class SessionService {
 
   //#region Auxiliary methods: message handling -------------------------------
   private handleServerMessage(message: SessionMessage): void {
-    console.log("Sessionservice incoming message", message.type, message.data);
     switch (message.type) {
       case EServerMessageType.Error:
         this.handleError(<IErrorMessage>message);
@@ -145,7 +161,6 @@ export class SessionService {
   }
 
   private handleError(message: IErrorMessage): void {
-    console.error(message.data);
     // if (this.errorHandlerService.handleErrorMessage(message)) {
     //   this.resetServices();
     // }
@@ -165,7 +180,6 @@ export class SessionService {
       //     data: params
       //   });
     }
-    console.log("End session handler");
     this.resetService();
   }
 
@@ -179,7 +193,6 @@ export class SessionService {
     //   data: params
     // });
     this.snackbarService.showInfo('MessageBox.The_server_has_been_reset.Title');
-    console.warn("Server reset handler");
     this.resetService();
   }
 
@@ -238,6 +251,4 @@ export class SessionService {
     this.teamName.set(null);
   }
   //#endregion
-
-
 }

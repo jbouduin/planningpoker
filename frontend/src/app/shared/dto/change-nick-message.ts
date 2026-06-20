@@ -1,6 +1,6 @@
-import { EClientMessageType, IChangeNickMessage } from "shared-lib";
+import { EClientMessageType, IChangeNickMessage } from 'shared-lib';
 
-import { BaseClientMessage } from "./base-client-message";
+import { BaseClientMessage } from './base-client-message';
 
 export class ChangeNickMessage extends BaseClientMessage<string> implements IChangeNickMessage {
   //#region Constructor & C° --------------------------------------------------

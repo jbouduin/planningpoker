@@ -1,6 +1,6 @@
-import { EClientMessageType, IRemoveMessage } from "shared-lib";
+import { EClientMessageType, IRemoveMessage } from 'shared-lib';
 
-import { BaseClientMessage } from "./base-client-message";
+import { BaseClientMessage } from './base-client-message';
 
 export class RemoveMessage extends BaseClientMessage<string> implements IRemoveMessage {
   //#region Constructor & C° --------------------------------------------------

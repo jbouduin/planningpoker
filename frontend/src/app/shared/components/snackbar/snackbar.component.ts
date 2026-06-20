@@ -10,7 +10,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'app-snackbar',
   imports: [CommonModule, MatIconModule, TranslatePipe],
   templateUrl: './snackbar.component.html',
-  styleUrl: './snackbar.component.scss',
+  styleUrl: './snackbar.component.scss'
 })
 export class SnackbarComponent {
   //#region Public properties ------------------------------------------------.
@@ -32,7 +32,7 @@ export class SnackbarComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(private matSnackbarRef: MatSnackBarRef<SnackbarComponent>) { }
+  public constructor(private matSnackbarRef: MatSnackBarRef<SnackbarComponent>) {}
   //#endregion
 
   //#region UI triggered methods ----------------------------------------------

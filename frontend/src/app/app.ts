@@ -1,13 +1,12 @@
-import { AfterViewChecked, AfterViewInit, Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ICanRejoinResult, LocalStorageService, SessionService } from './core';
+import { ApiService } from './core/services/api.service';
 import { GameService } from './features/game/services/game.service';
 import { CreateComponent } from './features/team/create/create.component';
 import { JoinComponent } from './features/team/join/join.component';
 import { TeamService } from './features/team/services/team.service';
-import { ApiService } from './core/services/api.service';
-import { FormsModule  } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +14,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App implements AfterViewInit{
+export class App implements AfterViewInit {
   private readonly localStorageService: LocalStorageService;
   protected readonly gameService: GameService;
   protected readonly sessionService: SessionService;
@@ -26,7 +25,13 @@ export class App implements AfterViewInit{
    * Inject the core services so they are instantiated.
    * Later we can probably remove it
    */
-  constructor(sessionService: SessionService, gameService: GameService, teamService: TeamService, _apiService: ApiService, localStorageService: LocalStorageService) {
+  constructor(
+    sessionService: SessionService,
+    gameService: GameService,
+    teamService: TeamService,
+    _apiService: ApiService,
+    localStorageService: LocalStorageService
+  ) {
     this.gameService = gameService;
     this.localStorageService = localStorageService;
     this.sessionService = sessionService;
@@ -36,6 +41,7 @@ export class App implements AfterViewInit{
   public ngAfterViewInit(): void {
     this.sessionService.canRejoin().subscribe((result: ICanRejoinResult) => {
       if (result.canRejoin) {
+        // eslint-disable-next-line no-console
         console.log(result);
         // const params = new MessageBoxParams();
         // params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
@@ -59,7 +65,7 @@ export class App implements AfterViewInit{
         //     this.sessionService.quitSession();
         //   }
         // });
-        this.sessionService.rejoin(result.team!, result.participantId!)
+        this.sessionService.rejoin(result.team!, result.participantId!);
       } else {
         this.sessionService.clearSessionData();
       }

@@ -21,7 +21,12 @@ export default [
     languageOptions: {
       parser: parser,
       parserOptions: {
-        project: ['./shared-lib/tsconfig.json', './server/tsconfig.test.json', './frontend/tsconfig.json'],
+        project: [
+          './shared-lib/tsconfig.json',
+          './server/tsconfig.test.json',
+          './frontend/tsconfig.app.json',
+          './frontend/tsconfig.spec.json'
+        ],
         tsconfigRootDir: __dirname
       }
     },
@@ -96,9 +101,10 @@ export default [
       '**/dist/**',
       '**/coverage/**',
       'old',
-      'frontend',
-      `server/jest.*.config.ts`
-      // 'server'
+      // 'frontend',
+      `server/jest.*.config.ts`,
+      'server',
+      'frontend/.angular'
       // add whatever is needed later
     ]
   }

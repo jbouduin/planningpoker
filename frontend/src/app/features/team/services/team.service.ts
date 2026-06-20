@@ -1,8 +1,16 @@
-import { Injectable, signal, WritableSignal } from "@angular/core";
-import { filter } from "rxjs";
-import { AServerMessage, EMemberChangeType, EParticipantStatus, EServerMessageType, IMemberChangeMessage, IMemberListMessage, IParticipant } from "shared-lib";
-import { Member, SocketService } from "../../../core";
-import { isTeamMessage, TeamMessage } from "../../../core/messaging";
+import { Injectable, signal, WritableSignal } from '@angular/core';
+import { filter } from 'rxjs';
+import {
+  AServerMessage,
+  EMemberChangeType,
+  EParticipantStatus,
+  EServerMessageType,
+  IMemberChangeMessage,
+  IMemberListMessage,
+  IParticipant
+} from 'shared-lib';
+import { Member, SocketService } from '../../../core';
+import { isTeamMessage, TeamMessage } from '../../../core/messaging';
 
 @Injectable({ providedIn: 'root' })
 export class TeamService {
@@ -14,20 +22,16 @@ export class TeamService {
   public members: WritableSignal<Array<IParticipant>>;
   //#region
 
-
   public constructor(socketService: SocketService) {
     this.socketService = socketService;
     this.members = signal<Array<IParticipant>>(new Array<IParticipant>());
     socketService.incomingMessage
-      .pipe(
-        filter((msg: AServerMessage) => isTeamMessage(msg))
-      )
+      .pipe(filter((msg: AServerMessage) => isTeamMessage(msg)))
       .subscribe((msg: TeamMessage) => this.handleServerMessage(msg));
   }
 
   //#region Auxiliary methods -------------------------------------------------
   private handleServerMessage(message: TeamMessage): void {
-    console.log("Teamservice incoming message", message.type, message.data);
     switch (message.type) {
       case EServerMessageType.EndSession:
         this.resetService();
@@ -55,28 +59,54 @@ export class TeamService {
     const participant = message.data.member;
     switch (message.data.memberStatusChange) {
       case EMemberChangeType.ChangedNick:
-        this.members.update((current: Array<IParticipant>) => current.map((p: IParticipant) => p.participantId === participant.participantId ? { ...p, nick: participant.nick } : p));
+        this.members.update((current: Array<IParticipant>) =>
+          current.map((p: IParticipant) =>
+            p.participantId === participant.participantId ? { ...p, nick: participant.nick } : p
+          )
+        );
         break;
       case EMemberChangeType.ChangedRole:
-        this.members.update((current: Array<IParticipant>) => current.map((p: IParticipant) => p.participantId === participant.participantId ? { ...p, role: participant.role } : p));
+        this.members.update((current: Array<IParticipant>) =>
+          current.map((p: IParticipant) =>
+            p.participantId === participant.participantId ? { ...p, role: participant.role } : p
+          )
+        );
         break;
       case EMemberChangeType.Disconnected:
-        this.members.update((current: Array<IParticipant>) => current.map((p: IParticipant) => p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Disconnected } : p));
+        this.members.update((current: Array<IParticipant>) =>
+          current.map((p: IParticipant) =>
+            p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Disconnected } : p
+          )
+        );
         break;
       case EMemberChangeType.Joined:
-        this.members.update(((current: Array<IParticipant>) => [...current, participant]));
+        this.members.update((current: Array<IParticipant>) => [...current, participant]);
         break;
       case EMemberChangeType.Left:
-        this.members.update(((current: Array<IParticipant>) => current.filter((p: IParticipant) => p.participantId !== participant.participantId)));
+        this.members.update((current: Array<IParticipant>) =>
+          current.filter((p: IParticipant) => p.participantId !== participant.participantId)
+        );
         break;
       case EMemberChangeType.Observe:
-        this.members.update((current: Array<IParticipant>) => current.map((p: IParticipant) => p.participantId === participant.participantId ? { ...p, observer: participant.observer } : p));
+        this.members.update((current: Array<IParticipant>) =>
+          current.map((p: IParticipant) =>
+            p.participantId === participant.participantId ? { ...p, observer: participant.observer } : p
+          )
+        );
         break;
       case EMemberChangeType.Paused:
-        this.members.update((current: Array<IParticipant>) => current.map((p: IParticipant) => p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Paused } : p));
+        this.members.update((current: Array<IParticipant>) =>
+          current.map((p: IParticipant) =>
+            p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Paused } : p
+          )
+        );
         break;
       case EMemberChangeType.Rejoined:
-        this.members.update((current: Array<IParticipant>) => current.map((p: IParticipant) => p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Connected } : p));
+        this.members.update((current: Array<IParticipant>) =>
+          current.map((p: IParticipant) =>
+            p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Connected } : p
+          )
+        );
         break;
     }
   }

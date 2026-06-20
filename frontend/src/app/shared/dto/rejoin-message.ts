@@ -1,6 +1,6 @@
-import { EClientMessageType, IRejoinMessage } from "shared-lib";
+import { EClientMessageType, IRejoinMessage } from 'shared-lib';
 
-import { BaseClientMessage } from "./base-client-message";
+import { BaseClientMessage } from './base-client-message';
 
 export class RejoinMessage extends BaseClientMessage<string> implements IRejoinMessage {
   //#region Constructor & C° --------------------------------------------------

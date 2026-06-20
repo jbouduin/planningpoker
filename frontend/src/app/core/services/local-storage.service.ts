@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class LocalStorageService {
-
   //#region Private readonly properties ---------------------------------------
   private readonly currentLanguageKey: string = 'current_lang';
   private readonly nickKey: string = 'current_nick';

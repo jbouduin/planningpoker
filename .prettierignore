@@ -3,5 +3,6 @@ dist
 coverage
 old
 shared-lib
-# server
-frontend
+server
+# frontend
+.angular

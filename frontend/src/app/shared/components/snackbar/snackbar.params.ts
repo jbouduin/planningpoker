@@ -1,10 +1,9 @@
 import { ESnackbarType } from './snackbar-type.enum';
 
 export class SnackbarParams {
-
   //#region public readonly properties ----------------------------------------
   public readonly type: ESnackbarType;
-  public readonly message: string
+  public readonly message: string;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -13,5 +12,4 @@ export class SnackbarParams {
     this.message = message;
   }
   //#endregion
-
 }

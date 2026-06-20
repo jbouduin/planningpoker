@@ -12,7 +12,6 @@ import type { ECardSet as ECardSetType } from 'shared-lib';
 import { ECardSet } from 'shared-lib';
 import { SessionService } from '../../../core';
 
-
 export interface ICardSetSelectItem {
   set: ECardSetType;
   label: string;
@@ -33,7 +32,7 @@ export interface ICardSetSelectItem {
     TranslatePipe
   ],
   templateUrl: './create-join-form.component.html',
-  styleUrl: './create-join-form.component.scss',
+  styleUrl: './create-join-form.component.scss'
 })
 export class CreateJoinFormComponent {
   //#region Input -------------------------------------------------------------
@@ -65,7 +64,10 @@ export class CreateJoinFormComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(sessionService: SessionService, private formBuilder: FormBuilder) {
+  public constructor(
+    sessionService: SessionService,
+    private formBuilder: FormBuilder
+  ) {
     this.sessionService = sessionService;
     this._cardSetValues = this.getCardSetValues();
     this.formData = this.formBuilder.group({
@@ -88,7 +90,7 @@ export class CreateJoinFormComponent {
   //#region Event triggers ----------------------------------------------------
   public submit(): void {
     if (this.isCreate) {
-      const cardSet = this.formData.get('cardSet')?.value;
+      const cardSet = this.formData.get('cardSet')?.value as ECardSet;
       if (cardSet === ECardSet.Custom) {
         // const params: ICardSetDialogParams = {
         //   cardSets: [ECardSet.Cohn, ECardSet.Fibonacci, ECardSet.TShirt],
@@ -113,27 +115,29 @@ export class CreateJoinFormComponent {
           this.formData.get('nick')?.value,
           this.observer,
           this.formData.get('cardSet')?.value,
-          undefined);
+          undefined
+        );
       }
     } else {
       this.sessionService.joinSession(
         this.formData.get('team')?.value,
         this.formData.get('nick')?.value,
-        this.observer);
+        this.observer
+      );
     }
   }
   //#endregion
 
   //#region mock methods ------------------------------------------------------
   public get formMode(): string {
-    return this.isCreate ? "Create" : "Join";
+    return this.isCreate ? 'Create' : 'Join';
   }
 
   private getCardSetValues(): Array<ICardSetSelectItem> {
     return [
-      { set: ECardSet.Cohn, label: "Cohn" },
-      { set: ECardSet.Fibonacci, label: "Fibonacci" },
-      { set: ECardSet.TShirt, label: "T-Shirt" }
+      { set: ECardSet.Cohn, label: 'Cohn' },
+      { set: ECardSet.Fibonacci, label: 'Fibonacci' },
+      { set: ECardSet.TShirt, label: 'T-Shirt' }
       //{ set: ECardSet.Custom, label: "Cohn" },
     ];
   }

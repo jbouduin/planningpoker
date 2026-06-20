@@ -1,6 +1,6 @@
-import { EClientMessageType, IObserveMessage, IObserverChange } from "shared-lib";
+import { EClientMessageType, IObserveMessage, IObserverChange } from 'shared-lib';
 
-import { BaseClientMessage } from "./base-client-message";
+import { BaseClientMessage } from './base-client-message';
 
 export class ObserveMessage extends BaseClientMessage<IObserverChange> implements IObserveMessage {
   //#region Constructor & C° --------------------------------------------------

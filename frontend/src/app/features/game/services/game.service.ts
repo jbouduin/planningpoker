@@ -1,8 +1,8 @@
-import { Injectable, signal, WritableSignal } from "@angular/core";
-import { SocketService } from "../../../core";
-import { AServerMessage, EServerMessageType, ICardSet, ICardSetMessage } from "shared-lib";
-import { filter } from "rxjs";
-import { GameMessage, isGameMessage } from "../../../core/messaging";
+import { Injectable, signal, WritableSignal } from '@angular/core';
+import { SocketService } from '../../../core';
+import { AServerMessage, EServerMessageType, ICardSet, ICardSetMessage } from 'shared-lib';
+import { filter } from 'rxjs';
+import { GameMessage, isGameMessage } from '../../../core/messaging';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -14,20 +14,16 @@ export class GameService {
   public cardSet: WritableSignal<ICardSet | null>;
   //#endregion
 
-
   public constructor(socketService: SocketService) {
     this.socketService = socketService;
     this.cardSet = signal<ICardSet | null>(null);
     socketService.incomingMessage
-      .pipe(
-        filter((msg: AServerMessage) => isGameMessage(msg))
-      )
+      .pipe(filter((msg: AServerMessage) => isGameMessage(msg)))
       .subscribe((msg: GameMessage) => this.handleServerMessage(msg));
   }
 
   //#region Auxiliary methods -------------------------------------------------
   private handleServerMessage(message: GameMessage): void {
-    console.log("GameService incoming message", message.type, message.data);
     switch (message.type) {
       case EServerMessageType.CardList:
         this.handleCardListMessage(<ICardSetMessage>message);
