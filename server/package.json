@@ -10,8 +10,7 @@
     "prod": "npm run build && node dist/server.js",
     "test:ci": "jest -c jest.ci.config.ts",
     "test:unit": "jest -c jest.unit.config.ts --coverage",
-    "test:integration": "jest -c jest.integration.config.ts --coverage",
-    "lint": "eslint  -c ./.eslintrc src/**/*.ts test/**/*.ts"
+    "test:integration": "jest -c jest.integration.config.ts --coverage"
   },
   "author": "Johan Bouduin",
   "license": "UNLICENSED",

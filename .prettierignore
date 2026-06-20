@@ -2,7 +2,7 @@ node_modules
 dist
 coverage
 old
-shared-lib
-server
+# shared-lib
+# server
 # frontend
 .angular
