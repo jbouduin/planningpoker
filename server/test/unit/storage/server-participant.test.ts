@@ -37,4 +37,4 @@ test('BaseRepository CR-D', () => {
   expect(repository.get(participant1Id)).toBeUndefined();
   expect(repository.getAll().length).toBe(0);
   expect(repository.exists(participant1Id)).toBe(false);
-})
+});

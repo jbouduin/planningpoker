@@ -1,6 +1,6 @@
-import { AClientMessage } from "shared-lib";
-import { LooseObject, IServerParticipant } from "../../objects";
-import { IWebSocket } from "../websocket";
+import { AClientMessage } from 'shared-lib';
+import { LooseObject, IServerParticipant } from '../../objects';
+import { IWebSocket } from '../websocket';
 
 /**
  * The handler service is the central service of the system.

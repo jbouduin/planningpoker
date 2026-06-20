@@ -1,4 +1,4 @@
-import { IEstimation } from "shared-lib";
+import { IEstimation } from 'shared-lib';
 
 export interface IEstimationRepository {
   deleteEstimation(teamName: string, participantId: string): IEstimation;

@@ -1,7 +1,15 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, EErrorCode, ICard, IChangeCardSetMessage, ICreate, ICreateMessage } from '../../../../shared-lib/src';
+import {
+  ECardSet,
+  EClientMessageType,
+  EErrorCode,
+  ICard,
+  IChangeCardSetMessage,
+  ICreate,
+  ICreateMessage
+} from '../../../../shared-lib/src';
 import { FactoryService } from '../../../src/storage/implementation/factory.service';
 import { IStorageService } from '../../../src/storage/interfaces';
 import { Util } from '../util';
@@ -17,7 +25,7 @@ describe('preflight cardSet OK', () => {
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
-      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(false);
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
   });
@@ -35,7 +43,7 @@ describe('preflight cardSet OK', () => {
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
-      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(false);
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
   });
@@ -50,7 +58,7 @@ describe('preflight cardSet OK', () => {
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
-      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
       .returns(Util.getTeam1());
@@ -68,7 +76,7 @@ describe('preflight cardSet OK', () => {
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
-      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
       .returns(Util.getTeam1());
@@ -91,9 +99,11 @@ describe('preflight cardSet not OK', () => {
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
-      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(false);
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.UnknownEstimationCardMissing);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
+      EErrorCode.UnknownEstimationCardMissing
+    );
   });
 
   test('Change cardset with unknown estimation missing', () => {
@@ -108,11 +118,13 @@ describe('preflight cardSet not OK', () => {
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
-      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.UnknownEstimationCardMissing);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
+      EErrorCode.UnknownEstimationCardMissing
+    );
   });
 
   test('Create with less than two estimation cards', () => {
@@ -128,9 +140,11 @@ describe('preflight cardSet not OK', () => {
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
-      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(false);
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.MoreThanTwoEstimationCardsRequired);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
+      EErrorCode.MoreThanTwoEstimationCardsRequired
+    );
   });
 
   test('Change cardset with less than two estimation cards', () => {
@@ -144,10 +158,12 @@ describe('preflight cardSet not OK', () => {
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
-      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
       .returns(Util.getTeam1());
-    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.MoreThanTwoEstimationCardsRequired);
+    expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
+      EErrorCode.MoreThanTwoEstimationCardsRequired
+    );
   });
 });

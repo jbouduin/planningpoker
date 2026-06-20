@@ -1,18 +1,35 @@
-import { inject, injectable } from "inversify";
-
-import STORAGETYPES from '../../storage/storage.types';
-import SERVICETYPES from "../service.types";
-
-import { AClientMessage, ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, IChangeCardSetMessage, IChangeNickMessage, IChangeScrumMasterMessage, ICreateMessage, IEstimateMessage, IEstimation, IJoinMessage, ILeaveMessage, IObserveMessage, IRejoinMessage, IRemoveMessage } from "shared-lib";
-import { IServerParticipant, ITeam, LooseObject } from "../../objects";
+import { inject, injectable } from 'inversify';
+import {
+  AClientMessage,
+  ECardSet,
+  EClientMessageType,
+  EErrorCode,
+  EMemberChangeType,
+  EParticipantStatus,
+  EPokerStatus,
+  ERole,
+  IChangeCardSetMessage,
+  IChangeNickMessage,
+  IChangeScrumMasterMessage,
+  ICreateMessage,
+  IEstimateMessage,
+  IEstimation,
+  IJoinMessage,
+  ILeaveMessage,
+  IObserveMessage,
+  IRejoinMessage,
+  IRemoveMessage
+} from 'shared-lib';
+import { IServerParticipant, ITeam, LooseObject } from '../../objects';
 import { IFactoryService, IStorageService } from '../../storage/interfaces';
-import { IHandlerService, ILoggerService, IMessageService } from "../interfaces";
-import { IPreflightService } from "../interfaces/preflight.service";
+import STORAGETYPES from '../../storage/storage.types';
+import { IHandlerService, ILoggerService, IMessageService } from '../interfaces';
+import { IPreflightService } from '../interfaces/preflight.service';
+import SERVICETYPES from '../service.types';
 import { IWebSocket } from '../websocket';
 
 @injectable()
 export class HandlerService implements IHandlerService {
-
   //#region Private properties ------------------------------------------------
   private readonly factoryService: IFactoryService;
   private readonly loggerService: ILoggerService;
@@ -27,7 +44,8 @@ export class HandlerService implements IHandlerService {
     @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService,
     @inject(SERVICETYPES.MessageService) messageService: IMessageService,
     @inject(SERVICETYPES.PreflightService) preflightService: IPreflightService,
-    @inject(STORAGETYPES.StorageService) storage: IStorageService) {
+    @inject(STORAGETYPES.StorageService) storage: IStorageService
+  ) {
     this.factoryService = factoryService;
     this.loggerService = loggerService;
     this.messageService = messageService;
@@ -50,7 +68,9 @@ export class HandlerService implements IHandlerService {
         if (team) {
           this.loggerService.info('Server', 'sending disconnection to other participants');
           this.messageService.broadcastMemberChange(
-            this.storage.getConnectedTeamMembers(team.teamName).filter((p: IServerParticipant) => p.participantId !== closed.participantId),
+            this.storage
+              .getConnectedTeamMembers(team.teamName)
+              .filter((p: IServerParticipant) => p.participantId !== closed.participantId),
             closed,
             EMemberChangeType.Disconnected
           );
@@ -61,7 +81,9 @@ export class HandlerService implements IHandlerService {
               closed.role = ERole.Developer;
               newScrumMaster.role = ERole.ScrumMaster;
               this.messageService.broadcastMemberChange(
-                this.storage.getConnectedTeamMembers(team.teamName).filter((p: IServerParticipant) => p.participantId !== newScrumMaster.participantId),
+                this.storage
+                  .getConnectedTeamMembers(team.teamName)
+                  .filter((p: IServerParticipant) => p.participantId !== newScrumMaster.participantId),
                 newScrumMaster,
                 EMemberChangeType.ChangedRole
               );
@@ -70,11 +92,9 @@ export class HandlerService implements IHandlerService {
           }
           // if the team is estimating remove the senders estimation and send an update to the others
           if (team.status === EPokerStatus.Started) {
-            this.storage.deleteEstimation(team.teamName, closed.participantId)
+            this.storage.deleteEstimation(team.teamName, closed.participantId);
             const estimations = this.storage.getEstimations(team.teamName);
-            this.messageService.broadcastEstimations(
-              this.storage.getConnectedTeamMembers(team.teamName),
-              estimations);
+            this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(team.teamName), estimations);
           }
         } else {
           this.storage.deleteParticipant(closed.participantId, undefined);
@@ -92,7 +112,7 @@ export class HandlerService implements IHandlerService {
   }
 
   public handleCronTick(maxIdleTime: number): void {
-    this.loggerService.info('Server', `Cron tick`);
+    this.loggerService.info('Server', 'Cron tick');
     this.storage
       .filterTeams((team: ITeam) => Date.now() - team.lastAccessTime > maxIdleTime)
       .forEach((team: ITeam) => {
@@ -103,7 +123,7 @@ export class HandlerService implements IHandlerService {
   }
 
   public handleError(ws: IWebSocket, error: Error): void {
-    this.loggerService.logError('Server', error)
+    this.loggerService.logError('Server', error);
     this.messageService.sendException(ws, error.message);
   }
 
@@ -115,16 +135,16 @@ export class HandlerService implements IHandlerService {
     } else {
       const participant = this.storage.getParticipant(message.senderId);
       if (participant) {
-        this.processMessage(participant, message, teamName, ws)
+        this.processMessage(participant, message, teamName, ws);
       }
     }
   }
 
   public handlePing(): void {
-    this.loggerService.info('Server', `ping`);
+    this.loggerService.info('Server', 'ping');
     this.storage
       .filterParticipants((participant: IServerParticipant) => participant.status === EParticipantStatus.Connected)
-      .forEach(participant => this.messageService.sendPing(participant));
+      .forEach((participant) => this.messageService.sendPing(participant));
   }
 
   public handleReset(): LooseObject {
@@ -137,7 +157,10 @@ export class HandlerService implements IHandlerService {
       const connectedTeamMembers = this.storage.getConnectedTeamMembers(team.teamName);
       const removedTeam: LooseObject = {};
       removedTeam.team = team.teamName;
-      removedTeam.removedMembers = this.storage.deleteTeam(team.teamName).map((p: IServerParticipant) => `${p.nick} - ${p.participantId}`)
+      removedTeam.removedMembers = this.storage
+        .deleteTeam(team.teamName)
+        .map((p: IServerParticipant) => `${p.nick} - ${p.participantId}`);
+      //eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       response.totalMembers += removedTeam.removedMembers.length;
       this.messageService.broadcastReset(connectedTeamMembers);
     });
@@ -149,54 +172,53 @@ export class HandlerService implements IHandlerService {
   private processMessage(sender: IServerParticipant, message: AClientMessage, teamName: string, ws: IWebSocket): void {
     if (message.type === EClientMessageType.Create) {
       this.handleCreate(sender, teamName, <ICreateMessage>message);
-    }
-    else {
+    } else {
       switch (message.type) {
-        case (EClientMessageType.ChangeCardSet): {
+        case EClientMessageType.ChangeCardSet: {
           this.handleChangeCardSet(teamName, <IChangeCardSetMessage>message);
           break;
         }
-        case (EClientMessageType.ChangeNick): {
+        case EClientMessageType.ChangeNick: {
           this.handleChangeNick(sender, teamName, <IChangeNickMessage>message);
           break;
         }
-        case (EClientMessageType.ChangeScrumMaster): {
+        case EClientMessageType.ChangeScrumMaster: {
           this.handleChangeScrumMaster(sender, teamName, <IChangeScrumMasterMessage>message);
           break;
         }
-        case (EClientMessageType.Estimate): {
+        case EClientMessageType.Estimate: {
           this.handleEstimate(sender, teamName, <IEstimateMessage>message);
           break;
         }
-        case (EClientMessageType.Join): {
-          this.handleJoin(sender, teamName, <IJoinMessage>message,);
+        case EClientMessageType.Join: {
+          this.handleJoin(sender, teamName, <IJoinMessage>message);
           break;
         }
-        case (EClientMessageType.Leave): {
+        case EClientMessageType.Leave: {
           this.handleLeave(sender, teamName, <ILeaveMessage>message);
           break;
         }
-        case (EClientMessageType.Observe): {
+        case EClientMessageType.Observe: {
           this.handleObserve(teamName, <IObserveMessage>message);
           break;
         }
-        case (EClientMessageType.Pause): {
+        case EClientMessageType.Pause: {
           this.handlePause(sender, teamName);
           break;
         }
-        case (EClientMessageType.Remove): {
+        case EClientMessageType.Remove: {
           this.handleRemove(teamName, <IRemoveMessage>message);
           break;
         }
-        case (EClientMessageType.Reveal): {
+        case EClientMessageType.Reveal: {
           this.handleReveal(teamName);
           break;
         }
-        case (EClientMessageType.Start): {
+        case EClientMessageType.Start: {
           this.handleStart(teamName);
           break;
         }
-        case (EClientMessageType.Rejoin): {
+        case EClientMessageType.Rejoin: {
           this.handleRejoin(sender, teamName, <IRejoinMessage>message, ws);
           break;
         }
@@ -207,18 +229,19 @@ export class HandlerService implements IHandlerService {
 
   private handleChangeCardSet(teamName: string, message: IChangeCardSetMessage): void {
     this.storage.setCardSet(teamName, message.data);
-    this.messageService.broadcastCardSet(
-      this.storage.getConnectedTeamMembers(teamName),
-      message.data);
+    this.messageService.broadcastCardSet(this.storage.getConnectedTeamMembers(teamName), message.data);
   }
 
   private handleChangeNick(sender: IServerParticipant, teamName: string, message: IChangeNickMessage): void {
     if (sender.nick !== message.data) {
       sender.nick = message.data;
       this.messageService.broadcastMemberChange(
-        this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+        this.storage
+          .getConnectedTeamMembers(teamName)
+          .filter((p: IServerParticipant) => p.participantId !== sender.participantId),
         sender,
-        EMemberChangeType.ChangedNick);
+        EMemberChangeType.ChangedNick
+      );
       this.messageService.sendSelf(sender);
     }
   }
@@ -230,13 +253,19 @@ export class HandlerService implements IHandlerService {
         sender.role = ERole.Developer;
         newScrumMaster.role = ERole.ScrumMaster;
         this.messageService.broadcastMemberChange(
-          this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+          this.storage
+            .getConnectedTeamMembers(teamName)
+            .filter((p: IServerParticipant) => p.participantId !== sender.participantId),
           sender,
-          EMemberChangeType.ChangedRole);
+          EMemberChangeType.ChangedRole
+        );
         this.messageService.broadcastMemberChange(
-          this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== newScrumMaster.participantId),
+          this.storage
+            .getConnectedTeamMembers(teamName)
+            .filter((p: IServerParticipant) => p.participantId !== newScrumMaster.participantId),
           newScrumMaster,
-          EMemberChangeType.ChangedRole);
+          EMemberChangeType.ChangedRole
+        );
         this.messageService.sendSelf(sender);
         this.messageService.sendSelf(newScrumMaster);
       }
@@ -245,9 +274,10 @@ export class HandlerService implements IHandlerService {
 
   private handleCreate(sender: IServerParticipant, teamName: string, message: ICreateMessage): void {
     this.loggerService.info('Server', `Create: '${sender.nick}' is creating '${teamName}'`);
-    const cardSet = message.data.cardSet === ECardSet.Custom ?
-      message.data.cards || this.factoryService.createCardSet(ECardSet.Cohn) :
-      this.factoryService.createCardSet(message.data.cardSet);
+    const cardSet =
+      message.data.cardSet === ECardSet.Custom
+        ? message.data.cards || this.factoryService.createCardSet(ECardSet.Cohn)
+        : this.factoryService.createCardSet(message.data.cardSet);
     // create the team
     const newTeam = this.factoryService.createTeam(teamName);
     this.storage.addTeam(newTeam, cardSet);
@@ -262,7 +292,8 @@ export class HandlerService implements IHandlerService {
       newTeam,
       new Array<IServerParticipant>(),
       cardSet,
-      new Array<IEstimation>());
+      new Array<IEstimation>()
+    );
   }
 
   private handleEstimate(sender: IServerParticipant, teamName: string, message: IEstimateMessage): void {
@@ -271,14 +302,10 @@ export class HandlerService implements IHandlerService {
     if (team) {
       if (message.data) {
         result = this.storage.upsertEstimation(teamName, sender.participantId, message.data);
-      }
-      else {
+      } else {
         result = this.storage.deleteEstimation(teamName, sender.participantId);
       }
-      this.messageService.broadcastEstimations(
-        this.storage.getConnectedTeamMembers(teamName),
-        [result]
-      );
+      this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(teamName), [result]);
     }
   }
 
@@ -294,15 +321,20 @@ export class HandlerService implements IHandlerService {
       this.messageService.sendAllInfo(
         sender,
         team,
-        this.storage.getTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+        this.storage
+          .getTeamMembers(teamName)
+          .filter((p: IServerParticipant) => p.participantId !== sender.participantId),
         this.storage.getCardSet(teamName),
         this.storage.getEstimations(teamName)
       );
       // tell the others someone joined
       this.messageService.broadcastMemberChange(
-        this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+        this.storage
+          .getConnectedTeamMembers(teamName)
+          .filter((p: IServerParticipant) => p.participantId !== sender.participantId),
         sender,
-        EMemberChangeType.Joined);
+        EMemberChangeType.Joined
+      );
     }
   }
 
@@ -313,9 +345,12 @@ export class HandlerService implements IHandlerService {
       // tell the others someone left
       toRemove.status = EParticipantStatus.Left;
       this.messageService.broadcastMemberChange(
-        this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => toRemove.participantId !== p.participantId),
+        this.storage
+          .getConnectedTeamMembers(teamName)
+          .filter((p: IServerParticipant) => toRemove.participantId !== p.participantId),
         toRemove,
-        EMemberChangeType.Left);
+        EMemberChangeType.Left
+      );
     }
   }
 
@@ -327,18 +362,19 @@ export class HandlerService implements IHandlerService {
     } else {
       // if the data is not equal to the senders participantId
       // this is a previously disconnecte user that does not want to come back
-      const leaving = message.data !== sender.participantId ?
-        this.storage.getParticipant(message.data) :
-        sender;
+      const leaving = message.data !== sender.participantId ? this.storage.getParticipant(message.data) : sender;
       if (leaving) {
         this.loggerService.info('Server', `Leave: '${leaving.nick}' is leaving '${teamName}'`);
         this.storage.deleteParticipant(leaving.participantId, teamName);
         // tell the others someone left
         leaving.status = EParticipantStatus.Left;
         this.messageService.broadcastMemberChange(
-          this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== leaving.participantId),
+          this.storage
+            .getConnectedTeamMembers(teamName)
+            .filter((p: IServerParticipant) => p.participantId !== leaving.participantId),
           leaving,
-          EMemberChangeType.Left);
+          EMemberChangeType.Left
+        );
         // Acknowledge to the sender
         sender.status = EParticipantStatus.Left;
         this.messageService.sendSelf(sender);
@@ -349,9 +385,7 @@ export class HandlerService implements IHandlerService {
         const team = this.storage.getTeam(teamName);
         if (team && team.status === EPokerStatus.Started) {
           const estimations = this.storage.getEstimations(teamName);
-          this.messageService.broadcastEstimations(
-            this.storage.getConnectedTeamMembers(teamName),
-            estimations);
+          this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(teamName), estimations);
         }
       }
     }
@@ -362,9 +396,12 @@ export class HandlerService implements IHandlerService {
     if (member && member.observer !== message.data.observer) {
       member.observer = message.data.observer;
       this.messageService.broadcastMemberChange(
-        this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== member.participantId),
+        this.storage
+          .getConnectedTeamMembers(teamName)
+          .filter((p: IServerParticipant) => p.participantId !== member.participantId),
         member,
-        EMemberChangeType.Observe);
+        EMemberChangeType.Observe
+      );
       this.messageService.sendSelf(member);
     }
   }
@@ -374,17 +411,18 @@ export class HandlerService implements IHandlerService {
     sender.status = EParticipantStatus.Paused;
     // inform the others
     this.messageService.broadcastMemberChange(
-      this.storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== sender.participantId),
+      this.storage
+        .getConnectedTeamMembers(teamName)
+        .filter((p: IServerParticipant) => p.participantId !== sender.participantId),
       sender,
-      EMemberChangeType.Paused);
+      EMemberChangeType.Paused
+    );
     // if the team is estimating remove the senders estimation and send an update to the others
     const team = this.storage.getTeam(teamName);
     if (team && team.status === EPokerStatus.Started) {
       this.storage.deleteEstimation(teamName, sender.participantId);
       const estimations = this.storage.getEstimations(teamName);
-      this.messageService.broadcastEstimations(
-        this.storage.getConnectedTeamMembers(teamName),
-        estimations);
+      this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(teamName), estimations);
     }
     // Acknowledge to the sender
     this.messageService.sendSelf(sender);
@@ -405,7 +443,9 @@ export class HandlerService implements IHandlerService {
       this.messageService.sendAllInfo(
         oldParticipant,
         team,
-        this.storage.getTeamMembers(teamName).filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId),
+        this.storage
+          .getTeamMembers(teamName)
+          .filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId),
         this.storage.getCardSet(teamName),
         this.storage.getEstimations(teamName)
       );
@@ -415,10 +455,7 @@ export class HandlerService implements IHandlerService {
         .filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId);
       if (connectedTeamMembers.length > 0) {
         // tell the others that participant rejoined
-        this.messageService.broadcastMemberChange(
-          connectedTeamMembers,
-          oldParticipant,
-          EMemberChangeType.Rejoined);
+        this.messageService.broadcastMemberChange(connectedTeamMembers, oldParticipant, EMemberChangeType.Rejoined);
       } else if (oldParticipant.role !== ERole.ScrumMaster) {
         oldParticipant.role = ERole.ScrumMaster;
         this.messageService.sendSelf(oldParticipant);
@@ -428,23 +465,14 @@ export class HandlerService implements IHandlerService {
 
   private handleReveal(teamName: string): void {
     const result = this.storage.reveal(teamName);
-    this.messageService.broadcastPokerStatus(
-      this.storage.getConnectedTeamMembers(teamName),
-      result[0]
-    );
-    this.messageService.broadcastEstimations(
-      this.storage.getConnectedTeamMembers(teamName),
-      result[1]
-    );
+    this.messageService.broadcastPokerStatus(this.storage.getConnectedTeamMembers(teamName), result[0]);
+    this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(teamName), result[1]);
   }
 
   private handleStart(teamName: string): void {
     const result = this.storage.startEstimating(teamName);
     this.messageService.broadcastClearEstimations(this.storage.getConnectedTeamMembers(teamName));
-    this.messageService.broadcastPokerStatus(
-      this.storage.getConnectedTeamMembers(teamName),
-      result
-    );
+    this.messageService.broadcastPokerStatus(this.storage.getConnectedTeamMembers(teamName), result);
   }
   //#endregion
 }

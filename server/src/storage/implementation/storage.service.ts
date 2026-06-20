@@ -1,14 +1,19 @@
-import { inject, injectable } from "inversify";
-
-import STORAGETYPES from "../storage.types";
-
-import { EErrorCode, EPokerStatus, ICard, ICardSet, IEstimation } from "shared-lib";
-import { IServerParticipant, ITeam } from "../../objects";
-import { ICardSetRepository, IEstimationRepository, IFactoryService, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../storage/interfaces";
+import { inject, injectable } from 'inversify';
+import { EErrorCode, EPokerStatus, ICard, ICardSet, IEstimation } from 'shared-lib';
+import { IServerParticipant, ITeam } from '../../objects';
+import {
+  ICardSetRepository,
+  IEstimationRepository,
+  IFactoryService,
+  IMembershipRepository,
+  IServerParticipantRepository,
+  IStorageService,
+  ITeamRepository
+} from '../../storage/interfaces';
+import STORAGETYPES from '../storage.types';
 
 @injectable()
 export class StorageService implements IStorageService {
-
   //#region Private properties ------------------------------------------------
   private readonly cardSetRepository: ICardSetRepository;
   private readonly estimationRepository: IEstimationRepository;
@@ -26,7 +31,8 @@ export class StorageService implements IStorageService {
     @inject(STORAGETYPES.FactoryService) factoryService: IFactoryService,
     @inject(STORAGETYPES.MembershipRepository) membershipRepository: IMembershipRepository,
     @inject(STORAGETYPES.ServerParticipantRepository) participantRepository: IServerParticipantRepository,
-    @inject(STORAGETYPES.TeamRepository) teamRepository: ITeamRepository) {
+    @inject(STORAGETYPES.TeamRepository) teamRepository: ITeamRepository
+  ) {
     this.cardSetRepository = cardSetRepository;
     this.estimationRepository = estimationRepository;
     // this.factoryService = factoryService;
@@ -74,8 +80,6 @@ export class StorageService implements IStorageService {
     return this.teamRepository.getAll();
   }
 
-
-
   public deleteTeam(teamName: string): Array<IServerParticipant> {
     this.cardSetRepository.removeCardSet(teamName);
     this.estimationRepository.removeTeam(teamName);
@@ -108,7 +112,9 @@ export class StorageService implements IStorageService {
     } else {
       const member = this.participantRepository.get(participantId);
       if (member) {
-        result = this.membershipRepository.participantIsMemberOf(participantId, teamName) ? EErrorCode.NoError : EErrorCode.ParticipantNotInTeam
+        result = this.membershipRepository.participantIsMemberOf(participantId, teamName)
+          ? EErrorCode.NoError
+          : EErrorCode.ParticipantNotInTeam;
       } else {
         result = EErrorCode.ParticipantNotFound;
       }
@@ -158,11 +164,14 @@ export class StorageService implements IStorageService {
     const cardSet = this.cardSetRepository.getCardSet(teamName);
     const result = this.estimationRepository.getEstimations(teamName);
     if (cardSet) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const unknownEstimationIndex = cardSet.cards.find((card: ICard) => card.isUnknownEstimation)!.index;
       this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: IServerParticipant) => {
         if (!result.find((e: IEstimation) => e.participantId === p.participantId)) {
-          const estimation = this.estimationRepository.upsertEstimation(teamName, p.participantId, unknownEstimationIndex)
+          const estimation = this.estimationRepository.upsertEstimation(
+            teamName,
+            p.participantId,
+            unknownEstimationIndex
+          );
           result.push(estimation);
         }
       });
@@ -198,5 +207,4 @@ export class StorageService implements IStorageService {
     }
   }
   //#endregion
-
 }

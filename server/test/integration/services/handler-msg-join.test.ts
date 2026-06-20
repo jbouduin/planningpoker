@@ -1,11 +1,24 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, EServerMessageType, ICardSetMessage, IEstimationListMessage, IJoinMessage, IMemberListMessage, ITeamNameMessage } from '../../../../shared-lib/src';
+import {
+  ECardSet,
+  EClientMessageType,
+  EErrorCode,
+  EMemberChangeType,
+  EParticipantStatus,
+  ERole,
+  EServerMessageType,
+  ICardSetMessage,
+  IEstimationListMessage,
+  IJoinMessage,
+  IMemberListMessage,
+  ITeamNameMessage
+} from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { IFactoryService } from '../../../src/storage/interfaces';
 import STORAGETYPES from '../../../src/storage/storage.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Join => OK', () => {
   test('Join', () => {
@@ -23,48 +36,36 @@ describe('Join => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Joined,
-        {
-          participantId: participant.participantId,
-          role: ERole.Developer,
-          observer: false,
-          status: EParticipantStatus.Connected
-        }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined, {
+        participantId: participant.participantId,
+        role: ERole.Developer,
+        observer: false,
+        status: EParticipantStatus.Connected
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages (init sequence)
     participant
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
-      .expectNextMessageIsSelf(
-        {
-          participantId: participant.participantId,
-          role: ERole.Developer,
-          observer: false,
-          status: EParticipantStatus.Connected
-        }
-      )
+      .expectNextMessageIsSelf({
+        participantId: participant.participantId,
+        role: ERole.Developer,
+        observer: false,
+        status: EParticipantStatus.Connected
+      })
       .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => {
-          expect(m.data.cardSet).toBe(ECardSet.Cohn);
-          expect(m.data.cards).toHaveLength(cohn.cards.length);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.MemberList,
-        (m: IMemberListMessage) => {
-          expect(m.data).toHaveLength(1);
-          expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
-          expect(m.data[0].role).toBe(ERole.ScrumMaster);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+        expect(m.data.cards).toHaveLength(cohn.cards.length);
+      })
+      .expectNextMessageIs(EServerMessageType.MemberList, (m: IMemberListMessage) => {
+        expect(m.data).toHaveLength(1);
+        expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
+        expect(m.data[0].role).toBe(ERole.ScrumMaster);
+      })
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
 
@@ -125,13 +126,10 @@ describe('Join => OK', () => {
       .expectNextMessageIsInit()
       .expectNextMessageIsSelf()
       .expectNextMessageIs(EServerMessageType.TeamName)
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => {
-          expect(m.data.cardSet).toBe(ECardSet.Cohn);
-          expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
-        }
-      )
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+        expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
+      })
       .expectNextMessageIs(EServerMessageType.MemberList)
       .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
@@ -159,56 +157,34 @@ describe('Join => OK', () => {
     // Test: scrum master 1 messages
     scrumMaster1
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Joined,
-        { participantId: participant1.participantId }
-      )
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Joined,
-        { participantId: participant2.participantId }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined, { participantId: participant1.participantId })
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined, { participantId: participant2.participantId })
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
     participant1
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Joined,
-        { participantId: participant2.participantId }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined, { participantId: participant2.participantId })
       .expectNoMoreMessages();
 
     // Test: participant 2 messages
-    participant2
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant2.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: scrum master 2 should have received create messages + 2 MC join
     scrumMaster2
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Joined,
-        { participantId: participant3.participantId }
-      )
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Joined,
-        { participantId: participant4.participantId }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined, { participantId: participant3.participantId })
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined, { participantId: participant4.participantId })
       .expectNoMoreMessages();
 
     // Test: participant 3 messages
     participant3
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Joined,
-        { participantId: participant4.participantId }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined, { participantId: participant4.participantId })
       .expectNoMoreMessages();
 
     // Test: participant 4 messages
-    participant4
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant4.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -229,48 +205,36 @@ describe('Join => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Joined,
-        {
-          participantId: participant.participantId,
-          role: ERole.Developer,
-          observer: false,
-          status: EParticipantStatus.Connected
-        }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Joined, {
+        participantId: participant.participantId,
+        role: ERole.Developer,
+        observer: false,
+        status: EParticipantStatus.Connected
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages (init sequence)
     participant
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
-      .expectNextMessageIsSelf(
-        {
-          participantId: participant.participantId,
-          role: ERole.Developer,
-          observer: false,
-          status: EParticipantStatus.Connected
-        }
-      )
+      .expectNextMessageIsSelf({
+        participantId: participant.participantId,
+        role: ERole.Developer,
+        observer: false,
+        status: EParticipantStatus.Connected
+      })
       .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => {
-          expect(m.data.cardSet).toBe(ECardSet.Cohn);
-          expect(m.data.cards).toHaveLength(cohn.cards.length);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.MemberList,
-        (m: IMemberListMessage) => {
-          expect(m.data).toHaveLength(1);
-          expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
-          expect(m.data[0].role).toBe(ERole.ScrumMaster);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+        expect(m.data.cards).toHaveLength(cohn.cards.length);
+      })
+      .expectNextMessageIs(EServerMessageType.MemberList, (m: IMemberListMessage) => {
+        expect(m.data).toHaveLength(1);
+        expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
+        expect(m.data[0].role).toBe(ERole.ScrumMaster);
+      })
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
 
@@ -302,9 +266,7 @@ describe('Join => Failure', () => {
     participant.sendMessage(message, Util.team1Name);
 
     // Test: scrum master messages
-    scrumMaster
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    scrumMaster.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: participant messages
     participant
@@ -367,9 +329,7 @@ describe('Join => Failure', () => {
     participant.sendMessage(message, Util.nonExistingTeam);
 
     // Test: scrum master messages
-    scrumMaster
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    scrumMaster.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: participant messages
     participant
@@ -413,9 +373,7 @@ describe('Join => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: scrum master 2 messages
-    scrumMaster2
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    scrumMaster2.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: participant messages
     participant
@@ -477,9 +435,7 @@ describe('Join => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, '');
 
     // Test: scrum master messages
-    scrumMaster
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    scrumMaster.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: participant messages
     participant

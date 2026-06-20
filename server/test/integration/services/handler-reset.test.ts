@@ -5,7 +5,7 @@ import { EMemberChangeType, EParticipantStatus, EServerMessageType } from '../..
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Reset', () => {
   test('Handle reset', () => {
@@ -46,9 +46,6 @@ describe('Reset', () => {
       .expectNoMoreMessages();
 
     // Test: observer messages
-    observer
-      .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ServerReset)
-      .expectNoMoreMessages();
+    observer.initializeMessageQueue().expectNextMessageIs(EServerMessageType.ServerReset).expectNoMoreMessages();
   });
 });

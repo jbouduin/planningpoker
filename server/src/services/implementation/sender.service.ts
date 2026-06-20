@@ -1,16 +1,15 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 
-import { AServerMessage } from "shared-lib";
+import { AServerMessage } from 'shared-lib';
 
-import SERVICETYPES from "../service.types";
+import SERVICETYPES from '../service.types';
 
-import { IServerParticipant } from "../../objects";
-import { ILoggerService, ISenderService } from "../interfaces";
-import { IWebSocket, ReadyState } from "../websocket";
+import { IServerParticipant } from '../../objects';
+import { ILoggerService, ISenderService } from '../interfaces';
+import { IWebSocket, ReadyState } from '../websocket';
 
 @injectable()
-export class SenderService implements ISenderService{
-
+export class SenderService implements ISenderService {
   //#region private properties ------------------------------------------------
   private readonly loggerService: ILoggerService;
   //#endregion
@@ -39,10 +38,11 @@ export class SenderService implements ISenderService{
       try {
         socket.send(JSON.stringify(message));
       } catch (err: unknown) {
-        this.loggerService.error('Socket', `${err}`); // eslint-disable-line
+        //eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        this.loggerService.error('Socket', `${err}`);
       }
     } else {
-      this.loggerService.error('Socket', `Readystate is ${ ReadyState[socket.readyState]}`);
+      this.loggerService.error('Socket', `Readystate is ${ReadyState[socket.readyState]}`);
     }
   }
   //#endregion

@@ -2,12 +2,11 @@ import { inject, injectable } from 'inversify';
 
 import SERVICETYPES from '../service.types';
 
-import { ICronService, IEnvironmentService, IHandlerService, ILoggerService } from "../interfaces";
+import { ICronService, IEnvironmentService, IHandlerService, ILoggerService } from '../interfaces';
 import { setInterval } from 'timers';
 
 @injectable()
 export class CronService implements ICronService {
-
   //#region Private properties ------------------------------------------------
   private readonly handlerService: IHandlerService;
   //#endregion
@@ -20,21 +19,19 @@ export class CronService implements ICronService {
 
   //#region ICronService methods ----------------------------------------------
   public initialize(environmentService: IEnvironmentService, loggerService: ILoggerService): void {
-    loggerService.info('Server', `Setting team idle-time to ${environmentService.teamIdleTime / 1000} seconds`)
+    loggerService.info('Server', `Setting team idle-time to ${environmentService.teamIdleTime / 1000} seconds`);
 
-    setInterval(
-      () => { this.handlerService.handleCronTick(environmentService.teamIdleTime); },
-      60000
-    );
+    setInterval(() => {
+      this.handlerService.handleCronTick(environmentService.teamIdleTime);
+    }, 60000);
 
     if (environmentService.pingInterval > 0) {
-      loggerService.info('Server', `Setting ping interval to ${environmentService.pingInterval / 1000} seconds`)
-      setInterval(
-        () => { this.handlerService.handlePing() },
-        environmentService.pingInterval
-      );
+      loggerService.info('Server', `Setting ping interval to ${environmentService.pingInterval / 1000} seconds`);
+      setInterval(() => {
+        this.handlerService.handlePing();
+      }, environmentService.pingInterval);
     } else {
-      loggerService.info('Server', `No ping messages will be sent`)
+      loggerService.info('Server', 'No ping messages will be sent');
     }
   }
   //#endregion

@@ -1,9 +1,15 @@
 import { describe, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EMemberChangeType, ERole, IChangeScrumMasterMessage } from '../../../../shared-lib/src';
+import {
+  EClientMessageType,
+  EErrorCode,
+  EMemberChangeType,
+  ERole,
+  IChangeScrumMasterMessage
+} from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Change scrum master => OK', () => {
   test('Change scrum master', () => {
@@ -31,9 +37,10 @@ describe('Change scrum master => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.ChangedRole,
-        { participantId: participant1.participantId, role: ERole.ScrumMaster })
+      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedRole, {
+        participantId: participant1.participantId,
+        role: ERole.ScrumMaster
+      })
       .expectNextMessageIsSelf({ role: ERole.Developer })
       .expectNoMoreMessages();
 
@@ -41,21 +48,24 @@ describe('Change scrum master => OK', () => {
     participant1
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.ChangedRole,
-        { participantId: scrumMaster.participantId, role: ERole.Developer })
+      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedRole, {
+        participantId: scrumMaster.participantId,
+        role: ERole.Developer
+      })
       .expectNextMessageIsSelf({ role: ERole.ScrumMaster })
       .expectNoMoreMessages();
 
     // Test: participant 2 messages
     participant2
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.ChangedRole,
-        { participantId: scrumMaster.participantId, role: ERole.Developer })
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.ChangedRole,
-        { participantId: participant1.participantId, role: ERole.ScrumMaster })
+      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedRole, {
+        participantId: scrumMaster.participantId,
+        role: ERole.Developer
+      })
+      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedRole, {
+        participantId: participant1.participantId,
+        role: ERole.ScrumMaster
+      })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -91,9 +101,7 @@ describe('Change scrum master => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
-    participant1
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant1.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -126,9 +134,7 @@ describe('Change scrum master => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -163,9 +169,7 @@ describe('Change scrum master => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
-    participant1
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant1.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: scrum master 2 messages
     scrumMaster2
@@ -217,13 +221,11 @@ describe('Change scrum master => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: disconnected participant messages
-    disconnected
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    disconnected.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
-  })
+  });
 
   test('Sender and new scrum master in different teams', () => {
     const container = Util.getContainer();
@@ -256,14 +258,10 @@ describe('Change scrum master => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
-    participant1
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant1.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: participant 2 messages
-    participant2
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant2.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -296,9 +294,7 @@ describe('Change scrum master => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -346,6 +342,4 @@ describe('Change scrum master => Failure', () => {
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
-
-
 });

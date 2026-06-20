@@ -3,8 +3,7 @@ import { describe, test } from '@jest/globals';
 import { EClientMessageType, EErrorCode, EMemberChangeType, IChangeNickMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
-
+import { Util } from './helpers/util';
 
 describe('Change nick => OK', () => {
   test('Change nick', () => {
@@ -41,15 +40,14 @@ describe('Change nick => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.ChangedNick,
-        { participantId: scrumMaster.participantId, nick: Util.observer1Name })
+      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedNick, {
+        participantId: scrumMaster.participantId,
+        nick: Util.observer1Name
+      })
       .expectNoMoreMessages();
 
     // Test: disconnected participant messages
-    disconnected
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    disconnected.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -94,9 +92,7 @@ describe('Change nick => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: disconnected participant messages
-    disconnected
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    disconnected.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -121,7 +117,7 @@ describe('Change nick => Failure', () => {
     // Run: scrum master changes his nick
     const message: IChangeNickMessage = {
       senderId: scrumMaster.participantId,
-      data: "",
+      data: '',
       type: EClientMessageType.ChangeNick
     };
     scrumMaster.sendMessage(message);
@@ -143,9 +139,7 @@ describe('Change nick => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: disconnected participant messages
-    disconnected
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    disconnected.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();

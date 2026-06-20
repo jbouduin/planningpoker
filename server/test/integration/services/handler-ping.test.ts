@@ -3,7 +3,7 @@ import { describe, test } from '@jest/globals';
 import { EMemberChangeType, EParticipantStatus, EServerMessageType } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Ping', () => {
   test('Handle ping', () => {
@@ -29,7 +29,6 @@ describe('Ping', () => {
       .expectNextMessageIs(EServerMessageType.Ping)
       .expectNoMoreMessages();
 
-
     // Test: participant messages
     participant
       .initializeMessageQueue()
@@ -42,13 +41,10 @@ describe('Ping', () => {
     // Test: paused participant messages
     paused
       .initializeMessageQueue()
-      .expectNextMessageIsSelf({status: EParticipantStatus.Paused})
+      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused })
       .expectNoMoreMessages();
 
     // Test: observer messages
-    observer
-      .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.Ping)
-      .expectNoMoreMessages();
+    observer.initializeMessageQueue().expectNextMessageIs(EServerMessageType.Ping).expectNoMoreMessages();
   });
 });

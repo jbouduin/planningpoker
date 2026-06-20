@@ -1,10 +1,16 @@
 import { describe, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, ERole, IRemoveMessage } from '../../../../shared-lib/src';
+import {
+  EClientMessageType,
+  EErrorCode,
+  EMemberChangeType,
+  EParticipantStatus,
+  ERole,
+  IRemoveMessage
+} from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
-
+import { Util } from './helpers/util';
 
 describe('Remove => OK', () => {
   test('Remove participant', () => {
@@ -15,9 +21,9 @@ describe('Remove => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: create team with two participants
-    const scrumMaster= Util.createTeam( handlerService, Util.team1Name, Util.scrumMaster1Nick);
+    const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick, true);
-    const participant = Util.joinTeamAndDisconnect( handlerService, Util.team1Name, Util.participant1Nick);
+    const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: remove the disconnected participant
     const message: IRemoveMessage = {
@@ -33,10 +39,10 @@ describe('Remove => OK', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Left,
-        { participantId: participant.participantId, status: EParticipantStatus.Left }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Left
+      })
       .expectNoMoreMessages();
 
     // Test: observer messages
@@ -44,22 +50,19 @@ describe('Remove => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Left,
-        { participantId: participant.participantId, status: EParticipantStatus.Left }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Left
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
 });
-
 
 describe('Remove => Failure', () => {
   // TODO 2390 test('Sender not found', () => { });
@@ -91,9 +94,7 @@ describe('Remove => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -138,9 +139,7 @@ describe('Remove => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: scrum master 2 messages
     scrumMaster2
@@ -191,9 +190,7 @@ describe('Remove => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -236,9 +233,7 @@ describe('Remove => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -285,9 +280,7 @@ describe('Remove => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
-    participant1
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant1.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: scrum master 2 messages
     scrumMaster2
@@ -297,11 +290,9 @@ describe('Remove => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant 2 messages
-    participant2
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant2.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
-   });
+  });
 });

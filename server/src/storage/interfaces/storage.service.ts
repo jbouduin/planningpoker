@@ -1,5 +1,5 @@
-import { EErrorCode, EPokerStatus, ICardSet, IEstimation } from "shared-lib";
-import { IServerParticipant, ITeam } from "../../objects";
+import { EErrorCode, EPokerStatus, ICardSet, IEstimation } from 'shared-lib';
+import { IServerParticipant, ITeam } from '../../objects';
 
 export interface IStorageService {
   //#region participant -------------------------------------------------------

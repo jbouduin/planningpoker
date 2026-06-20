@@ -1,9 +1,8 @@
-import { IParticipant, EParticipantStatus, ERole } from "shared-lib";
+import { IParticipant, EParticipantStatus, ERole } from 'shared-lib';
 import { IServerParticipant } from '../interfaces/server-participant';
 import { IWebSocket } from '../../services/websocket';
 
 export class ServerParticipant implements IServerParticipant {
-
   //#region private properties ------------------------------------------------
   private readonly _participant: IParticipant;
   //#endregion
@@ -55,8 +54,6 @@ export class ServerParticipant implements IServerParticipant {
     this._participant = participant;
     this.socket = socket;
   }
-
-
 
   //#endregion
 }

@@ -12,7 +12,10 @@ describe('Member scope', () => {
   test('join and leave', () => {
     const teamRepository = new Mock<ITeamRepository>();
     const participantRepository = new Mock<IServerParticipantRepository>();
-    const repository: IMembershipRepository = new MembershipRepository(participantRepository.object(), teamRepository.object());
+    const repository: IMembershipRepository = new MembershipRepository(
+      participantRepository.object(),
+      teamRepository.object()
+    );
     repository.joinTeam(Util.team1Name, Util.participant1Name);
     expect(repository.participantIsMemberOf(Util.participant1Name, Util.team1Name)).toBe(true);
     repository.leaveTeam(Util.team1Name, Util.participant1Name);
@@ -28,7 +31,10 @@ describe('Team scope', () => {
     const participantRepository = new Mock<IServerParticipantRepository>()
       .setup((r: IServerParticipantRepository) => r.get(Util.participant1Name))
       .returns(Util.getParticipant1());
-    const repository: IMembershipRepository = new MembershipRepository(participantRepository.object(), teamRepository.object());
+    const repository: IMembershipRepository = new MembershipRepository(
+      participantRepository.object(),
+      teamRepository.object()
+    );
     repository.joinTeam(Util.team1Name, Util.participant1Name);
 
     const retrievedTeam = repository.getTeamOfParticipant(Util.participant1Name);
@@ -53,7 +59,10 @@ describe('Team scope', () => {
       .returns(Util.getParticipant1())
       .setup((r: IServerParticipantRepository) => r.get(Util.disconnectedName))
       .returns(Util.getDisconnected());
-    const repository: IMembershipRepository = new MembershipRepository(participantRepository.object(), teamRepository.object());
+    const repository: IMembershipRepository = new MembershipRepository(
+      participantRepository.object(),
+      teamRepository.object()
+    );
     repository.joinTeam(Util.team1Name, Util.participant1Name);
     repository.joinTeam(Util.team1Name, Util.disconnectedName);
     let retrievedMemberList = repository.getTeamMembers(Util.team1Name);
@@ -64,17 +73,19 @@ describe('Team scope', () => {
     expect(retrievedMemberList.length).toBe(1);
     expect(retrievedMemberList.find((p: IServerParticipant) => p.nick === Util.participant1Name)).toBeDefined();
     expect(retrievedMemberList.find((p: IServerParticipant) => p.nick === Util.disconnectedName)).toBeUndefined();
-
   });
 
   test('remove team', () => {
     const teamRepository = new Mock<ITeamRepository>();
     const participantRepository = new Mock<IServerParticipantRepository>();
-    const repository: IMembershipRepository = new MembershipRepository(participantRepository.object(), teamRepository.object());
+    const repository: IMembershipRepository = new MembershipRepository(
+      participantRepository.object(),
+      teamRepository.object()
+    );
     repository.joinTeam(Util.team1Name, Util.participant1Name);
     repository.removeTeam(Util.team1Name);
     expect(repository.participantIsMemberOf(Util.participant1Name, Util.team1Name)).toBe(false);
     expect(repository.getTeamOfParticipant(Util.participant1Name)).toBeUndefined();
     expect(repository.getTeamMembers(Util.team1Name).length).toBe(0);
-  })
+  });
 });

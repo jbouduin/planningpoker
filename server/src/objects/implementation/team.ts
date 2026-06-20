@@ -1,6 +1,5 @@
-import { EPokerStatus } from "shared-lib";
+import { EPokerStatus } from 'shared-lib';
 import { ITeam } from '../interfaces/team';
-
 
 export class Team implements ITeam {
   //#region Public properties -------------------------------------------------

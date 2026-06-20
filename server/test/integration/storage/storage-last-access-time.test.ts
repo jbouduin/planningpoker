@@ -2,9 +2,8 @@ import { describe, expect, test } from '@jest/globals';
 
 import STORAGETYPES from '../../../src/storage/storage.types';
 
-
-import { ECardSet } from "../../../../shared-lib/src";
-import { IFactoryService, IStorageService } from "../../../src/storage/interfaces";
+import { ECardSet } from '../../../../shared-lib/src';
+import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
 import { Util } from './util';
 import { IServerParticipant } from '../../../src/objects';
 
@@ -18,14 +17,10 @@ describe('Last access time updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Retrieve last access time
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -35,9 +30,7 @@ describe('Last access time updated', () => {
     if (lastAccessTime) {
       await Util.sleep(10);
       // Setup: join team
-      container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .joinTeam(Util.team1Name, participant.participantId);
+      container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
       // Retrieve last access time
       const retrieved = container
         .get<IStorageService>(STORAGETYPES.StorageService)
@@ -56,18 +49,12 @@ describe('Last access time updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     // Retrieve last access time
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -75,9 +62,7 @@ describe('Last access time updated', () => {
     if (lastAccessTime) {
       await Util.sleep(10);
       // leave team
-      container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .leaveTeam(Util.team1Name, participant.participantId);
+      container.get<IStorageService>(STORAGETYPES.StorageService).leaveTeam(Util.team1Name, participant.participantId);
       // Retrieve last access time
       const retrieved = container
         .get<IStorageService>(STORAGETYPES.StorageService)
@@ -96,22 +81,14 @@ describe('Last access time updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     // start estimating
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .startEstimating(Util.team1Name);
+    container.get<IStorageService>(STORAGETYPES.StorageService).startEstimating(Util.team1Name);
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getTeam(Util.team1Name)?.lastAccessTime;
@@ -139,22 +116,14 @@ describe('Last access time updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     // start estimating
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .startEstimating(Util.team1Name);
+    container.get<IStorageService>(STORAGETYPES.StorageService).startEstimating(Util.team1Name);
     // estimate
     container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -186,18 +155,12 @@ describe('Last access time updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     // Retrieve last access time
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -205,9 +168,7 @@ describe('Last access time updated', () => {
     if (lastAccessTime) {
       await Util.sleep(10);
       // start estimating
-      container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .startEstimating(Util.team1Name);
+      container.get<IStorageService>(STORAGETYPES.StorageService).startEstimating(Util.team1Name);
       // Retrieve last access time
       const retrieved = container
         .get<IStorageService>(STORAGETYPES.StorageService)
@@ -226,30 +187,23 @@ describe('Last access time updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getTeam(Util.team1Name)?.lastAccessTime;
     if (lastAccessTime) {
       await Util.sleep(10);
       // reveal
-      container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .reveal(Util.team1Name);
+      container.get<IStorageService>(STORAGETYPES.StorageService).reveal(Util.team1Name);
       // Retrieve last access time and test
-      expect(container.get<IStorageService>(STORAGETYPES.StorageService).getTeam(Util.team1Name)?.lastAccessTime)
-        .toBeGreaterThan(lastAccessTime);
+      expect(
+        container.get<IStorageService>(STORAGETYPES.StorageService).getTeam(Util.team1Name)?.lastAccessTime
+      ).toBeGreaterThan(lastAccessTime);
     }
   });
 
@@ -259,18 +213,12 @@ describe('Last access time updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     // Retrieve last access time
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -278,9 +226,7 @@ describe('Last access time updated', () => {
     if (lastAccessTime) {
       await Util.sleep(10);
       // change card set
-      container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .setCardSet(Util.team1Name, cardSet);
+      container.get<IStorageService>(STORAGETYPES.StorageService).setCardSet(Util.team1Name, cardSet);
       // Retrieve last access time
       const retrieved = container
         .get<IStorageService>(STORAGETYPES.StorageService)
@@ -299,18 +245,12 @@ describe('Last access time updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
       .getTeam(Util.team1Name)?.lastAccessTime;
@@ -340,18 +280,12 @@ describe('Last access time NOT updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     // Retrieve last access time
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -359,9 +293,7 @@ describe('Last access time NOT updated', () => {
     if (lastAccessTime) {
       await Util.sleep(10);
       // get estimations
-      container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .getEstimations(Util.team1Name);
+      container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name);
       // Retrieve last access time
       const retrieved = container
         .get<IStorageService>(STORAGETYPES.StorageService)
@@ -371,7 +303,6 @@ describe('Last access time NOT updated', () => {
       if (retrieved) {
         expect(retrieved).toBe(lastAccessTime);
       }
-
     }
   });
 
@@ -381,27 +312,20 @@ describe('Last access time NOT updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     // Retrieve last access time
     const lastAccessTime = container
-      .get<IStorageService>(STORAGETYPES.StorageService).getTeam(Util.team1Name)?.lastAccessTime;
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .getTeam(Util.team1Name)?.lastAccessTime;
     if (lastAccessTime) {
       await Util.sleep(10);
       // filter participants
-      container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .filterParticipants((_p: IServerParticipant) => true);
+      container.get<IStorageService>(STORAGETYPES.StorageService).filterParticipants((_p: IServerParticipant) => true);
       // Retrieve last access time
       const retrieved = container
         .get<IStorageService>(STORAGETYPES.StorageService)
@@ -420,18 +344,12 @@ describe('Last access time NOT updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     // Retrieve last access time
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -439,9 +357,7 @@ describe('Last access time NOT updated', () => {
     if (lastAccessTime) {
       await Util.sleep(10);
       // get team members
-      container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .getTeamMembers(Util.team1Name);
+      container.get<IStorageService>(STORAGETYPES.StorageService).getTeamMembers(Util.team1Name);
       // Retrieve last access time
       const retrieved = container
         .get<IStorageService>(STORAGETYPES.StorageService)
@@ -460,18 +376,12 @@ describe('Last access time NOT updated', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addParticipant(participant);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: join team
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .joinTeam(Util.team1Name, participant.participantId);
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant.participantId);
     // Retrieve last access time
     const lastAccessTime = container
       .get<IStorageService>(STORAGETYPES.StorageService)
@@ -479,9 +389,7 @@ describe('Last access time NOT updated', () => {
     if (lastAccessTime) {
       await Util.sleep(10);
       // get first connected participant
-      container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .getFirstConnectedTeamMember(Util.team1Name);
+      container.get<IStorageService>(STORAGETYPES.StorageService).getFirstConnectedTeamMember(Util.team1Name);
       // Retrieve last access time
       const retrieved = container
         .get<IStorageService>(STORAGETYPES.StorageService)

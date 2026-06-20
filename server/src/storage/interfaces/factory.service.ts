@@ -1,8 +1,7 @@
-import { ECardSet, ICardSet, IEstimation } from "shared-lib";
+import { ECardSet, ICardSet, IEstimation } from 'shared-lib';
 
-import { IServerParticipant, ITeam } from "../../objects";
-import { IWebSocket } from "../../services/websocket";
-
+import { IServerParticipant, ITeam } from '../../objects';
+import { IWebSocket } from '../../services/websocket';
 
 export interface IFactoryService {
   createCardSet(set: ECardSet): ICardSet;

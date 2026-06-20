@@ -1,4 +1,4 @@
-import { ICanRejoinResponse, ICardSet } from "shared-lib";
+import { ICanRejoinResponse, ICardSet } from 'shared-lib';
 
 export interface IApiController {
   availableCardSets(): Array<ICardSet>;

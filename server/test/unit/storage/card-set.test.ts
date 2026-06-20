@@ -8,7 +8,6 @@ import { ECardSet, ICard } from '../../../../shared-lib/src';
 import { Util } from '../util';
 
 describe('CRUD', () => {
-
   test('Create', () => {
     const repository: ICardSetRepository = new CardSetRepository();
     const factory: IFactoryService = new FactoryService();
@@ -42,7 +41,6 @@ describe('CRUD', () => {
     expect(repository.getCardSet(Util.team1Name)).toBeUndefined();
   });
 
-
   test('Delete non existing returns false', () => {
     const repository: ICardSetRepository = new CardSetRepository();
     expect(repository.removeCardSet(Util.team1Name)).toBe(false);
@@ -57,9 +55,7 @@ describe('CRUD', () => {
     expect(repository.removeCardSet(Util.team1Name)).toBe(true);
     const retrieved = repository.getCardSet(Util.team1Name);
     expect(retrieved).toBeUndefined();
-
   });
-
 });
 
 describe('Two teams', () => {
@@ -125,7 +121,6 @@ describe('Two teams', () => {
       expect(retrieved.cards.length).toBe(fibo.cards.length);
     }
   });
-
 });
 
 describe('Factory should return valid sets', () => {
@@ -135,6 +130,4 @@ describe('Factory should return valid sets', () => {
     expect(cardSet.cards.find((card: ICard) => card.isUnknownEstimation)).toBeDefined();
     expect(cardSet.cards.filter((card: ICard) => card.isEstimation).length).toBeGreaterThanOrEqual(2);
   });
-
-})
-
+});

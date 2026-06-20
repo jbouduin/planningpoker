@@ -1,5 +1,5 @@
-import { IEnvironmentService } from "./environment.service";
-import { ILoggerService } from "./logger.service";
+import { IEnvironmentService } from './environment.service';
+import { ILoggerService } from './logger.service';
 
 export interface ICronService {
   /**

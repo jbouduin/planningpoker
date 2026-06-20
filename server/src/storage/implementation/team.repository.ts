@@ -1,12 +1,11 @@
-import { injectable } from "inversify";
+import { injectable } from 'inversify';
 
-import { EPokerStatus } from "shared-lib";
-import { ITeam } from "../../objects";
-import { ITeamRepository } from "../../storage/interfaces";
+import { EPokerStatus } from 'shared-lib';
+import { ITeam } from '../../objects';
+import { ITeamRepository } from '../../storage/interfaces';
 
 @injectable()
-export class TeamRepository implements ITeamRepository{
-
+export class TeamRepository implements ITeamRepository {
   //#region private properties ------------------------------------------------
   private readonly teams: Map<string, ITeam>;
   //#endregion

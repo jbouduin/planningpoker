@@ -9,7 +9,6 @@ import { IEnvironmentService, ILoggerService, LogType } from '../interfaces';
 
 @injectable()
 export class LoggerService implements ILoggerService {
-
   //#region private properties ------------------------------------------------
   private readonly serverLogger: winston.Logger;
   private readonly socketLogger: winston.Logger;
@@ -95,9 +94,11 @@ export class LoggerService implements ILoggerService {
     return format.combine(
       format.label({ label: label }),
       format.timestamp(),
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      format.printf((info: winston.Logform.TransformableInfo) => `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`)
-    )
+      format.printf(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        (info: winston.Logform.TransformableInfo) => `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`
+      )
+    );
   }
 
   public getLog(logType?: LogType, size?: number): Array<string> {
@@ -112,9 +113,7 @@ export class LoggerService implements ILoggerService {
       default:
         result = this.buffer.slice();
     }
-    return size ?
-      result.slice(-size) :
-      result;
+    return size ? result.slice(-size) : result;
   }
   //#endregion
 
@@ -137,7 +136,7 @@ export class LoggerService implements ILoggerService {
         this.buffer.splice(0, lengthOfBuffer - this.maxBufferSize);
       }
       next(null);
-    }
+    };
     return new transports.Stream({ stream: stream, level: level });
   }
   //#endregion

@@ -1,11 +1,10 @@
-import { injectable } from "inversify";
+import { injectable } from 'inversify';
 
-import { IServerParticipant } from "../../objects";
-import { IServerParticipantRepository } from "../interfaces";
+import { IServerParticipant } from '../../objects';
+import { IServerParticipantRepository } from '../interfaces';
 
 @injectable()
 export class ServerParticipantRepository implements IServerParticipantRepository {
-
   //#region private properties ------------------------------------------------
   private readonly participants: Map<string, IServerParticipant>;
   private cnt: number;

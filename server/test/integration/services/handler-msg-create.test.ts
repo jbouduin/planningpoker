@@ -1,13 +1,28 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EParticipantStatus, ERole, EServerMessageType, ICard, ICardSetMessage, ICreateMessage, IEstimationListMessage, IInitMessage, IMemberListMessage, ISelfMessage, ITeamNameMessage } from '../../../../shared-lib/src';
+import {
+  ECardSet,
+  EClientMessageType,
+  EErrorCode,
+  EParticipantStatus,
+  ERole,
+  EServerMessageType,
+  ICard,
+  ICardSetMessage,
+  ICreateMessage,
+  IEstimationListMessage,
+  IInitMessage,
+  IMemberListMessage,
+  ISelfMessage,
+  ITeamNameMessage
+} from '../../../../shared-lib/src';
 import SERVICETYPES from '../../../src/services/service.types';
 import STORAGETYPES from '../../../src/storage/storage.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 import { IFactoryService } from '../../../src/storage/interfaces';
 import { ITestScrumMaster } from './helpers/TestScrumMaster';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('create => OK', () => {
   test('Standard Create', () => {
@@ -20,45 +35,34 @@ describe('create => OK', () => {
 
     // Run: Create team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
-      handlerService, Util.team1Name, Util.scrumMaster1Nick, false, ECardSet.TShirt);
+      handlerService,
+      Util.team1Name,
+      Util.scrumMaster1Nick,
+      false,
+      ECardSet.TShirt
+    );
 
     // Test: Scrum master initial messages
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(
-        EServerMessageType.Init,
-        (m: IInitMessage) => {
-          expect(m.data.participantId).toBeDefined();
-          expect(m.data.participantId.length).toBeGreaterThan(0);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.Self,
-        (m: ISelfMessage) => {
-          expect(m.data.nick).toBe(Util.scrumMaster1Nick);
-          expect(m.data.status).toBe(EParticipantStatus.Connected);
-          expect(m.data.role).toBe(ERole.ScrumMaster);
-          expect(m.data.observer).toBe(false);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.TeamName,
-        (m: ITeamNameMessage) => expect(m.data).toBe(Util.team1Name)
-      )
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => {
-          expect(m.data.cardSet).toBe(ECardSet.TShirt)
-          expect(m.data.cards).toHaveLength(tshirt.cards.length);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.MemberList,
-        (m: IMemberListMessage) => expect(m.data.length).toBe(0)
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data.length).toBe(0)
+      .expectNextMessageIs(EServerMessageType.Init, (m: IInitMessage) => {
+        expect(m.data.participantId).toBeDefined();
+        expect(m.data.participantId.length).toBeGreaterThan(0);
+      })
+      .expectNextMessageIs(EServerMessageType.Self, (m: ISelfMessage) => {
+        expect(m.data.nick).toBe(Util.scrumMaster1Nick);
+        expect(m.data.status).toBe(EParticipantStatus.Connected);
+        expect(m.data.role).toBe(ERole.ScrumMaster);
+        expect(m.data.observer).toBe(false);
+      })
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => expect(m.data).toBe(Util.team1Name))
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSet.TShirt);
+        expect(m.data.cards).toHaveLength(tshirt.cards.length);
+      })
+      .expectNextMessageIs(EServerMessageType.MemberList, (m: IMemberListMessage) => expect(m.data.length).toBe(0))
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data.length).toBe(0)
       )
       .expectNoMoreMessages();
 
@@ -72,22 +76,23 @@ describe('create => OK', () => {
 
     // Run: create the team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
-      handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.TShirt);
+      handlerService,
+      Util.team1Name,
+      Util.scrumMaster1Nick,
+      true,
+      ECardSet.TShirt
+    );
 
     // Test: check if the observer flag was send correctly
     scrumMaster
       .initializeMessageQueue(false)
       .expectNextMessageIs(EServerMessageType.Init)
-      .expectNextMessageIs(
-        EServerMessageType.Self,
-        (m: ISelfMessage) => expect(m.data.observer).toBe(true)
-      )
+      .expectNextMessageIs(EServerMessageType.Self, (m: ISelfMessage) => expect(m.data.observer).toBe(true))
       .expectNextMessageIs(EServerMessageType.TeamName)
       .expectNextMessageIs(EServerMessageType.CardList)
       .expectNextMessageIs(EServerMessageType.MemberList)
       .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
-
   });
 
   test('Create with a custom card list', () => {
@@ -99,7 +104,13 @@ describe('create => OK', () => {
 
     // Run: create the team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
-      handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, customizedCohn);
+      handlerService,
+      Util.team1Name,
+      Util.scrumMaster1Nick,
+      true,
+      ECardSet.Custom,
+      customizedCohn
+    );
 
     // Test: check if the card set message contains the correct data
     scrumMaster
@@ -107,17 +118,13 @@ describe('create => OK', () => {
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIs(EServerMessageType.Self)
       .expectNextMessageIs(EServerMessageType.TeamName)
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => {
-          expect(m.data.cardSet).toBe(ECardSet.Cohn);
-          expect(m.data.cards).toHaveLength(customizedCohn.cards.length)
-        }
-      )
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+        expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
+      })
       .expectNextMessageIs(EServerMessageType.MemberList)
       .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
-
   });
 
   test('Create with a custom card list without cards', () => {
@@ -128,7 +135,13 @@ describe('create => OK', () => {
 
     // Run: create the team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
-      handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, undefined);
+      handlerService,
+      Util.team1Name,
+      Util.scrumMaster1Nick,
+      true,
+      ECardSet.Custom,
+      undefined
+    );
 
     // Test: check if the card set message contains the correct data
     scrumMaster
@@ -136,13 +149,10 @@ describe('create => OK', () => {
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIs(EServerMessageType.Self)
       .expectNextMessageIs(EServerMessageType.TeamName)
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => {
-          expect(m.data.cardSet).toBe(ECardSet.Cohn);
-          expect(m.data.cards).toHaveLength(cohn.cards.length);
-        }
-      )
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+        expect(m.data.cards).toHaveLength(cohn.cards.length);
+      })
       .expectNextMessageIs(EServerMessageType.MemberList)
       .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
@@ -169,7 +179,7 @@ describe('Create => Failure', () => {
         observer: false,
         cardSet: ECardSet.Cohn
       }
-    }
+    };
     scrumMaster.sendMessage(message, Util.team1Name);
 
     // Test: Scrum master messages
@@ -192,7 +202,12 @@ describe('Create => Failure', () => {
 
     // Run: Try to recreate the unaffected team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
-      handlerService, unaffectedTeam.teamName, Util.scrumMaster1Nick, false, ECardSet.TShirt);
+      handlerService,
+      unaffectedTeam.teamName,
+      Util.scrumMaster1Nick,
+      false,
+      ECardSet.TShirt
+    );
 
     // Test: scrum master messages
     scrumMaster
@@ -216,7 +231,13 @@ describe('Create => Failure', () => {
 
     // Run: create the team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
-      handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, cohn);
+      handlerService,
+      Util.team1Name,
+      Util.scrumMaster1Nick,
+      true,
+      ECardSet.Custom,
+      cohn
+    );
 
     // Test: Scrum Master messages
     scrumMaster
@@ -235,7 +256,13 @@ describe('Create => Failure', () => {
 
     // Run: create the team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
-      handlerService, Util.team1Name, Util.scrumMaster1Nick, true, ECardSet.Custom, cohn);
+      handlerService,
+      Util.team1Name,
+      Util.scrumMaster1Nick,
+      true,
+      ECardSet.Custom,
+      cohn
+    );
 
     // Test: Scrum Master messages
     scrumMaster
@@ -254,7 +281,12 @@ describe('Create => Failure', () => {
 
     // Run: Create team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
-      handlerService, "", Util.scrumMaster1Nick, false, ECardSet.TShirt);
+      handlerService,
+      '',
+      Util.scrumMaster1Nick,
+      false,
+      ECardSet.TShirt
+    );
 
     // Test: Scrum master messages
     scrumMaster
@@ -275,8 +307,7 @@ describe('Create => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Run: Create team
-    const scrumMaster: ITestScrumMaster = Util.createTeam(
-      handlerService, Util.team1Name, "", false, ECardSet.TShirt);
+    const scrumMaster: ITestScrumMaster = Util.createTeam(handlerService, Util.team1Name, '', false, ECardSet.TShirt);
 
     // Test: scrum master messages
     scrumMaster
@@ -288,4 +319,4 @@ describe('Create => Failure', () => {
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
-})
+});

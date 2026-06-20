@@ -1,9 +1,17 @@
 import { describe, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, ERole, EServerMessageType, IStartMessage } from '../../../../shared-lib/src';
+import {
+  EClientMessageType,
+  EErrorCode,
+  EMemberChangeType,
+  EPokerStatus,
+  ERole,
+  EServerMessageType,
+  IStartMessage
+} from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Start => OK', () => {
   test('Start', () => {
@@ -73,9 +81,7 @@ describe('start => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -108,9 +114,7 @@ describe('start => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -175,9 +179,7 @@ describe('start => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -289,17 +291,12 @@ describe('start => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: observer 1 messages
-    observer1
-      .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNoMoreMessages();
+    observer1.initializeMessageQueue().expectNextMessageIsMemberChange(EMemberChangeType.Joined).expectNoMoreMessages();
 
     // Test: observer 2 messages
-    observer2
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    observer2.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
-})
+});

@@ -1,13 +1,24 @@
 import { describe, expect, test } from '@jest/globals';
-
-import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, ERole, EServerMessageType, ICard, ICardSet, ICardSetMessage, IChangeCardSetMessage, IStartMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-import STORAGETYPES from '../../../src/storage/storage.types';
-
+import {
+  ECardSet,
+  EClientMessageType,
+  EErrorCode,
+  EMemberChangeType,
+  EPokerStatus,
+  ERole,
+  EServerMessageType,
+  ICard,
+  ICardSet,
+  ICardSetMessage,
+  IChangeCardSetMessage,
+  IStartMessage
+} from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { IFactoryService } from '../../../src/storage/interfaces';
-import { Util } from "./helpers/util";
+import STORAGETYPES from '../../../src/storage/storage.types';
+import { TestFunction } from '../../types';
+import { Util } from './helpers/util';
 
 describe('Change card set => OK', () => {
   test('Change card set', () => {
@@ -20,10 +31,10 @@ describe('Change card set => OK', () => {
     // Setup: customize a card set
     const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
     customizedCohn.cards.splice(9, 3);
-    const expectCardSetFn = (c: ICardSet) => {
+    const expectCardSetFn: TestFunction<ICardSet> = (c: ICardSet) => {
       expect(c.cardSet).toBe(customizedCohn.cardSet);
       expect(c.cards).toHaveLength(customizedCohn.cards.length);
-    }
+    };
 
     // Setup: create team with a single participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
@@ -41,19 +52,13 @@ describe('Change card set => OK', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => expectCardSetFn(m.data)
-      )
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => expectCardSetFn(m.data))
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => expectCardSetFn(m.data)
-      )
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => expectCardSetFn(m.data))
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -91,13 +96,10 @@ describe('Change card set => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
-
   });
 
   test('Sender not in any team', () => {
@@ -133,9 +135,7 @@ describe('Change card set => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: scrum master 2 messages
     scrumMaster2
@@ -179,9 +179,7 @@ describe('Change card set => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -309,9 +307,7 @@ describe('Change card set => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -347,9 +343,7 @@ describe('Change card set => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();

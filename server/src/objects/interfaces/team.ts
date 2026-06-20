@@ -1,4 +1,4 @@
-import { EPokerStatus } from "shared-lib";
+import { EPokerStatus } from 'shared-lib';
 
 export interface ITeam {
   status: EPokerStatus;

@@ -3,7 +3,7 @@ import { describe, test } from '@jest/globals';
 import { AClientMessage, EErrorCode } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Unknown message type', () => {
   test('send unknown message type', () => {
@@ -25,12 +25,9 @@ describe('Unknown message type', () => {
     scrumMaster.sendMessage(<AClientMessage>message);
 
     // Test: scrum master messages
-    scrumMaster
-      .initializeMessageQueue()
-      .expectNextMessageIsError(EErrorCode.UnknownVerb)
-      .expectNoMoreMessages();
+    scrumMaster.initializeMessageQueue().expectNextMessageIsError(EErrorCode.UnknownVerb).expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
-})
+});

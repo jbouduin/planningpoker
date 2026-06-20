@@ -1,5 +1,5 @@
 // import winston = require("winston");
-import winston from "winston";
+import winston from 'winston';
 
 export type LogType = 'Express' | 'Server' | 'Socket';
 

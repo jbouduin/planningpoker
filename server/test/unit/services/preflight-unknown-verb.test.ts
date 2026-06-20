@@ -11,12 +11,14 @@ describe('Unknown message type', () => {
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
-      .setup(((service: IStorageService) => service.teamExists(Util.team1Name)))
+      .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
       .returns(Util.getTeam1())
       .setup((service: IStorageService) => service.getConnectedTeamMembers(Util.team1Name))
       .returns([Util.getParticipant1(), Util.getParticipant2()]);
-    expect(Util.getPreflightService().preflight(storage.object(), <AClientMessage>message, Util.team1Name)).toBe(EErrorCode.UnknownVerb);
+    expect(Util.getPreflightService().preflight(storage.object(), <AClientMessage>message, Util.team1Name)).toBe(
+      EErrorCode.UnknownVerb
+    );
   });
 });

@@ -1,11 +1,28 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ECardSet, EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, EServerMessageType, ICardSetMessage, IEstimateMessage, IEstimationListMessage, IMemberListMessage, IPauseMessage, IRejoinMessage, IStartMessage, ITeamNameMessage } from '../../../../shared-lib/src';
+import {
+  ECardSet,
+  EClientMessageType,
+  EErrorCode,
+  EMemberChangeType,
+  EParticipantStatus,
+  EPokerStatus,
+  ERole,
+  EServerMessageType,
+  ICardSetMessage,
+  IEstimateMessage,
+  IEstimationListMessage,
+  IMemberListMessage,
+  IPauseMessage,
+  IRejoinMessage,
+  IStartMessage,
+  ITeamNameMessage
+} from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { IFactoryService } from '../../../src/storage/interfaces';
 import STORAGETYPES from '../../../src/storage/storage.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Rejoin => OK', () => {
   test('Rejoin after disconnect', () => {
@@ -34,48 +51,37 @@ describe('Rejoin => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Rejoined,
-        { participantId: participant.participantId, status: EParticipantStatus.Connected }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Rejoined, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Connected
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: rejoining participant messages (init sequence)
     rejoiningParticipant
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
-      .expectNextMessageIsSelf(
-        {
-          participantId: participant.participantId,
-          role: ERole.Developer,
-          observer: false,
-          status: EParticipantStatus.Connected
-        }
-      )
+      .expectNextMessageIsSelf({
+        participantId: participant.participantId,
+        role: ERole.Developer,
+        observer: false,
+        status: EParticipantStatus.Connected
+      })
       .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => {
-          expect(m.data.cardSet).toBe(ECardSet.Cohn);
-          expect(m.data.cards).toHaveLength(cohn.cards.length);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.MemberList,
-        (m: IMemberListMessage) => {
-          expect(m.data).toHaveLength(1);
-          expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
-          expect(m.data[0].role).toBe(ERole.ScrumMaster);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+        expect(m.data.cards).toHaveLength(cohn.cards.length);
+      })
+      .expectNextMessageIs(EServerMessageType.MemberList, (m: IMemberListMessage) => {
+        expect(m.data).toHaveLength(1);
+        expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
+        expect(m.data[0].role).toBe(ERole.ScrumMaster);
+      })
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
 
@@ -114,9 +120,7 @@ describe('Rejoin => OK', () => {
       .expectNoMoreMessages();
 
     // Test: disconnected participant messages
-    disconnected
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    disconnected.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: rejoining participant messages
     rejoiningParticipant
@@ -159,14 +163,10 @@ describe('Rejoin => OK', () => {
       .expectNoMoreMessages();
 
     // Test: disconnected participant messages
-    disconnected
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    disconnected.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: rejoining scrum master messages
-    rejoiningScrumMaster
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    rejoiningScrumMaster.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -189,7 +189,7 @@ describe('Rejoin => OK', () => {
       senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Pause
-    }
+    };
     participant.sendMessage(pauseMessage);
     participant.closeSocket();
 
@@ -207,48 +207,37 @@ describe('Rejoin => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Rejoined,
-        { participantId: participant.participantId, status: EParticipantStatus.Connected }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Rejoined, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Connected
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused });
+    participant.initializeMessageQueue().expectNextMessageIsSelf({ status: EParticipantStatus.Paused });
 
     // Test: rejoining participant messages (init sequence)
     rejoiningParticipant
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
-      .expectNextMessageIsSelf(
-        {
-          participantId: participant.participantId,
-          role: ERole.Developer,
-          observer: false,
-          status: EParticipantStatus.Connected
-        }
-      )
+      .expectNextMessageIsSelf({
+        participantId: participant.participantId,
+        role: ERole.Developer,
+        observer: false,
+        status: EParticipantStatus.Connected
+      })
       .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => {
-          expect(m.data.cardSet).toBe(ECardSet.Cohn);
-          expect(m.data.cards).toHaveLength(cohn.cards.length);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.MemberList,
-        (m: IMemberListMessage) => {
-          expect(m.data).toHaveLength(1);
-          expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
-          expect(m.data[0].role).toBe(ERole.ScrumMaster);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+        expect(m.data.cards).toHaveLength(cohn.cards.length);
+      })
+      .expectNextMessageIs(EServerMessageType.MemberList, (m: IMemberListMessage) => {
+        expect(m.data).toHaveLength(1);
+        expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
+        expect(m.data[0].role).toBe(ERole.ScrumMaster);
+      })
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
 
@@ -302,62 +291,49 @@ describe('Rejoin => OK', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Rejoined,
-        { participantId: participant1.participantId, status: EParticipantStatus.Connected }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Rejoined, {
+        participantId: participant1.participantId,
+        status: EParticipantStatus.Connected
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant1
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant1.initializeMessageQueue().expectNoMoreMessages();
 
     participant2
       .initializeMessageQueue()
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Rejoined,
-        { participantId: participant1.participantId, status: EParticipantStatus.Connected }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Rejoined, {
+        participantId: participant1.participantId,
+        status: EParticipantStatus.Connected
+      })
       .expectNoMoreMessages();
     // Test: rejoining participant messages (init sequence)
     rejoiningParticipant
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
-      .expectNextMessageIsSelf(
-        {
-          participantId: participant1.participantId,
-          role: ERole.Developer,
-          observer: false,
-          status: EParticipantStatus.Connected
-        }
-      )
+      .expectNextMessageIsSelf({
+        participantId: participant1.participantId,
+        role: ERole.Developer,
+        observer: false,
+        status: EParticipantStatus.Connected
+      })
       .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(
-        EServerMessageType.CardList,
-        (m: ICardSetMessage) => {
-          expect(m.data.cardSet).toBe(ECardSet.Cohn);
-          expect(m.data.cards).toHaveLength(cohn.cards.length);
-        }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.MemberList,
-        (m: IMemberListMessage) => expect(m.data).toHaveLength(2)
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+        expect(m.data.cards).toHaveLength(cohn.cards.length);
+      })
+      .expectNextMessageIs(EServerMessageType.MemberList, (m: IMemberListMessage) => expect(m.data).toHaveLength(2))
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(1)
       )
       .expectNoMoreMessages();
 
@@ -365,7 +341,6 @@ describe('Rejoin => OK', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 });
-
 
 describe('Rejoin => Failure', () => {
   test('Sender not found', () => {
@@ -396,9 +371,7 @@ describe('Rejoin => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: rejoining participant messages
     rejoiningParticipant
@@ -439,9 +412,7 @@ describe('Rejoin => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: rejoining participant messages
     rejoiningParticipant
@@ -485,9 +456,7 @@ describe('Rejoin => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: rejoining participant messages
     rejoiningParticipant
@@ -527,9 +496,7 @@ describe('Rejoin => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: rejoining participant messages
     rejoiningParticipant
@@ -573,9 +540,7 @@ describe('Rejoin => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: rejoining participant messages
     rejoiningParticipant

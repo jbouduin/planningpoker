@@ -3,7 +3,7 @@ import { describe, test } from '@jest/globals';
 import { EServerMessageType, IErrorMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Handle Error', () => {
   test('Handle error ', () => {
@@ -22,10 +22,7 @@ describe('Handle Error', () => {
     // Test scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(
-        EServerMessageType.Error,
-        (m: IErrorMessage) => m.data.message === 'test error'
-      )
+      .expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) => m.data.message === 'test error')
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

@@ -3,8 +3,7 @@ import { describe, test } from '@jest/globals';
 import { EClientMessageType, EErrorCode, EMemberChangeType, IObserveMessage } from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
-
+import { Util } from './helpers/util';
 
 describe('Toggle observe => OK', () => {
   test('Toggle own observe', () => {
@@ -33,18 +32,16 @@ describe('Toggle observe => OK', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Observe,
-        { participantId: participant.participantId, observer: true }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Observe, {
+        participantId: participant.participantId,
+        observer: true
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsSelf(
-        { participantId: participant.participantId, observer: true }
-      )
+      .expectNextMessageIsSelf({ participantId: participant.participantId, observer: true })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -77,25 +74,22 @@ describe('Toggle observe => OK', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Observe,
-        { participantId: participant.participantId, observer: true }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Observe, {
+        participantId: participant.participantId,
+        observer: true
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsSelf(
-        { participantId: participant.participantId, observer: true }
-      )
+      .expectNextMessageIsSelf({ participantId: participant.participantId, observer: true })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
 });
-
 
 describe('Toggle observe => Failure', () => {
   // TODO 2390 test('Sender not found', () => { });
@@ -129,10 +123,7 @@ describe('Toggle observe => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNextMessageIsError(EErrorCode.TeamNotFound)
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNextMessageIsError(EErrorCode.TeamNotFound).expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -170,9 +161,7 @@ describe('Toggle observe => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
-    participant1
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant1.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: participant 2 messages
     participant2
@@ -255,9 +244,7 @@ describe('Toggle observe => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -297,9 +284,7 @@ describe('Toggle observe => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
-    participant1
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant1.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: scrum master 2 messages
     scrumMaster2
@@ -308,9 +293,7 @@ describe('Toggle observe => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant 2 messages
-    participant2
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant2.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();

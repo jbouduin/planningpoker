@@ -1,16 +1,15 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 
-import STORAGETYPES from "../../storage/storage.types";
-import SERVICETYPES from "../../services/service.types";
+import STORAGETYPES from '../../storage/storage.types';
+import SERVICETYPES from '../../services/service.types';
 
-import { IFactoryService, IStorageService } from "../../storage/interfaces";
-import { ECardSet, EErrorCode, ICanRejoinResponse, ICardSet } from "shared-lib";
-import { IApiController } from "../interfaces";
-import { ILoggerService } from "../../services/interfaces";
+import { IFactoryService, IStorageService } from '../../storage/interfaces';
+import { ECardSet, EErrorCode, ICanRejoinResponse, ICardSet } from 'shared-lib';
+import { IApiController } from '../interfaces';
+import { ILoggerService } from '../../services/interfaces';
 
 @injectable()
 export class ApiController implements IApiController {
-
   //#region Private properties ------------------------------------------------
   private readonly factoryService: IFactoryService;
   private readonly loggerService: ILoggerService;
@@ -21,7 +20,8 @@ export class ApiController implements IApiController {
   public constructor(
     @inject(STORAGETYPES.FactoryService) factoryService: IFactoryService,
     @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService,
-    @inject(STORAGETYPES.StorageService) storageService: IStorageService) {
+    @inject(STORAGETYPES.StorageService) storageService: IStorageService
+  ) {
     this.factoryService = factoryService;
     this.loggerService = loggerService;
     this.storageService = storageService;

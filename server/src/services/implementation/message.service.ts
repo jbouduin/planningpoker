@@ -1,15 +1,38 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 
-import { AServerMessage, EErrorCode, EMemberChangeType, EPokerStatus, ICardSet, IEstimation, IMemberChange, IParticipant } from "shared-lib";
-import { CardSetMessage, ClearEstimationsMessage, EndSessionMessage, ErrorMessage, EstimationListMessage, InitMessage, MemberChangeMessage, MemberListMessage, PingMessage, PokerStatusChangedMessage, SelfMessage, ServerResetMessage, TeamIdleMessage, TeamNameMessage } from "../../messages";
-import { IServerParticipant, ITeam } from "../../objects";
-import { IMessageService, ISenderService } from "../interfaces";
-import SERVICETYPES from "../service.types";
-import { IWebSocket } from "../websocket";
+import {
+  AServerMessage,
+  EErrorCode,
+  EMemberChangeType,
+  EPokerStatus,
+  ICardSet,
+  IEstimation,
+  IMemberChange,
+  IParticipant
+} from 'shared-lib';
+import {
+  CardSetMessage,
+  ClearEstimationsMessage,
+  EndSessionMessage,
+  ErrorMessage,
+  EstimationListMessage,
+  InitMessage,
+  MemberChangeMessage,
+  MemberListMessage,
+  PingMessage,
+  PokerStatusChangedMessage,
+  SelfMessage,
+  ServerResetMessage,
+  TeamIdleMessage,
+  TeamNameMessage
+} from '../../messages';
+import { IServerParticipant, ITeam } from '../../objects';
+import { IMessageService, ISenderService } from '../interfaces';
+import SERVICETYPES from '../service.types';
+import { IWebSocket } from '../websocket';
 
 @injectable()
 export class MessageService implements IMessageService {
-
   //#region private properties ------------------------------------------------
   private readonly senderService: ISenderService;
   //#endregion
@@ -37,7 +60,11 @@ export class MessageService implements IMessageService {
     members.forEach((p: IServerParticipant) => this.sendPokerStatusChanged(p, status));
   }
 
-  public broadcastMemberChange(members: Array<IServerParticipant>, changedMember: IServerParticipant, change: EMemberChangeType): void {
+  public broadcastMemberChange(
+    members: Array<IServerParticipant>,
+    changedMember: IServerParticipant,
+    change: EMemberChangeType
+  ): void {
     members.forEach((p: IServerParticipant) => this.sendMemberChange(p, changedMember, change));
   }
 
@@ -75,8 +102,14 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendAllInfo(to: IServerParticipant, team: ITeam, members: Array<IServerParticipant>, cardSet: ICardSet, estimations: Array<IEstimation>): void {
-    let message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0])
+  public sendAllInfo(
+    to: IServerParticipant,
+    team: ITeam,
+    members: Array<IServerParticipant>,
+    cardSet: ICardSet,
+    estimations: Array<IEstimation>
+  ): void {
+    let message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
     this.senderService.sendToParticipant(to, message);
     message = new TeamNameMessage(team.teamName);
     this.senderService.sendToParticipant(to, message);
@@ -110,7 +143,7 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendMemberChange(to: IServerParticipant, changedMember: IServerParticipant, change: EMemberChangeType) {
+  private sendMemberChange(to: IServerParticipant, changedMember: IServerParticipant, change: EMemberChangeType): void {
     const data: IMemberChange = {
       memberStatusChange: change,
       member: {
@@ -120,7 +153,7 @@ export class MessageService implements IMessageService {
         role: changedMember.role,
         observer: changedMember.observer
       }
-    }
+    };
     const message: AServerMessage = new MemberChangeMessage(data);
     this.senderService.sendToParticipant(to, message);
   }
@@ -149,7 +182,7 @@ export class MessageService implements IMessageService {
 
   //#region Private prepare message data methods ------------------------------
   private prepareParticipantsData(participants: Array<IServerParticipant>): Array<IParticipant> {
-    return participants.map(participant => {
+    return participants.map((participant) => {
       return {
         status: participant.status,
         nick: participant.nick,

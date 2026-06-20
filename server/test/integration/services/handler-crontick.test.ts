@@ -5,7 +5,7 @@ import { EMemberChangeType, EServerMessageType } from '../../../../shared-lib/sr
 import SERVICETYPES from '../../../src/services/service.types';
 
 import { IHandlerService } from '../../../src/services/interfaces';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Cron tick', () => {
   test('Cron tick removes a team', async () => {
@@ -20,7 +20,7 @@ describe('Cron tick', () => {
     const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: Sleep for a second
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 1000));
 
     // Setup: participant 2 joining team 2
     const participant2 = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
@@ -40,10 +40,7 @@ describe('Cron tick', () => {
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
-    participant1
-      .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.TeamIdle)
-      .expectNoMoreMessages();
+    participant1.initializeMessageQueue().expectNextMessageIs(EServerMessageType.TeamIdle).expectNoMoreMessages();
 
     // Test: scrum master 2 should have received join only
     scrumMaster2
@@ -52,8 +49,6 @@ describe('Cron tick', () => {
       .expectNoMoreMessages();
 
     // Test: participant 2 should have received no additional messages
-    participant2
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    participant2.initializeMessageQueue().expectNoMoreMessages();
   });
 });

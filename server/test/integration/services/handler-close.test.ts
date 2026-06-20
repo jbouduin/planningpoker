@@ -1,9 +1,19 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, EServerMessageType, IEstimateMessage, IEstimationListMessage, IStartMessage } from '../../../../shared-lib/src';
+import {
+  EClientMessageType,
+  EMemberChangeType,
+  EParticipantStatus,
+  EPokerStatus,
+  ERole,
+  EServerMessageType,
+  IEstimateMessage,
+  IEstimationListMessage,
+  IStartMessage
+} from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Close', () => {
   test('A participant disconnects', () => {
@@ -19,26 +29,26 @@ describe('Close', () => {
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer2Name, true);
 
     // Run: participant disconnects
-    participant.closeSocket()
+    participant.closeSocket();
 
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Disconnected,
-        { participantId: participant.participantId, status: EParticipantStatus.Disconnected }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Disconnected
+      })
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Disconnected,
-        { participantId: participant.participantId, status: EParticipantStatus.Disconnected }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Disconnected
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -80,7 +90,7 @@ describe('Close', () => {
     participant.sendMessage(estimateMessage);
 
     // Run: participant disconnects
-    participant.closeSocket()
+    participant.closeSocket();
 
     // Test: scrum master messages
     scrumMaster
@@ -89,17 +99,15 @@ describe('Close', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Disconnected,
-        { participantId: participant.participantId, status: EParticipantStatus.Disconnected }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Disconnected
+      })
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
 
@@ -108,17 +116,15 @@ describe('Close', () => {
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Disconnected,
-        { participantId: participant.participantId, status: EParticipantStatus.Disconnected }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Disconnected
+      })
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
 
@@ -128,9 +134,8 @@ describe('Close', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(1)
       )
       .expectNoMoreMessages();
 
@@ -149,7 +154,7 @@ describe('Close', () => {
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
-    const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick)
+    const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick);
 
     // Run: scrum master disconnects
     scrumMaster.closeSocket();
@@ -183,19 +188,14 @@ describe('Close', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, { participantId: disconnected.participantId })
       .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected, { participantId: scrumMaster.participantId })
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.ChangedRole,
-        {
-          participantId: participant.participantId,
-          role: ERole.ScrumMaster
-        })
+      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedRole, {
+        participantId: participant.participantId,
+        role: ERole.ScrumMaster
+      })
       .expectNoMoreMessages();
-
 
     // Test: disconnected messages
-    disconnected
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    disconnected.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -213,9 +213,7 @@ describe('Close', () => {
     participant.closeSocket();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue(false)
-      .expectNextMessageIsInit();
+    participant.initializeMessageQueue(false).expectNextMessageIsInit();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();

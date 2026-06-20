@@ -1,12 +1,11 @@
-import { injectable } from "inversify";
-import { IEstimation } from "shared-lib";
+import { injectable } from 'inversify';
+import { IEstimation } from 'shared-lib';
 
-import { Estimation } from "../../objects";
-import { IEstimationRepository } from "../../storage/interfaces";
+import { Estimation } from '../../objects';
+import { IEstimationRepository } from '../../storage/interfaces';
 
 @injectable()
 export class EstimationRepository implements IEstimationRepository {
-
   //#region private properties ------------------------------------------------
   private readonly estimations: Map<string, Map<string, IEstimation>>;
   //#endregion

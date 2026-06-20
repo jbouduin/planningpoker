@@ -2,7 +2,7 @@ import { describe, test } from '@jest/globals';
 
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Connect', () => {
   test('Handle connect returns init', () => {
@@ -13,9 +13,6 @@ describe('Connect', () => {
     const connected = Util.connectParticipant(handlerService);
 
     // Test: init message
-    connected
-      .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
-      .expectNoMoreMessages();
+    connected.initializeMessageQueue(false).expectNextMessageIsInit().expectNoMoreMessages();
   });
 });

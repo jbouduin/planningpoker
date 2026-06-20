@@ -1,7 +1,6 @@
-import { IEstimation } from "shared-lib";
+import { IEstimation } from 'shared-lib';
 
 export class Estimation implements IEstimation {
-
   //#region IEstimation properties --------------------------------------------
   // public revealed: boolean;
   public participantId: string;

@@ -1,12 +1,19 @@
 import { describe, expect, test } from '@jest/globals';
-
-import { EClientMessageType, EErrorCode, EMemberChangeType, EPokerStatus, EServerMessageType, IEstimateMessage, IEstimation, IEstimationListMessage, IStartMessage } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import {
+  EClientMessageType,
+  EErrorCode,
+  EMemberChangeType,
+  EPokerStatus,
+  EServerMessageType,
+  IEstimateMessage,
+  IEstimation,
+  IEstimationListMessage,
+  IStartMessage
+} from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
-import { Util } from "./helpers/util";
-
+import SERVICETYPES from '../../../src/services/service.types';
+import { BiTestFunction, TestFunction } from '../../types';
+import { Util } from './helpers/util';
 
 describe('Estimate => OK', () => {
   test('Give estimation', () => {
@@ -17,11 +24,11 @@ describe('Estimate => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: validate estimationlist
-    const validateEstimationListFn = (l: Array<IEstimation>) => {
+    const validateEstimationListFn: TestFunction<Array<IEstimation>> = (l: Array<IEstimation>) => {
       expect(l).toHaveLength(1);
       expect(l[0].participantId).toBe(participant.participantId);
       expect(l[0].cardIndex).toBe(2);
-    }
+    };
     // Setup: create team with one participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
@@ -48,9 +55,8 @@ describe('Estimate => OK', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data)
       )
       .expectNoMoreMessages();
 
@@ -59,9 +65,8 @@ describe('Estimate => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data)
       )
       .expectNoMoreMessages();
 
@@ -81,11 +86,14 @@ describe('Estimate => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: validate estimationlist
-    const validateEstimationListFn = (l: Array<IEstimation>, cardIndex: number | undefined) => {
+    const validateEstimationListFn: BiTestFunction<Array<IEstimation>, number | undefined> = (
+      l: Array<IEstimation>,
+      cardIndex: number | undefined
+    ) => {
       expect(l).toHaveLength(1);
       expect(l[0].participantId).toBe(participant.participantId);
       expect(l[0].cardIndex).toBe(cardIndex);
-    }
+    };
 
     // Setup: start estimation
     const message: IStartMessage = {
@@ -117,13 +125,11 @@ describe('Estimate => OK', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data, 2)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, 2)
       )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data, undefined)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, undefined)
       )
       .expectNoMoreMessages();
 
@@ -132,13 +138,11 @@ describe('Estimate => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data, 2)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, 2)
       )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data, undefined)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, undefined)
       )
       .expectNoMoreMessages();
 
@@ -158,11 +162,14 @@ describe('Estimate => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: validate estimationlist
-    const validateEstimationListFn = (l: Array<IEstimation>, cardIndex: number | undefined) => {
+    const validateEstimationListFn: BiTestFunction<Array<IEstimation>, number | undefined> = (
+      l: Array<IEstimation>,
+      cardIndex: number | undefined
+    ) => {
       expect(l).toHaveLength(1);
       expect(l[0].participantId).toBe(participant.participantId);
       expect(l[0].cardIndex).toBe(cardIndex);
-    }
+    };
 
     // Setup: start estimation
     const message: IStartMessage = {
@@ -194,13 +201,11 @@ describe('Estimate => OK', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data, 2)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, 2)
       )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data, 3)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, 3)
       )
       .expectNoMoreMessages();
 
@@ -209,13 +214,11 @@ describe('Estimate => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data, 2)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, 2)
       )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => validateEstimationListFn(m.data, 3)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, 3)
       )
       .expectNoMoreMessages();
 
@@ -223,7 +226,6 @@ describe('Estimate => OK', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 });
-
 
 describe('Estimate => Failure', () => {
   test('Sender not found', () => {

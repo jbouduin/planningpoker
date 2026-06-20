@@ -1,11 +1,11 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 
-import STORAGETYPES from "../../storage/storage.types";
+import STORAGETYPES from '../../storage/storage.types';
 
-import { EErrorCode } from "shared-lib";
-import { IServerParticipant, ITeam, LooseObject } from "../../objects";
-import { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from "../../storage/interfaces";
-import { ISerializationService } from "../interfaces";
+import { EErrorCode } from 'shared-lib';
+import { IServerParticipant, ITeam, LooseObject } from '../../objects';
+import { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from '../../storage/interfaces';
+import { ISerializationService } from '../interfaces';
 
 @injectable()
 export class SerializationService implements ISerializationService {
@@ -19,7 +19,8 @@ export class SerializationService implements ISerializationService {
   public constructor(
     @inject(STORAGETYPES.MembershipRepository) membershipRepository: IMembershipRepository,
     @inject(STORAGETYPES.ServerParticipantRepository) participantRepository: IServerParticipantRepository,
-    @inject(STORAGETYPES.TeamRepository) teamRepository: ITeamRepository) {
+    @inject(STORAGETYPES.TeamRepository) teamRepository: ITeamRepository
+  ) {
     this.membershipRepository = membershipRepository;
     this.participantRepository = participantRepository;
     this.teamRepository = teamRepository;
@@ -37,8 +38,12 @@ export class SerializationService implements ISerializationService {
         team: team.teamName,
         status: team.status,
         members: this.membershipRepository.getTeamMembers(team.teamName).map((p: IServerParticipant) => p.self)
-      }
+      };
+      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+      /* eslint-disable @typescript-eslint/no-unsafe-call */
       result.teams.push(teamDump);
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+      /* eslint-enable @typescript-eslint/no-unsafe-call */
     });
     return result;
   }
@@ -50,14 +55,13 @@ export class SerializationService implements ISerializationService {
         team: team.teamName,
         status: team.status,
         members: this.membershipRepository.getTeamMembers(team.teamName).map((p: IServerParticipant) => p.self)
-      }
+      };
       return result;
-    }
-    else {
+    } else {
       return {
         error: EErrorCode.TeamNotFound,
         errorMessage: `Team '${teamName}' not found`
-      }
+      };
     }
   }
 
@@ -67,5 +71,4 @@ export class SerializationService implements ISerializationService {
     return result;
   }
   //#endregion
-
 }

@@ -1,9 +1,20 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { EClientMessageType, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, EServerMessageType, IEstimateMessage, IEstimationListMessage, IPauseMessage, IStartMessage } from '../../../../shared-lib/src';
+import {
+  EClientMessageType,
+  EErrorCode,
+  EMemberChangeType,
+  EParticipantStatus,
+  EPokerStatus,
+  EServerMessageType,
+  IEstimateMessage,
+  IEstimationListMessage,
+  IPauseMessage,
+  IStartMessage
+} from '../../../../shared-lib/src';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from "./helpers/util";
+import { Util } from './helpers/util';
 
 describe('Pause => OK', () => {
   test('pause', () => {
@@ -31,17 +42,16 @@ describe('Pause => OK', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Paused,
-        { participantId: participant.participantId, status: EParticipantStatus.Paused }
-      )
+      .expectNextMessageIsMemberChange(EMemberChangeType.Paused, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Paused
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused }
-      )
+      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -93,17 +103,15 @@ describe('Pause => OK', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Paused,
-        { participantId: participant.participantId, status: EParticipantStatus.Paused }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Paused, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Paused
+      })
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
 
@@ -113,12 +121,10 @@ describe('Pause => OK', () => {
       .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused }
-      )
+      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused })
       .expectNoMoreMessages();
 
     // Test: observer messages
@@ -126,24 +132,21 @@ describe('Pause => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsPokerStatus(EPokerStatus.Started)
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(1)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsMemberChange(
-        EMemberChangeType.Paused,
-        { participantId: participant.participantId, status: EParticipantStatus.Paused }
-      )
-      .expectNextMessageIs(
-        EServerMessageType.EstimationList,
-        (m: IEstimationListMessage) => expect(m.data).toHaveLength(0)
+      .expectNextMessageIsMemberChange(EMemberChangeType.Paused, {
+        participantId: participant.participantId,
+        status: EParticipantStatus.Paused
+      })
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
   });
 });
-
 
 describe('Pause => Failure', () => {
   // TODO 2390 test('Sender not found', () => { });
@@ -174,10 +177,7 @@ describe('Pause => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant
-      .initializeMessageQueue()
-      .expectNextMessageIsError(EErrorCode.TeamNotFound)
-      .expectNoMoreMessages();
+    participant.initializeMessageQueue().expectNextMessageIsError(EErrorCode.TeamNotFound).expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -203,9 +203,7 @@ describe('Pause => Failure', () => {
     participant.sendMessage(message, Util.team1Name);
 
     // Test: scrum master messages
-    scrumMaster
-      .initializeMessageQueue()
-      .expectNoMoreMessages();
+    scrumMaster.initializeMessageQueue().expectNoMoreMessages();
 
     // Test: participant messages
     participant
@@ -219,5 +217,4 @@ describe('Pause => Failure', () => {
   });
 
   // TODO 2391 test('Sender in another team', () => { });
-
 });

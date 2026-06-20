@@ -1,50 +1,36 @@
-import type { JestConfigWithTsJest } from 'ts-jest'
+import type { JestConfigWithTsJest } from 'ts-jest';
 
 const jestConfig: JestConfigWithTsJest = {
   preset: 'ts-jest/presets/js-with-ts-esm',
-  roots: [
-    "./test/unit"
-  ],
-  testEnvironment: "node",
-  testMatch: [
-    "**/?(*.)+(spec|test).+(ts|tsx|js)"
-  ],
+  roots: ['./test/unit'],
+  testEnvironment: 'node',
+  testMatch: ['**/?(*.)+(spec|test).+(ts|tsx|js)'],
   transform: {
     // "^.+\\.(ts|tsx)$":
-    '^.+\\.m?[tj]sx?$':
-      [
-        "ts-jest",
-        { tsconfig: 'tsconfig.json' }
-      ]
+    '^.+\\.m?[tj]sx?$': ['ts-jest', { tsconfig: 'tsconfig.json' }]
   },
-  "transformIgnorePatterns": [
-    "node_modules/(?!moq\.ts)"
-  ],
-  setupFiles: [
-    './test/init.ts'
-  ],
-  testPathIgnorePatterns: [
-    "do-not-commit.*"
-  ],
-  coverageDirectory: "reports/unit-test/coverage",
+  transformIgnorePatterns: ['node_modules/(?!moq\.ts)'],
+  setupFiles: ['./test/init.ts'],
+  testPathIgnorePatterns: ['do-not-commit.*'],
+  coverageDirectory: 'reports/unit-test/coverage',
   collectCoverageFrom: [
-    "!**/objects/implementation/*",
-    "!**/services/websocket.ts",
+    '!**/objects/implementation/*',
+    '!**/services/websocket.ts',
     // "**/services/implementation/handler.service.ts",
     // "**/services/implementation/preflight.service.ts",
     // "**/storage/implementation/storage.service.ts",
-    "!**/*.types.*",
-    "!**/index.ts",
-    "!**/do-not-commit*"
+    '!**/*.types.*',
+    '!**/index.ts',
+    '!**/do-not-commit*'
   ],
   reporters: [
-    "default",
+    'default',
     [
-      "./node_modules/jest-html-reporter",
+      './node_modules/jest-html-reporter',
       {
-        "pageTitle": "Planning poker server test suite",
-        "outputPath": "reports/unit-test/jest/index.html",
-        "includeFailureMsg": true,
+        pageTitle: 'Planning poker server test suite',
+        outputPath: 'reports/unit-test/jest/index.html',
+        includeFailureMsg: true
         // "styleOverridePath": "src/teststyle.css"
       }
     ]

@@ -1,12 +1,10 @@
+import { injectable } from 'inversify';
 
-import { injectable } from "inversify";
-
-import { ICardSet } from "shared-lib";
-import { ICardSetRepository } from "../interfaces";
+import { ICardSet } from 'shared-lib';
+import { ICardSetRepository } from '../interfaces';
 
 @injectable()
-export class CardSetRepository implements ICardSetRepository{
-
+export class CardSetRepository implements ICardSetRepository {
   //#region private properties ------------------------------------------------
   private readonly cardSets: Map<string, ICardSet>;
   //#endregion
@@ -23,10 +21,10 @@ export class CardSetRepository implements ICardSetRepository{
   }
 
   public getCardSet(teamName: string): ICardSet | undefined {
-    return this.cardSets.get(teamName)
+    return this.cardSets.get(teamName);
   }
 
-  public setCardSet(teamName: string, cardSet: ICardSet): void{
+  public setCardSet(teamName: string, cardSet: ICardSet): void {
     this.cardSets.set(teamName, cardSet);
   }
   //#endregion

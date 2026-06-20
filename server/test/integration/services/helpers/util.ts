@@ -1,19 +1,61 @@
-import { Container } from "inversify";
+import { Container } from 'inversify';
 // import { It, Mock } from 'moq.ts';
 
-import { ECardSet, EClientMessageType, ERole, EServerMessageType, ICard, ICardSet, ICreateMessage, IJoinMessage, IPauseMessage } from '../../../../../shared-lib/src';
+import {
+  ECardSet,
+  EClientMessageType,
+  ERole,
+  EServerMessageType,
+  ICard,
+  ICardSet,
+  ICreateMessage,
+  IJoinMessage,
+  IPauseMessage
+} from '../../../../../shared-lib/src';
 
 import SERVICETYPES from '../../../../src/services/service.types';
 import STORAGETYPES from '../../../../src/storage/storage.types';
 
-import { CronService, EnvironmentService, HandlerService, MessageService, PreflightService, SenderService } from '../../../../src/services/implementation';
-import { ICronService, IEnvironmentService, IHandlerService, ILoggerService, IMessageService, IPreflightService, ISenderService, LogType } from '../../../../src/services/interfaces';
-import { CardSetRepository, EstimationRepository, FactoryService, MembershipRepository, ServerParticipantRepository, StorageService, TeamRepository } from "../../../../src/storage/implementation";
-import { ICardSetRepository, IEstimationRepository, IFactoryService, IMembershipRepository, IServerParticipantRepository, IStorageService, ITeamRepository } from "../../../../src/storage/interfaces";
+import {
+  CronService,
+  EnvironmentService,
+  HandlerService,
+  MessageService,
+  PreflightService,
+  SenderService
+} from '../../../../src/services/implementation';
+import {
+  ICronService,
+  IEnvironmentService,
+  IHandlerService,
+  ILoggerService,
+  IMessageService,
+  IPreflightService,
+  ISenderService,
+  LogType
+} from '../../../../src/services/interfaces';
+import {
+  CardSetRepository,
+  EstimationRepository,
+  FactoryService,
+  MembershipRepository,
+  ServerParticipantRepository,
+  StorageService,
+  TeamRepository
+} from '../../../../src/storage/implementation';
+import {
+  ICardSetRepository,
+  IEstimationRepository,
+  IFactoryService,
+  IMembershipRepository,
+  IServerParticipantRepository,
+  IStorageService,
+  ITeamRepository
+} from '../../../../src/storage/interfaces';
 import { ITestParticipant, TestParticipant } from './TestParticipant';
 import { ITestScrumMaster } from './TestScrumMaster';
 import { UnaffectedTeam } from './UnaffectedTeam';
-import { It, Mock } from "moq.ts";
+import { It, Mock } from 'moq.ts';
 
 export class Util {
   public static scrumMaster1Nick = 'John Doe';
@@ -69,10 +111,19 @@ export class Util {
     container.bind<IPreflightService>(SERVICETYPES.PreflightService).to(PreflightService);
     container.bind<ISenderService>(SERVICETYPES.SenderService).to(SenderService);
     container.bind<ICardSetRepository>(STORAGETYPES.CardSetRepository).to(CardSetRepository).inSingletonScope();
-    container.bind<IEstimationRepository>(STORAGETYPES.EstimationRepository).to(EstimationRepository).inSingletonScope();
+    container
+      .bind<IEstimationRepository>(STORAGETYPES.EstimationRepository)
+      .to(EstimationRepository)
+      .inSingletonScope();
     container.bind<IFactoryService>(STORAGETYPES.FactoryService).to(FactoryService);
-    container.bind<IMembershipRepository>(STORAGETYPES.MembershipRepository).to(MembershipRepository).inSingletonScope();
-    container.bind<IServerParticipantRepository>(STORAGETYPES.ServerParticipantRepository).to(ServerParticipantRepository).inSingletonScope();
+    container
+      .bind<IMembershipRepository>(STORAGETYPES.MembershipRepository)
+      .to(MembershipRepository)
+      .inSingletonScope();
+    container
+      .bind<IServerParticipantRepository>(STORAGETYPES.ServerParticipantRepository)
+      .to(ServerParticipantRepository)
+      .inSingletonScope();
     container.bind<IStorageService>(STORAGETYPES.StorageService).to(StorageService).inSingletonScope();
     container.bind<ITeamRepository>(STORAGETYPES.TeamRepository).to(TeamRepository).inSingletonScope();
     return container;
@@ -82,7 +133,12 @@ export class Util {
     return new TestParticipant(handlerService, role);
   }
 
-  public static joinTeam(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
+  public static joinTeam(
+    handlerService: IHandlerService,
+    teamName: string,
+    nickName: string,
+    observer = false
+  ): ITestParticipant {
     const participant = this.connectParticipant(handlerService);
     const message: IJoinMessage = {
       senderId: participant.participantId,
@@ -96,19 +152,29 @@ export class Util {
     return participant;
   }
 
-  public static joinTeamAndDisconnect(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
+  public static joinTeamAndDisconnect(
+    handlerService: IHandlerService,
+    teamName: string,
+    nickName: string,
+    observer = false
+  ): ITestParticipant {
     const participant = this.joinTeam(handlerService, teamName, nickName, observer);
     participant.closeSocket();
     return participant;
   }
 
-  public static joinTeamAndPause(handlerService: IHandlerService, teamName: string, nickName: string, observer = false): ITestParticipant {
+  public static joinTeamAndPause(
+    handlerService: IHandlerService,
+    teamName: string,
+    nickName: string,
+    observer = false
+  ): ITestParticipant {
     const participant = this.joinTeam(handlerService, teamName, nickName, observer);
     const message: IPauseMessage = {
       senderId: participant.participantId,
       type: EClientMessageType.Pause,
       data: undefined
-    }
+    };
     participant.sendMessage(message);
     participant.closeSocket();
     return participant;
@@ -120,7 +186,8 @@ export class Util {
     scrumMasterNick: string,
     observer = false,
     cardSet?: ECardSet,
-    cards?: ICardSet): ITestScrumMaster {
+    cards?: ICardSet
+  ): ITestScrumMaster {
     const scrumMaster = this.connectParticipant(handlerService);
     const message: ICreateMessage = {
       type: EClientMessageType.Create,
@@ -131,7 +198,7 @@ export class Util {
         cardSet: cardSet || ECardSet.Cohn,
         cards: cards
       }
-    }
+    };
     scrumMaster.sendMessage(message, teamName);
     return scrumMaster;
   }
@@ -144,11 +211,11 @@ export class Util {
   }
 
   public static unknownEstimationIndex(cardSet: ECardSet): number {
-    return this
-      .getContainer()
-      .get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(cardSet)
-      .cards
-      .find((card: ICard) => card.isUnknownEstimation)
-      ?.index || -1;
+    return (
+      this.getContainer()
+        .get<IFactoryService>(STORAGETYPES.FactoryService)
+        .createCardSet(cardSet)
+        .cards.find((card: ICard) => card.isUnknownEstimation)?.index || -1
+    );
   }
 }

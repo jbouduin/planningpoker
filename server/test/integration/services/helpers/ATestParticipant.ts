@@ -1,11 +1,26 @@
-import { expect, jest } from "@jest/globals"
+import { expect, jest } from '@jest/globals';
 
-import { AClientMessage, AServerMessage, EErrorCode, EMemberChangeType, EParticipantStatus, EPokerStatus, ERole, EServerMessageType, IErrorMessage, IInitMessage, IMemberChangeMessage, IParticipant, IPokerStatusChangedMessage, ISelfMessage } from "../../../../../shared-lib/src";
+import {
+  AClientMessage,
+  AServerMessage,
+  EErrorCode,
+  EMemberChangeType,
+  EParticipantStatus,
+  EPokerStatus,
+  ERole,
+  EServerMessageType,
+  IErrorMessage,
+  IInitMessage,
+  IMemberChangeMessage,
+  IParticipant,
+  IPokerStatusChangedMessage,
+  ISelfMessage
+} from '../../../../../shared-lib/src';
 
-import { IServerParticipant } from "../../../../src/objects";
+import { IServerParticipant } from '../../../../src/objects';
 
-import { IWebSocket, ReadyState } from "../../../../src/services/websocket";
-import { IHandlerService } from "../../../../src/services/interfaces";
+import { IWebSocket, ReadyState } from '../../../../src/services/websocket';
+import { IHandlerService } from '../../../../src/services/interfaces';
 
 export interface IParticipantOptions {
   nick?: string;
@@ -16,7 +31,6 @@ export interface IParticipantOptions {
 }
 
 export interface IATestParticipant {
-
   /**
    * Returns the server generated participantId (UUID) of the connected IServerParticipant
    */
@@ -24,19 +38,19 @@ export interface IATestParticipant {
 
   /**
    * The socket used by the participant
-  */
+   */
   readonly socket: IWebSocket;
 
   /**
    * Close the socket of the participant. This triggers IHandlerService.handleClose.
-  */
+   */
   closeSocket(): void;
 
   /**
    * Write the received messages as JSON to the console.
    * This method is banned and only to be used for debugging
    * @param skipInitialMessages - If set to false, the initial message sequence is dumped also. Default true
-  */
+   */
   dumpMessages(skipInitialMessages?: boolean): IATestParticipant;
 
   /**
@@ -46,7 +60,10 @@ export interface IATestParticipant {
    * @param type - the message type. Uses jest.expect internally to validate that the type is correct
    * @param validation - a validation method. The method has to use jest.expect
    */
-  expectNextMessageIs<T extends AServerMessage>(type: EServerMessageType, validation?: ((message: T) => void)): IATestParticipant;
+  expectNextMessageIs<T extends AServerMessage>(
+    type: EServerMessageType,
+    validation?: (message: T) => void
+  ): IATestParticipant;
 
   /**
    * Expects the next message to be an with the given error code.
@@ -105,12 +122,11 @@ export interface IATestParticipant {
    * calls IHandlerService.handleMessage
    * @param message - a AClientMessage
    * @param teamName - the target team of the message. This sets the target for all subsequent calls. If undefined, the previously set team is targetted
-  */
+   */
   sendMessage(message: AClientMessage, teamName?: string): void;
 }
 
 export abstract class ATestParticipant implements IATestParticipant {
-
   //#region private properties ------------------------------------------------
   private readonly handlerService: IHandlerService;
   private currentMessageIndex: number | undefined;
@@ -123,14 +139,13 @@ export abstract class ATestParticipant implements IATestParticipant {
   //#region protected properties ----------------------------------------------
   protected expectedNumberOfInitialMessages: number;
   protected get allMessages(): Array<AServerMessage> {
-    return this.send.mock.calls
-      .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]));
+    return this.send.mock.calls.map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]));
   }
 
   protected get messagesAfterInitialMessages(): Array<AServerMessage> {
     return this.send.mock.calls
       .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
-      .filter((_message: AServerMessage, idx: number) => idx >= this.expectedNumberOfInitialMessages)
+      .filter((_message: AServerMessage, idx: number) => idx >= this.expectedNumberOfInitialMessages);
   }
   //#endregion
 
@@ -150,7 +165,7 @@ export abstract class ATestParticipant implements IATestParticipant {
       readyState: ReadyState.OPEN,
       close: jest.fn(undefined),
       send: this.send
-    }
+    };
     this.participant = handlerService.handleConnect(this.socket);
     this.participant.role = role;
     this.expectedNumberOfInitialMessages = 0;
@@ -181,8 +196,11 @@ export abstract class ATestParticipant implements IATestParticipant {
     return this;
   }
 
-  public expectNextMessageIs<T extends AServerMessage>(type: EServerMessageType, validation?: ((message: T) => void)): IATestParticipant {
-    if ((this.currentMessageIndex === undefined) || !this.messageIterator) {
+  public expectNextMessageIs<T extends AServerMessage>(
+    type: EServerMessageType,
+    validation?: (message: T) => void
+  ): IATestParticipant {
+    if (this.currentMessageIndex === undefined || !this.messageIterator) {
       throw Error('Initialize iterator first');
     } else {
       expect(this.currentMessageIndex).toBeLessThan(this.messageIterator.length);
@@ -197,22 +215,24 @@ export abstract class ATestParticipant implements IATestParticipant {
   }
 
   public expectNextMessageIsError(errorCode: EErrorCode): IATestParticipant {
-    return this.expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) => expect(m.data.code).toBe(errorCode));
+    return this.expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) =>
+      expect(m.data.code).toBe(errorCode)
+    );
   }
 
-  public expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IParticipantOptions): IATestParticipant {
-    return this.expectNextMessageIs(
-      EServerMessageType.MemberChanged,
-      (m: IMemberChangeMessage) => {
-        expect(m.data.memberStatusChange).toBe(changeType);
-        this.checkParticipantOptions(m.data.member, options);
-      });
+  public expectNextMessageIsMemberChange(
+    changeType: EMemberChangeType,
+    options?: IParticipantOptions
+  ): IATestParticipant {
+    return this.expectNextMessageIs(EServerMessageType.MemberChanged, (m: IMemberChangeMessage) => {
+      expect(m.data.memberStatusChange).toBe(changeType);
+      this.checkParticipantOptions(m.data.member, options);
+    });
   }
 
   public expectNextMessageIsPokerStatus(status: EPokerStatus): IATestParticipant {
-    return this.expectNextMessageIs(
-      EServerMessageType.PokerStatus,
-      (m: IPokerStatusChangedMessage) => expect(m.data).toBe(status)
+    return this.expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
+      expect(m.data).toBe(status)
     );
   }
 
@@ -221,29 +241,24 @@ export abstract class ATestParticipant implements IATestParticipant {
       options = { participantId: this.participantId };
     } else {
       if (!options.participantId) {
-        options.participantId = this.participantId
+        options.participantId = this.participantId;
       }
     }
 
-    return this.expectNextMessageIs(
-      EServerMessageType.Self,
-      (m: ISelfMessage) => this.checkParticipantOptions(m.data, options)
+    return this.expectNextMessageIs(EServerMessageType.Self, (m: ISelfMessage) =>
+      this.checkParticipantOptions(m.data, options)
     );
   }
 
   expectNextMessageIsInit(options?: IParticipantOptions): IATestParticipant {
-    return this.expectNextMessageIs(
-      EServerMessageType.Init,
-      (m: IInitMessage) => {
-        expect(m.data.nick.length).toBeGreaterThan(0);
-        expect(m.data.participantId.length).toBeGreaterThan(0);
-        this.checkParticipantOptions(m.data, options);
-      }
-    );
+    return this.expectNextMessageIs(EServerMessageType.Init, (m: IInitMessage) => {
+      expect(m.data.nick.length).toBeGreaterThan(0);
+      expect(m.data.participantId.length).toBeGreaterThan(0);
+      this.checkParticipantOptions(m.data, options);
+    });
   }
   public expectNoMoreMessages(): void {
-    if ((this.currentMessageIndex === undefined) || !this.messageIterator) {
-
+    if (this.currentMessageIndex === undefined || !this.messageIterator) {
       throw Error('Initialize iterator first');
     } else {
       expect(this.currentMessageIndex).toBe(this.messageIterator.length);
@@ -279,7 +294,6 @@ export abstract class ATestParticipant implements IATestParticipant {
     }
   }
   /* eslint-disable @typescript-eslint/no-empty-function */
-  private noop(..._args: Array<unknown>): void { }
+  private noop(..._args: Array<unknown>): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
-
 }

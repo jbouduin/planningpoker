@@ -1,4 +1,4 @@
-import { LooseObject } from "../../objects";
+import { LooseObject } from '../../objects';
 
 export interface ISerializationService {
   serializeAllTeams(): LooseObject;

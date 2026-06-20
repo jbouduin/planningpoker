@@ -78,7 +78,6 @@ describe('start- estimate - delete - restart', () => {
     expect(estimations[0].cardIndex).toBe(cardIndex2);
     expect(estimations[0].participantId).toBe(participantId1);
   });
-
 });
 
 describe('multiple participants', () => {
@@ -96,8 +95,12 @@ describe('multiple participants', () => {
     repository.upsertEstimation(teamName1, participantId2, cardIndex2);
     const estimations = repository.getEstimations(teamName1);
     expect(estimations.length).toBe(2);
-    expect(estimations.find((e: IEstimation) => e.participantId === participantId1 && e.cardIndex === cardIndex1)).toBeDefined();
-    expect(estimations.find((e: IEstimation) => e.participantId === participantId2 && e.cardIndex === cardIndex2)).toBeDefined();
+    expect(
+      estimations.find((e: IEstimation) => e.participantId === participantId1 && e.cardIndex === cardIndex1)
+    ).toBeDefined();
+    expect(
+      estimations.find((e: IEstimation) => e.participantId === participantId2 && e.cardIndex === cardIndex2)
+    ).toBeDefined();
   });
 
   test('upsert two - change one', () => {
@@ -108,8 +111,12 @@ describe('multiple participants', () => {
     repository.upsertEstimation(teamName1, participantId2, cardIndex3);
     const estimations = repository.getEstimations(teamName1);
     expect(estimations.length).toBe(2);
-    expect(estimations.find((e: IEstimation) => e.participantId === participantId1 && e.cardIndex === cardIndex1)).toBeDefined();
-    expect(estimations.find((e: IEstimation) => e.participantId === participantId2 && e.cardIndex === cardIndex3)).toBeDefined();
+    expect(
+      estimations.find((e: IEstimation) => e.participantId === participantId1 && e.cardIndex === cardIndex1)
+    ).toBeDefined();
+    expect(
+      estimations.find((e: IEstimation) => e.participantId === participantId2 && e.cardIndex === cardIndex3)
+    ).toBeDefined();
   });
 
   test('upsert two - delete one', () => {
@@ -120,7 +127,9 @@ describe('multiple participants', () => {
     repository.deleteEstimation(teamName1, participantId2);
     const estimations = repository.getEstimations(teamName1);
     expect(estimations.length).toBe(1);
-    expect(estimations.find((e: IEstimation) => e.participantId === participantId1 && e.cardIndex === cardIndex1)).toBeDefined();
+    expect(
+      estimations.find((e: IEstimation) => e.participantId === participantId1 && e.cardIndex === cardIndex1)
+    ).toBeDefined();
     expect(estimations.find((e: IEstimation) => e.participantId === participantId2)).toBeUndefined();
   });
 });
@@ -145,7 +154,9 @@ describe('remove', () => {
     repository.removeParticipant(teamName1, participantId1);
     const estimations = repository.getEstimations(teamName1);
     expect(estimations.length).toBe(1);
-    expect(estimations.find((e: IEstimation) => e.participantId === participantId2 && e.cardIndex === cardIndex2)).toBeDefined();
+    expect(
+      estimations.find((e: IEstimation) => e.participantId === participantId2 && e.cardIndex === cardIndex2)
+    ).toBeDefined();
     expect(estimations.find((e: IEstimation) => e.participantId === participantId1)).toBeUndefined();
     expect(estimations[0].cardIndex).toBe(cardIndex2);
     expect(estimations[0].participantId).toBe(participantId2);
@@ -165,4 +176,3 @@ describe('remove', () => {
     expect(repository.getEstimations(teamName2).length).toBe(2);
   });
 });
-

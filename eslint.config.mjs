@@ -21,7 +21,7 @@ export default [
     languageOptions: {
       parser: parser,
       parserOptions: {
-        project: ['./shared-lib/tsconfig.json', './server/tsconfig.json', './frontend/tsconfig.json'],
+        project: ['./shared-lib/tsconfig.json', './server/tsconfig.test.json', './frontend/tsconfig.json'],
         tsconfigRootDir: __dirname
       }
     },
@@ -50,7 +50,17 @@ export default [
           varsIgnorePattern: '^_',
           caughtErrorsIgnorePattern: '^_'
         }
-      ]
+      ],
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-empty-function': 'error',
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        { allowNumber: true, allowBoolean: true, allowNullish: true }
+      ],
+      '@typescript-eslint/no-unsafe-call': 'error',
+      '@typescript-eslint/no-unsafe-member-access': 'error',
+      '@typescript-eslint/no-unsafe-assignment': 'error',
+      '@typescript-eslint/no-unsafe-return': 'error'
     }
   },
 
@@ -87,7 +97,8 @@ export default [
       '**/coverage/**',
       'old',
       'frontend',
-      'server'
+      `server/jest.*.config.ts`
+      // 'server'
       // add whatever is needed later
     ]
   }

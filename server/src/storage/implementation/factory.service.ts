@@ -1,15 +1,14 @@
 import { injectable } from 'inversify';
 import { v4 as Uuid } from 'uuid';
 
-import { ECardSet, EParticipantStatus, ERole, ICard, ICardSet, IEstimation } from "shared-lib";
+import { ECardSet, EParticipantStatus, ERole, ICard, ICardSet, IEstimation } from 'shared-lib';
 
-import { Estimation, IServerParticipant, ITeam, ServerParticipant, Team } from "../../objects";
-import { IWebSocket } from "../../services/websocket";
-import { IFactoryService } from "../interfaces";
+import { Estimation, IServerParticipant, ITeam, ServerParticipant, Team } from '../../objects';
+import { IWebSocket } from '../../services/websocket';
+import { IFactoryService } from '../interfaces';
 
 @injectable()
 export class FactoryService implements IFactoryService {
-
   //#region private properties ------------------------------------------------
   private cnt: number;
   //#endregion
@@ -38,7 +37,7 @@ export class FactoryService implements IFactoryService {
     return {
       cardSet: set,
       cards: cards
-    }
+    };
   }
 
   public createEstimation(participantId: string, cardIndex: number | undefined): IEstimation {
@@ -54,7 +53,8 @@ export class FactoryService implements IFactoryService {
         observer: false,
         status: EParticipantStatus.Connected
       },
-      socket);
+      socket
+    );
   }
 
   public createTeam(teamName: string): ITeam {

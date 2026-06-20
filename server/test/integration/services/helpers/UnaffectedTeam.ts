@@ -1,7 +1,7 @@
 // import { EServerMessageType } from "../../../../../shared-lib/src";
-import { EServerMessageType } from "../../../../../shared-lib/src";
-import { ITestParticipant } from "./TestParticipant";
-import { ITestScrumMaster } from "./TestScrumMaster";
+import { EServerMessageType } from '../../../../../shared-lib/src';
+import { ITestParticipant } from './TestParticipant';
+import { ITestScrumMaster } from './TestScrumMaster';
 
 export class UnaffectedTeam {
   public readonly scrumMaster: ITestScrumMaster;

@@ -6,7 +6,6 @@ import { TeamRepository } from '../../../src/storage/implementation/team.reposit
 import { IFactoryService } from '../../../src/storage/interfaces/factory.service';
 import { ITeamRepository } from '../../../src/storage/interfaces/team.repository';
 
-
 describe('ITeamRepository', () => {
   test('create team', () => {
     const teamName = 'team';
@@ -31,7 +30,7 @@ describe('ITeamRepository', () => {
   });
 
   test('set status', () => {
-    const lastAccess = Date.now()
+    const lastAccess = Date.now();
     const teamName = 'team';
     const repository: ITeamRepository = new TeamRepository();
     const factory: IFactoryService = new FactoryService();
@@ -59,4 +58,4 @@ test('BaseRepository CR-D', () => {
   expect(repository.get(teamName)).toBeUndefined();
   expect(repository.getAll().length).toBe(0);
   expect(repository.exists(teamName)).toBe(false);
-})
+});

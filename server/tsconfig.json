@@ -8,8 +8,8 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
-    "lib": [ "ES2020" ],
-    "types": [ "reflect-metadata", "node" ],
+    "lib": ["ES2020"],
+    "types": ["reflect-metadata", "node"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
@@ -18,10 +18,8 @@
     "skipLibCheck": true
   },
   "include": [
-    "src/**/*.ts",
+    "src/**/*.ts"
     // "test/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

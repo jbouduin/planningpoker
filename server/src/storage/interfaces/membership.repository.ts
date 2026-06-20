@@ -1,6 +1,6 @@
-import { ITeam, IServerParticipant } from "../../objects";
+import { ITeam, IServerParticipant } from '../../objects';
 
-export interface IMembershipRepository  {
+export interface IMembershipRepository {
   removeTeam(teamName: string): void;
   getConnectedTeamMembers(teamName: string): Array<IServerParticipant>;
   getTeamMembers(teamName: string): Array<IServerParticipant>;

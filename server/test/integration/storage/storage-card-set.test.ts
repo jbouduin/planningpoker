@@ -1,8 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 import STORAGETYPES from '../../../src/storage/storage.types';
 
-import { ECardSet } from "../../../../shared-lib/src";
-import { IFactoryService, IStorageService } from "../../../src/storage/interfaces";
+import { ECardSet } from '../../../../shared-lib/src';
+import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
 import { Util } from './util';
 
 describe('Non customized card sets', () => {
@@ -12,13 +12,9 @@ describe('Non customized card sets', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Run: retrieve cardset
-    const retrieved = container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .getCardSet(Util.team1Name);
+    const retrieved = container.get<IStorageService>(STORAGETYPES.StorageService).getCardSet(Util.team1Name);
     // Test
     expect(retrieved).toBeDefined();
     if (retrieved) {
@@ -33,17 +29,11 @@ describe('Non customized card sets', () => {
     const cardSet2 = factory.createCardSet(ECardSet.TShirt);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet1);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet1);
     // Run: change the cardset
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .setCardSet(Util.team1Name, cardSet2);
+    container.get<IStorageService>(STORAGETYPES.StorageService).setCardSet(Util.team1Name, cardSet2);
     // Run: retrieve the cardset
-    const retrieved = container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .getCardSet(Util.team1Name);
+    const retrieved = container.get<IStorageService>(STORAGETYPES.StorageService).getCardSet(Util.team1Name);
     // Test
     expect(retrieved).toBeDefined();
     if (retrieved) {
@@ -62,13 +52,9 @@ describe('Customized card set', () => {
     cardSet.cards.splice(7);
     // Run: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Run: retrieve card set
-    const retrieved = container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .getCardSet(Util.team1Name);
+    const retrieved = container.get<IStorageService>(STORAGETYPES.StorageService).getCardSet(Util.team1Name);
     // Test
     expect(retrieved).toBeDefined();
     if (retrieved) {
@@ -83,22 +69,16 @@ describe('Customized card set', () => {
     const cardSet = factory.createCardSet(ECardSet.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
-    container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .addTeam(team, cardSet);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Run: get card set
-    const retrieved = container
-      .get<IStorageService>(STORAGETYPES.StorageService)
-      .getCardSet(Util.team1Name);
+    const retrieved = container.get<IStorageService>(STORAGETYPES.StorageService).getCardSet(Util.team1Name);
     expect(retrieved).toBeDefined();
     if (retrieved) {
       // Run: customize and set customized card set
       retrieved.cardSet = ECardSet.Fibonacci;
       retrieved.cards.splice(7);
       // Run: retrieve card set
-      const retrieved2 = container
-        .get<IStorageService>(STORAGETYPES.StorageService)
-        .getCardSet(Util.team1Name);
+      const retrieved2 = container.get<IStorageService>(STORAGETYPES.StorageService).getCardSet(Util.team1Name);
       // Test
       expect(retrieved2).toBeDefined();
       if (retrieved2) {

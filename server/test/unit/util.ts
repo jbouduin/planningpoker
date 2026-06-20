@@ -4,10 +4,9 @@ import { ECardSet, EParticipantStatus, EPokerStatus, ERole, ICardSet } from '../
 import { IServerParticipant, ITeam, ServerParticipant } from '../../src/objects';
 import { PreflightService } from '../../src/services/implementation/preflight.service';
 import { IPreflightService } from '../../src/services/interfaces/preflight.service';
-import { IWebSocket, ReadyState } from "../../src/services/websocket";
+import { IWebSocket, ReadyState } from '../../src/services/websocket';
 
 export class Util {
-
   public static participant1Name = 'participant1';
   public static getParticipant1(): IServerParticipant {
     return new ServerParticipant(
@@ -45,7 +44,8 @@ export class Util {
         role: ERole.ScrumMaster,
         status: EParticipantStatus.Connected,
         observer: true
-      }, Util.getSocket()
+      },
+      Util.getSocket()
     );
   }
 
@@ -96,7 +96,7 @@ export class Util {
       teamName: Util.team1Name,
       lastAccessTime: Date.now(),
       status: status
-    }
+    };
   }
 
   public static team2Name = 'team2';
@@ -105,7 +105,7 @@ export class Util {
       teamName: Util.team2Name,
       lastAccessTime: Date.now(),
       status: status
-    }
+    };
   }
 
   public static getPreflightService(): IPreflightService {

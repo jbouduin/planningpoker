@@ -1,4 +1,4 @@
-import { ICardSet } from "shared-lib";
+import { ICardSet } from 'shared-lib';
 
 export interface ICardSetRepository {
   removeCardSet(teamName: string): boolean;

@@ -10,10 +10,8 @@ import { IHandlerService, ISerializationService } from '../../services/interface
 import { IStorageService } from '../../storage/interfaces';
 import { ISystemController } from '../interfaces';
 
-
 @injectable()
 export class SystemController implements ISystemController {
-
   //#region Private properties ------------------------------------------------
   private readonly handlerService: IHandlerService;
   private readonly serializationService: ISerializationService;
@@ -24,7 +22,8 @@ export class SystemController implements ISystemController {
   public constructor(
     @inject(SERVICETYPES.HandlerService) handlerService: IHandlerService,
     @inject(SERVICETYPES.SerializationService) serializationService: ISerializationService,
-    @inject(STORAGETYPES.StorageService) storageService: IStorageService) {
+    @inject(STORAGETYPES.StorageService) storageService: IStorageService
+  ) {
     this.handlerService = handlerService;
     this.serializationService = serializationService;
     this.storageService = storageService;
@@ -34,7 +33,7 @@ export class SystemController implements ISystemController {
   //#region ISystemController methods -----------------------------------------
   public deleteTeam(teamname: string): LooseObject {
     const team = this.storageService.getTeam(teamname);
-    const response: LooseObject = {}
+    const response: LooseObject = {};
     if (team) {
       this.storageService.deleteTeam(teamname);
     } else {
@@ -46,7 +45,7 @@ export class SystemController implements ISystemController {
 
   public disconnectParticipant(participantId: string): LooseObject {
     const participant = this.storageService.getParticipant(participantId);
-    const response: LooseObject = {}
+    const response: LooseObject = {};
     if (participant) {
       participant.socket.close();
       response.errorCode = EErrorCode.NoError;
@@ -68,7 +67,6 @@ export class SystemController implements ISystemController {
 
   public getAllTeams(): LooseObject {
     return this.serializationService.serializeAllTeams();
-
   }
 
   public getParticipants(): LooseObject {

@@ -1,5 +1,5 @@
-import { IParticipant, IInitMessage, EServerMessageType } from "shared-lib";
-import { ServerMessage } from "./server-message";
+import { IParticipant, IInitMessage, EServerMessageType } from 'shared-lib';
+import { ServerMessage } from './server-message';
 
 export class InitMessage extends ServerMessage<IParticipant> implements IInitMessage {
   public constructor(data: IParticipant) {
