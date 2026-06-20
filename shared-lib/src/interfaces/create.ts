@@ -1,5 +1,5 @@
-import { ICardSet } from "./card-set";
-import { ECardSet } from "./card-set.enum";
+import { ICardSet } from './card-set';
+import { ECardSet } from './card-set.enum';
 
 export interface ICreate {
   observer: boolean;

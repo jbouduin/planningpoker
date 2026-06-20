@@ -1,4 +1,4 @@
 export interface IJoin {
-  nick: string
+  nick: string;
   observer: boolean;
 }

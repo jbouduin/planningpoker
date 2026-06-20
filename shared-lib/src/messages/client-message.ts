@@ -4,7 +4,7 @@ import { EClientMessageType } from './client-message-type.enum';
 export interface IClientMessage<T> {
   senderId: string;
   data: T;
-  type: EClientMessageType
+  type: EClientMessageType;
 }
 
 export type IChangeCardSetMessage = IClientMessage<ICardSet>;
@@ -21,16 +21,16 @@ export type IRemoveMessage = IClientMessage<string>;
 export type IRevealMessage = IClientMessage<void>;
 export type IStartMessage = IClientMessage<void>;
 export type AClientMessage =
-  IChangeCardSetMessage |
-  IChangeNickMessage |
-  IChangeScrumMasterMessage |
-  ICreateMessage |
-  IEstimateMessage |
-  IJoinMessage |
-  IObserveMessage |
-  IPauseMessage |
-  ILeaveMessage |
-  IRejoinMessage |
-  IRemoveMessage |
-  IRevealMessage |
-  IStartMessage;
+  | IChangeCardSetMessage
+  | IChangeNickMessage
+  | IChangeScrumMasterMessage
+  | ICreateMessage
+  | IEstimateMessage
+  | IJoinMessage
+  | IObserveMessage
+  | IPauseMessage
+  | ILeaveMessage
+  | IRejoinMessage
+  | IRemoveMessage
+  | IRevealMessage
+  | IStartMessage;

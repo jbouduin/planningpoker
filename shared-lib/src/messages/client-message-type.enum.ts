@@ -6,7 +6,7 @@ export enum EClientMessageType {
   Estimate = 'estimate',
   Join = 'join',
   Leave = 'leave',
-  Observe= 'observe',
+  Observe = 'observe',
   Pause = 'pause',
   Rejoin = 'rejoin',
   Remove = 'remove',

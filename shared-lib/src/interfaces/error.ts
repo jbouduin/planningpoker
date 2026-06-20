@@ -1,6 +1,6 @@
 import { EErrorCode } from '../messages';
 
 export interface IError {
-  code: EErrorCode,
-  message: string | null
+  code: EErrorCode;
+  message: string | null;
 }

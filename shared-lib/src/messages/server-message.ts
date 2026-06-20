@@ -1,9 +1,9 @@
-import { EPokerStatus, ICardSet, IError, IEstimation, IParticipant } from "../interfaces";
-import { IMemberChange } from "../interfaces/member-change";
-import { EServerMessageType } from "./server-message-type.enum";
+import { EPokerStatus, ICardSet, IError, IEstimation, IParticipant } from '../interfaces';
+import { IMemberChange } from '../interfaces/member-change';
+import { EServerMessageType } from './server-message-type.enum';
 
 export interface IServerMessage<T> {
-  data: T,
+  data: T;
   type: EServerMessageType;
 }
 
@@ -22,17 +22,17 @@ export type IServerResetMessage = IServerMessage<void>;
 export type ITeamIdleMessage = IServerMessage<void>;
 export type ITeamNameMessage = IServerMessage<string>;
 export type AServerMessage =
-  ICardSetMessage |
-  IClearEstimationsMessage |
-  IEndSessionMessage |
-  IErrorMessage |
-  IEstimationListMessage |
-  IInitMessage |
-  IMemberChangeMessage |
-  IMemberListMessage |
-  IPingMessage |
-  IPokerStatusChangedMessage |
-  ISelfMessage |
-  IServerResetMessage |
-  ITeamIdleMessage |
-  ITeamNameMessage;
+  | ICardSetMessage
+  | IClearEstimationsMessage
+  | IEndSessionMessage
+  | IErrorMessage
+  | IEstimationListMessage
+  | IInitMessage
+  | IMemberChangeMessage
+  | IMemberListMessage
+  | IPingMessage
+  | IPokerStatusChangedMessage
+  | ISelfMessage
+  | IServerResetMessage
+  | ITeamIdleMessage
+  | ITeamNameMessage;

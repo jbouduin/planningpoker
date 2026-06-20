@@ -1,1 +1,1 @@
-export * from "./can-rejoin-response";
+export * from './can-rejoin-response';

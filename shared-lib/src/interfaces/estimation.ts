@@ -7,10 +7,10 @@ export interface IEstimation {
    * If undefined it means that the participant has not given an estimation (yet)
    * !This is not the index of the card in the array of cards
    */
-  cardIndex: number | undefined,
+  cardIndex: number | undefined;
   // revealed: boolean,
   /**
    * The participantId of the participant giving the estimation
    */
-  participantId: string
+  participantId: string;
 }

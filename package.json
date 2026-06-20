@@ -2,6 +2,7 @@
   "name": "planningpoker",
   "version": "0.0.5",
   "description": "Planning poker website",
+  "type": "module",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
@@ -24,12 +25,15 @@
   "homepage": "https://github.com/jbouduin/planningpoker#readme",
   "devDependencies": {
     "@angular-eslint/eslint-plugin": "^22.0.0",
+    "@angular-eslint/eslint-plugin-template": "^22.0.0",
     "@angular-eslint/template-parser": "^22.0.0",
+    "@eslint/js": "^10.0.1",
     "@typescript-eslint/eslint-plugin": "^8.61.1",
     "@typescript-eslint/parser": "^8.61.1",
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
-    "prettier": "^3.8.4"
+    "prettier": "^3.8.4",
+    "typescript-eslint": "^8.61.1"
   }
 }
