@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { ReplaySubject, Subject } from 'rxjs';
 import { AClientMessage, AServerMessage, EParticipantStatus, ERole } from 'shared-lib';
 import { RejoinMessage } from '../../shared/dto';
@@ -8,12 +8,12 @@ import { Logger } from './logger';
 import { Member } from './member';
 import { ESessionStatus } from './session-status.enum';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SocketService {
   //#region private readonly properties ---------------------------------------
-  private readonly localStorage: LocalStorageService;
+  private readonly localStorageSvc: LocalStorageService;
   private readonly log: Logger;
-  private readonly snackbarService: SnackbarService;
+  private readonly snackbarSvc: SnackbarService;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -31,10 +31,10 @@ export class SocketService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(localStorage: LocalStorageService, snackbarService: SnackbarService) {
-    this.localStorage = localStorage;
+  public constructor() {
+    this.localStorageSvc = inject(LocalStorageService);
     this.log = new Logger('SocketService');
-    this.snackbarService = snackbarService;
+    this.snackbarSvc = inject(SnackbarService);
     this.me = new Member(
       {
         nick: '',
@@ -61,8 +61,8 @@ export class SocketService {
 
   public rejoin(): void {
     window.clearInterval(this.resumeTimer);
-    const team = this.localStorage.teamName;
-    const participantId = this.localStorage.participantId;
+    const team = this.localStorageSvc.teamName;
+    const participantId = this.localStorageSvc.participantId;
     if (team && participantId) {
       this.log.debug(`rejoining ${team} as ${participantId}`);
       if (this.status !== ESessionStatus.ReconnectPending) {
@@ -73,7 +73,7 @@ export class SocketService {
       this.initialMessage = new RejoinMessage('', participantId);
       this.connect(team);
     } else {
-      this.snackbarService.showWarning('Session.Service.Warning.Can_not_rejoin');
+      this.snackbarSvc.showWarning('Session.Service.Warning.Can_not_rejoin');
       this.resetServices();
     }
   }
@@ -120,23 +120,23 @@ export class SocketService {
       switch (this.status) {
         case ESessionStatus.Connecting:
           this.log.debug('in onClose case: Starting');
-          this.snackbarService.showError('Socket.Error.Could_not_connect');
+          this.snackbarSvc.showError('Socket.Error.Could_not_connect');
           this.status = ESessionStatus.Inactive;
           break;
         case ESessionStatus.Resuming:
           this.log.debug('in onClose case: Resuming');
-          this.snackbarService.showError('Socket.Error.Unable_to_reestablish_the_connection');
+          this.snackbarSvc.showError('Socket.Error.Unable_to_reestablish_the_connection');
           this.initiateAutomaticReconnect();
           break;
         default:
           this.log.debug('in onClose case: default');
-          this.snackbarService.showError('Socket.Error.You_Have_been_disconnected');
+          this.snackbarSvc.showError('Socket.Error.You_Have_been_disconnected');
           this.initiateAutomaticReconnect();
       }
     } else {
       if (event.code !== 1000) {
         this.log.debug('in onClose event code', event);
-        this.snackbarService.showError('Socket.Error.You_Have_been_disconnected');
+        this.snackbarSvc.showError('Socket.Error.You_Have_been_disconnected');
       }
     }
     this.webSocket = null;
@@ -151,7 +151,7 @@ export class SocketService {
   private onError(_event: Event): void {
     if (this.status !== ESessionStatus.Resuming && this.status != ESessionStatus.Connecting) {
       this.log.debug(`in onError not connecting and not reconnecting : ${this.status}`);
-      this.snackbarService.showError('Socket.Error.Communication_error');
+      this.snackbarSvc.showError('Socket.Error.Communication_error');
     }
   }
   //#endregion
@@ -176,7 +176,7 @@ export class SocketService {
     if (this.webSocket?.readyState === WebSocket.OPEN) {
       return true;
     } else {
-      this.snackbarService.showError('Socket.Error.There_is_no_connection_with_the_server');
+      this.snackbarSvc.showError('Socket.Error.There_is_no_connection_with_the_server');
       return false;
     }
   }

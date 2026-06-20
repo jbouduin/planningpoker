@@ -22,18 +22,15 @@ export class ApiService {
 
   //#region Public methods ----------------------------------------------------
   public checkCanRejoin(teamName: string, participantId: string): Observable<boolean> {
-    return (
-      this.httpClient
-        // TODO .get<ICanRejoinResponse>(`/api/team/${teamName}/participant/${participantId}`, { observe: 'response', responseType: 'json' })
-        .get<ICanRejoinResponse>(`/api/team/${teamName}/participant/${participantId}`, {
-          observe: 'response',
-          responseType: 'json'
-        })
-        .pipe(
-          map((res: HttpResponse<ICanRejoinResponse>) => res.body?.canRejoin === true),
-          catchError(() => of(false))
-        )
-    );
+    return this.httpClient
+      .get<ICanRejoinResponse>(`/api/team/${teamName}/participant/${participantId}`, {
+        observe: 'response',
+        responseType: 'json'
+      })
+      .pipe(
+        map((res: HttpResponse<ICanRejoinResponse>) => res.body?.canRejoin === true),
+        catchError(() => of(false))
+      );
   }
 
   public getAllCardSets(): Observable<Array<ICardSet>> {

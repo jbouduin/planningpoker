@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { inject, Service, signal, WritableSignal } from '@angular/core';
 import { filter, map, Observable, of } from 'rxjs';
 import {
   AClientMessage,
@@ -13,24 +13,24 @@ import {
   ISelfMessage,
   ITeamNameMessage
 } from 'shared-lib';
+import { CreateMessage, JoinMessage, RejoinMessage } from '../../shared/dto';
 import { SnackbarService } from '../../shared/service/snackbar.service';
 import { isSessionMessage, SessionMessage } from '../messaging';
-import { LocalStorageService } from './local-storage.service';
-import { Member } from './member';
-import { SocketService } from './socket.service';
-import { Logger } from './logger';
-import { CreateMessage, JoinMessage, RejoinMessage } from '../../shared/dto';
 import { ApiService } from './api.service';
 import { ICanRejoinResult } from './can-rejoin-result';
+import { LocalStorageService } from './local-storage.service';
+import { Logger } from './logger';
+import { Member } from './member';
+import { SocketService } from './socket.service';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SessionService {
   //#region private readonly properties ---------------------------------------
-  private readonly apiService: ApiService;
-  private readonly localStorage: LocalStorageService;
+  private readonly apiSvc: ApiService;
+  private readonly localStorageSvc: LocalStorageService;
   private readonly log: Logger;
-  private readonly snackbarService: SnackbarService;
-  private readonly socketService: SocketService;
+  private readonly snackbarSvc: SnackbarService;
+  private readonly socketSvc: SocketService;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -43,20 +43,15 @@ export class SessionService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    apiService: ApiService,
-    socketService: SocketService,
-    snackbarService: SnackbarService,
-    localStorage: LocalStorageService
-  ) {
-    this.apiService = apiService;
-    this.localStorage = localStorage;
+  public constructor() {
+    this.apiSvc = inject(ApiService);
+    this.localStorageSvc = inject(LocalStorageService);
     this.log = new Logger('SessionService');
-    this.snackbarService = snackbarService;
-    this.socketService = socketService;
+    this.snackbarSvc = inject(SnackbarService);
+    this.socketSvc = inject(SocketService);
     this.teamName = signal<string | null>(null);
     this.me = signal<Member | null>(null); // new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
-    socketService.incomingMessage
+    this.socketSvc.incomingMessage
       .pipe(filter((msg: AServerMessage) => isSessionMessage(msg)))
       .subscribe((msg: SessionMessage) => this.handleServerMessage(msg));
   }
@@ -64,12 +59,12 @@ export class SessionService {
 
   //#region Public methods ----------------------------------------------------
   public canRejoin(): Observable<ICanRejoinResult> {
-    const nick = this.localStorage.nick;
-    const team = this.localStorage.teamName;
-    const participantId = this.localStorage.participantId;
+    const nick = this.localStorageSvc.nick;
+    const team = this.localStorageSvc.teamName;
+    const participantId = this.localStorageSvc.participantId;
     if (team && nick && participantId) {
       // this.status = ESessionStatus.Suspended;
-      return this.apiService.checkCanRejoin(team, participantId).pipe(
+      return this.apiSvc.checkCanRejoin(team, participantId).pipe(
         map((can: boolean) => {
           const result: ICanRejoinResult = {
             nick: nick,
@@ -92,7 +87,7 @@ export class SessionService {
   }
 
   public clearSessionData(): void {
-    this.localStorage.clear();
+    this.localStorageSvc.clear();
     // this.resetServices();
   }
 
@@ -111,7 +106,7 @@ export class SessionService {
       cardSet: cardSet,
       cards: cards
     });
-    this.socketService.connect(team);
+    this.socketSvc.connect(team);
   }
 
   public joinSession(team: string, nick: string, observer: boolean): void {
@@ -121,13 +116,13 @@ export class SessionService {
       observer: observer,
       nick: nick
     });
-    this.socketService.connect(team);
+    this.socketSvc.connect(team);
   }
 
   public rejoin(team: string, participantId: string): void {
     this.log.debug(`rejoining ${team} as ${participantId}`);
     this.initialMessage = new RejoinMessage('', participantId);
-    this.socketService.connect(team);
+    this.socketSvc.connect(team);
   }
   //#endregion
 
@@ -164,12 +159,12 @@ export class SessionService {
     // if (this.errorHandlerService.handleErrorMessage(message)) {
     //   this.resetServices();
     // }
-    this.snackbarService.showError(`Error: ${message.data.code}: ${message.data.message}`);
+    this.snackbarSvc.showError(`Error: ${message.data.code}: ${message.data.message}`);
   }
 
   private handleEndSession(): void {
     if (this.me()?.role !== ERole.ScrumMaster) {
-      this.snackbarService.showInfo('MessageBox.The_scrummaster_has_ended_the_session.Text');
+      this.snackbarSvc.showInfo('MessageBox.The_scrummaster_has_ended_the_session.Text');
       //   const params = new MessageBoxParams();
       //   params.showCancelButton = false;
       //   params.title = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Title');
@@ -192,7 +187,7 @@ export class SessionService {
     //   width: '250px',
     //   data: params
     // });
-    this.snackbarService.showInfo('MessageBox.The_server_has_been_reset.Title');
+    this.snackbarSvc.showInfo('MessageBox.The_server_has_been_reset.Title');
     this.resetService();
   }
 
@@ -205,19 +200,19 @@ export class SessionService {
     //   width: '250px',
     //   data: params
     // });
-    this.snackbarService.showInfo('MessageBox.The_was_idle_for_to_long.Text');
+    this.snackbarSvc.showInfo('MessageBox.The_was_idle_for_to_long.Text');
     this.resetService();
   }
 
   private handleInit(message: IInitMessage): void {
     if (this.initialMessage) {
       this.initialMessage.senderId = message.data.participantId;
-      this.socketService.sendMessage(this.initialMessage);
+      this.socketSvc.sendMessage(this.initialMessage);
       this.initialMessage = undefined;
     }
     this.me.set(new Member(message.data, true));
-    this.localStorage.participantId = message.data.participantId;
-    this.localStorage.nick = message.data.nick;
+    this.localStorageSvc.participantId = message.data.participantId;
+    this.localStorageSvc.nick = message.data.nick;
     // this.status = ESessionStatus.Active;
     // this.navigateTo('/game');
   }
@@ -225,25 +220,25 @@ export class SessionService {
   private handleSelf(message: ISelfMessage): void {
     const previous = this.me();
     if (message.data.status === EParticipantStatus.Left) {
-      this.localStorage.clear();
+      this.localStorageSvc.clear();
       this.resetService();
     } else {
       if (previous?.role === ERole.Developer && message.data.role === ERole.ScrumMaster) {
-        this.snackbarService.showInfo('Game.Snackbar.You_are_now_scrum-master');
+        this.snackbarSvc.showInfo('Game.Snackbar.You_are_now_scrum-master');
       }
       this.me.set(new Member(message.data, true));
-      this.localStorage.nick = message.data.nick;
-      this.localStorage.participantId = message.data.participantId;
+      this.localStorageSvc.nick = message.data.nick;
+      this.localStorageSvc.participantId = message.data.participantId;
       if (message.data.status === EParticipantStatus.Paused) {
         // this.status = ESessionStatus.Suspended;
-        this.socketService.disconnect();
+        this.socketSvc.disconnect();
       }
     }
   }
 
   private handleTeamName(message: ITeamNameMessage): void {
     this.teamName.set(message.data);
-    this.localStorage.teamName = message.data;
+    this.localStorageSvc.teamName = message.data;
   }
 
   private resetService(): void {

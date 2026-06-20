@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { inject, Service, signal, WritableSignal } from '@angular/core';
 import { filter } from 'rxjs';
 import {
   AServerMessage,
@@ -12,25 +12,27 @@ import {
 import { Member, SocketService } from '../../../core';
 import { isTeamMessage, TeamMessage } from '../../../core/messaging';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class TeamService {
   //#region private readonly properties ---------------------------------------
-  private readonly socketService: SocketService;
+  private readonly socketSvc: SocketService;
   //#endregion
 
   //#region Signales ----------------------------------------------------------
   public members: WritableSignal<Array<IParticipant>>;
   //#region
 
-  public constructor(socketService: SocketService) {
-    this.socketService = socketService;
+  //#region Constructor & C° -------------------------------------------------
+  public constructor() {
+    this.socketSvc = inject(SocketService);
     this.members = signal<Array<IParticipant>>(new Array<IParticipant>());
-    socketService.incomingMessage
+    this.socketSvc.incomingMessage
       .pipe(filter((msg: AServerMessage) => isTeamMessage(msg)))
       .subscribe((msg: TeamMessage) => this.handleServerMessage(msg));
   }
+  //#endregion
 
-  //#region Auxiliary methods -------------------------------------------------
+  //#region Auxiliary methods: message handling -------------------------------
   private handleServerMessage(message: TeamMessage): void {
     switch (message.type) {
       case EServerMessageType.EndSession:

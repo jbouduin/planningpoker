@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { Logger } from './logger';
-import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 
+import { Subscription } from 'rxjs';
 import deDE from '../../../translations/de-DE.json';
 import enUS from '../../../translations/en-US.json';
-import { Subscription } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
 
 /**
@@ -17,12 +17,12 @@ export function extract(s: string): string {
   return s;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class I18nService {
   //#region Private readonly properties ---------------------------------------
   private readonly log: Logger;
-  private readonly localStorage: LocalStorageService;
-  private readonly translateService: TranslateService;
+  private readonly localStorageSvc: LocalStorageService;
+  private readonly translateSvc: TranslateService;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -38,7 +38,7 @@ export class I18nService {
    */
   public get language(): string {
     // TODO use the signal currentlang
-    return this.translateService.getCurrentLang() || this.defaultLanguage;
+    return this.translateSvc.getCurrentLang() || this.defaultLanguage;
   }
   /**
    * Sets the current language.
@@ -48,7 +48,7 @@ export class I18nService {
    */
 
   public set language(language: string) {
-    language = language || this.localStorage.currentLang || this.translateService.getBrowserCultureLang() || '';
+    language = language || this.localStorageSvc.currentLang || this.translateSvc.getBrowserCultureLang() || '';
     let isSupportedLanguage = this.supportedLanguages.includes(language);
 
     // If no exact match is found, search without the region
@@ -64,19 +64,19 @@ export class I18nService {
     }
 
     this.log.debug(`Language set to ${language}`);
-    this.translateService.use(language);
+    this.translateSvc.use(language);
   }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(localStorage: LocalStorageService, translateService: TranslateService) {
+  public constructor() {
     this.log = new Logger('I18nService');
 
-    this.localStorage = localStorage;
-    this.translateService = translateService;
+    this.localStorageSvc = inject(LocalStorageService);
+    this.translateSvc = inject(TranslateService);
     // Embed languages to avoid extra HTTP requests → should this be in constructor ?
-    translateService.setTranslation('de-DE', deDE);
-    translateService.setTranslation('en-US', enUS);
+    this.translateSvc.setTranslation('de-DE', deDE);
+    this.translateSvc.setTranslation('en-US', enUS);
   }
 
   public destroy(): void {
@@ -98,8 +98,8 @@ export class I18nService {
     this.language = '';
 
     // Warning: this subscription will always be alive for the app's lifetime
-    this.langChangeSubscription = this.translateService.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.localStorage.currentLang = event.lang;
+    this.langChangeSubscription = this.translateSvc.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.localStorageSvc.currentLang = event.lang;
     });
   }
   //#endregion

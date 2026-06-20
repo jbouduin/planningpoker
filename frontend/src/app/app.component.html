@@ -205,9 +205,9 @@
   }
 </style>
 
-{{ sessionService.teamName() }}
+{{ sessionSvc.teamName() }}
 <main class="main">
-  <div *ngIf="!sessionService.teamName()">
+  <div *ngIf="!sessionSvc.teamName()">
     <div class="join-create">
       <p>
         <app-create></app-create>
@@ -217,18 +217,19 @@
       </p>
     </div>
   </div>
-  <div *ngIf="sessionService.teamName()">
-    <H3>Team: {{ sessionService.teamName() }}</H3>
+  <div *ngIf="sessionSvc.teamName()">
+    <H3>Team: {{ sessionSvc.teamName() }}</H3>
     <H3>Me: </H3>
-    {{ sessionService.me()?.nick }} ({{ sessionService.me()?.status }}) →
-    {{ sessionService.me()?.role }}
+    {{ sessionSvc.me()?.nick }} ({{ sessionSvc.me()?.status }}) →
+    {{ sessionSvc.me()?.role }}
+    <h3>Team members</h3>
     <ul>
-      <li *ngFor="let m of teamService.members()">{{ m.nick }} ({{ m.status }}) → {{ m.role }}</li>
+      <li *ngFor="let m of teamSvc.members()">{{ m.nick }} ({{ m.status }}) → {{ m.role }}</li>
     </ul>
-    <div *ngIf="gameService.cardSet()">
-      <h3>Cardset: {{ gameService.cardSet()?.cardSet }}</h3>
+    <div *ngIf="gameSvc.cardSet()">
+      <h3>Cardset: {{ gameSvc.cardSet()?.cardSet }}</h3>
       <ul>
-        <li *ngFor="let c of gameService.cardSet()!.cards">
+        <li *ngFor="let c of gameSvc.cardSet()!.cards">
           {{ c.label }}
         </li>
       </ul>

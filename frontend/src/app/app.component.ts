@@ -11,14 +11,14 @@ import { TeamService } from './features/team/services/team.service';
 @Component({
   selector: 'app-root',
   imports: [CommonModule, RouterOutlet, CreateComponent, JoinComponent],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
 })
-export class App implements AfterViewInit {
-  private readonly localStorageService: LocalStorageService;
-  protected readonly gameService: GameService;
-  protected readonly sessionService: SessionService;
-  protected readonly teamService: TeamService;
+export class AppComponent implements AfterViewInit {
+  private readonly localStorageSvc: LocalStorageService;
+  protected readonly gameSvc: GameService;
+  protected readonly sessionSvc: SessionService;
+  protected readonly teamSvc: TeamService;
   protected readonly title = signal('frontend');
 
   /**
@@ -26,20 +26,20 @@ export class App implements AfterViewInit {
    * Later we can probably remove it
    */
   constructor(
-    sessionService: SessionService,
-    gameService: GameService,
-    teamService: TeamService,
-    _apiService: ApiService,
-    localStorageService: LocalStorageService
+    sessionSvc: SessionService,
+    gameSvc: GameService,
+    teamSvc: TeamService,
+    _apiSvc: ApiService,
+    localStorageSvc: LocalStorageService
   ) {
-    this.gameService = gameService;
-    this.localStorageService = localStorageService;
-    this.sessionService = sessionService;
-    this.teamService = teamService;
+    this.gameSvc = gameSvc;
+    this.localStorageSvc = localStorageSvc;
+    this.sessionSvc = sessionSvc;
+    this.teamSvc = teamSvc;
   }
 
   public ngAfterViewInit(): void {
-    this.sessionService.canRejoin().subscribe((result: ICanRejoinResult) => {
+    this.sessionSvc.canRejoin().subscribe((result: ICanRejoinResult) => {
       if (result.canRejoin) {
         // eslint-disable-next-line no-console
         console.log(result);
@@ -65,9 +65,9 @@ export class App implements AfterViewInit {
         //     this.sessionService.quitSession();
         //   }
         // });
-        this.sessionService.rejoin(result.team!, result.participantId!);
+        this.sessionSvc.rejoin(result.team!, result.participantId!);
       } else {
-        this.sessionService.clearSessionData();
+        this.sessionSvc.clearSessionData();
       }
     });
   }

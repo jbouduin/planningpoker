@@ -77,7 +77,9 @@ export class CreateJoinFormComponent {
     });
     this.observer = false;
   }
+  //#endregion
 
+  //#region public UI methods -------------------------------------------------
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {

@@ -1,11 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-
-import { SnackbarParams } from '../components/snackbar/snackbar.params';
-import { SnackbarComponent } from '../components/snackbar/snackbar.component';
 import { ESnackbarType } from '../components/snackbar/snackbar-type.enum';
+import { SnackbarComponent } from '../components/snackbar/snackbar.component';
+import { SnackbarParams } from '../components/snackbar/snackbar.params';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SnackbarService {
   //#region Private properties ------------------------------------------------
   private readonly snackbar: MatSnackBar;
@@ -14,8 +13,8 @@ export class SnackbarService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(snackbar: MatSnackBar) {
-    this.snackbar = snackbar;
+  public constructor() {
+    this.snackbar = inject(MatSnackBar);
     this.current = undefined;
     this.queue = new Array<SnackbarParams>();
   }
