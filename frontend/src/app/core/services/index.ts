@@ -5,4 +5,7 @@ export * from './local-storage.service';
 export * from './logger';
 export * from './member';
 export * from './session.service';
+export * from './simple-dialog.params';
 export * from './socket.service';
+export * from './ui-events.service';
+export * from './snackbar.params';

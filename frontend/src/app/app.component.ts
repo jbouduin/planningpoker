@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, signal } from '@angular/core';
+import { AfterViewInit, Component, effect, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ICanRejoinResult, LocalStorageService, SessionService } from './core';
+import { ICanRejoinResult, SessionService, UiEventsService } from './core';
 import { ApiService } from './core/services/api.service';
 import { GameService } from './features/game/services/game.service';
 import { CreateComponent } from './features/team/create/create.component';
 import { JoinComponent } from './features/team/join/join.component';
 import { TeamService } from './features/team/services/team.service';
+import { SnackbarService } from './shared/service/snackbar.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,8 @@ import { TeamService } from './features/team/services/team.service';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements AfterViewInit {
-  private readonly localStorageSvc: LocalStorageService;
+  // private readonly localStorageSvc: LocalStorageService;
+  // private readonly snackbarSvc: SnackbarService;
   protected readonly gameSvc: GameService;
   protected readonly sessionSvc: SessionService;
   protected readonly teamSvc: TeamService;
@@ -30,12 +32,22 @@ export class AppComponent implements AfterViewInit {
     gameSvc: GameService,
     teamSvc: TeamService,
     _apiSvc: ApiService,
-    localStorageSvc: LocalStorageService
+    snackbarSvc: SnackbarService,
+    uiEventsSvc: UiEventsService
+    // localStorageSvc: LocalStorageService
   ) {
+    // this.localStorageSvc = localStorageSvc;
+    // this.snackbarSvc = snackbarSvc;
     this.gameSvc = gameSvc;
-    this.localStorageSvc = localStorageSvc;
     this.sessionSvc = sessionSvc;
     this.teamSvc = teamSvc;
+    effect(() => {
+      const snackBarSignal = uiEventsSvc.snackbar();
+      if (snackBarSignal !== null) {
+        snackbarSvc.show(snackBarSignal);
+        uiEventsSvc.snackbar.set(null);
+      }
+    });
   }
 
   public ngAfterViewInit(): void {

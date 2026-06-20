@@ -14,7 +14,6 @@ import {
   ITeamNameMessage
 } from 'shared-lib';
 import { CreateMessage, JoinMessage, RejoinMessage } from '../../shared/dto';
-import { SnackbarService } from '../../shared/service/snackbar.service';
 import { isSessionMessage, SessionMessage } from '../messaging';
 import { ApiService } from './api.service';
 import { ICanRejoinResult } from './can-rejoin-result';
@@ -22,6 +21,7 @@ import { LocalStorageService } from './local-storage.service';
 import { Logger } from './logger';
 import { Member } from './member';
 import { SocketService } from './socket.service';
+import { UiEventsService } from './ui-events.service';
 
 @Service()
 export class SessionService {
@@ -29,8 +29,8 @@ export class SessionService {
   private readonly apiSvc: ApiService;
   private readonly localStorageSvc: LocalStorageService;
   private readonly log: Logger;
-  private readonly snackbarSvc: SnackbarService;
   private readonly socketSvc: SocketService;
+  private readonly uiEventsSvc: UiEventsService;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -47,8 +47,8 @@ export class SessionService {
     this.apiSvc = inject(ApiService);
     this.localStorageSvc = inject(LocalStorageService);
     this.log = new Logger('SessionService');
-    this.snackbarSvc = inject(SnackbarService);
     this.socketSvc = inject(SocketService);
+    this.uiEventsSvc = inject(UiEventsService);
     this.teamName = signal<string | null>(null);
     this.me = signal<Member | null>(null); // new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
     this.socketSvc.incomingMessage
@@ -159,17 +159,16 @@ export class SessionService {
     // if (this.errorHandlerService.handleErrorMessage(message)) {
     //   this.resetServices();
     // }
-    this.snackbarSvc.showError(`Error: ${message.data.code}: ${message.data.message}`);
+    this.uiEventsSvc.showError(`Error: ${message.data.code}: ${message.data.message}`);
   }
 
   private handleEndSession(): void {
     if (this.me()?.role !== ERole.ScrumMaster) {
-      this.snackbarSvc.showInfo('MessageBox.The_scrummaster_has_ended_the_session.Text');
+      // this.snackbarSvc.showInfo('MessageBox.The_scrummaster_has_ended_the_session.Text');
       //   const params = new MessageBoxParams();
       //   params.showCancelButton = false;
       //   params.title = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Title');
       //   params.text = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Text');
-
       //   this.dialog.open(MessageBoxComponent, {
       //     width: '250px',
       //     data: params
@@ -187,7 +186,7 @@ export class SessionService {
     //   width: '250px',
     //   data: params
     // });
-    this.snackbarSvc.showInfo('MessageBox.The_server_has_been_reset.Title');
+    // this.snackbarSvc.showInfo('MessageBox.The_server_has_been_reset.Title');
     this.resetService();
   }
 
@@ -200,7 +199,7 @@ export class SessionService {
     //   width: '250px',
     //   data: params
     // });
-    this.snackbarSvc.showInfo('MessageBox.The_was_idle_for_to_long.Text');
+    // this.snackbarSvc.showInfo('MessageBox.The_was_idle_for_to_long.Text');
     this.resetService();
   }
 
@@ -224,7 +223,8 @@ export class SessionService {
       this.resetService();
     } else {
       if (previous?.role === ERole.Developer && message.data.role === ERole.ScrumMaster) {
-        this.snackbarSvc.showInfo('Game.Snackbar.You_are_now_scrum-master');
+        // TODO move this to team service
+        this.uiEventsSvc.showInfo('Game.Snackbar.You_are_now_scrum-master');
       }
       this.me.set(new Member(message.data, true));
       this.localStorageSvc.nick = message.data.nick;

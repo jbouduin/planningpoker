@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
-import { ESnackbarType } from './snackbar-type.enum';
-import { SnackbarParams } from './snackbar.params';
+import { ESnackbarType } from '../../../core/services/snackbar-type.enum';
+import { SnackbarParams } from '../../../core/services/snackbar.params';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 

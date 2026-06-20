@@ -1,8 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-import { ESnackbarType } from '../components/snackbar/snackbar-type.enum';
+import { SnackbarParams } from '../../core/services/snackbar.params';
 import { SnackbarComponent } from '../components/snackbar/snackbar.component';
-import { SnackbarParams } from '../components/snackbar/snackbar.params';
 
 @Service()
 export class SnackbarService {
@@ -21,28 +20,16 @@ export class SnackbarService {
   //#endregion
 
   //#region Public methods ----------------------------------------------------
-  public showError(message: string): void {
-    this.show(ESnackbarType.Error, message);
-  }
-
-  public showInfo(message: string): void {
-    this.show(ESnackbarType.Info, message);
-  }
-
-  public showWarning(message: string): void {
-    this.show(ESnackbarType.Warning, message);
+  public show(params: SnackbarParams): void {
+    if (this.current) {
+      this.queue.push(params);
+    } else {
+      this.open(params);
+    }
   }
   //#endregion
 
   //#region Private methods ---------------------------------------------------
-  private show(type: ESnackbarType, message: string): void {
-    if (this.current) {
-      this.queue.push(new SnackbarParams(type, message));
-    } else {
-      this.open(new SnackbarParams(type, message));
-    }
-  }
-
   private open(params: SnackbarParams): void {
     this.current = this.snackbar.openFromComponent(SnackbarComponent, {
       data: params,

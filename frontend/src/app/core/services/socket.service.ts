@@ -2,18 +2,18 @@ import { inject, Service } from '@angular/core';
 import { ReplaySubject, Subject } from 'rxjs';
 import { AClientMessage, AServerMessage, EParticipantStatus, ERole } from 'shared-lib';
 import { RejoinMessage } from '../../shared/dto';
-import { SnackbarService } from '../../shared/service/snackbar.service';
 import { LocalStorageService } from './local-storage.service';
 import { Logger } from './logger';
 import { Member } from './member';
 import { ESessionStatus } from './session-status.enum';
+import { UiEventsService } from './ui-events.service';
 
 @Service()
 export class SocketService {
   //#region private readonly properties ---------------------------------------
   private readonly localStorageSvc: LocalStorageService;
   private readonly log: Logger;
-  private readonly snackbarSvc: SnackbarService;
+  private readonly uiEventsSvc: UiEventsService;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -34,7 +34,7 @@ export class SocketService {
   public constructor() {
     this.localStorageSvc = inject(LocalStorageService);
     this.log = new Logger('SocketService');
-    this.snackbarSvc = inject(SnackbarService);
+    this.uiEventsSvc = inject(UiEventsService);
     this.me = new Member(
       {
         nick: '',
@@ -73,7 +73,7 @@ export class SocketService {
       this.initialMessage = new RejoinMessage('', participantId);
       this.connect(team);
     } else {
-      this.snackbarSvc.showWarning('Session.Service.Warning.Can_not_rejoin');
+      this.uiEventsSvc.showWarning('Session.Service.Warning.Can_not_rejoin');
       this.resetServices();
     }
   }
@@ -120,23 +120,23 @@ export class SocketService {
       switch (this.status) {
         case ESessionStatus.Connecting:
           this.log.debug('in onClose case: Starting');
-          this.snackbarSvc.showError('Socket.Error.Could_not_connect');
+          this.uiEventsSvc.showError('Socket.Error.Could_not_connect');
           this.status = ESessionStatus.Inactive;
           break;
         case ESessionStatus.Resuming:
           this.log.debug('in onClose case: Resuming');
-          this.snackbarSvc.showError('Socket.Error.Unable_to_reestablish_the_connection');
+          this.uiEventsSvc.showError('Socket.Error.Unable_to_reestablish_the_connection');
           this.initiateAutomaticReconnect();
           break;
         default:
           this.log.debug('in onClose case: default');
-          this.snackbarSvc.showError('Socket.Error.You_Have_been_disconnected');
+          this.uiEventsSvc.showError('Socket.Error.You_Have_been_disconnected');
           this.initiateAutomaticReconnect();
       }
     } else {
       if (event.code !== 1000) {
         this.log.debug('in onClose event code', event);
-        this.snackbarSvc.showError('Socket.Error.You_Have_been_disconnected');
+        this.uiEventsSvc.showError('Socket.Error.You_Have_been_disconnected');
       }
     }
     this.webSocket = null;
@@ -151,7 +151,7 @@ export class SocketService {
   private onError(_event: Event): void {
     if (this.status !== ESessionStatus.Resuming && this.status != ESessionStatus.Connecting) {
       this.log.debug(`in onError not connecting and not reconnecting : ${this.status}`);
-      this.snackbarSvc.showError('Socket.Error.Communication_error');
+      this.uiEventsSvc.showError('Socket.Error.Communication_error');
     }
   }
   //#endregion
@@ -176,7 +176,7 @@ export class SocketService {
     if (this.webSocket?.readyState === WebSocket.OPEN) {
       return true;
     } else {
-      this.snackbarSvc.showError('Socket.Error.There_is_no_connection_with_the_server');
+      this.uiEventsSvc.showError('Socket.Error.There_is_no_connection_with_the_server');
       return false;
     }
   }
