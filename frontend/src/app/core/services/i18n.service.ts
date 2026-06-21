@@ -14,7 +14,7 @@ import { LocalStorageService } from './local-storage.service';
  * @return The same string.
  */
 export function extract(s: string): string {
-  return s;
+  return s.trim();
 }
 
 @Service()

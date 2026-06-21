@@ -18,24 +18,44 @@ export class MessageBoxComponent {
   //#endregion
 
   //#region getters -----------------------------------------------------------
-  public get cancelButtonLabel(): string {
+  protected get cancelButtonLabel(): string {
     return this.params.cancelButtonLabelKey;
   }
 
-  public get showCancelButton(): boolean {
+  protected get cancelButtonParams(): Record<string, unknown> | null {
+    return this.params.cancelButtonParams;
+  }
+
+  protected get showCancelButton(): boolean {
     return this.params.showCancelButton;
   }
 
-  public get okButtonLabel(): string {
+  protected get okButtonLabel(): string {
     return this.params.okButtonLabelKey;
   }
 
-  public get text(): string {
+  protected get okButtonParams(): Record<string, unknown> | null {
+    return this.params.okButtonParams;
+  }
+
+  protected get text(): string {
     return this.params.textKey;
   }
 
-  public get title(): string {
+  protected get textParams(): Record<string, unknown> | null {
+    return this.params.textParams;
+  }
+
+  protected get title(): string {
     return this.params.titleKey;
+  }
+
+  protected get titleParams(): Record<string, unknown> | null {
+    return this.params.titleParams;
+  }
+
+  protected get textTitleParams(): Record<string, unknown> | null {
+    return this.params.textParams;
   }
   //#endregion
 

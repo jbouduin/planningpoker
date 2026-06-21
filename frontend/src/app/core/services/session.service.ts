@@ -23,6 +23,7 @@ import { Member } from './member';
 import { SocketService } from './socket.service';
 import { UiEventsService } from './ui-events.service';
 import { ISimpleDialogParams } from './simple-dialog.params';
+import { extract } from './i18n.service';
 
 @Service()
 export class SessionService {
@@ -192,8 +193,8 @@ export class SessionService {
     // this should go to team service, but that one does not know if 'me' is the scrum master
     if (this.me()?.role !== ERole.ScrumMaster) {
       const params: ISimpleDialogParams = {
-        dialogTitleKey: 'MessageBox.The_scrummaster_has_ended_the_session.Title',
-        dialogMessageKey: 'MessageBox.The_scrummaster_has_ended_the_session.Text'
+        dialogTitleKey: extract('MessageBox.The_scrummaster_has_ended_the_session.Title'),
+        dialogMessageKey: extract('MessageBox.The_scrummaster_has_ended_the_session.Text')
       };
       this.uiEventsSvc.showSimpleDialog(params);
     }

@@ -4,7 +4,7 @@ import parser from '@typescript-eslint/parser';
 
 export default [
   {
-    files: ['shared-lib/**/*.ts', 'server/**/*.ts', 'frontend/**/*.ts'],
+    files: ['shared-lib/**/*.ts', 'server/**/*.ts', 'frontend/**/*.ts', 'tools/**/*.ts'],
     languageOptions: {
       parser: parser,
       parserOptions: {
@@ -12,7 +12,8 @@ export default [
           './shared-lib/tsconfig.json',
           './server/tsconfig.test.json',
           './frontend/tsconfig.app.json',
-          './frontend/tsconfig.spec.json'
+          './frontend/tsconfig.spec.json',
+          './tools/tsconfig.json'
         ]
       }
     },
@@ -74,6 +75,7 @@ export default [
       // 'frontend',
       // 'server',
       // 'shared-lib'
+      // 'tools'
     ]
   }
 ];

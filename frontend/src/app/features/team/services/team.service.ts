@@ -9,7 +9,7 @@ import {
   IMemberListMessage,
   IParticipant
 } from 'shared-lib';
-import { ISimpleDialogParams, Member, SocketService, UiEventsService } from '../../../core';
+import { extract, ISimpleDialogParams, Member, SocketService, UiEventsService } from '../../../core';
 import { isTeamMessage, TeamMessage } from '../../../core/messaging';
 
 @Service()
@@ -132,8 +132,8 @@ export class TeamService {
 
   private handleTeamIdleMessage(): void {
     const params: ISimpleDialogParams = {
-      dialogTitleKey: 'MessageBox.The_was_idle_for_to_long.Title',
-      dialogMessageKey: 'MessageBox.The_was_idle_for_to_long.Text'
+      dialogTitleKey: extract('MessageBox.The_was_idle_for_to_long.Title'),
+      dialogMessageKey: extract('MessageBox.The_was_idle_for_to_long.Text')
     };
     this.uiEventsSvc.showSimpleDialog(params);
     this.resetService();
@@ -141,8 +141,8 @@ export class TeamService {
 
   private handleServerResetMessage(): void {
     const params: ISimpleDialogParams = {
-      dialogTitleKey: 'MessageBox.The_server_has_been_reset.Title',
-      dialogMessageKey: 'MessageBox.The_server_has_been_reset.Text'
+      dialogTitleKey: extract('MessageBox.The_server_has_been_reset.Title'),
+      dialogMessageKey: extract('MessageBox.The_server_has_been_reset.Text')
     };
     this.uiEventsSvc.showSimpleDialog(params);
     this.resetService();

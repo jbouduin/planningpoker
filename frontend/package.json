@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "translations:extract": "node ../tools/dist/i18n-extract.js --input ./src/**/*.{ts,html} -o ./src/translations/{de-DE,en-US}.json",
+    "translations:template": "node ../tools/dist/i18n-extract.js --input ./src/**/*.{ts,html} -o ./src/translations/template.json"
   },
   "private": true,
   "packageManager": "npm@10.9.8",

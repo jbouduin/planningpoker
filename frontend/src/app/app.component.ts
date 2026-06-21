@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, effect, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ICanRejoinResult, SessionService, UiEventsService } from './core';
+import { extract, ICanRejoinResult, SessionService, UiEventsService } from './core';
 import { ApiService } from './core/services/api.service';
 import { GameService } from './features/game/services/game.service';
 import { CreateComponent } from './features/team/create/create.component';
@@ -19,18 +19,13 @@ import { MessageBoxParams } from './shared/components/message-box/message-box.pa
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements AfterViewInit {
-  // private readonly localStorageSvc: LocalStorageService;
-  // private readonly snackbarSvc: SnackbarService;
   protected readonly gameSvc: GameService;
   protected readonly sessionSvc: SessionService;
   protected readonly teamSvc: TeamService;
   protected readonly title = signal('frontend');
   private readonly dialogSvc: DialogService;
-  /**
-   * Inject the core services so they are instantiated.
-   * Later we can probably remove it
-   */
-  constructor(
+
+  public constructor(
     sessionSvc: SessionService,
     gameSvc: GameService,
     teamSvc: TeamService,
@@ -38,10 +33,7 @@ export class AppComponent implements AfterViewInit {
     snackbarSvc: SnackbarService,
     uiEventsSvc: UiEventsService,
     dialogSvc: DialogService
-    // localStorageSvc: LocalStorageService
   ) {
-    // this.localStorageSvc = localStorageSvc;
-    // this.snackbarSvc = snackbarSvc;
     this.gameSvc = gameSvc;
     this.sessionSvc = sessionSvc;
     this.teamSvc = teamSvc;
@@ -67,34 +59,21 @@ export class AppComponent implements AfterViewInit {
     this.sessionSvc.canRejoin().subscribe((result: ICanRejoinResult) => {
       if (result.canRejoin) {
         const params = new MessageBoxParams();
-        params.cancelButtonLabelKey = 'Button.Generic.Label.No';
-        params.okButtonLabelKey = 'Button.Generic.Label.Yes';
-        params.textKey = 'MessageBox.Rejoin_$team_as_$nick.Text';
-        // this.translateService.instant(
-        // 'MessageBox.Rejoin_$team_as_$nick.Text',
-        // {
-        //   team: result.team,
-        //   nick: result.nick
-        // });
-        params.titleKey = 'MessageBox.Rejoin_$team_as_$nick.Title';
+        params.cancelButtonLabelKey = extract('Button.Generic.Label.No');
+        params.okButtonLabelKey = extract('Button.Generic.Label.Yes');
+        params.textKey = extract('MessageBox.Rejoin_$team_as_$nick.Text');
+        params.textParams = {
+          team: result.team,
+          nick: result.nick
+        };
+        params.titleKey = extract('MessageBox.Rejoin_$team_as_$nick.Title');
         this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
           if (confirmed) {
             this.sessionSvc.rejoin(result.team!, result.participantId!);
           } else {
-            this.sessionSvc.leave();
+            this.sessionSvc.leave(); // this currently throws an error, we could introduce a new method: leaveFromDisconnected(...)
           }
         });
-        // const dialogRef = this.dialog.open(MessageBoxComponent, {
-        //   width: '350px',
-        //   data: params
-        // });
-        // dialogRef.afterClosed().subscribe(result => {
-        //   if (result) {
-        //     this.sessionService.rejoin();
-        //   } else {
-        //     this.sessionService.quitSession();
-        //   }
-        // });
       } else {
         this.sessionSvc.clearSessionData();
       }
@@ -103,10 +82,10 @@ export class AppComponent implements AfterViewInit {
 
   public leave(): void {
     const params = new MessageBoxParams();
-    params.cancelButtonLabelKey = 'Button.Generic.Label.No';
-    params.okButtonLabelKey = 'Button.Generic.Label.Yes';
-    params.textKey = 'MessageBox.Do_you_want_to_end_the_session.Text';
-    params.titleKey = 'MessageBox.Do_you_want_to_end_the_session.Title';
+    params.cancelButtonLabelKey = extract('Button.Generic.Label.No');
+    params.okButtonLabelKey = extract('Button.Generic.Label.Yes');
+    params.textKey = extract('MessageBox.Do_you_want_to_end_the_session.Text');
+    params.titleKey = extract('MessageBox.Do_you_want_to_end_the_session.Title');
     this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
       if (confirmed) {
         this.sessionSvc.leave();

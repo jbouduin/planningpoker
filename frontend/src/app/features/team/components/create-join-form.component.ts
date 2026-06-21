@@ -10,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
 import type { ECardSet as ECardSetType } from 'shared-lib';
 import { ECardSet } from 'shared-lib';
-import { SessionService } from '../../../core';
+import { extract, SessionService } from '../../../core';
 
 export interface ICardSetSelectItem {
   set: ECardSetType;
@@ -35,6 +35,15 @@ export interface ICardSetSelectItem {
   styleUrl: './create-join-form.component.scss'
 })
 export class CreateJoinFormComponent {
+  //#region Static ------------------------------------------------------------
+  protected readonly TEAM_LABEL = extract('Join.Component.Input.Team.Label');
+  protected readonly TEAM_PLACEHOLDER = extract('Join.Component.Input.Team.PlaceHolder');
+  protected readonly NICK_LABEL = extract('Component.Input.Nick.Label');
+  protected readonly NICK_PLACEHOLDER = extract('Component.Input.Nick.PlaceHolder');
+  protected readonly CARDSET_LABEL = extract('Component.Select.CardSet.Label');
+  protected readonly OBSERVER_LABEL = extract('Join.Component.Checkbox.Observer.Label');
+  //#endregion
+
   //#region Input -------------------------------------------------------------
   @Input({ required: true }) isCreate!: boolean;
   //#endregion
@@ -55,11 +64,11 @@ export class CreateJoinFormComponent {
   }
 
   public get gameHeader(): string {
-    return this.isCreate ? 'Join.Component.Header.Start_a_team' : 'Join.Component.Header.Join_a_team';
+    return this.isCreate ? extract('Join.Component.Header.Start_a_team') : extract('Join.Component.Header.Join_a_team');
   }
 
   public get submitButtonLabel(): string {
-    return this.isCreate ? 'Join.Component.Button.Start.Label' : 'Join.Component.Button.Join.Label';
+    return this.isCreate ? extract('Join.Component.Button.Start.Label') : extract('Join.Component.Button.Join.Label');
   }
   //#endregion
 
@@ -83,7 +92,7 @@ export class CreateJoinFormComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return 'Component.Error.Mandatory';
+      return extract('Component.Error.Mandatory');
     }
     return undefined;
   }
@@ -137,10 +146,10 @@ export class CreateJoinFormComponent {
 
   private getCardSetValues(): Array<ICardSetSelectItem> {
     return [
-      { set: ECardSet.Cohn, label: 'Cohn' },
-      { set: ECardSet.Fibonacci, label: 'Fibonacci' },
-      { set: ECardSet.TShirt, label: 'T-Shirt' }
-      //{ set: ECardSet.Custom, label: "Cohn" },
+      { set: ECardSet.Cohn, label: extract('CardSet.DisplayName.Cohn') },
+      { set: ECardSet.Fibonacci, label: extract('CardSet.DisplayName.Fibonacci') },
+      { set: ECardSet.TShirt, label: extract('CardSet.DisplayName.TShirt') }
+      //{ set: ECardSet.Custom, label: extract('CardSet.DisplayName.Custom') },
     ];
   }
 }
