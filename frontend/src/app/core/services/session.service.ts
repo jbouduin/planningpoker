@@ -13,7 +13,7 @@ import {
   ISelfMessage,
   ITeamNameMessage
 } from 'shared-lib';
-import { CreateMessage, JoinMessage, RejoinMessage } from '../../shared/dto';
+import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../../shared/dto';
 import { isSessionMessage, SessionMessage } from '../messaging';
 import { ApiService } from './api.service';
 import { ICanRejoinResult } from './can-rejoin-result';
@@ -22,6 +22,7 @@ import { Logger } from './logger';
 import { Member } from './member';
 import { SocketService } from './socket.service';
 import { UiEventsService } from './ui-events.service';
+import { ISimpleDialogParams } from './simple-dialog.params';
 
 @Service()
 export class SessionService {
@@ -88,7 +89,6 @@ export class SessionService {
 
   public clearSessionData(): void {
     this.localStorageSvc.clear();
-    // this.resetServices();
   }
 
   public createSession(
@@ -123,6 +123,32 @@ export class SessionService {
     this.log.debug(`rejoining ${team} as ${participantId}`);
     this.initialMessage = new RejoinMessage('', participantId);
     this.socketSvc.connect(team);
+  }
+
+  public leave(): void {
+    const team = this.teamName() || this.localStorageSvc.teamName;
+    const participantId = this.me()?.participantId || this.localStorageSvc.nick;
+    if (team !== null && participantId !== null) {
+      const message = new LeaveMessage(participantId, participantId);
+      // switch (this.status) {
+      //     case ESessionStatus.Active:
+      //       this.status = ESessionStatus.Stopping;
+      //       this.sendMessage(message);
+      //       break;
+      //     case ESessionStatus.ReconnectPending:
+      //       this.status = ESessionStatus.Inactive;
+      //       this.resetServices();
+      //       this.localStorage.clear();
+      //       break;
+      //     case ESessionStatus.Suspended:
+      //       this.initialMessage = message;
+      //       this.status = ESessionStatus.Resuming;
+      //       this.connect(team);
+      //   }
+      this.socketSvc.sendMessage(message);
+    } else {
+      this.resetService();
+    }
   }
   //#endregion
 
@@ -163,43 +189,22 @@ export class SessionService {
   }
 
   private handleEndSession(): void {
+    // this should go to team service, but that one does not know if 'me' is the scrum master
     if (this.me()?.role !== ERole.ScrumMaster) {
-      // this.snackbarSvc.showInfo('MessageBox.The_scrummaster_has_ended_the_session.Text');
-      //   const params = new MessageBoxParams();
-      //   params.showCancelButton = false;
-      //   params.title = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Title');
-      //   params.text = this.translateService.instant('MessageBox.The_scrummaster_has_ended_the_session.Text');
-      //   this.dialog.open(MessageBoxComponent, {
-      //     width: '250px',
-      //     data: params
-      //   });
+      const params: ISimpleDialogParams = {
+        dialogTitleKey: 'MessageBox.The_scrummaster_has_ended_the_session.Title',
+        dialogMessageKey: 'MessageBox.The_scrummaster_has_ended_the_session.Text'
+      };
+      this.uiEventsSvc.showSimpleDialog(params);
     }
     this.resetService();
   }
 
   private handleServerReset(): void {
-    // const params = new MessageBoxParams();
-    // params.showCancelButton = false;
-    // params.title = this.translateService.instant('MessageBox.The_server_has_been_reset.Title');
-    // params.text = this.translateService.instant('MessageBox.The_server_has_been_reset.Text');
-    // this.dialog.open(MessageBoxComponent, {
-    //   width: '250px',
-    //   data: params
-    // });
-    // this.snackbarSvc.showInfo('MessageBox.The_server_has_been_reset.Title');
     this.resetService();
   }
 
   private handleTeamIdle(): void {
-    // const params = new MessageBoxParams();
-    // params.showCancelButton = false;
-    // params.title = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Title');
-    // params.text = this.translateService.instant('MessageBox.The_was_idle_for_to_long.Text');
-    // this.dialog.open(MessageBoxComponent, {
-    //   width: '250px',
-    //   data: params
-    // });
-    // this.snackbarSvc.showInfo('MessageBox.The_was_idle_for_to_long.Text');
     this.resetService();
   }
 
@@ -212,7 +217,7 @@ export class SessionService {
     this.me.set(new Member(message.data, true));
     this.localStorageSvc.participantId = message.data.participantId;
     this.localStorageSvc.nick = message.data.nick;
-    // this.status = ESessionStatus.Active;
+    // this.status = ESessionStatus.Active; → probably move this to uieventsservice as signal also
     // this.navigateTo('/game');
   }
 
@@ -223,7 +228,6 @@ export class SessionService {
       this.resetService();
     } else {
       if (previous?.role === ERole.Developer && message.data.role === ERole.ScrumMaster) {
-        // TODO move this to team service
         this.uiEventsSvc.showInfo('Game.Snackbar.You_are_now_scrum-master');
       }
       this.me.set(new Member(message.data, true));

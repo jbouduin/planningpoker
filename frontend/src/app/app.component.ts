@@ -7,11 +7,14 @@ import { GameService } from './features/game/services/game.service';
 import { CreateComponent } from './features/team/create/create.component';
 import { JoinComponent } from './features/team/join/join.component';
 import { TeamService } from './features/team/services/team.service';
+import { DialogService } from './shared/service/dialog.service';
 import { SnackbarService } from './shared/service/snackbar.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MessageBoxParams } from './shared/components/message-box/message-box.params';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, CreateComponent, JoinComponent],
+  imports: [MatButtonModule, CommonModule, RouterOutlet, CreateComponent, JoinComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -22,7 +25,7 @@ export class AppComponent implements AfterViewInit {
   protected readonly sessionSvc: SessionService;
   protected readonly teamSvc: TeamService;
   protected readonly title = signal('frontend');
-
+  private readonly dialogSvc: DialogService;
   /**
    * Inject the core services so they are instantiated.
    * Later we can probably remove it
@@ -33,7 +36,8 @@ export class AppComponent implements AfterViewInit {
     teamSvc: TeamService,
     _apiSvc: ApiService,
     snackbarSvc: SnackbarService,
-    uiEventsSvc: UiEventsService
+    uiEventsSvc: UiEventsService,
+    dialogSvc: DialogService
     // localStorageSvc: LocalStorageService
   ) {
     // this.localStorageSvc = localStorageSvc;
@@ -41,6 +45,7 @@ export class AppComponent implements AfterViewInit {
     this.gameSvc = gameSvc;
     this.sessionSvc = sessionSvc;
     this.teamSvc = teamSvc;
+    this.dialogSvc = dialogSvc;
     effect(() => {
       const snackBarSignal = uiEventsSvc.snackbar();
       if (snackBarSignal !== null) {
@@ -48,24 +53,37 @@ export class AppComponent implements AfterViewInit {
         uiEventsSvc.snackbar.set(null);
       }
     });
+
+    effect(() => {
+      const simpleDialogSignal = uiEventsSvc.simpleDialog();
+      if (simpleDialogSignal !== null) {
+        dialogSvc.showSimpleDialog(simpleDialogSignal);
+        uiEventsSvc.simpleDialog.set(null);
+      }
+    });
   }
 
   public ngAfterViewInit(): void {
     this.sessionSvc.canRejoin().subscribe((result: ICanRejoinResult) => {
       if (result.canRejoin) {
-        // eslint-disable-next-line no-console
-        console.log(result);
-        // const params = new MessageBoxParams();
-        // params.cancelButtonLabel = this.translateService.instant('Button.Generic.Label.No');
-        // params.okButtonLabel = this.translateService.instant('Button.Generic.Label.Yes');
-        // params.text = this.translateService.instant(
-        //   'MessageBox.Rejoin_$team_as_$nick.Text',
-        //   {
-        //     team: result.team,
-        //     nick: result.nick
-        //   });
-        // params.title = this.translateService.instant('MessageBox.Rejoin_$team_as_$nick.Title');
-
+        const params = new MessageBoxParams();
+        params.cancelButtonLabelKey = 'Button.Generic.Label.No';
+        params.okButtonLabelKey = 'Button.Generic.Label.Yes';
+        params.textKey = 'MessageBox.Rejoin_$team_as_$nick.Text';
+        // this.translateService.instant(
+        // 'MessageBox.Rejoin_$team_as_$nick.Text',
+        // {
+        //   team: result.team,
+        //   nick: result.nick
+        // });
+        params.titleKey = 'MessageBox.Rejoin_$team_as_$nick.Title';
+        this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
+          if (confirmed) {
+            this.sessionSvc.rejoin(result.team!, result.participantId!);
+          } else {
+            this.sessionSvc.leave();
+          }
+        });
         // const dialogRef = this.dialog.open(MessageBoxComponent, {
         //   width: '350px',
         //   data: params
@@ -77,9 +95,21 @@ export class AppComponent implements AfterViewInit {
         //     this.sessionService.quitSession();
         //   }
         // });
-        this.sessionSvc.rejoin(result.team!, result.participantId!);
       } else {
         this.sessionSvc.clearSessionData();
+      }
+    });
+  }
+
+  public leave(): void {
+    const params = new MessageBoxParams();
+    params.cancelButtonLabelKey = 'Button.Generic.Label.No';
+    params.okButtonLabelKey = 'Button.Generic.Label.Yes';
+    params.textKey = 'MessageBox.Do_you_want_to_end_the_session.Text';
+    params.titleKey = 'MessageBox.Do_you_want_to_end_the_session.Title';
+    this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.sessionSvc.leave();
       }
     });
   }

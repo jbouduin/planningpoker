@@ -9,22 +9,24 @@ import {
   IMemberListMessage,
   IParticipant
 } from 'shared-lib';
-import { Member, SocketService } from '../../../core';
+import { ISimpleDialogParams, Member, SocketService, UiEventsService } from '../../../core';
 import { isTeamMessage, TeamMessage } from '../../../core/messaging';
 
 @Service()
 export class TeamService {
   //#region private readonly properties ---------------------------------------
   private readonly socketSvc: SocketService;
+  private readonly uiEventsSvc: UiEventsService;
   //#endregion
 
-  //#region Signales ----------------------------------------------------------
+  //#region Signals -----------------------------------------------------------
   public members: WritableSignal<Array<IParticipant>>;
   //#region
 
   //#region Constructor & C° -------------------------------------------------
   public constructor() {
     this.socketSvc = inject(SocketService);
+    this.uiEventsSvc = inject(UiEventsService);
     this.members = signal<Array<IParticipant>>(new Array<IParticipant>());
     this.socketSvc.incomingMessage
       .pipe(filter((msg: AServerMessage) => isTeamMessage(msg)))
@@ -32,11 +34,14 @@ export class TeamService {
   }
   //#endregion
 
+  //#region Public methods ----------------------------------------------------
+  //#endregion
+
   //#region Auxiliary methods: message handling -------------------------------
   private handleServerMessage(message: TeamMessage): void {
     switch (message.type) {
       case EServerMessageType.EndSession:
-        this.resetService();
+        this.handleEndSession();
         break;
       case EServerMessageType.MemberList:
         this.handleMemberListMessage(<IMemberListMessage>message);
@@ -45,12 +50,24 @@ export class TeamService {
         this.handleMemberChanged(<IMemberChangeMessage>message);
         break;
       case EServerMessageType.ServerReset:
+        this.handleServerResetMessage();
         this.resetService();
         break;
       case EServerMessageType.TeamIdle:
-        this.resetService();
+        this.handleTeamIdleMessage();
         break;
     }
+  }
+
+  private handleEndSession(): void {
+    // if (this.me()?.role !== ERole.ScrumMaster) {
+    const params: ISimpleDialogParams = {
+      dialogTitleKey: 'MessageBox.The_scrummaster_has_ended_the_session.Title',
+      dialogMessageKey: 'MessageBox.The_scrummaster_has_ended_the_session.Text'
+    };
+    this.uiEventsSvc.showSimpleDialog(params);
+    // }
+    this.resetService();
   }
 
   private handleMemberListMessage(message: IMemberListMessage): void {
@@ -111,6 +128,24 @@ export class TeamService {
         );
         break;
     }
+  }
+
+  private handleTeamIdleMessage(): void {
+    const params: ISimpleDialogParams = {
+      dialogTitleKey: 'MessageBox.The_was_idle_for_to_long.Title',
+      dialogMessageKey: 'MessageBox.The_was_idle_for_to_long.Text'
+    };
+    this.uiEventsSvc.showSimpleDialog(params);
+    this.resetService();
+  }
+
+  private handleServerResetMessage(): void {
+    const params: ISimpleDialogParams = {
+      dialogTitleKey: 'MessageBox.The_server_has_been_reset.Title',
+      dialogMessageKey: 'MessageBox.The_server_has_been_reset.Text'
+    };
+    this.uiEventsSvc.showSimpleDialog(params);
+    this.resetService();
   }
 
   private resetService(): void {
