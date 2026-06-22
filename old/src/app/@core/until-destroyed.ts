@@ -38,7 +38,7 @@
  * ```
  */
 
-/* NOW this does not compile anymore
+
 export function untilDestroyed(instance: object, destroyMethodName = 'ngOnDestroy') {
   return <T>(source: Observable<T>) => {
     const originalDestroy = instance[destroyMethodName];

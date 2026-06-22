@@ -7,6 +7,9 @@ export class LocalStorageService {
   private readonly nickKey: string = 'current_nick';
   private readonly teamNameKey: string = 'current_teamName';
   private readonly participantIdKey: string = 'current_participantId';
+  //#endregion
+
+  //#region Properties backing fields -----------------------------------------
   private _currentLang: string | null;
   private _nick: string | null;
   private _teamName: string | null;

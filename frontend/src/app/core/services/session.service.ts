@@ -23,7 +23,7 @@ import { Member } from './member';
 import { SocketService } from './socket.service';
 import { UiEventsService } from './ui-events.service';
 import { ISimpleDialogParams } from './simple-dialog.params';
-import { extract } from './i18n.service';
+import { extract } from '../extract';
 
 @Service()
 export class SessionService {
