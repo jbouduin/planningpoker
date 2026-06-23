@@ -1,10 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
-import { ESnackbarType } from '../../../core/services/snackbar-type.enum';
-import { SnackbarParams } from '../../../core/services/snackbar.params';
-import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ESnackbarType, SnackbarParams } from '../../../core';
 
 @Component({
   selector: 'app-snackbar',
@@ -13,11 +12,15 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './snackbar.component.scss'
 })
 export class SnackbarComponent {
-  //#region Public properties ------------------------------------------------.
+  //#region Private Fields ----------------------------------------------------
+  private matSnackbarRef: MatSnackBarRef<SnackbarComponent>;
+  //#endregion
+
+  //#region Public Fields -----------------------------------------------------
   public params: SnackbarParams = inject<SnackbarParams>(MAT_SNACK_BAR_DATA);
   //#endregion
 
-  //#region Public getter methods ---------------------------------------------
+  //#region Getters-Setters ---------------------------------------------------
   public get isInfo(): boolean {
     return this.params.type === ESnackbarType.Info;
   }
@@ -32,7 +35,9 @@ export class SnackbarComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(private matSnackbarRef: MatSnackBarRef<SnackbarComponent>) {}
+  public constructor(matSnackbarRef: MatSnackBarRef<SnackbarComponent>) {
+    this.matSnackbarRef = matSnackbarRef;
+  }
   //#endregion
 
   //#region UI triggered methods ----------------------------------------------

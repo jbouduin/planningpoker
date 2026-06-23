@@ -3,9 +3,9 @@ import { Component, computed, Signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ERole, IParticipant } from 'shared-lib';
-import { extract, Member, SessionService } from '../../../core';
-import { TeamService } from '../../team/services/team.service';
-import { MemberComponent } from './member.component';
+import { extract, Member, SessionService } from '../../../../core';
+import { TeamService } from '../../../team/services';
+import { MemberComponent } from '../member/member.component';
 
 @Component({
   selector: 'app-members-panel',
@@ -14,6 +14,15 @@ import { MemberComponent } from './member.component';
   styleUrl: './members-panel.component.scss'
 })
 export class MembersPanelComponent {
+  //#region Translation keys --------------------------------------------------
+  protected readonly LEAVE_LABEL = extract('MemberButtons.Component.Button.Leave.Label');
+  protected readonly PAUSE_LABEL = extract('MemberButtons.Component.Button.Pause.Label');
+  protected readonly END_SESSION_LABEL = extract('ScrumMasterButtons.Component.Button.EndSession.Label');
+  protected readonly SCRUM_MASTER_LABEL = extract('MemberPanel.Component.Header.ScrumMaster');
+  protected readonly DEVELOPERS_LABEL = extract('MemberPanel.Component.Header.Developers');
+  protected readonly OBSERVERS_LABEL = extract('MemberPanel.Component.Header.Observers');
+  //#endregion
+
   //#region Private fields ----------------------------------------------------
   private sessionSvc: SessionService;
   private teamSvc: TeamService;
@@ -23,12 +32,6 @@ export class MembersPanelComponent {
   protected scrumMaster: Signal<Member | null>;
   protected developers: Signal<Array<Member>>;
   protected observers: Signal<Array<Member>>;
-  //#endregion
-
-  //#region Translation keys --------------------------------------------------
-  protected readonly SCRUM_MASTER_LABEL = extract('MemberPanel.Component.Header.ScrumMaster');
-  protected readonly DEVELOPERS_LABEL = extract('MemberPanel.Component.Header.Developers');
-  protected readonly OBSERVERS_LABEL = extract('MemberPanel.Component.Header.Observers');
   //#endregion
 
   //#region Getters -----------------------------------------------------------

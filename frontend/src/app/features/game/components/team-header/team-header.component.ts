@@ -1,9 +1,9 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { extract, SessionService, UiEventsService } from '../../../core';
-import { Clipboard } from '@angular/cdk/clipboard';
+import { extract, SessionService, UiEventsService } from '../../../../core';
 
 @Component({
   selector: 'app-team-header',

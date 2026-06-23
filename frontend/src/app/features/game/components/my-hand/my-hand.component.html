@@ -1,0 +1,13 @@
+<mat-card>
+  <div class="my-hand mat-card-inner-container">
+    <!-- TODO if cardSet is null, do not display -->
+    <div *ngFor="let card of gameSvc.cardSet()!.cards">
+      <app-card
+        [card]="card"
+        [enabled]="canEstimate"
+        [isAvailableCard]="true"
+        (cardClicked)="cardClicked($event)"
+      ></app-card>
+    </div>
+  </div>
+</mat-card>

@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { SessionService } from '../../core';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
-import { TeamHeaderComponent } from './components/team-header.component';
-import { MyHandComponent } from './components/my-hand.component';
-import { PlayfieldComponent } from './components/playfield.component';
-import { MembersPanelComponent } from './components/members-panel.component';
-import { ScrumMasterButtonsComponent } from './components/scrum-master-buttons.component';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { SessionService } from '../../core';
+import {
+  MembersPanelComponent,
+  MyHandComponent,
+  PlayfieldComponent,
+  ScrumMasterButtonsComponent,
+  TeamHeaderComponent
+} from './components';
 
 @Component({
   selector: 'app-game.component',

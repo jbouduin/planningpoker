@@ -27,8 +27,96 @@
   // }
   "Constructor": {
     "scope": "typescript",
-    "prefix": "ppconstructor",
-    "body": "//#region Constructor & C° --------------------------------------------------\npublic constructor() { }\n#endregion",
+    "prefix": "#constructor",
+    "body": [
+      "//#region Constructor & C° --------------------------------------------------",
+      "public constructor() { }",
+      "//#endregion"
+    ],
     "description": "Insert the constructor block"
+  },
+  "Translation keys": {
+    "scope": "typescript",
+    "prefix": "#translation keys",
+    "body": "//#region Translation Keys --------------------------------------------------",
+    "description": "Start the translation keys region"
+  },
+  "Private fields": {
+    "scope": "typescript",
+    "prefix": "#private fields",
+    "body": "//#region Private Fields ----------------------------------------------------",
+    "description": "Start the private fields region"
+  },
+  "Protected fields": {
+    "scope": "typescript",
+    "prefix": "#protected fields",
+    "body": "//#region Protected Fields --------------------------------------------------",
+    "description": "Start the protected fields region"
+  },
+  "Signals": {
+    "scope": "typescript",
+    "prefix": "#signals",
+    "body": "//#region Signals -----------------------------------------------------------",
+    "description": "Start the signals region"
+  },
+  "Input": {
+    "scope": "typescript",
+    "prefix": "#input",
+    "body": "//#region Component Inputs --------------------------------------------------",
+    "description": "Start the inputs region"
+  },
+  "Getters-Setters": {
+    "scope": "typescript",
+    "prefix": "#getters-setters",
+    "body": "//#region Getters-Setters ---------------------------------------------------",
+    "description": "Start the getters-setters region"
+  },
+  "UI-triggers": {
+    "scope": "typescript",
+    "prefix": "#ui-triggers",
+    "body": "//#region UI-Triggers -------------------------------------------------------",
+    "description": "Start the UI-triggers region"
+  },
+  "Public methods": {
+    "scope": "typescript",
+    "prefix": "#public methods",
+    "body": "//#region Public Methods ----------------------------------------------------",
+    "description": "Start the Public methods region"
+  },
+  "Auxiliary": {
+    "scope": "typescript",
+    "prefix": "#auxiliary",
+    "body": "//#region Auxiliary Methods -------------------------------------------------",
+    "description": "Start the Auxiliary methods region"
+  },
+  "ESLint disable": {
+    "scope": "typescript",
+    "prefix": "#eslint-disable",
+    "body": "/* eslint-disable $1 */",
+    "description": "Insert eslint-disable"
+  },
+  "ESLint enable": {
+    "scope": "typescript",
+    "prefix": "#eslint-enable",
+    "body": "/* eslint-enable $1 */",
+    "description": "Insert eslint-disable"
+  },
+  "ESLint disable - enable": {
+    "scope": "typescript",
+    "prefix": "#eslint-disable-enable",
+    "body": ["/* eslint-disable $1 */", "/* eslint-enable $1 */"],
+    "description": "Insert eslint-disable and eslint enable"
+  },
+  "ESLint disable next-line": {
+    "scope": "typescript",
+    "prefix": "#eslint-disable",
+    "body": "/* eslint-disable-next-line $1 */",
+    "description": "Insert eslint-disable"
+  },
+  "Export": {
+    "scope": "typescript",
+    "prefix": "#export",
+    "body": "export * from '$1';",
+    "description": "export statement"
   }
 }

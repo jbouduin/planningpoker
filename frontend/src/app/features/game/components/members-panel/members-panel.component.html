@@ -27,8 +27,12 @@
   <!-- Leave and pause -->
   <div id="actions" class="participants">
     <mat-card>
-      <button id="leave-button" mat-stroked-button color="primary" (click)="leave()">Leave</button>
-      <button id="leave-button" disabled="!canPause" mat-stroked-button color="primary" (click)="pause()">Pause</button>
+      <button id="leave-button" mat-stroked-button color="primary" (click)="leave()">
+        {{ (scrumMaster()?.me ? END_SESSION_LABEL : LEAVE_LABEL) | translate }}
+      </button>
+      <button id="leave-button" disabled="!canPause" mat-stroked-button color="primary" (click)="pause()">
+        {{ PAUSE_LABEL | translate }}
+      </button>
     </mat-card>
   </div>
 </div>
