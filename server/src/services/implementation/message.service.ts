@@ -13,6 +13,7 @@ import {
 import {
   CardSetMessage,
   ClearEstimationsMessage,
+  EndInitMessage,
   EndSessionMessage,
   ErrorMessage,
   EstimationListMessage,
@@ -118,6 +119,8 @@ export class MessageService implements IMessageService {
     message = new MemberListMessage(members.map((p: IServerParticipant) => p.self));
     this.senderService.sendToParticipant(to, message);
     message = new EstimationListMessage(estimations);
+    this.senderService.sendToParticipant(to, message);
+    message = new EndInitMessage();
     this.senderService.sendToParticipant(to, message);
   }
 

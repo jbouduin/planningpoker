@@ -9,3 +9,4 @@ export * from './simple-dialog.params';
 export * from './socket.service';
 export * from './ui-events.service';
 export * from './snackbar.params';
+export * from './socket-state.enum';

@@ -13,6 +13,7 @@ export type IEndSessionMessage = IServerMessage<void>;
 export type IErrorMessage = IServerMessage<IError>;
 export type IEstimationListMessage = IServerMessage<Array<IEstimation>>;
 export type IInitMessage = IServerMessage<IParticipant>;
+export type IEndInitMessage = IServerMessage<void>;
 export type IMemberChangeMessage = IServerMessage<IMemberChange>;
 export type IMemberListMessage = IServerMessage<Array<IParticipant>>;
 export type IPingMessage = IServerMessage<void>;
@@ -28,6 +29,7 @@ export type AServerMessage =
   | IErrorMessage
   | IEstimationListMessage
   | IInitMessage
+  | IEndInitMessage
   | IMemberChangeMessage
   | IMemberListMessage
   | IPingMessage

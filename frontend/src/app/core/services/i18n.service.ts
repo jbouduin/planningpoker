@@ -10,6 +10,8 @@ export class I18nService {
   private readonly translateSvc: TranslateService;
   //#endregion
 
+  // TODO
+  public readonly supportedLanguages = ['de-DE', 'en-US'];
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
     this.localStorageSvc = inject(LocalStorageService);
@@ -32,6 +34,10 @@ export class I18nService {
   public changeLang(newLang: string): void {
     this.translateSvc.use(newLang);
   }
+
+  public get currentLang(): string {
+    return this.translateSvc.getCurrentLang()!;
+  }
   //#endregion
 
   //#region Auxiliary methods -------------------------------------------------
@@ -40,9 +46,8 @@ export class I18nService {
     let browser = navigator.language;
     // TODO use environment.ts instead of hardcoding
     const defaultLanguage = 'en-US';
-    const supportedLanguages = ['de-DE', 'en-US'];
     const toUse = fromStorage || browser || 'en-US';
-    return supportedLanguages.includes(toUse) ? toUse : defaultLanguage;
+    return this.supportedLanguages.includes(toUse) ? toUse : defaultLanguage;
   }
   //#endregion
 }

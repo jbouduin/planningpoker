@@ -6,6 +6,7 @@ export enum EServerMessageType {
   Error = 'error',
   EstimationList = 'estimation-list',
   Init = 'init',
+  EndInit = 'end-init',
   MemberChanged = 'member-changed',
   MemberList = 'member-list',
   Ping = 'ping',

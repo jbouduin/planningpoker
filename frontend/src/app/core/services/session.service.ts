@@ -1,4 +1,4 @@
-import { inject, Service, signal, WritableSignal } from '@angular/core';
+import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
 import { filter, map, Observable, of } from 'rxjs';
 import {
   AClientMessage,
@@ -24,6 +24,8 @@ import { SocketService } from './socket.service';
 import { UiEventsService } from './ui-events.service';
 import { ISimpleDialogParams } from './simple-dialog.params';
 import { extract } from '../extract';
+import { ESocketState } from './socket-state.enum';
+import { ESessionState } from './session-state.enum';
 
 @Service()
 export class SessionService {
@@ -42,6 +44,7 @@ export class SessionService {
   //#region Signals -----------------------------------------------------------
   public teamName: WritableSignal<string | null>;
   public me: WritableSignal<Member | null>;
+  public sessionState: WritableSignal<ESessionState>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -52,7 +55,17 @@ export class SessionService {
     this.socketSvc = inject(SocketService);
     this.uiEventsSvc = inject(UiEventsService);
     this.teamName = signal<string | null>(null);
-    this.me = signal<Member | null>(null); // new Member({ nick: '', observer: true, role: ERole.Unknown, status: EParticipantStatus.Unknown, participantId: '' }, true);
+    this.me = signal<Member | null>(null);
+    this.sessionState = signal<ESessionState>(ESessionState.Inactive);
+    effect(() => {
+      const state = this.socketSvc.socketStatus();
+      if (state === ESocketState.ReconnectPending) {
+        const participantId = this.me()?.participantId || this.localStorageSvc.participantId;
+        if (participantId) {
+          this.initialMessage = new RejoinMessage('', participantId);
+        }
+      }
+    });
     this.socketSvc.incomingMessage
       .pipe(filter((msg: AServerMessage) => isSessionMessage(msg)))
       .subscribe((msg: SessionMessage) => this.handleServerMessage(msg));
@@ -100,7 +113,6 @@ export class SessionService {
     cards: ICardSet | undefined
   ): void {
     this.log.debug(`creating: ${nick}@${team}`);
-    // this.status = ESessionStatus.Connecting;
     this.initialMessage = new CreateMessage('', {
       observer: observer,
       nick: nick,
@@ -112,7 +124,6 @@ export class SessionService {
 
   public joinSession(team: string, nick: string, observer: boolean): void {
     this.log.debug(`joining: ${nick}@${team}`);
-    // this.status = ESessionStatus.Connecting;
     this.initialMessage = new JoinMessage('', {
       observer: observer,
       nick: nick
@@ -120,15 +131,15 @@ export class SessionService {
     this.socketSvc.connect(team);
   }
 
-  public rejoin(team: string, participantId: string): void {
+  public rejoinSession(team: string, participantId: string): void {
     this.log.debug(`rejoining ${team} as ${participantId}`);
     this.initialMessage = new RejoinMessage('', participantId);
     this.socketSvc.connect(team);
   }
 
-  public leave(): void {
+  public leaveSession(): void {
     const team = this.teamName() || this.localStorageSvc.teamName;
-    const participantId = this.me()?.participantId || this.localStorageSvc.nick;
+    const participantId = this.me()?.participantId || this.localStorageSvc.participantId;
     if (team !== null && participantId !== null) {
       const message = new LeaveMessage(participantId, participantId);
       // switch (this.status) {
@@ -159,6 +170,9 @@ export class SessionService {
       case EServerMessageType.Error:
         this.handleError(<IErrorMessage>message);
         break;
+      case EServerMessageType.EndInit:
+        this.handleEndInit();
+        break;
       case EServerMessageType.EndSession:
         this.handleEndSession();
         break;
@@ -183,14 +197,20 @@ export class SessionService {
   }
 
   private handleError(message: IErrorMessage): void {
+    // TODO create the error handler service let it handle the error as before
+    //
     // if (this.errorHandlerService.handleErrorMessage(message)) {
     //   this.resetServices();
     // }
     this.uiEventsSvc.showError(`Error: ${message.data.code}: ${message.data.message}`);
   }
 
+  private handleEndInit(): void {
+    this.sessionState.set(ESessionState.Active);
+  }
+
   private handleEndSession(): void {
-    // this should go to team service, but that one does not know if 'me' is the scrum master
+    // this should probably go to team service, but that one does not know if 'me' is the scrum master
     if (this.me()?.role !== ERole.ScrumMaster) {
       const params: ISimpleDialogParams = {
         dialogTitleKey: extract('MessageBox.The_scrummaster_has_ended_the_session.Title'),
@@ -210,6 +230,7 @@ export class SessionService {
   }
 
   private handleInit(message: IInitMessage): void {
+    this.sessionState.set(ESessionState.Entering);
     if (this.initialMessage) {
       this.initialMessage.senderId = message.data.participantId;
       this.socketSvc.sendMessage(this.initialMessage);
@@ -218,8 +239,6 @@ export class SessionService {
     this.me.set(new Member(message.data, true));
     this.localStorageSvc.participantId = message.data.participantId;
     this.localStorageSvc.nick = message.data.nick;
-    // this.status = ESessionStatus.Active; → probably move this to uieventsservice as signal also
-    // this.navigateTo('/game');
   }
 
   private handleSelf(message: ISelfMessage): void {
@@ -235,7 +254,7 @@ export class SessionService {
       this.localStorageSvc.nick = message.data.nick;
       this.localStorageSvc.participantId = message.data.participantId;
       if (message.data.status === EParticipantStatus.Paused) {
-        // this.status = ESessionStatus.Suspended;
+        this.sessionState.set(ESessionState.Suspended);
         this.socketSvc.disconnect();
       }
     }
@@ -249,6 +268,7 @@ export class SessionService {
   private resetService(): void {
     this.me.set(null);
     this.teamName.set(null);
+    this.sessionState.set(ESessionState.Inactive);
   }
   //#endregion
 }

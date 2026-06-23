@@ -205,6 +205,7 @@
   }
 </style>
 
+<!--
 {{ sessionSvc.teamName() }}
 <main class="main">
   <div *ngIf="!sessionSvc.teamName()">
@@ -243,7 +244,8 @@
     <button (click)="changeLang('de-DE')">DE</button>
   </div>
 </main>
-
+-->
+<app-shell></app-shell>
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
@@ -251,5 +253,3 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-
-<router-outlet />

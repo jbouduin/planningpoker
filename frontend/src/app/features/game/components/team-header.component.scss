@@ -1,0 +1,12 @@
+.team-header-container {
+  width: auto;
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.team-name-span {
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+}

@@ -1,4 +1,5 @@
 import {
+  IEndInitMessage,
   IEndSessionMessage,
   IErrorMessage,
   IInitMessage,
@@ -11,6 +12,7 @@ import {
 
 export type SessionMessage =
   | IInitMessage
+  | IEndInitMessage
   | ISelfMessage
   | ITeamNameMessage
   | IPingMessage

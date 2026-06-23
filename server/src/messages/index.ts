@@ -12,3 +12,4 @@ export * from './self-message';
 export * from './server-reset-message';
 export * from './team-idle-message';
 export * from './team-name-message';
+export * from './end-init-message';

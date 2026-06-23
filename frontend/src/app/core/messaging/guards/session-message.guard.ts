@@ -4,6 +4,7 @@ import { SessionMessage } from '../types';
 export function isSessionMessage(msg: AServerMessage): msg is SessionMessage {
   return [
     EServerMessageType.Init,
+    EServerMessageType.EndInit,
     EServerMessageType.Self,
     EServerMessageType.TeamName,
     EServerMessageType.Ping,

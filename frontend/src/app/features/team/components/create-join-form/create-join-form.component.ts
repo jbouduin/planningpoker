@@ -8,12 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
-import type { ECardSet as ECardSetType } from 'shared-lib';
 import { ECardSet } from 'shared-lib';
-import { extract, SessionService } from '../../../core';
+import { extract, SessionService } from '../../../../core';
+import { ECreateJoinFormMode } from './create-join-form-mode';
 
 export interface ICardSetSelectItem {
-  set: ECardSetType;
+  set: ECardSet;
   label: string;
 }
 
@@ -35,17 +35,18 @@ export interface ICardSetSelectItem {
   styleUrl: './create-join-form.component.scss'
 })
 export class CreateJoinFormComponent {
-  //#region Static ------------------------------------------------------------
+  //#region Protected Read-only -----------------------------------------------
   protected readonly TEAM_LABEL = extract('Join.Component.Input.Team.Label');
   protected readonly TEAM_PLACEHOLDER = extract('Join.Component.Input.Team.PlaceHolder');
   protected readonly NICK_LABEL = extract('Component.Input.Nick.Label');
   protected readonly NICK_PLACEHOLDER = extract('Component.Input.Nick.PlaceHolder');
   protected readonly CARDSET_LABEL = extract('Component.Select.CardSet.Label');
   protected readonly OBSERVER_LABEL = extract('Join.Component.Checkbox.Observer.Label');
+  protected readonly EFormMode = ECreateJoinFormMode;
   //#endregion
 
   //#region Input -------------------------------------------------------------
-  @Input({ required: true }) isCreate!: boolean;
+  @Input({ required: true }) formMode!: ECreateJoinFormMode;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -64,11 +65,15 @@ export class CreateJoinFormComponent {
   }
 
   public get gameHeader(): string {
-    return this.isCreate ? extract('Join.Component.Header.Start_a_team') : extract('Join.Component.Header.Join_a_team');
+    return this.formMode == ECreateJoinFormMode.Create
+      ? extract('Join.Component.Header.Start_a_team')
+      : extract('Join.Component.Header.Join_a_team');
   }
 
   public get submitButtonLabel(): string {
-    return this.isCreate ? extract('Join.Component.Button.Start.Label') : extract('Join.Component.Button.Join.Label');
+    return this.formMode == ECreateJoinFormMode.Create
+      ? extract('Join.Component.Button.Start.Label')
+      : extract('Join.Component.Button.Join.Label');
   }
   //#endregion
 
@@ -100,7 +105,7 @@ export class CreateJoinFormComponent {
 
   //#region Event triggers ----------------------------------------------------
   public submit(): void {
-    if (this.isCreate) {
+    if (this.formMode == ECreateJoinFormMode.Create) {
       const cardSet = this.formData.get('cardSet')?.value as ECardSet;
       if (cardSet === ECardSet.Custom) {
         // const params: ICardSetDialogParams = {
@@ -140,10 +145,6 @@ export class CreateJoinFormComponent {
   //#endregion
 
   //#region mock methods ------------------------------------------------------
-  public get formMode(): string {
-    return this.isCreate ? 'Create' : 'Join';
-  }
-
   private getCardSetValues(): Array<ICardSetSelectItem> {
     return [
       { set: ECardSet.Cohn, label: extract('CardSet.DisplayName.Cohn') },

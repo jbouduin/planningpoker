@@ -1,0 +1,19 @@
+.header-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.header-right {
+  flex: 1 1 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.version-text {
+  font-size: 14px;
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+  margin-right: 10px;
+}

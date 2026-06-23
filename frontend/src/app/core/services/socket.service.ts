@@ -1,11 +1,10 @@
-import { inject, Service } from '@angular/core';
+import { inject, Service, signal, WritableSignal } from '@angular/core';
 import { ReplaySubject, Subject } from 'rxjs';
 import { AClientMessage, AServerMessage, EParticipantStatus, ERole } from 'shared-lib';
-import { RejoinMessage } from '../../shared/dto';
 import { LocalStorageService } from './local-storage.service';
 import { Logger } from './logger';
 import { Member } from './member';
-import { ESessionStatus } from './session-status.enum';
+import { ESocketState } from './socket-state.enum';
 import { UiEventsService } from './ui-events.service';
 
 @Service()
@@ -23,11 +22,14 @@ export class SocketService {
   private webSocket: WebSocket | null;
   //#endregion
 
+  //#region Signal ------------------------------------------------------------
+  public readonly socketStatus: WritableSignal<ESocketState>;
+  //#endregion
+
   //#region public properties -------------------------------------------------
   public readonly incomingMessage: ReplaySubject<AServerMessage>;
   public readonly reset: Subject<void>;
   public resumeIn: number;
-  public status: ESessionStatus;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -35,6 +37,7 @@ export class SocketService {
     this.localStorageSvc = inject(LocalStorageService);
     this.log = new Logger('SocketService');
     this.uiEventsSvc = inject(UiEventsService);
+    this.socketStatus = signal<ESocketState>(ESocketState.Disconnected);
     this.me = new Member(
       {
         nick: '',
@@ -49,7 +52,6 @@ export class SocketService {
     this.webSocket = null;
     this.incomingMessage = new ReplaySubject<AServerMessage>();
     this.reset = new Subject<void>();
-    this.status = ESessionStatus.Inactive;
   }
   //#endregion
 
@@ -59,24 +61,24 @@ export class SocketService {
     this.log.warn('Not implemented');
   }
 
-  public rejoin(): void {
-    window.clearInterval(this.resumeTimer);
-    const team = this.localStorageSvc.teamName;
-    const participantId = this.localStorageSvc.participantId;
-    if (team && participantId) {
-      this.log.debug(`rejoining ${team} as ${participantId}`);
-      if (this.status !== ESessionStatus.ReconnectPending) {
-        this.status = ESessionStatus.Reconnecting;
-      } else {
-        this.status = ESessionStatus.Resuming;
-      }
-      this.initialMessage = new RejoinMessage('', participantId);
-      this.connect(team);
-    } else {
-      this.uiEventsSvc.showWarning('Session.Service.Warning.Can_not_rejoin');
-      this.resetServices();
-    }
-  }
+  // public rejoin(): void {
+  //   window.clearInterval(this.resumeTimer);
+  //   const team = this.localStorageSvc.teamName;
+  //   const participantId = this.localStorageSvc.participantId;
+  //   if (team && participantId) {
+  //     this.log.debug(`rejoining ${team} as ${participantId}`);
+  //     if (this.status !== ESessionStatus.ReconnectPending) {
+  //       this.status = ESessionStatus.Reconnecting;
+  //     } else {
+  //       this.status = ESessionStatus.Resuming;
+  //     }
+  //     this.initialMessage = new RejoinMessage('', participantId);
+  //     this.connect(team);
+  //   } else {
+  //     this.uiEventsSvc.showWarning('Session.Service.Warning.Can_not_rejoin');
+  //     this.resetServices();
+  //   }
+  // }
 
   public suspendSession(): void {
     this.log.warn('not implemented');
@@ -85,18 +87,12 @@ export class SocketService {
 
   //#region Websocket methods -------------------------------------------------
   public connect(teamName: string): void {
-    // const url = `${environment.ws}/${encodeURI(teamName)}`;
-    const url = `ws://localhost:3001/ws/game/${encodeURI(teamName)}`;
-    this.log.debug('opening ws using url' + url);
-    this.webSocket = new WebSocket(url);
-    this.webSocket.onopen = this.onOpen.bind(this);
-    this.webSocket.onmessage = this.onMessage.bind(this);
-    this.webSocket.onerror = this.onError.bind(this);
-    this.webSocket.onclose = this.onClose.bind(this);
+    this._connect(teamName, ESocketState.Connecting);
   }
 
   public disconnect(): void {
     if (this.webSocket?.readyState === WebSocket.OPEN) {
+      this.socketStatus.set(ESocketState.Disconnecting);
       this.webSocket.close(1000);
     }
   }
@@ -109,21 +105,35 @@ export class SocketService {
   }
   //#endregion
 
+  //#region Auxiliary methods: socket methods ---------------------------------
+  private _connect(teamName: string, status: ESocketState.Reconnecting | ESocketState.Connecting): void {
+    // TODO const url = `${environment.ws}/${encodeURI(teamName)}`;
+    this.socketStatus.set(status);
+    const url = `ws://localhost:3001/ws/game/${encodeURI(teamName)}`;
+    this.log.debug('opening ws using url' + url);
+    this.webSocket = new WebSocket(url);
+    this.webSocket.onopen = this.onOpen.bind(this);
+    this.webSocket.onmessage = this.onMessage.bind(this);
+    this.webSocket.onerror = this.onError.bind(this);
+    this.webSocket.onclose = this.onClose.bind(this);
+  }
+  //#endregion
+
   //#region Auxiliary methods: Websocket events -------------------------------
   private onOpen(_event: Event): void {
     this.log.debug(`Successfully connected to ${this.webSocket?.url}`);
-    this.status = ESessionStatus.Initiating;
+    this.socketStatus.set(ESocketState.Connected);
   }
 
   private onClose(event: CloseEvent): void {
     if (event.code == 1006) {
-      switch (this.status) {
-        case ESessionStatus.Connecting:
+      switch (this.socketStatus()) {
+        case ESocketState.Connecting:
           this.log.debug('in onClose case: Starting');
           this.uiEventsSvc.showError('Socket.Error.Could_not_connect');
-          this.status = ESessionStatus.Inactive;
+          this.socketStatus.set(ESocketState.Disconnected);
           break;
-        case ESessionStatus.Resuming:
+        case ESocketState.Reconnecting:
           this.log.debug('in onClose case: Resuming');
           this.uiEventsSvc.showError('Socket.Error.Unable_to_reestablish_the_connection');
           this.initiateAutomaticReconnect();
@@ -149,8 +159,9 @@ export class SocketService {
   }
 
   private onError(_event: Event): void {
-    if (this.status !== ESessionStatus.Resuming && this.status != ESessionStatus.Connecting) {
-      this.log.debug(`in onError not connecting and not reconnecting : ${this.status}`);
+    const status = this.socketStatus();
+    if (status !== ESocketState.Reconnecting && status != ESocketState.Connecting) {
+      this.log.debug(`in onError not connecting and not reconnecting : ${status}`);
       this.uiEventsSvc.showError('Socket.Error.Communication_error');
     }
   }
@@ -159,14 +170,14 @@ export class SocketService {
   //#region Auxiliary methods: reconnect --------------------------------------
   private initiateAutomaticReconnect(): void {
     this.resumeIn = 30;
-    this.status = ESessionStatus.ReconnectPending;
+    this.socketStatus.set(ESocketState.ReconnectPending);
     this.resumeTimer = window.setInterval(this.reconnectTick.bind(this), 1000);
   }
 
   private reconnectTick(): void {
     this.resumeIn--;
     if (this.resumeIn === 0) {
-      this.rejoin();
+      this._connect(this.localStorageSvc.teamName!, ESocketState.Reconnecting);
     }
   }
   //#endregion
@@ -182,17 +193,9 @@ export class SocketService {
   }
 
   private resetServices(): void {
-    this.status = ESessionStatus.Inactive;
+    this.socketStatus.set(ESocketState.Disconnected);
     this.disconnect();
     this.reset.next();
-    this.navigateTo('/home');
-  }
-
-  private navigateTo(_route: string): void {
-    // if (this.currentRoute !== route) {
-    //   this.log.debug(`navigating to '${route}'`);
-    //   this.router.navigate([route]);
-    // }
   }
   //#region
 }

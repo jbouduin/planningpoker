@@ -1,0 +1,34 @@
+<div class="side-nav-container">
+  <!-- Scrum-master -->
+  <div id="scrum-master" class="participants">
+    <mat-card-title>{{ SCRUM_MASTER_LABEL | translate }}</mat-card-title>
+    <mat-card-content class="participant-list">
+      <app-member *ngIf="scrumMaster() != null" [member]="scrumMaster()!"></app-member>
+    </mat-card-content>
+  </div>
+  <!-- Developers -->
+  <div id="developers" class="participants">
+    <mat-card-title>{{ DEVELOPERS_LABEL | translate }}</mat-card-title>
+    <mat-card-content class="participant-list">
+      <div *ngFor="let developer of developers()">
+        <app-member [member]="developer"></app-member>
+      </div>
+    </mat-card-content>
+  </div>
+  <!-- Observers -->
+  <div id="observers" class="participants">
+    <mat-card-title>{{ OBSERVERS_LABEL | translate }}</mat-card-title>
+    <mat-card-content class="participant-list">
+      <div *ngFor="let observer of observers()">
+        <app-member [member]="observer"></app-member>
+      </div>
+    </mat-card-content>
+  </div>
+  <!-- Leave and pause -->
+  <div id="actions" class="participants">
+    <mat-card>
+      <button id="leave-button" mat-stroked-button color="primary" (click)="leave()">Leave</button>
+      <button id="leave-button" disabled="!canPause" mat-stroked-button color="primary" (click)="pause()">Pause</button>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<div class="game-container">
+  <div class="game-container-content">
+    <mat-sidenav-container>
+      <mat-sidenav #sidenav opened="true" mode="side">
+        <app-members-panel></app-members-panel>
+      </mat-sidenav>
+      <mat-sidenav-content>
+        <div>
+          <div class="toggle-container">
+            <button (click)="sidenav.toggle()" class="toggle">T</button>
+          </div>
+          <div class="game">
+            <app-team-header></app-team-header>
+            <app-playfield></app-playfield>
+            <app-my-hand></app-my-hand>
+            <mat-card>
+              <app-scrum-master-buttons></app-scrum-master-buttons>
+            </mat-card>
+          </div>
+        </div>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </div>
+</div>
+<div></div>
