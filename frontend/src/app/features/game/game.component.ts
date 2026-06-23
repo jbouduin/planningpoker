@@ -10,10 +10,13 @@ import {
   ScrumMasterButtonsComponent,
   TeamHeaderComponent
 } from './components';
+import { CommonModule } from '@angular/common';
+import { ERole } from 'shared-lib';
 
 @Component({
   selector: 'app-game.component',
   imports: [
+    CommonModule,
     MatButtonModule,
     MatCardModule,
     MatSidenavModule,
@@ -28,7 +31,8 @@ import {
 })
 export class GameComponent {
   //#region Protected fields --------------------------------------------------
-  private readonly sessionSvc: SessionService;
+  protected readonly ROLE = ERole;
+  protected readonly sessionSvc: SessionService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------

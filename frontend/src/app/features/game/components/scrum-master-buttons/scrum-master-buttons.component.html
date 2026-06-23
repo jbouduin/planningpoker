@@ -1,1 +1,22 @@
-<p>scrum-master-buttons.component works!</p>
+<div *ngIf="showMe" class="button-row">
+  <div *ngIf="showStart" class="game-button">
+    <button id="start-button" mat-stroked-button color="primary" (click)="start()">
+      {{ START_LABEL | translate }}
+    </button>
+  </div>
+  <div *ngIf="showReveal" class="game-button">
+    <button id="reveal-button" mat-stroked-button color="primary" (click)="reveal()" [disabled]="disableReveal">
+      {{ REVEAL_LABEL | translate }}
+    </button>
+  </div>
+  <div *ngIf="showReveal" class="game-button">
+    <button id="force-reveal-button" mat-stroked-button color="primary" (click)="reveal()">
+      {{ FORCE_REVEAL_LABEL | translate }}
+    </button>
+  </div>
+  <div *ngIf="!showReveal" class="game-button">
+    <button id="change-card-set-button" mat-stroked-button color="primary" (click)="changeCardSet()">
+      {{ CHANGE_CARDSET_LABEL | translate }}
+    </button>
+  </div>
+</div>
