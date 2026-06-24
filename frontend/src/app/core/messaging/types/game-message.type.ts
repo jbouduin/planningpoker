@@ -1,16 +1,3 @@
-import {
-  ICardSetMessage,
-  IClearEstimationsMessage,
-  IEstimationListMessage,
-  IPokerStatusChangedMessage,
-  IServerResetMessage,
-  ITeamIdleMessage
-} from 'shared-lib';
+import { ICardSetMessage, IServerResetMessage, ITeamIdleMessage } from 'shared-lib';
 
-export type GameMessage =
-  | ICardSetMessage
-  | IEstimationListMessage
-  | IClearEstimationsMessage
-  | IPokerStatusChangedMessage
-  | ITeamIdleMessage
-  | IServerResetMessage;
+export type GameMessage = ICardSetMessage | ITeamIdleMessage | IServerResetMessage;

@@ -29,9 +29,9 @@ export class MembersPanelComponent {
   //#endregion
 
   //#region Signals -----------------------------------------------------------
-  protected scrumMaster: Signal<Member | null>;
-  protected developers: Signal<Array<Member>>;
-  protected observers: Signal<Array<Member>>;
+  protected readonly scrumMaster: Signal<Member | null>;
+  protected readonly developers: Signal<Array<Member>>;
+  protected readonly observers: Signal<Array<Member>>;
   //#endregion
 
   //#region Getters -----------------------------------------------------------

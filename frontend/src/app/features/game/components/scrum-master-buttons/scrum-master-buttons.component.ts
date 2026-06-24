@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed, Signal } from '@angular/core';
 import { extract } from '../../../../core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { EPokerStatus } from 'shared-lib';
+import { PokerService } from '../../services';
+import { Estimation } from '../../services/estimation';
 
 @Component({
   selector: 'app-scrum-master-buttons',
@@ -17,36 +20,49 @@ export class ScrumMasterButtonsComponent {
   protected readonly START_LABEL = extract('ScrumMasterButtons.Component.Button.Start.Label');
   //#endregion
 
-  //#region Getters-Setters ---------------------------------------------------
-  // TODO once poker service is implemented work with signals
-  public get disableReveal(): boolean {
-    return true;
-    // return this.pokerService.membersWithoutEstimation.length > 0;
-  }
+  //#region Protected Fields --------------------------------------------------
+  protected readonly pokerSvc: PokerService;
+  //#endregion
 
-  public get showMe(): boolean {
-    return true;
-    // return this.sessionService.scrumMaster;
-  }
+  //#region Signals -----------------------------------------------------------
+  protected readonly disableChangeCardSet: Signal<boolean>;
+  protected readonly disableForceReveal: Signal<boolean>;
+  protected readonly disableReveal: Signal<boolean>;
+  protected readonly showReveal: Signal<boolean>;
+  protected readonly showStart: Signal<boolean>;
+  //#endregion
 
-  public get showReveal(): boolean {
-    return true;
-    // return this.pokerService.canPoker;
-  }
-
-  public get showStart(): boolean {
-    return true;
-    // return !this.pokerService.canPoker;
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(pokerSvc: PokerService) {
+    this.pokerSvc = pokerSvc;
+    this.disableChangeCardSet = this.showReveal = computed(() => {
+      return this.pokerSvc.pokerState() != EPokerStatus.Cleared;
+    });
+    this.disableForceReveal = computed(() => {
+      const estimations = this.pokerSvc.estimations();
+      return estimations.find((e: Estimation) => e.card == null) == undefined;
+    });
+    this.disableReveal = computed(() => {
+      const estimations = this.pokerSvc.estimations();
+      return estimations.find((e: Estimation) => e.card == null) != undefined;
+    });
+    this.showReveal = computed(() => {
+      return this.pokerSvc.pokerState() == EPokerStatus.Started;
+    });
+    this.showStart = computed(() => {
+      const pokerState = this.pokerSvc.pokerState();
+      return pokerState == EPokerStatus.Cleared || pokerState == EPokerStatus.Revealed;
+    });
   }
   //#endregion
 
   //#region UI-Triggers -------------------------------------------------------
   public reveal(): void {
-    // this.pokerService.reveal();
+    this.pokerSvc.reveal();
   }
 
   public start(): void {
-    // this.pokerService.start();
+    this.pokerSvc.start();
   }
 
   public changeCardSet(): void {

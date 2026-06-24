@@ -1,21 +1,35 @@
-<div *ngIf="showMe" class="button-row">
-  <div *ngIf="showStart" class="game-button">
+<div class="button-row">
+  {{ pokerSvc.pokerState() }}
+  <div *ngIf="showStart()" class="game-button">
     <button id="start-button" mat-stroked-button color="primary" (click)="start()">
       {{ START_LABEL | translate }}
     </button>
   </div>
-  <div *ngIf="showReveal" class="game-button">
-    <button id="reveal-button" mat-stroked-button color="primary" (click)="reveal()" [disabled]="disableReveal">
+  <div *ngIf="showReveal()">
+    <button id="reveal-button" mat-stroked-button color="primary" (click)="reveal()" [disabled]="disableReveal()">
       {{ REVEAL_LABEL | translate }}
     </button>
   </div>
-  <div *ngIf="showReveal" class="game-button">
-    <button id="force-reveal-button" mat-stroked-button color="primary" (click)="reveal()">
+  <div *ngIf="showReveal()">
+    <button
+      id="force-reveal-button"
+      mat-stroked-button
+      color="primary"
+      (click)="reveal()"
+      [disabled]="disableForceReveal()"
+    >
       {{ FORCE_REVEAL_LABEL | translate }}
     </button>
   </div>
-  <div *ngIf="!showReveal" class="game-button">
-    <button id="change-card-set-button" mat-stroked-button color="primary" (click)="changeCardSet()">
+  <!-- LATER: move this to the right side of the button row -->
+  <div class="game-button">
+    <button
+      id="change-card-set-button"
+      mat-stroked-button
+      color="primary"
+      (click)="changeCardSet()"
+      [disabled]="disableChangeCardSet()"
+    >
       {{ CHANGE_CARDSET_LABEL | translate }}
     </button>
   </div>

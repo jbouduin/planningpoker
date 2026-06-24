@@ -28,37 +28,17 @@ export class GameService {
   private handleServerMessage(message: GameMessage): void {
     switch (message.type) {
       case EServerMessageType.CardList:
-        this.handleCardListMessage(<ICardSetMessage>message);
-        break;
-      case EServerMessageType.ClearEstimations:
+        this.cardSet.set((<ICardSetMessage>message).data);
         break;
       case EServerMessageType.EndSession:
         this.resetService();
-        break;
-      case EServerMessageType.EstimationList:
-        break;
-      case EServerMessageType.PokerStatus:
         break;
       case EServerMessageType.ServerReset:
         this.resetService();
     }
   }
 
-  private handleCardListMessage(message: ICardSetMessage): void {
-    this.cardSet.set(message.data);
-  }
-
   private resetService(): void {
     this.cardSet.set(null);
   }
-  //#endregion
-  /**
-   * Should handle:
-   * CardList
-   * EstimationList
-   * ClearEstimations
-   * PokerStatus
-   * TeamIdle
-   * ServerReset
-   */
 }

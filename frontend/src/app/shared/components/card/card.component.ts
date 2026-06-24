@@ -12,7 +12,10 @@ import { ICard } from 'shared-lib';
 export class CardComponent {
   //#region Component Inputs --------------------------------------------------
   /** If undefined the card is a placeholder for someone who did not estimate */
-  @Input() public card: ICard | undefined;
+  /**
+   * If card is null, the logo is displayed
+   */
+  @Input() public card: ICard | null;
   @Input() public enabled: boolean;
   @Input() public revealed: boolean;
   @Input() public mine: boolean;
@@ -40,6 +43,7 @@ export class CardComponent {
     this.revealed = false;
     this.mine = false;
     this.isAvailableCard = false;
+    this.card = null;
     this.cardClicked = new EventEmitter<number>();
   }
   //#endregion

@@ -1,0 +1,31 @@
+.estimations {
+  display: flex;
+  flex-flow: wrap;
+  min-height: 160px;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+}
+
+.mine {
+  color: #002cff;
+  font-weight: bold;
+}
+
+.nick-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.nick {
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.not-estimated {
+  color: lightgray;
+}

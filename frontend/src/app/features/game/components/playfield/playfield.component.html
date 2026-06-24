@@ -1,1 +1,22 @@
-<p>playfield.component works!</p>
+<mat-card>
+  <div class="estimations mat-card-inner-container">
+    <!-- Estimations  -->
+    <ng-container *ngFor="let estimation of pokerSvc.estimations()">
+      <div class="cards">
+        <app-card
+          [card]="estimation.card"
+          [enabled]="isCardEnabled(estimation)"
+          [mine]="estimation.member.me"
+          [revealed]="estimation.revealed"
+          (cardClicked)="cardClicked()"
+        >
+        </app-card>
+        <div class="nick-wrapper" [class.mine]="estimation.member.me">
+          <div class="nick">
+            <span>{{ estimation.member.me ? (ME_LABEL | translate) : estimation.member.nick }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</mat-card>
