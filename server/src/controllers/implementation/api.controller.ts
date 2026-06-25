@@ -1,10 +1,10 @@
 import { inject, injectable } from 'inversify';
 import { CanRejoinDto, CardSetDto, ECardSetType, EErrorCode } from 'shared-lib';
-import { ILoggerService } from '../../services/interfaces';
-import SERVICETYPES from '../../services/service.types';
-import { IFactoryService, IStorageService } from '../../storage/interfaces';
-import STORAGETYPES from '../../storage/storage.types';
-import { IApiController } from '../interfaces';
+import type { ILoggerService } from '../../services/interfaces/index.js';
+import SERVICETYPES from '../../services/service.types.js';
+import type { IFactoryService, IStorageService } from '../../storage/interfaces/index.js';
+import STORAGETYPES from '../../storage/storage.types.js';
+import type { IApiController } from '../interfaces/index.js';
 
 @injectable()
 export class ApiController implements IApiController {

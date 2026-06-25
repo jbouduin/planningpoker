@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { setInterval } from 'timers';
-import { ICronService, IEnvironmentService, IHandlerService, ILoggerService } from '../interfaces';
-import SERVICETYPES from '../service.types';
+import type { ICronService, IEnvironmentService, IHandlerService, ILoggerService } from '../interfaces/index.js';
+import SERVICETYPES from '../service.types.js';
 
 @injectable()
 export class CronService implements ICronService {

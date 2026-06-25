@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 import { EGameState } from 'shared-lib';
-import { FactoryService, TeamRepository } from '../../../src/storage/implementation';
-import { IFactoryService, ITeamRepository } from '../../../src/storage/interfaces';
+import { FactoryService, TeamRepository } from '../../../src/storage/implementation/index.js';
+import type { IFactoryService, ITeamRepository } from '../../../src/storage/interfaces/index.js';
 
 describe('ITeamRepository', () => {
   test('create team', () => {

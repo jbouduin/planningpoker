@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
 import { EParticipantState } from 'shared-lib';
-import { IServerParticipant, IServerTeam } from '../../objects';
-import { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from '../interfaces';
-import STORAGETYPES from '../storage.types';
+import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import type { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from '../interfaces/index.js';
+import STORAGETYPES from '../storage.types.js';
 
 @injectable()
 export class MembershipRepository implements IMembershipRepository {

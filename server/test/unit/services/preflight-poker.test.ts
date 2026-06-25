@@ -10,9 +10,9 @@ import {
   IRevealMessage,
   IStartMessage
 } from 'shared-lib';
-import { FactoryService } from '../../../src/storage/implementation';
-import { IStorageService } from '../../../src/storage/interfaces';
-import { Util } from '../util';
+import { FactoryService } from '../../../src/storage/implementation/index.js';
+import type { IStorageService } from '../../../src/storage/interfaces/index.js';
+import { Util } from '../util.js';
 
 describe('preflight Start', () => {
   test('OK', () => {

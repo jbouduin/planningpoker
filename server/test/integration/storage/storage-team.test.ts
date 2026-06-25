@@ -1,9 +1,9 @@
 import { describe, expect, test } from '@jest/globals';
 import { ECardSetType, EGameState } from 'shared-lib';
-import { IServerParticipant, IServerTeam } from '../../../src/objects';
-import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
-import STORAGETYPES from '../../../src/storage/storage.types';
-import { Util } from './util';
+import type { IServerParticipant, IServerTeam } from '../../../src/objects/interfaces/index.js';
+import type { IFactoryService, IStorageService } from '../../../src/storage/interfaces/index.js';
+import STORAGETYPES from '../../../src/storage/storage.types.js';
+import { Util } from './util.js';
 
 describe('CRUD', () => {
   test('Create', () => {

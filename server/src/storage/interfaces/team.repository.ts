@@ -1,6 +1,6 @@
 import { EGameState } from 'shared-lib';
-import { IServerTeam } from '../../objects';
-import { IBaseRepository } from './base.repository';
+import type { IServerTeam } from '../../objects/interfaces/index.js';
+import { IBaseRepository } from './base.repository.js';
 
 export interface ITeamRepository extends IBaseRepository<IServerTeam> {
   setLastAccessTime(teamName: string): void;

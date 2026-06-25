@@ -2,16 +2,17 @@
   "name": "Planning poker API server",
   "version": "0.0.1",
   "description": "The planning poker back-end",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "build:prod": "tsc -b",
+    "build:prod": "tsc -p tsconfig.prod.json",
     "build:test": "tsc -p tsconfig.test.json",
     "start": "node ./dist/server.js",
     "dev": "nodemon",
-    "prod": "npm run build && node dist/server.js",
-    "test:ci": "jest -c jest.ci.config.ts",
-    "test:unit": "build:test && jest -c jest.unit.config.ts --coverage",
-    "test:integration": "jest -c jest.integration.config.ts --coverage"
+    "prod": "npm run build:prod && node dist/server.js",
+    "test:ci": "npm run build:test && jest -c jest.ci.config.ts",
+    "test:unit": "npm run build:test && jest -c jest.unit.config.ts --coverage",
+    "test:integration": "npm run build:test && jest -c jest.integration.config.ts --coverage"
   },
   "author": "Johan Bouduin",
   "license": "UNLICENSED",
@@ -40,7 +41,6 @@
     "jest-html-reporter": "^4.4.0",
     "moq.ts": "^10.0.2",
     "nodemon": "^3.1.14",
-    "ts-jest": "^29.4.11",
     "ts-node": "^10.9.1",
     "typescript": "^6.0.3"
   }

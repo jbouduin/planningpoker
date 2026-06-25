@@ -2,10 +2,10 @@ import { Request, Response, Router } from 'express';
 import * as expressWs from 'express-ws';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import CONTROLLERTYPES from '../../controllers/controller.types';
-import { IApiController, ISystemController } from '../../controllers/interfaces';
-import { IEnvironmentService, ILoggerService, IRouteService } from '../interfaces';
-import SERVICETYPES from '../service.types';
+import CONTROLLERTYPES from '../../controllers/controller.types.js';
+import type { IApiController, ISystemController } from '../../controllers/interfaces/index.js';
+import type { IEnvironmentService, ILoggerService, IRouteService } from '../interfaces/index.js';
+import SERVICETYPES from '../service.types.js';
 
 @injectable()
 export class RouteService implements IRouteService {

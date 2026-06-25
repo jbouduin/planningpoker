@@ -1,4 +1,4 @@
-import { IServerTeam, IServerParticipant } from '../../objects';
+import type { IServerTeam, IServerParticipant } from '../../objects/interfaces/index.js';
 
 export interface IMembershipRepository {
   removeTeam(teamName: string): void;

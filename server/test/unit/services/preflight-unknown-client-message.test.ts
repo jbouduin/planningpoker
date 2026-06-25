@@ -1,8 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 import { AClientMessage, EErrorCode } from 'shared-lib';
-import { IStorageService } from '../../../src/storage/interfaces';
-import { Util } from '../util';
+import type { IStorageService } from '../../../src/storage/interfaces/index.js';
+import { Util } from '../util.js';
 
 describe('Unknown message type', () => {
   test('Unknown message type', () => {

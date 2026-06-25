@@ -1,9 +1,13 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
-import { IServerParticipant } from '../../../src/objects';
-import { MembershipRepository } from '../../../src/storage/implementation';
-import { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from '../../../src/storage/interfaces';
-import { Util } from '../util';
+import type { IServerParticipant } from '../../../src/objects/interfaces/index.js';
+import { MembershipRepository } from '../../../src/storage/implementation/index.js';
+import type {
+  IMembershipRepository,
+  IServerParticipantRepository,
+  ITeamRepository
+} from '../../../src/storage/interfaces/index.js';
+import { Util } from '../util.js';
 
 describe('Member scope', () => {
   test('join and leave', () => {

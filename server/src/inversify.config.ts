@@ -1,7 +1,7 @@
 import { Container } from 'inversify';
-import CONTROLLERTYPES from './controllers/controller.types';
-import { ApiController, SystemController } from './controllers/implementation';
-import { IApiController, ISystemController } from './controllers/interfaces';
+import CONTROLLERTYPES from './controllers/controller.types.js';
+import { ApiController, SystemController } from './controllers/implementation/index.js';
+import type { IApiController, ISystemController } from './controllers/interfaces/index.js';
 import {
   CronService,
   EnvironmentService,
@@ -13,8 +13,8 @@ import {
   SenderService,
   SerializationService,
   SocketService
-} from './services/implementation';
-import {
+} from './services/implementation/index.js';
+import type {
   ICronService,
   IEnvironmentService,
   IHandlerService,
@@ -25,8 +25,8 @@ import {
   ISenderService,
   ISerializationService,
   ISocketService
-} from './services/interfaces';
-import SERVICETYPES from './services/service.types';
+} from './services/interfaces/index.js';
+import SERVICETYPES from './services/service.types.js';
 import {
   CardSetRepository,
   EstimationRepository,
@@ -35,8 +35,8 @@ import {
   ServerParticipantRepository,
   StorageService,
   TeamRepository
-} from './storage/implementation';
-import {
+} from './storage/implementation/index.js';
+import type {
   ICardSetRepository,
   IEstimationRepository,
   IFactoryService,
@@ -44,8 +44,8 @@ import {
   IServerParticipantRepository,
   IStorageService,
   ITeamRepository
-} from './storage/interfaces';
-import STORAGETYPES from './storage/storage.types';
+} from './storage/interfaces/index.js';
+import STORAGETYPES from './storage/storage.types.js';
 
 const container = new Container();
 

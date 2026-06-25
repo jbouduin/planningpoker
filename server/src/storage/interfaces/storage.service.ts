@@ -1,5 +1,5 @@
 import { EErrorCode, EGameState, CardSetDto, EstimationDto } from 'shared-lib';
-import { IServerParticipant, IServerTeam } from '../../objects';
+import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
 
 export interface IStorageService {
   //#region participant -------------------------------------------------------

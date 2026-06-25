@@ -1,2 +1,2 @@
-export * from './api.controller';
-export * from './system.controller';
+export * from './api.controller.js';
+export * from './system.controller.js';

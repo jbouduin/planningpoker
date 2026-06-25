@@ -2,15 +2,15 @@ import cors from 'cors';
 import express from 'express';
 import { logger } from 'express-winston';
 import expressWs from 'express-ws';
-import container from './inversify.config';
-import {
+import container from './inversify.config.js';
+import type {
   ICronService,
   IEnvironmentService,
   ILoggerService,
   IRouteService,
   ISocketService
-} from './services/interfaces';
-import SERVICETYPES from './services/service.types';
+} from './services/interfaces/index.js';
+import SERVICETYPES from './services/service.types.js';
 
 class App {
   public expressWS: expressWs.Instance;

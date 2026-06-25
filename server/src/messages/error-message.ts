@@ -1,5 +1,5 @@
 import { EErrorCode, EServerMessageType, ErrorDto, IErrorMessage } from 'shared-lib';
-import { ServerMessage } from './server-message';
+import { ServerMessage } from './server-message.js';
 
 export class ErrorMessage extends ServerMessage<ErrorDto> implements IErrorMessage {
   public constructor(code: EErrorCode, errorMessage: string | null = null) {

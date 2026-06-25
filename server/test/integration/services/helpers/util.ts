@@ -18,8 +18,8 @@ import {
   MessageService,
   PreflightService,
   SenderService
-} from '../../../../src/services/implementation';
-import {
+} from '../../../../src/services/implementation/index.js';
+import type {
   ICronService,
   IEnvironmentService,
   IHandlerService,
@@ -28,8 +28,8 @@ import {
   IPreflightService,
   ISenderService,
   LogType
-} from '../../../../src/services/interfaces';
-import SERVICETYPES from '../../../../src/services/service.types';
+} from '../../../../src/services/interfaces/index.js';
+import SERVICETYPES from '../../../../src/services/service.types.js';
 import {
   CardSetRepository,
   EstimationRepository,
@@ -38,8 +38,8 @@ import {
   ServerParticipantRepository,
   StorageService,
   TeamRepository
-} from '../../../../src/storage/implementation';
-import {
+} from '../../../../src/storage/implementation/index.js';
+import type {
   ICardSetRepository,
   IEstimationRepository,
   IFactoryService,
@@ -47,11 +47,12 @@ import {
   IServerParticipantRepository,
   IStorageService,
   ITeamRepository
-} from '../../../../src/storage/interfaces';
-import STORAGETYPES from '../../../../src/storage/storage.types';
-import { ITestParticipant, TestParticipant } from './TestParticipant';
-import { ITestScrumMaster } from './TestScrumMaster';
-import { UnaffectedTeam } from './UnaffectedTeam';
+} from '../../../../src/storage/interfaces/index.js';
+import STORAGETYPES from '../../../../src/storage/storage.types.js';
+import type { ITestParticipant } from './TestParticipant.js';
+import { TestParticipant } from './TestParticipant.js';
+import { ITestScrumMaster } from './TestScrumMaster.js';
+import { UnaffectedTeam } from './UnaffectedTeam.js';
 
 export class Util {
   public static scrumMaster1Nick = 'John Doe';

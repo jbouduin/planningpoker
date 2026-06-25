@@ -1,6 +1,6 @@
 import { CardSetDto, EErrorCode, EGameState, EParticipantChangeType, EstimationDto } from 'shared-lib';
-import { IServerParticipant, IServerTeam } from '../../objects';
-import { IWebSocket } from '../websocket';
+import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import { IWebSocket } from '../websocket.js';
 
 export interface IMessageService {
   broadcastCardSet(members: Array<IServerParticipant>, cardSet: CardSetDto): void;

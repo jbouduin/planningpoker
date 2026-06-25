@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { Container } from 'inversify';
-import { IWebSocket, ReadyState } from '../../../src/services/websocket';
+import { IWebSocket, ReadyState } from '../../../src/services/websocket.js';
 import {
   CardSetRepository,
   EstimationRepository,
@@ -9,8 +9,8 @@ import {
   ServerParticipantRepository,
   StorageService,
   TeamRepository
-} from '../../../src/storage/implementation';
-import {
+} from '../../../src/storage/implementation/index.js';
+import type {
   ICardSetRepository,
   IEstimationRepository,
   IFactoryService,
@@ -18,8 +18,8 @@ import {
   IServerParticipantRepository,
   IStorageService,
   ITeamRepository
-} from '../../../src/storage/interfaces';
-import STORAGETYPES from '../../../src/storage/storage.types';
+} from '../../../src/storage/interfaces/index.js';
+import STORAGETYPES from '../../../src/storage/storage.types.js';
 
 export class Util {
   public static participant1Nick = 'participant 1';

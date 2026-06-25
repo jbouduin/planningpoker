@@ -1,6 +1,6 @@
 import { EServerMessageType } from 'shared-lib';
-import { ITestParticipant } from './TestParticipant';
-import { ITestScrumMaster } from './TestScrumMaster';
+import type { ITestParticipant } from './TestParticipant.js';
+import type { ITestScrumMaster } from './TestScrumMaster.js';
 
 export class UnaffectedTeam {
   public readonly scrumMaster: ITestScrumMaster;

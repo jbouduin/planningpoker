@@ -1,6 +1,6 @@
 import { ERole } from 'shared-lib';
-import { IHandlerService } from '../../../../src/services/interfaces';
-import { ATestParticipant, IATestParticipant } from './ATestParticipant';
+import type { IHandlerService } from '../../../../src/services/interfaces/index.js';
+import { ATestParticipant, IATestParticipant } from './ATestParticipant.js';
 
 export type ITestParticipant = IATestParticipant;
 

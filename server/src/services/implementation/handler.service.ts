@@ -21,13 +21,13 @@ import {
   IRemoveMessage,
   LooseObjectDto
 } from 'shared-lib';
-import { IServerParticipant, IServerTeam } from '../../objects';
-import { IFactoryService, IStorageService } from '../../storage/interfaces';
-import STORAGETYPES from '../../storage/storage.types';
-import { IHandlerService, ILoggerService, IMessageService } from '../interfaces';
-import { IPreflightService } from '../interfaces/preflight.service';
-import SERVICETYPES from '../service.types';
-import { IWebSocket } from '../websocket';
+import { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import { IFactoryService, IStorageService } from '../../storage/interfaces/index.js';
+import STORAGETYPES from '../../storage/storage.types.js';
+import type { IHandlerService, ILoggerService, IMessageService } from '../interfaces/index.js';
+import type { IPreflightService } from '../interfaces/index.js';
+import SERVICETYPES from '../service.types.js';
+import { IWebSocket } from '../websocket.js';
 
 @injectable()
 export class HandlerService implements IHandlerService {

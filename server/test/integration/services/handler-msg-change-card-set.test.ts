@@ -13,12 +13,12 @@ import {
   IChangeCardSetMessage,
   IStartMessage
 } from 'shared-lib';
-import { IHandlerService } from '../../../src/services/interfaces';
-import SERVICETYPES from '../../../src/services/service.types';
-import { IFactoryService } from '../../../src/storage/interfaces';
-import STORAGETYPES from '../../../src/storage/storage.types';
-import { TestFunction } from '../../types';
-import { Util } from './helpers/util';
+import type { IHandlerService } from '../../../src/services/interfaces/index.js';
+import SERVICETYPES from '../../../src/services/service.types.js';
+import { IFactoryService } from '../../../src/storage/interfaces/index.js';
+import STORAGETYPES from '../../../src/storage/storage.types.js';
+import { TestFunction } from '../../types.js';
+import { Util } from './helpers/util.js';
 
 describe('Change card set => OK', () => {
   test('Change card set', () => {

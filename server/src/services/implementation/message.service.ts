@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
+import type { AServerMessage } from 'shared-lib';
 import {
-  AServerMessage,
   CardSetDto,
   EErrorCode,
   EGameState,
@@ -25,11 +25,11 @@ import {
   ServerResetMessage,
   TeamIdleMessage,
   TeamNameMessage
-} from '../../messages';
-import { IServerParticipant, IServerTeam } from '../../objects';
-import { IMessageService, ISenderService } from '../interfaces';
-import SERVICETYPES from '../service.types';
-import { IWebSocket } from '../websocket';
+} from '../../messages/index.js';
+import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import type { IMessageService, ISenderService } from '../interfaces/index.js';
+import SERVICETYPES from '../service.types.js';
+import { IWebSocket } from '../websocket.js';
 
 @injectable()
 export class MessageService implements IMessageService {

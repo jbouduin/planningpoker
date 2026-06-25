@@ -20,9 +20,9 @@ import {
   IRejoinMessage,
   IRemoveMessage
 } from 'shared-lib';
-import { IServerParticipant } from '../../objects';
-import { IStorageService } from '../../storage/interfaces';
-import { IPreflightService } from '../interfaces';
+import type { IServerParticipant } from '../../objects/interfaces/index.js';
+import type { IStorageService } from '../../storage/interfaces/index.js';
+import type { IPreflightService } from '../interfaces/index.js';
 
 @injectable()
 export class PreflightService implements IPreflightService {

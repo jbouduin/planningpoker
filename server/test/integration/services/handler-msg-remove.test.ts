@@ -7,9 +7,9 @@ import {
   ERole,
   IRemoveMessage
 } from 'shared-lib';
-import { IHandlerService } from '../../../src/services/interfaces';
-import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from './helpers/util';
+import type { IHandlerService } from '../../../src/services/interfaces/index.js';
+import SERVICETYPES from '../../../src/services/service.types.js';
+import { Util } from './helpers/util.js';
 
 describe('Remove => OK', () => {
   test('Remove participant', () => {

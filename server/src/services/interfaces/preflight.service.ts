@@ -1,5 +1,5 @@
 import { AClientMessage, EErrorCode } from 'shared-lib';
-import { IStorageService } from '../../storage/interfaces';
+import type { IStorageService } from '../../storage/interfaces/index.js';
 
 export interface IPreflightService {
   /**

@@ -1,1 +1,1 @@
-export * from './can-rejoin';
+export * from './can-rejoin.js';

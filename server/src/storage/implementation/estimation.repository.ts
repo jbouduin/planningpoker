@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { EstimationDto } from 'shared-lib';
-import { Estimation } from '../../objects';
-import { IEstimationRepository } from '../../storage/interfaces';
+import { Estimation } from '../../objects/implementation/index.js';
+import type { IEstimationRepository } from '../../storage/interfaces/index.js';
 
 @injectable()
 export class EstimationRepository implements IEstimationRepository {

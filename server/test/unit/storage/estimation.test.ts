@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 import { EstimationDto } from 'shared-lib';
-import { EstimationRepository, FactoryService } from '../../../src/storage/implementation';
-import { IEstimationRepository, IFactoryService } from '../../../src/storage/interfaces';
+import { EstimationRepository, FactoryService } from '../../../src/storage/implementation/index.js';
+import type { IEstimationRepository, IFactoryService } from '../../../src/storage/interfaces/index.js';
 
 describe('start- estimate - delete - restart', () => {
   const participantId1 = 'participant1';

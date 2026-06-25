@@ -10,10 +10,10 @@ import {
   IEstimationListMessage,
   IStartMessage
 } from 'shared-lib';
-import { IHandlerService } from '../../../src/services/interfaces';
-import SERVICETYPES from '../../../src/services/service.types';
-import { BiTestFunction, TestFunction } from '../../types';
-import { Util } from './helpers/util';
+import type { IHandlerService } from '../../../src/services/interfaces/index.js';
+import SERVICETYPES from '../../../src/services/service.types.js';
+import { BiTestFunction, TestFunction } from '../../types.js';
+import { Util } from './helpers/util.js';
 
 describe('Estimate => OK', () => {
   test('Give estimation', () => {

@@ -15,9 +15,9 @@ import {
   ISelfMessage,
   ParticipantDto
 } from 'shared-lib';
-import { IServerParticipant } from '../../../../src/objects';
-import { IHandlerService } from '../../../../src/services/interfaces';
-import { IWebSocket, ReadyState } from '../../../../src/services/websocket';
+import type { IServerParticipant } from '../../../../src/objects/interfaces/index.js';
+import type { IHandlerService } from '../../../../src/services/interfaces/index.js';
+import { IWebSocket, ReadyState } from '../../../../src/services/websocket.js';
 
 export interface ParticipantDtoOptions {
   nick?: string;

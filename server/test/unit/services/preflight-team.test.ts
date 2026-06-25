@@ -13,8 +13,8 @@ import {
   IRejoinMessage,
   JoinDto
 } from 'shared-lib';
-import { IStorageService } from '../../../src/storage/interfaces';
-import { Util } from '../util';
+import type { IStorageService } from '../../../src/storage/interfaces/index.js';
+import { Util } from '../util.js';
 
 describe('preflight Create', () => {
   test('OK', () => {

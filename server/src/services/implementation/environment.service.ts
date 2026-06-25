@@ -1,5 +1,5 @@
 import { injectable } from 'inversify';
-import { IEnvironmentService } from '../interfaces';
+import type { IEnvironmentService } from '../interfaces/index.js';
 
 @injectable()
 export class EnvironmentService implements IEnvironmentService {

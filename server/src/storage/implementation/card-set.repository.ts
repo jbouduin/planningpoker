@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { CardSetDto } from 'shared-lib';
-import { ICardSetRepository } from '../interfaces';
+import type { ICardSetRepository } from '../interfaces/index.js';
 
 @injectable()
 export class CardSetRepository implements ICardSetRepository {

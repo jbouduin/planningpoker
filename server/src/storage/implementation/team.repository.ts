@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { EGameState } from 'shared-lib';
-import { IServerTeam } from '../../objects';
-import { ITeamRepository } from '../../storage/interfaces';
+import type { IServerTeam } from '../../objects/interfaces/index.js';
+import type { ITeamRepository } from '../../storage/interfaces/index.js';
 
 @injectable()
 export class TeamRepository implements ITeamRepository {

@@ -1,9 +1,9 @@
 import { inject, injectable } from 'inversify';
 import { AServerMessage } from 'shared-lib';
-import SERVICETYPES from '../service.types';
-import { IServerParticipant } from '../../objects';
-import { ILoggerService, ISenderService } from '../interfaces';
-import { IWebSocket, ReadyState } from '../websocket';
+import SERVICETYPES from '../service.types.js';
+import type { IServerParticipant } from '../../objects/interfaces/index.js';
+import type { ILoggerService, ISenderService } from '../interfaces/index.js';
+import { IWebSocket, ReadyState } from '../websocket.js';
 
 @injectable()
 export class SenderService implements ISenderService {

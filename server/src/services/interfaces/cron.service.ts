@@ -1,5 +1,5 @@
-import { IEnvironmentService } from './environment.service';
-import { ILoggerService } from './logger.service';
+import type { IEnvironmentService } from './environment.service.js';
+import type { ILoggerService } from './logger.service.js';
 
 export interface ICronService {
   /**

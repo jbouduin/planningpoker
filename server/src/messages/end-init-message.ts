@@ -1,5 +1,5 @@
 import { EServerMessageType, IEndInitMessage } from 'shared-lib';
-import { ServerMessage } from './server-message';
+import { ServerMessage } from './server-message.js';
 
 export class EndInitMessage extends ServerMessage<void> implements IEndInitMessage {
   public constructor() {

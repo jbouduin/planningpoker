@@ -9,8 +9,8 @@ import {
   IRemoveMessage,
   ObserverChangeDto
 } from 'shared-lib';
-import { IStorageService } from '../../../src/storage/interfaces';
-import { Util } from '../util';
+import type { IStorageService } from '../../../src/storage/interfaces/index.js';
+import { Util } from '../util.js';
 
 describe('preflight Observe - toggle self', () => {
   const data: ObserverChangeDto = {

@@ -1,9 +1,13 @@
 import { inject, injectable } from 'inversify';
 import { EErrorCode, LooseObjectDto } from 'shared-lib';
-import { IServerParticipant, IServerTeam } from '../../objects';
-import { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from '../../storage/interfaces';
-import STORAGETYPES from '../../storage/storage.types';
-import { ISerializationService } from '../interfaces';
+import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import type {
+  IMembershipRepository,
+  IServerParticipantRepository,
+  ITeamRepository
+} from '../../storage/interfaces/index.js';
+import STORAGETYPES from '../../storage/storage.types.js';
+import type { ISerializationService } from '../interfaces/index.js';
 
 @injectable()
 export class SerializationService implements ISerializationService {

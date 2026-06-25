@@ -1,5 +1,5 @@
 import { EGameState } from 'shared-lib';
-import { IServerTeam } from '../interfaces/server-team';
+import type { IServerTeam } from '../interfaces/index.js';
 
 export class ServerTeam implements IServerTeam {
   //#region Public properties -------------------------------------------------

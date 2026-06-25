@@ -1,5 +1,5 @@
 import { EServerMessageType, IParticipantChangedMessage, ParticipantChangeDto } from 'shared-lib';
-import { ServerMessage } from './server-message';
+import { ServerMessage } from './server-message.js';
 
 export class ParticipantChangedMessage
   extends ServerMessage<ParticipantChangeDto>

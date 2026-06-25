@@ -1,5 +1,5 @@
 import { EServerMessageType, IPingMessage } from 'shared-lib';
-import { ServerMessage } from './server-message';
+import { ServerMessage } from './server-message.js';
 
 export class PingMessage extends ServerMessage<void> implements IPingMessage {
   public constructor() {

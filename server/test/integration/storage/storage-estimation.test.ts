@@ -1,8 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 import { CardDto, ECardSetType, EGameState, EstimationDto } from 'shared-lib';
-import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
-import STORAGETYPES from '../../../src/storage/storage.types';
-import { Util } from './util';
+import type { IFactoryService, IStorageService } from '../../../src/storage/interfaces/index.js';
+import STORAGETYPES from '../../../src/storage/storage.types.js';
+import { Util } from './util.js';
 
 describe('CRUD', () => {
   test('create (factory method)', () => {

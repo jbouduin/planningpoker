@@ -1,8 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
-import { ServerParticipantRepository } from '../../../src/storage/implementation';
-import { FactoryService } from '../../../src/storage/implementation/factory.service';
-import { IFactoryService, IServerParticipantRepository } from '../../../src/storage/interfaces';
-import { Util } from '../util';
+import { FactoryService, ServerParticipantRepository } from '../../../src/storage/implementation/index.js';
+import type { IFactoryService, IServerParticipantRepository } from '../../../src/storage/interfaces/index.js';
+import { Util } from '../util.js';
 
 describe('IServerParticipantRepository', () => {
   test('create participant', () => {

@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { EErrorCode, EGameState, CardDto, CardSetDto, EstimationDto } from 'shared-lib';
-import { IServerParticipant, IServerTeam } from '../../objects';
-import {
+import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import type {
   ICardSetRepository,
   IEstimationRepository,
   IFactoryService,
@@ -9,8 +9,8 @@ import {
   IServerParticipantRepository,
   IStorageService,
   ITeamRepository
-} from '../../storage/interfaces';
-import STORAGETYPES from '../storage.types';
+} from '../../storage/interfaces/index.js';
+import STORAGETYPES from '../storage.types.js';
 
 @injectable()
 export class StorageService implements IStorageService {

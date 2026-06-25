@@ -1,11 +1,11 @@
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { EErrorCode, LooseObjectDto } from 'shared-lib';
-import { IHandlerService, ISerializationService } from '../../services/interfaces';
-import SERVICETYPES from '../../services/service.types';
-import { IStorageService } from '../../storage/interfaces';
-import STORAGETYPES from '../../storage/storage.types';
-import { ISystemController } from '../interfaces';
+import type { IHandlerService, ISerializationService } from '../../services/interfaces/index.js';
+import SERVICETYPES from '../../services/service.types.js';
+import type { IStorageService } from '../../storage/interfaces/index.js';
+import STORAGETYPES from '../../storage/storage.types.js';
+import type { ISystemController } from '../interfaces/index.js';
 
 @injectable()
 export class SystemController implements ISystemController {

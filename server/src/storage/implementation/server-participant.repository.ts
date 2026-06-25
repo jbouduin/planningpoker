@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
-import { IServerParticipant } from '../../objects';
-import { IServerParticipantRepository } from '../interfaces';
+import type { IServerParticipant } from '../../objects/interfaces/index.js';
+import type { IServerParticipantRepository } from '../interfaces/index.js';
 
 @injectable()
 export class ServerParticipantRepository implements IServerParticipantRepository {

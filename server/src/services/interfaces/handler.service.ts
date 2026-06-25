@@ -1,6 +1,6 @@
 import { AClientMessage, LooseObjectDto } from 'shared-lib';
-import { IServerParticipant } from '../../objects';
-import { IWebSocket } from '../websocket';
+import type { IServerParticipant } from '../../objects/interfaces/index.js';
+import { IWebSocket } from '../websocket.js';
 
 /**
  * The handler service is the central service of the system.

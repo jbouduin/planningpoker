@@ -1,6 +1,6 @@
 import { EParticipantState, ERole, ParticipantDto } from 'shared-lib';
-import { IWebSocket } from '../../services/websocket';
-import { IServerParticipant } from '../interfaces/server-participant';
+import { IWebSocket } from '../../services/websocket.js';
+import type { IServerParticipant } from '../interfaces/index.js';
 
 export class ServerParticipant implements IServerParticipant {
   //#region private properties ------------------------------------------------

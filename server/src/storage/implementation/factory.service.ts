@@ -1,9 +1,10 @@
 import { injectable } from 'inversify';
 import { CardDto, CardSetDto, ECardSetType, EParticipantState, ERole, EstimationDto } from 'shared-lib';
 import { v4 as Uuid } from 'uuid';
-import { Estimation, IServerParticipant, IServerTeam, ServerParticipant, ServerTeam } from '../../objects';
-import { IWebSocket } from '../../services/websocket';
-import { IFactoryService } from '../interfaces';
+import { Estimation, ServerParticipant, ServerTeam } from '../../objects/implementation/index.js';
+import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import { IWebSocket } from '../../services/websocket.js';
+import type { IFactoryService } from '../interfaces/index.js';
 
 @injectable()
 export class FactoryService implements IFactoryService {

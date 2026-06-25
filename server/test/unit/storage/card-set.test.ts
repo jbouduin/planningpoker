@@ -1,8 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 import { CardDto, ECardSetType } from 'shared-lib';
-import { CardSetRepository, FactoryService } from '../../../src/storage/implementation';
-import { ICardSetRepository, IFactoryService } from '../../../src/storage/interfaces';
-import { Util } from '../util';
+import { CardSetRepository, FactoryService } from '../../../src/storage/implementation/index.js';
+import type { ICardSetRepository, IFactoryService } from '../../../src/storage/interfaces/index.js';
+import { Util } from '../util.js';
 
 describe('CRUD', () => {
   test('Create', () => {

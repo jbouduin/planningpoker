@@ -1,9 +1,10 @@
 import { jest } from '@jest/globals';
 import { CardSetDto, ECardSetType, EGameState, EParticipantState, ERole } from 'shared-lib';
-import { IServerParticipant, IServerTeam, ServerParticipant } from '../../src/objects';
-import { PreflightService } from '../../src/services/implementation';
-import { IPreflightService } from '../../src/services/interfaces';
-import { IWebSocket, ReadyState } from '../../src/services/websocket';
+import type { IServerParticipant, IServerTeam } from '../../src/objects/interfaces/index.js';
+import { ServerParticipant } from '../../src/objects/implementation/index.js';
+import { PreflightService } from '../../src/services/implementation/index.js';
+import type { IPreflightService } from '../../src/services/interfaces/index.js';
+import { IWebSocket, ReadyState } from '../../src/services/websocket.js';
 
 export class Util {
   public static participant1Name = 'participant1';

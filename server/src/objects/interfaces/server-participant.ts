@@ -1,4 +1,4 @@
-import { IWebSocket } from '../../services/websocket';
+import { IWebSocket } from '../../services/websocket.js';
 import { ParticipantDto } from 'shared-lib';
 
 export interface IServerParticipant extends ParticipantDto {

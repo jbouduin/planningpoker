@@ -1,9 +1,8 @@
-// import { Request, Router } from 'express';
 import * as expressWs from 'express-ws';
 import { inject, injectable } from 'inversify';
 import { AClientMessage } from 'shared-lib';
-import { IHandlerService, ILoggerService, ISocketService } from '../interfaces';
-import SERVICETYPES from '../service.types';
+import type { IHandlerService, ILoggerService, ISocketService } from '../interfaces/index.js';
+import SERVICETYPES from '../service.types.js';
 
 @injectable()
 export class SocketService implements ISocketService {

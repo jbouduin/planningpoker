@@ -15,12 +15,12 @@ import {
   ISelfMessage,
   ITeamNameMessage
 } from 'shared-lib';
-import { IHandlerService } from '../../../src/services/interfaces';
-import SERVICETYPES from '../../../src/services/service.types';
-import { IFactoryService } from '../../../src/storage/interfaces';
-import STORAGETYPES from '../../../src/storage/storage.types';
-import { ITestScrumMaster } from './helpers/TestScrumMaster';
-import { Util } from './helpers/util';
+import type { IHandlerService } from '../../../src/services/interfaces/index.js';
+import SERVICETYPES from '../../../src/services/service.types.js';
+import { IFactoryService } from '../../../src/storage/interfaces/index.js';
+import STORAGETYPES from '../../../src/storage/storage.types.js';
+import { ITestScrumMaster } from './helpers/TestScrumMaster.js';
+import { Util } from './helpers/util.js';
 
 describe('create => OK', () => {
   test('Standard Create', () => {
