@@ -46,10 +46,10 @@ export class SocketService {
     this._connect(teamName, ESocketState.Connecting);
   }
 
-  public disconnect(): void {
+  public disconnect(code?: number): void {
     if (this.webSocket?.readyState === WebSocket.OPEN) {
       this.socketStatus.set(ESocketState.Disconnecting);
-      this.webSocket.close(1000);
+      this.webSocket.close(code);
     }
   }
 
@@ -111,7 +111,10 @@ export class SocketService {
   private onMessage(event: MessageEvent<string>): void {
     const message: AServerMessage = JSON.parse(event.data) as AServerMessage;
     this.log.debug(`<= ${message.type}`, message.data);
-    this.messageAdapterSvc.processServerMessage(message);
+    const canContinue = this.messageAdapterSvc.processServerMessage(message);
+    if (!canContinue) {
+      this.disconnect(1000);
+    }
   }
 
   private onError(_event: Event): void {

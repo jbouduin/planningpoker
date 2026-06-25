@@ -25,6 +25,6 @@ export interface IMessageService {
     team: ITeam,
     members: Array<IServerParticipant>,
     cardSet: ICardSet,
-    estimations: Array<IEstimation>
+    estimations: Array<IEstimation> | null
   ): void;
 }

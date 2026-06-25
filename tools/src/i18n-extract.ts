@@ -1,13 +1,17 @@
+import { Project } from 'ts-morph';
 import { Command } from 'commander';
 import fs, { existsSync, mkdirSync } from 'fs';
 import * as glob from 'glob';
 import path from 'path';
+
+// TODO move enum key generation to separate file
 
 /* eslint-disable no-console */
 
 //#region type definitions ----------------------------------------------------
 type CommandOptions = {
   clean: boolean;
+  enums: Array<string>;
   replace: boolean;
   verbose: boolean;
   input: Array<string>;
@@ -31,6 +35,9 @@ if (args.includes('-V') || args.includes('--version')) {
 
 try {
   command.parse(process.argv);
+  console.log(command.opts());
+  const outputFiles = expandBraces(command.opts().output);
+  outputFiles.forEach((f) => console.log(`out ${f}`));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } catch (_error: any) {
   process.exit(1);
@@ -38,6 +45,8 @@ try {
 
 try {
   const options = command.opts() as CommandOptions;
+  writeEnumExtract(extractEnumKeys(options.enums));
+  extractEnumKeys(options.enums);
   const files = glob.sync(options.input).map((file: string) => path.resolve(file));
   const outputFiles = expandBraces(options.output);
   outputFiles.forEach((f) => console.log(`out ${f}`));
@@ -47,6 +56,7 @@ try {
 } catch (_error: any) {
   command.help();
 }
+
 //#endregion
 
 /**
@@ -71,6 +81,7 @@ function getCommand(): Command {
       )
       .option('-c, --clean', 'Remove obsolete strings after merge', false)
       .option('-r, --replace', 'Replace the contents of output file if it exists (Merges by default)', false)
+      .option('-e, --enums <enums...>', 'an comma separated string of enums for which to extract keys')
       // TODO .option('-v, --verbose', 'remove existing keys', false)
       .allowUnknownOption(false)
       .showHelpAfterError()
@@ -150,4 +161,37 @@ function writeOutput(files: Array<string>, keys: Set<string>, replace: boolean, 
       console.log(`${f} → updated containing ${nullValues} null values`);
     }
   });
+}
+
+function extractEnumKeys(fileNames: Array<string>): Array<string> {
+  const result = new Array<string>();
+  const project = new Project();
+  project.addSourceFilesAtPaths(fileNames);
+
+  const sourceFiles = project.getSourceFiles();
+
+  for (const sourceFile of sourceFiles) {
+    const enums = sourceFile.getEnums();
+
+    for (const enumDecl of enums) {
+      const enumName = enumDecl.getName();
+
+      // filter if needed
+      const members = enumDecl.getMembers();
+
+      const keys = members.map((m) => m.getName());
+      result.push(...keys.map((k: string) => `Enum.${enumName}.Message.${k}`));
+    }
+  }
+  return result;
+}
+
+function writeEnumExtract(keys: Array<string>): void {
+  const enumTranslationKeyFile = 'src/app/core/services/enum-translation-keys.ts';
+  console.log(`writing enum translation keys to ${enumTranslationKeyFile}`);
+  fs.writeFileSync(enumTranslationKeyFile, `import { extract } from '../extract'\n\n${buildEnumKeyLines(keys)}\n`);
+}
+
+function buildEnumKeyLines(keys: Array<string>): string {
+  return keys.map((key: string) => `extract('${key}');`).join('\n');
 }

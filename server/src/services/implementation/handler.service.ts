@@ -287,13 +287,7 @@ export class HandlerService implements IHandlerService {
     // join the team
     this.storage.joinTeam(teamName, sender.participantId);
     // provide the sender with the current game state
-    this.messageService.sendAllInfo(
-      sender,
-      newTeam,
-      new Array<IServerParticipant>(),
-      cardSet,
-      new Array<IEstimation>()
-    );
+    this.messageService.sendAllInfo(sender, newTeam, new Array<IServerParticipant>(), cardSet, null);
   }
 
   private handleEstimate(sender: IServerParticipant, teamName: string, message: IEstimateMessage): void {

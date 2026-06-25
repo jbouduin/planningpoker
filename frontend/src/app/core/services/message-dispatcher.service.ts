@@ -1,11 +1,10 @@
-import { Service, signal, Signal, WritableSignal } from '@angular/core';
+import { inject, Service, signal, Signal, WritableSignal } from '@angular/core';
 import {
   AServerMessage,
   EPokerStatus,
   EServerMessageType,
   ICardSet,
   ICardSetMessage,
-  IError,
   IErrorMessage,
   IEstimation,
   IEstimationListMessage,
@@ -18,15 +17,15 @@ import {
   ISelfMessage,
   ITeamNameMessage
 } from 'shared-lib';
+import { ErrorHandlerService } from './error-handler.service';
 
 @Service()
 export class MessageDispatcherService {
-  //#region Signals -----------------------------------------------------------
+  //#region Private Fields ----------------------------------------------------
   private readonly _cardSet: WritableSignal<ICardSet | null>;
   private readonly _clearEstimations: WritableSignal<number>;
   private readonly _endInit: WritableSignal<number>;
   private readonly _endSession: WritableSignal<number>;
-  private readonly _error: WritableSignal<IError | null>;
   private readonly _estimationList: WritableSignal<Array<IEstimation>>;
   private readonly _init: WritableSignal<IParticipant | null>;
   private readonly _memberChanged: WritableSignal<IMemberChange | null>;
@@ -37,6 +36,7 @@ export class MessageDispatcherService {
   private readonly _serverReset: WritableSignal<number>;
   private readonly _teamIdle: WritableSignal<number>;
   private readonly _teamName: WritableSignal<string | null>;
+  private readonly errorHandlerSvc: ErrorHandlerService;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -45,7 +45,6 @@ export class MessageDispatcherService {
     this._clearEstimations = signal<number>(0);
     this._endInit = signal<number>(0);
     this._endSession = signal<number>(0);
-    this._error = signal<IError | null>(null);
     this._estimationList = signal<Array<IEstimation>>(new Array<IEstimation>());
     this._init = signal<IParticipant | null>(null);
     this._memberChanged = signal<IMemberChange | null>(null);
@@ -56,6 +55,7 @@ export class MessageDispatcherService {
     this._serverReset = signal<number>(0);
     this._teamIdle = signal<number>(0);
     this._teamName = signal<string | null>(null);
+    this.errorHandlerSvc = inject(ErrorHandlerService);
   }
   //#endregion
 
@@ -74,10 +74,6 @@ export class MessageDispatcherService {
 
   public get endSession(): Signal<number> {
     return this._endSession;
-  }
-
-  public get error(): Signal<IError | null> {
-    return this._error;
   }
 
   public get estimationList(): Signal<Array<IEstimation>> {
@@ -122,7 +118,8 @@ export class MessageDispatcherService {
   //#endregion
 
   //#region Public Methods ----------------------------------------------------
-  public processServerMessage(message: AServerMessage): void {
+  public processServerMessage(message: AServerMessage): boolean {
+    let canContinue = true;
     switch (message.type) {
       case EServerMessageType.CardList:
         this._cardSet.set((<ICardSetMessage>message).data);
@@ -138,7 +135,7 @@ export class MessageDispatcherService {
         break;
       // TODO → still have to decide on this one. It is a special case as some errors do require to end the session
       case EServerMessageType.Error:
-        this._error.set((<IErrorMessage>message).data);
+        canContinue = this.errorHandlerSvc.processError((<IErrorMessage>message).data);
         break;
       case EServerMessageType.EstimationList:
         this._estimationList.set((<IEstimationListMessage>message).data);
@@ -170,6 +167,8 @@ export class MessageDispatcherService {
       case EServerMessageType.TeamName:
         this._teamName.set((<ITeamNameMessage>message).data);
     }
+
+    return canContinue;
   }
   //#endregion
 }

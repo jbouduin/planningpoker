@@ -4,11 +4,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": " ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "translations:extract": "node ../tools/dist/i18n-extract.js --input ./src/**/*.{ts,html} -o ./src/translations/{de-DE,en-US}.json",
-    "translations:template": "node ../tools/dist/i18n-extract.js --input ./src/**/*.{ts,html} -o ./src/translations/template.json"
+    "prebuild": "node prebuild.js",
+    "translations:extract": "node ../tools/dist/i18n-extract.js --input ./src/**/*.{ts,html} -o ./src/translations/{de-DE,en-US}.json -e ../shared-lib/src/messages/error-code.enum.ts",
+    "translations:template": "node ../tools/dist/i18n-extract.js --input ./src/**/*.{ts,html} -o ./src/translations/template.json -e ../shared-lib/src/messages/error-code.enum.ts"
   },
   "private": true,
   "packageManager": "npm@10.9.8",

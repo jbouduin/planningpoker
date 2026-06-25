@@ -92,13 +92,6 @@ export class SessionService {
         this.handleTeamName(teamName);
       }
     });
-    // TODO → still have to decide on this one. It is a special case as some errors do require to end the session
-    effect(() => {
-      const error = dispatcherSvc.error();
-      if (error) {
-        this.handleError(error);
-      }
-    });
 
     effect(() => {
       if (dispatcherSvc.endSession()) {

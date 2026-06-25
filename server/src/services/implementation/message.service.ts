@@ -108,7 +108,7 @@ export class MessageService implements IMessageService {
     team: ITeam,
     members: Array<IServerParticipant>,
     cardSet: ICardSet,
-    estimations: Array<IEstimation>
+    estimations: Array<IEstimation> | null
   ): void {
     let message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
     this.senderService.sendToParticipant(to, message);
@@ -118,7 +118,11 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
     message = new MemberListMessage(members.map((p: IServerParticipant) => p.self));
     this.senderService.sendToParticipant(to, message);
-    message = new EstimationListMessage(estimations);
+    if (estimations !== null) {
+      message = new EstimationListMessage(estimations);
+      this.senderService.sendToParticipant(to, message);
+    }
+    message = new PokerStatusChangedMessage(team.status);
     this.senderService.sendToParticipant(to, message);
     message = new EndInitMessage();
     this.senderService.sendToParticipant(to, message);
