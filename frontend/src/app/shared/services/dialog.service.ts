@@ -2,8 +2,8 @@ import { inject, Service } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { map, Observable } from 'rxjs';
 import { ISimpleDialogParams } from '../../core';
-import { MessageBoxComponent } from '../components/message-box/message-box.component';
-import { MessageBoxParams } from '../components/message-box/message-box.params';
+import { MessageBoxComponent } from '../components';
+import { MessageBoxParams } from '../components';
 
 @Service()
 export class DialogService {

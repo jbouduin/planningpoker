@@ -2,9 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, effect } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { UiEventsService } from './core';
-import { ShellComponent } from './features/shell/shell.component';
-import { DialogService } from './shared/service/dialog.service';
-import { SnackbarService } from './shared/service/snackbar.service';
+import { ShellComponent } from './features/shell';
+import { DialogService, SnackbarService } from './shared/services';
 
 @Component({
   selector: 'app-root',

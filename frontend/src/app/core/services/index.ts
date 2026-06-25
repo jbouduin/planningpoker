@@ -4,6 +4,7 @@ export * from './i18n.service';
 export * from './local-storage.service';
 export * from './logger';
 export * from './member';
+export * from './message-dispatcher.service';
 export * from './session-state.enum';
 export * from './session.service';
 export * from './simple-dialog.params';

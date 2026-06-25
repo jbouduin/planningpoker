@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { TeamComponent } from './features/team/team.component';
-import { GameComponent } from './features/game/game.component';
-import { ContentComponent } from './features/content/content.component';
+import { TeamComponent } from './features/team';
+import { GameComponent } from './features/game';
+import { ContentComponent } from './features/content';
 
 export const routes: Routes = [
   { path: '', component: TeamComponent },

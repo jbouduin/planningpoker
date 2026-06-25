@@ -1,16 +1,13 @@
-import { inject, Service, signal, WritableSignal } from '@angular/core';
-import { filter } from 'rxjs';
+import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
+import { EMemberChangeType, EParticipantStatus, IMemberChange, IParticipant } from 'shared-lib';
 import {
-  AServerMessage,
-  EMemberChangeType,
-  EParticipantStatus,
-  EServerMessageType,
-  IMemberChangeMessage,
-  IMemberListMessage,
-  IParticipant
-} from 'shared-lib';
-import { extract, ISimpleDialogParams, Member, SocketService, UiEventsService } from '../../../core';
-import { isTeamMessage, TeamMessage } from '../../../core/messaging';
+  extract,
+  ISimpleDialogParams,
+  Member,
+  MessageDispatcherService,
+  SocketService,
+  UiEventsService
+} from '../../../core';
 
 @Service()
 export class TeamService {
@@ -25,58 +22,58 @@ export class TeamService {
 
   //#region Constructor & C° -------------------------------------------------
   public constructor() {
+    // Inject other service
     this.socketSvc = inject(SocketService);
     this.uiEventsSvc = inject(UiEventsService);
+    // Initialize service signals
     this.members = signal<Array<IParticipant>>(new Array<IParticipant>());
-    this.socketSvc.incomingMessage
-      .pipe(filter((msg: AServerMessage) => isTeamMessage(msg)))
-      .subscribe((msg: TeamMessage) => this.handleServerMessage(msg));
+    // register message handlers
+    const dispatcherSvc = inject(MessageDispatcherService);
+    this.registerMessageHandlers(dispatcherSvc);
   }
-  //#endregion
 
-  //#region Public methods ----------------------------------------------------
+  private registerMessageHandlers(dispatcherSvc: MessageDispatcherService): void {
+    effect(() => {
+      if (dispatcherSvc.endSession()) {
+        this.handleEndSession();
+      }
+    });
+    effect(() => {
+      this.handleMemberList(dispatcherSvc.memberList());
+    });
+
+    effect(() => {
+      const memberChanged = dispatcherSvc.memberChanged();
+      if (memberChanged) {
+        this.handleMemberChanged(memberChanged);
+      }
+    });
+    effect(() => {
+      if (dispatcherSvc.serverReset()) {
+        this.handleServerReset();
+      }
+    });
+    effect(() => {
+      if (dispatcherSvc.teamIdle()) {
+        this.handleTeamIdle();
+      }
+    });
+  }
+
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------
-  private handleServerMessage(message: TeamMessage): void {
-    switch (message.type) {
-      case EServerMessageType.EndSession:
-        this.handleEndSession();
-        break;
-      case EServerMessageType.MemberList:
-        this.handleMemberListMessage(<IMemberListMessage>message);
-        break;
-      case EServerMessageType.MemberChanged:
-        this.handleMemberChanged(<IMemberChangeMessage>message);
-        break;
-      case EServerMessageType.ServerReset:
-        this.handleServerResetMessage();
-        this.resetService();
-        break;
-      case EServerMessageType.TeamIdle:
-        this.handleTeamIdleMessage();
-        break;
-    }
-  }
-
   private handleEndSession(): void {
-    // if (this.me()?.role !== ERole.ScrumMaster) {
-    const params: ISimpleDialogParams = {
-      dialogTitleKey: 'MessageBox.The_scrummaster_has_ended_the_session.Title',
-      dialogMessageKey: 'MessageBox.The_scrummaster_has_ended_the_session.Text'
-    };
-    this.uiEventsSvc.showSimpleDialog(params);
-    // }
     this.resetService();
   }
 
-  private handleMemberListMessage(message: IMemberListMessage): void {
-    this.members.set(message.data);
+  private handleMemberList(data: Array<IParticipant>): void {
+    this.members.set(data);
   }
 
-  private handleMemberChanged(message: IMemberChangeMessage): void {
-    const participant = message.data.member;
-    switch (message.data.memberStatusChange) {
+  private handleMemberChanged(data: IMemberChange): void {
+    const participant = data.member;
+    switch (data.memberStatusChange) {
       case EMemberChangeType.ChangedNick:
         this.members.update((current: Array<IParticipant>) =>
           current.map((p: IParticipant) =>
@@ -130,7 +127,7 @@ export class TeamService {
     }
   }
 
-  private handleTeamIdleMessage(): void {
+  private handleTeamIdle(): void {
     const params: ISimpleDialogParams = {
       dialogTitleKey: extract('MessageBox.The_was_idle_for_to_long.Title'),
       dialogMessageKey: extract('MessageBox.The_was_idle_for_to_long.Text')
@@ -139,7 +136,7 @@ export class TeamService {
     this.resetService();
   }
 
-  private handleServerResetMessage(): void {
+  private handleServerReset(): void {
     const params: ISimpleDialogParams = {
       dialogTitleKey: extract('MessageBox.The_server_has_been_reset.Title'),
       dialogMessageKey: extract('MessageBox.The_server_has_been_reset.Text')
@@ -152,11 +149,4 @@ export class TeamService {
     this.members.set(new Array<Member>());
   }
   //#endregion
-  /**
-   * should handle:
-   * MemberList
-   * MemberChanged
-   * TeamIdle
-   * ServerReset
-   */
 }

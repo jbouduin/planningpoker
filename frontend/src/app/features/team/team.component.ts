@@ -1,9 +1,9 @@
 import { AfterViewInit, Component } from '@angular/core';
+import { extract, ICanRejoinResult, SessionService } from '../../core';
+import { MessageBoxParams } from '../../shared/components';
+import { DialogService } from '../../shared/services';
 import { CreateComponent } from './components/create/create.component';
 import { JoinComponent } from './components/join/join.component';
-import { extract, ICanRejoinResult, SessionService } from '../../core';
-import { DialogService } from '../../shared/service/dialog.service';
-import { MessageBoxParams } from '../../shared/components/message-box/message-box.params';
 
 @Component({
   selector: 'app-team.component',
@@ -38,7 +38,7 @@ export class TeamComponent implements AfterViewInit {
           if (confirmed) {
             this.sessionSvc.rejoinSession(result.team!, result.participantId!);
           } else {
-            this.sessionSvc.leaveSession(); // this currently throws an error, we could introduce a new method: leaveFromDisconnected(...)
+            this.sessionSvc.leaveDisconnectedSession(result.team!, result.participantId!);
           }
         });
       } else {

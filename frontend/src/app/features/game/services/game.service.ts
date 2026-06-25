@@ -1,44 +1,71 @@
-import { inject, Service, signal, WritableSignal } from '@angular/core';
-import { filter } from 'rxjs';
-import { AServerMessage, EServerMessageType, ICardSet, ICardSetMessage } from 'shared-lib';
-import { SocketService } from '../../../core';
-import { GameMessage, isGameMessage } from '../../../core/messaging';
+import { computed, effect, inject, Service, Signal, signal, WritableSignal } from '@angular/core';
+import { ICard, IParticipant } from 'shared-lib';
+import { Member, MessageDispatcherService, SessionService } from '../../../core';
+import { TeamService } from '../../team/services';
 
 @Service()
 export class GameService {
-  //#region private readonly properties ---------------------------------------
-  private readonly socketSvc: SocketService;
+  //#region Private Fields ----------------------------------------------------
+  private readonly _cards: WritableSignal<Array<ICard> | null>;
   //#endregion
 
   //#region Signals -----------------------------------------------------------
-  public cardSet: WritableSignal<ICardSet | null>;
+  public allMembers: Signal<Array<Member>>;
+  //#endregion
+
+  //#region Getters-Setters ---------------------------------------------------
+  public get cards(): Signal<Array<ICard> | null> {
+    return this._cards;
+  }
   //#endregion
 
   //#region Constructor & C° -------------------------------------------------
   public constructor() {
-    this.socketSvc = inject(SocketService);
-    this.cardSet = signal<ICardSet | null>(null);
-    this.socketSvc.incomingMessage
-      .pipe(filter((msg: AServerMessage) => isGameMessage(msg)))
-      .subscribe((msg: GameMessage) => this.handleServerMessage(msg));
+    // Initialize service signals
+    this._cards = signal<Array<ICard> | null>(null);
+    // register message handlers
+    const dispatcherSvc = inject(MessageDispatcherService);
+    this.registerMessageHandlers(dispatcherSvc);
+    // register service signals
+    const sessionSvc = inject(SessionService);
+    const teamSvc = inject(TeamService);
+    this.allMembers = computed(() => {
+      const me = sessionSvc.me();
+      const others = teamSvc.members().map((p: IParticipant) => new Member(p, false));
+      return me ? [me, ...others] : others;
+    });
+  }
+
+  private registerMessageHandlers(dispatcherSvc: MessageDispatcherService): void {
+    effect(() => {
+      const cardSet = dispatcherSvc.cardSet();
+      if (cardSet) {
+        this._cards.set(cardSet.cards);
+      } else {
+        this._cards.set(null);
+      }
+    });
+    effect(() => {
+      if (dispatcherSvc.endSession()) {
+        this.resetService();
+      }
+    });
+    effect(() => {
+      if (dispatcherSvc.serverReset()) {
+        this.resetService();
+      }
+    });
+    effect(() => {
+      if (dispatcherSvc.teamIdle()) {
+        this.resetService();
+      }
+    });
   }
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------
-  private handleServerMessage(message: GameMessage): void {
-    switch (message.type) {
-      case EServerMessageType.CardList:
-        this.cardSet.set((<ICardSetMessage>message).data);
-        break;
-      case EServerMessageType.EndSession:
-        this.resetService();
-        break;
-      case EServerMessageType.ServerReset:
-        this.resetService();
-    }
-  }
-
   private resetService(): void {
-    this.cardSet.set(null);
+    this._cards.set(null);
   }
+  //#endregion
 }

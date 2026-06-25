@@ -1,6 +1,6 @@
 <mat-card>
   <div class="my-hand mat-card-inner-container">
-    <div *ngFor="let card of cards()">
+    <div *ngFor="let card of gameSvc.cards()">
       <app-card
         [card]="card"
         [enabled]="canEstimate()"

@@ -1,23 +1,22 @@
 import { inject, Service, signal, WritableSignal } from '@angular/core';
-import { ReplaySubject, Subject } from 'rxjs';
-import { AClientMessage, AServerMessage, EParticipantStatus, ERole } from 'shared-lib';
+import { AClientMessage, AServerMessage } from 'shared-lib';
 import { LocalStorageService } from './local-storage.service';
 import { Logger } from './logger';
-import { Member } from './member';
+import { MessageDispatcherService } from './message-dispatcher.service';
 import { ESocketState } from './socket-state.enum';
 import { UiEventsService } from './ui-events.service';
 
 @Service()
 export class SocketService {
   //#region private readonly properties ---------------------------------------
+  private readonly messageAdapterSvc: MessageDispatcherService;
   private readonly localStorageSvc: LocalStorageService;
   private readonly log: Logger;
   private readonly uiEventsSvc: UiEventsService;
   //#endregion
 
   //#region private properties ------------------------------------------------
-  private initialMessage?: AClientMessage;
-  private me: Member;
+  // TODO implement resuming
   private resumeTimer?: number;
   private webSocket: WebSocket | null;
   //#endregion
@@ -27,61 +26,18 @@ export class SocketService {
   //#endregion
 
   //#region public properties -------------------------------------------------
-  public readonly incomingMessage: ReplaySubject<AServerMessage>;
-  public readonly reset: Subject<void>;
   public resumeIn: number;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
+    this.messageAdapterSvc = inject(MessageDispatcherService);
     this.localStorageSvc = inject(LocalStorageService);
     this.log = new Logger('SocketService');
     this.uiEventsSvc = inject(UiEventsService);
     this.socketStatus = signal<ESocketState>(ESocketState.Disconnected);
-    this.me = new Member(
-      {
-        nick: '',
-        observer: true,
-        role: ERole.Unknown,
-        status: EParticipantStatus.Unknown,
-        participantId: ''
-      },
-      true
-    );
     this.resumeIn = 0;
     this.webSocket = null;
-    this.incomingMessage = new ReplaySubject<AServerMessage>();
-    this.reset = new Subject<void>();
-  }
-  //#endregion
-
-  //#region Session Lifecycle methods -----------------------------------------
-
-  public quitSession(): void {
-    this.log.warn('Not implemented');
-  }
-
-  // public rejoin(): void {
-  //   window.clearInterval(this.resumeTimer);
-  //   const team = this.localStorageSvc.teamName;
-  //   const participantId = this.localStorageSvc.participantId;
-  //   if (team && participantId) {
-  //     this.log.debug(`rejoining ${team} as ${participantId}`);
-  //     if (this.status !== ESessionStatus.ReconnectPending) {
-  //       this.status = ESessionStatus.Reconnecting;
-  //     } else {
-  //       this.status = ESessionStatus.Resuming;
-  //     }
-  //     this.initialMessage = new RejoinMessage('', participantId);
-  //     this.connect(team);
-  //   } else {
-  //     this.uiEventsSvc.showWarning('Session.Service.Warning.Can_not_rejoin');
-  //     this.resetServices();
-  //   }
-  // }
-
-  public suspendSession(): void {
-    this.log.warn('not implemented');
   }
   //#endregion
 
@@ -155,7 +111,7 @@ export class SocketService {
   private onMessage(event: MessageEvent<string>): void {
     const message: AServerMessage = JSON.parse(event.data) as AServerMessage;
     this.log.debug(`<= ${message.type}`, message.data);
-    this.incomingMessage.next(message);
+    this.messageAdapterSvc.processServerMessage(message);
   }
 
   private onError(_event: Event): void {
@@ -190,12 +146,6 @@ export class SocketService {
       this.uiEventsSvc.showError('Socket.Error.There_is_no_connection_with_the_server');
       return false;
     }
-  }
-
-  private resetServices(): void {
-    this.socketStatus.set(ESocketState.Disconnected);
-    this.disconnect();
-    this.reset.next();
   }
   //#region
 }

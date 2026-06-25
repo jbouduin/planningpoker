@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-import { SnackbarParams } from '../../core/services/snackbar.params';
-import { SnackbarComponent } from '../components/snackbar/snackbar.component';
+import { SnackbarParams } from '../../core';
+import { SnackbarComponent } from '../components';
 
 @Service()
 export class SnackbarService {

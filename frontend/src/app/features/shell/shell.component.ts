@@ -1,9 +1,8 @@
 import { Component, effect } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
-import { HeaderComponent } from './components/header/header.component';
-import { SessionService } from '../../core';
-import { ESessionState } from '../../core/services/session-state.enum';
+import { ESessionState, SessionService } from '../../core';
+import { HeaderComponent } from './components';
 
 @Component({
   selector: 'app-shell',

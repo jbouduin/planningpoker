@@ -1,19 +1,9 @@
 import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
-import { filter } from 'rxjs';
-import {
-  AServerMessage,
-  EPokerStatus,
-  EServerMessageType,
-  ICard,
-  IEstimation,
-  IEstimationListMessage,
-  IParticipant,
-  IPokerStatusChangedMessage
-} from 'shared-lib';
-import { isPokerMessage, Member, PokerMessage, SessionService, SocketService } from '../../../core';
+import { EPokerStatus, ICard, IEstimation, IParticipant } from 'shared-lib';
+import { Member, MessageDispatcherService, SessionService, SocketService } from '../../../core';
 import { EstimateMessage, RevealMessage, StartMessage } from '../../../shared/dto';
-import { Estimation } from './estimation';
 import { TeamService } from '../../team/services';
+import { Estimation } from './estimation';
 import { GameService } from './game.service';
 
 @Service()
@@ -36,24 +26,57 @@ export class PokerService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
+    // Inject other services
     this.gameSvc = inject(GameService);
     this.sessionSvc = inject(SessionService);
     this.socketSvc = inject(SocketService);
     this.teamSvc = inject(TeamService);
+    // Initialize service signals
     this.pokerState = signal(EPokerStatus.Cleared);
     this.estimations = signal<Array<Estimation>>(new Array<Estimation>());
+    // Initialize private fields
     this.myParticipantId = null;
-    this.socketSvc.incomingMessage
-      .pipe(filter((msg: AServerMessage) => isPokerMessage(msg)))
-      .subscribe((msg: PokerMessage) => this.handleServerMessage(msg));
+    // register message handlers
+    const dispatcherSvc = inject(MessageDispatcherService);
+    this.registerMessageHandlers(dispatcherSvc);
+  }
+
+  private registerMessageHandlers(_dispatcherSvc: MessageDispatcherService): void {
+    const adapterSvc = inject(MessageDispatcherService);
+    // effect(() => {
+    //   if (adapterSvc.clearEstimations()) {
+    //     this.estimations.set(new Array<Estimation>());
+    //   }
+    // });
     effect(() => {
-      const me = this.sessionSvc.me();
-      if (me != null) {
-        this.myParticipantId = me.participantId;
-      } else {
-        this.myParticipantId = null;
+      if (adapterSvc.endSession()) {
+        this.resetService();
       }
     });
+    effect(() => {
+      if (adapterSvc.serverReset()) {
+        this.resetService();
+      }
+    });
+    effect(() => {
+      if (adapterSvc.teamIdle()) {
+        this.resetService();
+      }
+    });
+    // effect(() => {
+    //   this.calculateEstimationList(adapterSvc.estimationList(), this.getAllMembers());
+    // });
+    // effect(() => {
+    //   this.handlePokerState(adapterSvc.pokerStatus());
+    // });
+    // effect(() => {
+    //   const me = this.sessionSvc.me();
+    //   if (me != null) {
+    //     this.myParticipantId = me.participantId;
+    //   } else {
+    //     this.myParticipantId = null;
+    //   }
+    // });
   }
   //#endregion
 
@@ -92,36 +115,16 @@ export class PokerService {
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------
-  private handleServerMessage(message: PokerMessage): void {
-    switch (message.type) {
-      case EServerMessageType.ClearEstimations:
-        this.pokerState.set(EPokerStatus.Cleared);
-        this.estimations.set(new Array<Estimation>());
-        break;
-      case EServerMessageType.EndSession:
-        this.resetService();
-        break;
-      case EServerMessageType.EstimationList:
-        this.calculateEstimationList((<IEstimationListMessage>message).data, this.getAllMembers());
-        break;
-      case EServerMessageType.PokerStatus:
-        this.handlePokerStatusMessage(<IPokerStatusChangedMessage>message);
-        break;
-      case EServerMessageType.ServerReset:
-        this.resetService();
-    }
-  }
-
-  private handlePokerStatusMessage(message: IPokerStatusChangedMessage): void {
-    this.pokerState.set(message.data);
+  private handlePokerState(data: EPokerStatus): void {
+    this.pokerState.set(data);
     // todo rebuild the list of estimations.
-    switch (message.data) {
+    switch (data) {
       case EPokerStatus.Cleared:
-        this.calculateEstimationList(new Array<IEstimation>(), this.getAllMembers());
+        // this.calculateEstimationList(new Array<IEstimation>(), this.getAllMembers());
         break;
       case EPokerStatus.Started:
         // TODO check what this does when rejoining
-        this.calculateEstimationList(new Array<IEstimation>(), this.getAllMembers());
+        // this.calculateEstimationList(new Array<IEstimation>(), this.getAllMembers());
         break;
       case EPokerStatus.Revealed:
         // TODO: switch estimations revealed flag → apparently not required
@@ -137,24 +140,22 @@ export class PokerService {
   private calculateEstimationList(estimationList: Array<IEstimation>, allMembers: Array<Member>): void {
     let result: Array<Estimation>;
     const pokerState = this.pokerState();
-    console.log('build estimation list -> state', pokerState);
-    console.log('build estimation list -> estimations', estimationList);
-    console.log('build estimation list -> all members', allMembers);
-    const cardSet = this.gameSvc.cardSet();
-    if (pokerState !== EPokerStatus.Cleared && cardSet != null) {
+    // console.log('build estimation list -> state', pokerState);
+    // console.log('build estimation list -> estimations', estimationList);
+    // console.log('build estimation list -> all members', allMembers);
+    const cards = this.gameSvc.cards();
+    if (pokerState !== EPokerStatus.Cleared && cards != null) {
       // TODO use only non-observers, and participants that are online
       result = allMembers.map((member: Member) => {
         const givenEstimation = estimationList.find((e: IEstimation) => e.participantId === member.participantId);
-        const card = givenEstimation
-          ? cardSet.cards.find((c: ICard) => c.index === givenEstimation.cardIndex) || null
-          : null;
+        const card = givenEstimation ? cards.find((c: ICard) => c.index === givenEstimation.cardIndex) || null : null;
         return new Estimation(member, card, pokerState === EPokerStatus.Revealed || member.me);
       });
       result = this.sortEstimations(pokerState, result);
     } else {
       result = new Array<Estimation>();
     }
-    console.log('build estimation list -> result', result);
+    // console.log('build estimation list -> result', result);
     this.estimations.set(result);
   }
 
