@@ -1,9 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
-
+import { ServerParticipantRepository } from '../../../src/storage/implementation';
 import { FactoryService } from '../../../src/storage/implementation/factory.service';
-import { ServerParticipantRepository } from '../../../src/storage/implementation/server-participant.repository';
-import { IFactoryService } from '../../../src/storage/interfaces/factory.service';
-import { IServerParticipantRepository } from '../../../src/storage/interfaces/server-participant.repository';
+import { IFactoryService, IServerParticipantRepository } from '../../../src/storage/interfaces';
 import { Util } from '../util';
 
 describe('IServerParticipantRepository', () => {

@@ -1,4 +1,4 @@
-import { IEndSessionMessage, EServerMessageType } from 'shared-lib';
+import { EServerMessageType, IEndSessionMessage } from 'shared-lib';
 import { ServerMessage } from './server-message';
 
 export class EndSessionMessage extends ServerMessage<void> implements IEndSessionMessage {

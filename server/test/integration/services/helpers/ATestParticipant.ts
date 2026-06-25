@@ -1,33 +1,30 @@
 import { expect, jest } from '@jest/globals';
-
 import {
   AClientMessage,
   AServerMessage,
   EErrorCode,
-  EMemberChangeType,
-  EParticipantStatus,
-  EPokerStatus,
+  EGameState,
+  EParticipantChangeType,
+  EParticipantState,
   ERole,
   EServerMessageType,
   IErrorMessage,
+  IGameStateChangedMessage,
   IInitMessage,
-  IMemberChangeMessage,
-  IParticipant,
-  IPokerStatusChangedMessage,
-  ISelfMessage
-} from '../../../../../shared-lib/src';
-
+  IParticipantChangedMessage,
+  ISelfMessage,
+  ParticipantDto
+} from 'shared-lib';
 import { IServerParticipant } from '../../../../src/objects';
-
-import { IWebSocket, ReadyState } from '../../../../src/services/websocket';
 import { IHandlerService } from '../../../../src/services/interfaces';
+import { IWebSocket, ReadyState } from '../../../../src/services/websocket';
 
-export interface IParticipantOptions {
+export interface ParticipantDtoOptions {
   nick?: string;
   participantId?: string;
   observer?: boolean;
   role?: ERole;
-  status?: EParticipantStatus;
+  state?: EParticipantState;
 }
 
 export interface IATestParticipant {
@@ -78,9 +75,12 @@ export interface IATestParticipant {
    * Sets the pointer to the next message in the queue
    *
    * @param changeType - the expected change type
-   * @param options - IParticipantOptions with expected values
+   * @param options - ParticipantDtoOptions with expected values
    */
-  expectNextMessageIsMemberChange(changeType: EMemberChangeType, options?: IParticipantOptions): IATestParticipant;
+  expectNextMessageIsMemberChange(
+    changeType: EParticipantChangeType,
+    options?: ParticipantDtoOptions
+  ): IATestParticipant;
 
   /**
    * Expects the next message to be a poker status changed message with the given pokerstatus.
@@ -88,7 +88,7 @@ export interface IATestParticipant {
    *
    * @param status - the expected poker status
    */
-  expectNextMessageIsPokerStatus(status: EPokerStatus): IATestParticipant;
+  expectNextMessageIsPokerStatus(status: EGameState): IATestParticipant;
 
   /**
    * Expects the next message to be a self message.
@@ -97,15 +97,15 @@ export interface IATestParticipant {
    * If no options are provided, or the participantId in the options is not set,
    * the methods expects the participantId to be the same value as the property participantId
 
-   * @param options - IParticipantOptions with expected values
+   * @param options - ParticipantDtoOptions with expected values
    */
-  expectNextMessageIsSelf(options?: IParticipantOptions): IATestParticipant;
+  expectNextMessageIsSelf(options?: ParticipantDtoOptions): IATestParticipant;
 
   /**
    * Expects the next message to be an init message.
-   * @param options - IParticipantOptions with expected values
+   * @param options - ParticipantDtoOptions with expected values
    */
-  expectNextMessageIsInit(options?: IParticipantOptions): IATestParticipant;
+  expectNextMessageIsInit(options?: ParticipantDtoOptions): IATestParticipant;
 
   /**
    * Expects that there are no more messages available.
@@ -221,22 +221,22 @@ export abstract class ATestParticipant implements IATestParticipant {
   }
 
   public expectNextMessageIsMemberChange(
-    changeType: EMemberChangeType,
-    options?: IParticipantOptions
+    changeType: EParticipantChangeType,
+    options?: ParticipantDtoOptions
   ): IATestParticipant {
-    return this.expectNextMessageIs(EServerMessageType.MemberChanged, (m: IMemberChangeMessage) => {
-      expect(m.data.memberStatusChange).toBe(changeType);
+    return this.expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) => {
+      expect(m.data.changeType).toBe(changeType);
       this.checkParticipantOptions(m.data.member, options);
     });
   }
 
-  public expectNextMessageIsPokerStatus(status: EPokerStatus): IATestParticipant {
-    return this.expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
+  public expectNextMessageIsPokerStatus(status: EGameState): IATestParticipant {
+    return this.expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
       expect(m.data).toBe(status)
     );
   }
 
-  public expectNextMessageIsSelf(options?: IParticipantOptions): IATestParticipant {
+  public expectNextMessageIsSelf(options?: ParticipantDtoOptions): IATestParticipant {
     if (!options) {
       options = { participantId: this.participantId };
     } else {
@@ -250,7 +250,7 @@ export abstract class ATestParticipant implements IATestParticipant {
     );
   }
 
-  expectNextMessageIsInit(options?: IParticipantOptions): IATestParticipant {
+  expectNextMessageIsInit(options?: ParticipantDtoOptions): IATestParticipant {
     return this.expectNextMessageIs(EServerMessageType.Init, (m: IInitMessage) => {
       expect(m.data.nick.length).toBeGreaterThan(0);
       expect(m.data.participantId.length).toBeGreaterThan(0);
@@ -274,7 +274,7 @@ export abstract class ATestParticipant implements IATestParticipant {
 
   //#endregion
 
-  private checkParticipantOptions(participant: IParticipant, options?: IParticipantOptions): void {
+  private checkParticipantOptions(participant: ParticipantDto, options?: ParticipantDtoOptions): void {
     if (options) {
       if (options.nick) {
         expect(participant.nick).toBe(options.nick);
@@ -288,8 +288,8 @@ export abstract class ATestParticipant implements IATestParticipant {
       if (options.role) {
         expect(participant.role).toBe(options.role);
       }
-      if (options.status) {
-        expect(participant.status).toBe(options.status);
+      if (options.state) {
+        expect(participant.state).toBe(options.state);
       }
     }
   }

@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
-import { EErrorCode, EPokerStatus, ICard, ICardSet, IEstimation } from 'shared-lib';
-import { IServerParticipant, ITeam } from '../../objects';
+import { EErrorCode, EGameState, CardDto, CardSetDto, EstimationDto } from 'shared-lib';
+import { IServerParticipant, IServerTeam } from '../../objects';
 import {
   ICardSetRepository,
   IEstimationRepository,
@@ -71,12 +71,12 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region Team --------------------------------------------------------------
-  public addTeam(team: ITeam, cardSet: ICardSet): void {
+  public addTeam(team: IServerTeam, cardSet: CardSetDto): void {
     this.cardSetRepository.setCardSet(team.teamName, cardSet);
     this.teamRepository.add(team);
   }
 
-  public allTeams(): Array<ITeam> {
+  public allTeams(): Array<IServerTeam> {
     return this.teamRepository.getAll();
   }
 
@@ -90,11 +90,11 @@ export class StorageService implements IStorageService {
     return members;
   }
 
-  public filterTeams(filter: (team: ITeam) => boolean): Array<ITeam> {
+  public filterTeams(filter: (team: IServerTeam) => boolean): Array<IServerTeam> {
     return this.teamRepository.getAll().filter(filter);
   }
 
-  public getTeam(teamName: string): ITeam | undefined {
+  public getTeam(teamName: string): IServerTeam | undefined {
     return this.teamRepository.get(teamName);
   }
 
@@ -131,7 +131,7 @@ export class StorageService implements IStorageService {
     return connectedTeamMembers.length > 0 ? connectedTeamMembers[0] : undefined;
   }
 
-  public getTeamOfParticipant(participantId: string): ITeam | undefined {
+  public getTeamOfParticipant(participantId: string): IServerTeam | undefined {
     return this.membershipRepository.getTeamOfParticipant(participantId);
   }
 
@@ -151,22 +151,22 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  public deleteEstimation(teamName: string, participantId: string): IEstimation {
+  public deleteEstimation(teamName: string, participantId: string): EstimationDto {
     this.teamRepository.setLastAccessTime(teamName);
     return this.estimationRepository.deleteEstimation(teamName, participantId);
   }
 
-  public getEstimations(teamName: string): Array<IEstimation> {
+  public getEstimations(teamName: string): Array<EstimationDto> {
     return this.estimationRepository.getEstimations(teamName);
   }
 
-  public reveal(teamName: string): [EPokerStatus, Array<IEstimation>] {
+  public reveal(teamName: string): [EGameState, Array<EstimationDto>] {
     const cardSet = this.cardSetRepository.getCardSet(teamName);
     const result = this.estimationRepository.getEstimations(teamName);
     if (cardSet) {
-      const unknownEstimationIndex = cardSet.cards.find((card: ICard) => card.isUnknownEstimation)!.index;
+      const unknownEstimationIndex = cardSet.cards.find((card: CardDto) => card.isUnknownEstimation)!.index;
       this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: IServerParticipant) => {
-        if (!result.find((e: IEstimation) => e.participantId === p.participantId)) {
+        if (!result.find((e: EstimationDto) => e.participantId === p.participantId)) {
           const estimation = this.estimationRepository.upsertEstimation(
             teamName,
             p.participantId,
@@ -176,29 +176,29 @@ export class StorageService implements IStorageService {
         }
       });
     }
-    this.teamRepository.setStatus(teamName, EPokerStatus.Revealed);
-    return [EPokerStatus.Revealed, result];
+    this.teamRepository.setGameState(teamName, EGameState.Revealed);
+    return [EGameState.Revealed, result];
   }
 
-  public startEstimating(teamName: string): EPokerStatus {
-    this.teamRepository.setStatus(teamName, EPokerStatus.Started);
+  public startEstimating(teamName: string): EGameState {
+    this.teamRepository.setGameState(teamName, EGameState.Started);
     this.estimationRepository.startEstimating(teamName);
-    return EPokerStatus.Started;
+    return EGameState.Started;
   }
 
-  public upsertEstimation(teamName: string, participantId: string, cardIndex: number): IEstimation {
+  public upsertEstimation(teamName: string, participantId: string, cardIndex: number): EstimationDto {
     this.teamRepository.setLastAccessTime(teamName);
     return this.estimationRepository.upsertEstimation(teamName, participantId, cardIndex);
   }
   //#endregion
 
   //#region Cardset -----------------------------------------------------------
-  public setCardSet(teamName: string, cardSet: ICardSet): void {
+  public setCardSet(teamName: string, cardSet: CardSetDto): void {
     this.teamRepository.setLastAccessTime(teamName);
     this.cardSetRepository.setCardSet(teamName, cardSet);
   }
 
-  public getCardSet(teamName: string): ICardSet {
+  public getCardSet(teamName: string): CardSetDto {
     const result = this.cardSetRepository.getCardSet(teamName);
     if (result) {
       return result;

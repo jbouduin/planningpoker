@@ -1,5 +1,4 @@
 import { injectable } from 'inversify';
-
 import { IServerParticipant } from '../../objects';
 import { IServerParticipantRepository } from '../interfaces';
 

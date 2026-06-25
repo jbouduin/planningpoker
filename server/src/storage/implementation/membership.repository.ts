@@ -1,10 +1,8 @@
 import { inject, injectable } from 'inversify';
-
-import STORAGETYPES from '../storage.types';
-
-import { EParticipantStatus } from 'shared-lib';
-import { ITeam, IServerParticipant } from '../../objects';
+import { EParticipantState } from 'shared-lib';
+import { IServerParticipant, IServerTeam } from '../../objects';
 import { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from '../interfaces';
+import STORAGETYPES from '../storage.types';
 
 @injectable()
 export class MembershipRepository implements IMembershipRepository {
@@ -28,7 +26,7 @@ export class MembershipRepository implements IMembershipRepository {
   //#endregion
 
   //#region IMembershipRepository methods -------------------------------------
-  public getTeamOfParticipant(participantId: string): ITeam | undefined {
+  public getTeamOfParticipant(participantId: string): IServerTeam | undefined {
     const mapEntry = this.participantTeamMap.get(participantId);
     if (mapEntry) {
       return this.teamRepository.get(mapEntry);
@@ -48,7 +46,7 @@ export class MembershipRepository implements IMembershipRepository {
   }
 
   public getConnectedTeamMembers(teamName: string): Array<IServerParticipant> {
-    return this.getTeamMembers(teamName).filter((p: IServerParticipant) => p.status === EParticipantStatus.Connected);
+    return this.getTeamMembers(teamName).filter((p: IServerParticipant) => p.state === EParticipantState.Connected);
   }
 
   public joinTeam(teamName: string, participant: string): void {

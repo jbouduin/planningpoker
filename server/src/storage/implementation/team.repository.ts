@@ -1,23 +1,22 @@
 import { injectable } from 'inversify';
-
-import { EPokerStatus } from 'shared-lib';
-import { ITeam } from '../../objects';
+import { EGameState } from 'shared-lib';
+import { IServerTeam } from '../../objects';
 import { ITeamRepository } from '../../storage/interfaces';
 
 @injectable()
 export class TeamRepository implements ITeamRepository {
   //#region private properties ------------------------------------------------
-  private readonly teams: Map<string, ITeam>;
+  private readonly teams: Map<string, IServerTeam>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
-    this.teams = new Map<string, ITeam>();
+    this.teams = new Map<string, IServerTeam>();
   }
   //#endregion
 
   //#region IBaseRepository methods -------------------------------------------
-  public add(entity: ITeam): void {
+  public add(entity: IServerTeam): void {
     this.teams.set(entity.teamName, entity);
   }
 
@@ -25,11 +24,11 @@ export class TeamRepository implements ITeamRepository {
     this.teams.delete(id);
   }
 
-  public get(id: string): ITeam | undefined {
+  public get(id: string): IServerTeam | undefined {
     return this.teams.get(id);
   }
 
-  public getAll(): Array<ITeam> {
+  public getAll(): Array<IServerTeam> {
     return Array.from(this.teams.values());
   }
 
@@ -46,11 +45,11 @@ export class TeamRepository implements ITeamRepository {
     }
   }
 
-  public setStatus(teamName: string, status: EPokerStatus): void {
+  public setGameState(teamName: string, gameState: EGameState): void {
     const team = this.teams.get(teamName);
     if (team) {
       team.lastAccessTime = Date.now();
-      team.status = status;
+      team.gameState = gameState;
     }
   }
   //#endregion

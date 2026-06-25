@@ -1,9 +1,8 @@
 import { jest } from '@jest/globals';
-
-import { ECardSet, EParticipantStatus, EPokerStatus, ERole, ICardSet } from '../../../shared-lib/src';
-import { IServerParticipant, ITeam, ServerParticipant } from '../../src/objects';
-import { PreflightService } from '../../src/services/implementation/preflight.service';
-import { IPreflightService } from '../../src/services/interfaces/preflight.service';
+import { CardSetDto, ECardSetType, EGameState, EParticipantState, ERole } from 'shared-lib';
+import { IServerParticipant, IServerTeam, ServerParticipant } from '../../src/objects';
+import { PreflightService } from '../../src/services/implementation';
+import { IPreflightService } from '../../src/services/interfaces';
 import { IWebSocket, ReadyState } from '../../src/services/websocket';
 
 export class Util {
@@ -14,7 +13,7 @@ export class Util {
         nick: Util.participant1Name,
         participantId: Util.participant1Name,
         role: ERole.Developer,
-        status: EParticipantStatus.Connected,
+        state: EParticipantState.Connected,
         observer: false
       },
       this.getSocket()
@@ -28,7 +27,7 @@ export class Util {
         nick: Util.participant2Name,
         participantId: Util.participant2Name,
         role: ERole.Developer,
-        status: EParticipantStatus.Connected,
+        state: EParticipantState.Connected,
         observer: false
       },
       this.getSocket()
@@ -42,7 +41,7 @@ export class Util {
         nick: Util.scrummasterName,
         participantId: Util.scrummasterName,
         role: ERole.ScrumMaster,
-        status: EParticipantStatus.Connected,
+        state: EParticipantState.Connected,
         observer: true
       },
       Util.getSocket()
@@ -56,7 +55,7 @@ export class Util {
         nick: Util.observerName1,
         participantId: Util.observerName1,
         role: ERole.Developer,
-        status: EParticipantStatus.Connected,
+        state: EParticipantState.Connected,
         observer: true
       },
       Util.getSocket()
@@ -70,7 +69,7 @@ export class Util {
         nick: Util.observerName2,
         participantId: Util.observerName2,
         role: ERole.Developer,
-        status: EParticipantStatus.Connected,
+        state: EParticipantState.Connected,
         observer: true
       },
       Util.getSocket()
@@ -84,27 +83,27 @@ export class Util {
         nick: Util.disconnectedName,
         participantId: Util.disconnectedName,
         role: ERole.Developer,
-        status: EParticipantStatus.Disconnected,
+        state: EParticipantState.Disconnected,
         observer: true
       },
       this.getSocket()
     );
   }
   public static team1Name = 'team1';
-  public static getTeam1(status = EPokerStatus.Cleared): ITeam {
+  public static getTeam1(status = EGameState.Cleared): IServerTeam {
     return {
       teamName: Util.team1Name,
       lastAccessTime: Date.now(),
-      status: status
+      gameState: status
     };
   }
 
   public static team2Name = 'team2';
-  public static getTeam2(status = EPokerStatus.Cleared): ITeam {
+  public static getTeam2(status = EGameState.Cleared): IServerTeam {
     return {
       teamName: Util.team2Name,
       lastAccessTime: Date.now(),
-      status: status
+      gameState: status
     };
   }
 
@@ -112,9 +111,9 @@ export class Util {
     return new PreflightService();
   }
 
-  public static getCardSet(): ICardSet {
+  public static getCardSet(): CardSetDto {
     return {
-      cardSet: ECardSet.Cohn,
+      cardSet: ECardSetType.Cohn,
       cards: [
         { index: 1, label: '1', isIcon: false, isUnknownEstimation: false, isEstimation: true },
         { index: 2, label: '2', isIcon: false, isUnknownEstimation: false, isEstimation: true },

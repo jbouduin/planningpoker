@@ -1,18 +1,18 @@
 import { describe, expect, test } from '@jest/globals';
 import {
-  ECardSet,
+  CardDto,
+  CardSetDto,
+  ECardSetType,
   EClientMessageType,
   EErrorCode,
-  EMemberChangeType,
-  EPokerStatus,
+  EGameState,
+  EParticipantChangeType,
   ERole,
   EServerMessageType,
-  ICard,
-  ICardSet,
   ICardSetMessage,
   IChangeCardSetMessage,
   IStartMessage
-} from '../../../../shared-lib/src';
+} from 'shared-lib';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { IFactoryService } from '../../../src/storage/interfaces';
@@ -29,9 +29,9 @@ describe('Change card set => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: customize a card set
-    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     customizedCohn.cards.splice(9, 3);
-    const expectCardSetFn: TestFunction<ICardSet> = (c: ICardSet) => {
+    const expectCardSetFn: TestFunction<CardSetDto> = (c: CardSetDto) => {
       expect(c.cardSet).toBe(customizedCohn.cardSet);
       expect(c.cards).toHaveLength(customizedCohn.cards.length);
     };
@@ -51,14 +51,14 @@ describe('Change card set => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => expectCardSetFn(m.data))
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => expectCardSetFn(m.data))
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => expectCardSetFn(m.data))
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => expectCardSetFn(m.data))
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -72,7 +72,7 @@ describe('Change card set => Failure', () => {
   test('Team not found', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
-    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
@@ -91,7 +91,7 @@ describe('Change card set => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
@@ -110,7 +110,7 @@ describe('Change card set => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: customize a card set
-    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     customizedCohn.cards.splice(9, 3);
 
     // Setup: create team with a single participant
@@ -131,7 +131,7 @@ describe('Change card set => Failure', () => {
     // Test: scrum master 1 messages
     scrumMaster1
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -156,7 +156,7 @@ describe('Change card set => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: customize a card set
-    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     customizedCohn.cards.splice(9, 3);
 
     // Setup: create team with a single participant
@@ -174,7 +174,7 @@ describe('Change card set => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -193,7 +193,7 @@ describe('Change card set => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: customize a card set
-    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     customizedCohn.cards.splice(9, 3);
 
     // Setup: create team with a single participant
@@ -219,9 +219,9 @@ describe('Change card set => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.ChangeCardSetNotAllowedDuringEstimation)
       .expectNoMoreMessages();
 
@@ -229,7 +229,7 @@ describe('Change card set => Failure', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -244,7 +244,7 @@ describe('Change card set => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: customize a card set
-    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     customizedCohn.cards.splice(9, 3);
 
     // Setup: create team with a single participant
@@ -262,7 +262,7 @@ describe('Change card set => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -283,8 +283,8 @@ describe('Change card set => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: customize a card set - remove the unknown estimation card
-    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = customizedCohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
+    const indexOfUnknown = customizedCohn.cards.findIndex((card: CardDto) => card.isUnknownEstimation);
     customizedCohn.cards.splice(indexOfUnknown, 1);
 
     // Setup: create team
@@ -302,7 +302,7 @@ describe('Change card set => Failure', () => {
     // Test: scrum master should have received 1 MC join + 1 error
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.UnknownEstimationCardMissing)
       .expectNoMoreMessages();
 
@@ -321,7 +321,7 @@ describe('Change card set => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: customize a card set - remove all but one estimation card
-    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     customizedCohn.cards.splice(1, 11);
 
     // Setup: create team with one participant
@@ -338,7 +338,7 @@ describe('Change card set => Failure', () => {
 
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.MoreThanTwoEstimationCardsRequired)
       .expectNoMoreMessages();
 

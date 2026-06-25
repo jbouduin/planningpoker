@@ -1,8 +1,7 @@
 import cors from 'cors';
 import express from 'express';
-import expressWs from 'express-ws';
 import { logger } from 'express-winston';
-
+import expressWs from 'express-ws';
 import container from './inversify.config';
 import {
   ICronService,

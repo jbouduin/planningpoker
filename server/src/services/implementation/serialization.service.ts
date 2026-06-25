@@ -1,10 +1,8 @@
 import { inject, injectable } from 'inversify';
-
-import STORAGETYPES from '../../storage/storage.types';
-
-import { EErrorCode } from 'shared-lib';
-import { IServerParticipant, ITeam, LooseObject } from '../../objects';
+import { EErrorCode, LooseObjectDto } from 'shared-lib';
+import { IServerParticipant, IServerTeam } from '../../objects';
 import { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from '../../storage/interfaces';
+import STORAGETYPES from '../../storage/storage.types';
 import { ISerializationService } from '../interfaces';
 
 @injectable()
@@ -28,15 +26,15 @@ export class SerializationService implements ISerializationService {
   //#endregion
 
   //#region Serialization -----------------------------------------------------
-  public serializeAllTeams(): LooseObject {
-    const result: LooseObject = {
-      teams: new Array<LooseObject>()
+  public serializeAllTeams(): LooseObjectDto {
+    const result: LooseObjectDto = {
+      teams: new Array<LooseObjectDto>()
     };
 
-    this.teamRepository.getAll().forEach((team: ITeam) => {
-      const teamDump: LooseObject = {
+    this.teamRepository.getAll().forEach((team: IServerTeam) => {
+      const teamDump: LooseObjectDto = {
         team: team.teamName,
-        status: team.status,
+        gameState: team.gameState,
         members: this.membershipRepository.getTeamMembers(team.teamName).map((p: IServerParticipant) => p.self)
       };
       /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -48,12 +46,12 @@ export class SerializationService implements ISerializationService {
     return result;
   }
 
-  public serializeTeam(teamName: string): LooseObject {
+  public serializeTeam(teamName: string): LooseObjectDto {
     const team = this.teamRepository.get(teamName);
     if (team) {
-      const result: LooseObject = {
+      const result: LooseObjectDto = {
         team: team.teamName,
-        status: team.status,
+        gameState: team.gameState,
         members: this.membershipRepository.getTeamMembers(team.teamName).map((p: IServerParticipant) => p.self)
       };
       return result;
@@ -65,7 +63,7 @@ export class SerializationService implements ISerializationService {
     }
   }
 
-  public serializeParticipants(): LooseObject {
+  public serializeParticipants(): LooseObjectDto {
     const result = new Array<IServerParticipant>();
     this.participantRepository.getAll().map((p: IServerParticipant) => p.self);
     return result;

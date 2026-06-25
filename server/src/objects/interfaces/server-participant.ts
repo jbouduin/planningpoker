@@ -1,7 +1,7 @@
 import { IWebSocket } from '../../services/websocket';
-import { IParticipant } from 'shared-lib';
+import { ParticipantDto } from 'shared-lib';
 
-export interface IServerParticipant extends IParticipant {
+export interface IServerParticipant extends ParticipantDto {
   socket: IWebSocket;
-  readonly self: IParticipant;
+  readonly self: ParticipantDto;
 }

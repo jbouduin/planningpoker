@@ -1,12 +1,10 @@
 import { inject, injectable } from 'inversify';
-
-import STORAGETYPES from '../../storage/storage.types';
-import SERVICETYPES from '../../services/service.types';
-
-import { IFactoryService, IStorageService } from '../../storage/interfaces';
-import { ECardSet, EErrorCode, ICanRejoinResponse, ICardSet } from 'shared-lib';
-import { IApiController } from '../interfaces';
+import { CanRejoinDto, CardSetDto, ECardSetType, EErrorCode } from 'shared-lib';
 import { ILoggerService } from '../../services/interfaces';
+import SERVICETYPES from '../../services/service.types';
+import { IFactoryService, IStorageService } from '../../storage/interfaces';
+import STORAGETYPES from '../../storage/storage.types';
+import { IApiController } from '../interfaces';
 
 @injectable()
 export class ApiController implements IApiController {
@@ -29,8 +27,8 @@ export class ApiController implements IApiController {
   //#endregion
 
   //#region IApiController methods --------------------------------------------
-  public canRejoin(teamName: string, participantId: string): ICanRejoinResponse {
-    let response: ICanRejoinResponse;
+  public canRejoin(teamName: string, participantId: string): CanRejoinDto {
+    let response: CanRejoinDto;
     const errorCode = this.storageService.canRejoin(participantId, teamName);
     switch (errorCode) {
       case EErrorCode.TeamNotFound:
@@ -61,11 +59,11 @@ export class ApiController implements IApiController {
     return response;
   }
 
-  public availableCardSets(): Array<ICardSet> {
+  public availableCardSets(): Array<CardSetDto> {
     return [
-      this.factoryService.createCardSet(ECardSet.Cohn),
-      this.factoryService.createCardSet(ECardSet.Fibonacci),
-      this.factoryService.createCardSet(ECardSet.TShirt)
+      this.factoryService.createCardSet(ECardSetType.Cohn),
+      this.factoryService.createCardSet(ECardSetType.Fibonacci),
+      this.factoryService.createCardSet(ECardSetType.TShirt)
     ];
   }
   //#endregion

@@ -2,13 +2,13 @@ import { injectable } from 'inversify';
 
 import {
   AClientMessage,
+  CardDto,
+  CardSetDto,
   EClientMessageType,
   EErrorCode,
-  EParticipantStatus,
-  EPokerStatus,
+  EGameState,
+  EParticipantState,
   ERole,
-  ICard,
-  ICardSet,
   IChangeCardSetMessage,
   IChangeNickMessage,
   IChangeScrumMasterMessage,
@@ -20,9 +20,9 @@ import {
   IRejoinMessage,
   IRemoveMessage
 } from 'shared-lib';
+import { IServerParticipant } from '../../objects';
 import { IStorageService } from '../../storage/interfaces';
 import { IPreflightService } from '../interfaces';
-import { IServerParticipant } from '../../objects';
 
 @injectable()
 export class PreflightService implements IPreflightService {
@@ -94,7 +94,7 @@ export class PreflightService implements IPreflightService {
         break;
       }
       default:
-        result = EErrorCode.UnknownVerb;
+        result = EErrorCode.UnknownClientMessageType;
     } // end switch
 
     return result;
@@ -141,7 +141,7 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotInTeam;
       } else if (team.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
-      } else if (team.status === EPokerStatus.Started) {
+      } else if (team.gameState === EGameState.Started) {
         result = EErrorCode.ChangeCardSetNotAllowedDuringEstimation;
       } else if (sender.role !== ERole.ScrumMaster) {
         result = EErrorCode.ScrumMasterRequired;
@@ -187,7 +187,7 @@ export class PreflightService implements IPreflightService {
       const newScrumMaster = storage.getParticipant(message.data);
       if (!newScrumMaster) {
         result = EErrorCode.ParticipantNotFound;
-      } else if (newScrumMaster.status !== EParticipantStatus.Connected) {
+      } else if (newScrumMaster.state !== EParticipantState.Connected) {
         result = EErrorCode.NewScrumMasterIsNotConnected;
       } else if (storage.getTeamOfParticipant(message.data)?.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
@@ -200,7 +200,7 @@ export class PreflightService implements IPreflightService {
    * - team must exist
    * - sender may not be an observer
    * - sender must be in the team
-   * - team status must be started
+   * - game state must be started
    * - card must be in the card set of the team
    */
   private preflightEstimate(
@@ -220,12 +220,12 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotInTeam;
       } else if (team.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
-      } else if (team.status !== EPokerStatus.Started) {
+      } else if (team.gameState !== EGameState.Started) {
         result = EErrorCode.EstimationNotStarted;
       } else {
         if (message.data) {
           const cardSet = storage.getCardSet(teamName);
-          const theEstimation = cardSet.cards.find((card: ICard) => card.index === message.data);
+          const theEstimation = cardSet.cards.find((card: CardDto) => card.index === message.data);
           if (theEstimation === undefined) {
             result = EErrorCode.InvalidEstimation;
           }
@@ -286,7 +286,7 @@ export class PreflightService implements IPreflightService {
       } else if (team.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
       } else if (sender.role === ERole.ScrumMaster) {
-        if (team.status === EPokerStatus.Started) {
+        if (team.gameState === EGameState.Started) {
           result = EErrorCode.LeaveNotAllowedDuringEstimation;
         }
       }
@@ -381,7 +381,7 @@ export class PreflightService implements IPreflightService {
    * - team must exist
    * - sender must be scrum master
    * - sender must be in team
-   * - team status must be 'started'
+   * - game state must be 'started'
    */
   private preflightReveal(storage: IStorageService, sender: IServerParticipant, teamName: string): EErrorCode {
     let result = EErrorCode.NoError;
@@ -395,7 +395,7 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotInTeam;
       } else if (team.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
-      } else if (team.status !== EPokerStatus.Started) {
+      } else if (team.gameState !== EGameState.Started) {
         result = EErrorCode.EstimationNotStarted;
       }
     }
@@ -406,7 +406,7 @@ export class PreflightService implements IPreflightService {
    * - team must exist
    * - sender must be scrum master
    * - sender must be in team
-   * - team status may not be 'started'
+   * - game state may not be 'started'
    * - at least one team member should not be observer
    */
   private preflightStart(storage: IStorageService, sender: IServerParticipant, teamName: string): EErrorCode {
@@ -421,7 +421,7 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotInTeam;
       } else if (team.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
-      } else if (team.status === EPokerStatus.Started) {
+      } else if (team.gameState === EGameState.Started) {
         result = EErrorCode.EstimationAlreadyStarted;
       } else if (
         storage.getConnectedTeamMembers(teamName).filter((p: IServerParticipant) => !p.observer).length === 0
@@ -466,12 +466,12 @@ export class PreflightService implements IPreflightService {
    * - the cardset must contain the unknown estimation card
    * - the cardset must at least contain two cards which are estimations
    */
-  private checkCardSet(cardSet: ICardSet): EErrorCode {
-    const unknownEstimationCard = cardSet.cards.find((card: ICard) => card.isUnknownEstimation);
+  private checkCardSet(cardSet: CardSetDto): EErrorCode {
+    const unknownEstimationCard = cardSet.cards.find((card: CardDto) => card.isUnknownEstimation);
     if (!unknownEstimationCard) {
       return EErrorCode.UnknownEstimationCardMissing;
     }
-    const estimationCards = cardSet.cards.filter((card: ICard) => card.isEstimation).length;
+    const estimationCards = cardSet.cards.filter((card: CardDto) => card.isEstimation).length;
     if (estimationCards < 2) {
       return EErrorCode.MoreThanTwoEstimationCardsRequired;
     }

@@ -1,15 +1,15 @@
-import { IParticipant, EParticipantStatus, ERole } from 'shared-lib';
-import { IServerParticipant } from '../interfaces/server-participant';
+import { EParticipantState, ERole, ParticipantDto } from 'shared-lib';
 import { IWebSocket } from '../../services/websocket';
+import { IServerParticipant } from '../interfaces/server-participant';
 
 export class ServerParticipant implements IServerParticipant {
   //#region private properties ------------------------------------------------
-  private readonly _participant: IParticipant;
+  private readonly _participant: ParticipantDto;
   //#endregion
 
   //#region IServerParticipant properties -------------------------------------
   public socket: IWebSocket;
-  public get self(): IParticipant {
+  public get self(): ParticipantDto {
     return this._participant;
   }
 
@@ -41,16 +41,16 @@ export class ServerParticipant implements IServerParticipant {
     this._participant.role = value;
   }
 
-  public get status(): EParticipantStatus {
-    return this._participant.status;
+  public get state(): EParticipantState {
+    return this._participant.state;
   }
-  public set status(value: EParticipantStatus) {
-    this._participant.status = value;
+  public set state(value: EParticipantState) {
+    this._participant.state = value;
   }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(participant: IParticipant, socket: IWebSocket) {
+  public constructor(participant: ParticipantDto, socket: IWebSocket) {
     this._participant = participant;
     this.socket = socket;
   }

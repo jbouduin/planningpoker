@@ -1,6 +1,5 @@
 import { describe, test } from '@jest/globals';
-
-import { EMemberChangeType, EParticipantStatus, EServerMessageType } from '../../../../shared-lib/src';
+import { EParticipantChangeType, EParticipantState, EServerMessageType } from 'shared-lib';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from './helpers/util';
@@ -22,27 +21,24 @@ describe('Ping', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Paused)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.Ping)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Paused)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Paused)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.Ping)
       .expectNoMoreMessages();
 
     // Test: paused participant messages
-    paused
-      .initializeMessageQueue()
-      .expectNextMessageIsSelf({ status: EParticipantStatus.Paused })
-      .expectNoMoreMessages();
+    paused.initializeMessageQueue().expectNextMessageIsSelf({ state: EParticipantState.Paused }).expectNoMoreMessages();
 
     // Test: observer messages
     observer.initializeMessageQueue().expectNextMessageIs(EServerMessageType.Ping).expectNoMoreMessages();

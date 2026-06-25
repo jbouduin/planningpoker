@@ -1,9 +1,7 @@
 import { inject, injectable } from 'inversify';
-
-import SERVICETYPES from '../service.types';
-
-import { ICronService, IEnvironmentService, IHandlerService, ILoggerService } from '../interfaces';
 import { setInterval } from 'timers';
+import { ICronService, IEnvironmentService, IHandlerService, ILoggerService } from '../interfaces';
+import SERVICETYPES from '../service.types';
 
 @injectable()
 export class CronService implements ICronService {

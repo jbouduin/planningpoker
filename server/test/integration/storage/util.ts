@@ -1,8 +1,5 @@
 import { jest } from '@jest/globals';
 import { Container } from 'inversify';
-
-import STORAGETYPES from '../../../src/storage/storage.types';
-
 import { IWebSocket, ReadyState } from '../../../src/services/websocket';
 import {
   CardSetRepository,
@@ -22,6 +19,7 @@ import {
   IStorageService,
   ITeamRepository
 } from '../../../src/storage/interfaces';
+import STORAGETYPES from '../../../src/storage/storage.types';
 
 export class Util {
   public static participant1Nick = 'participant 1';

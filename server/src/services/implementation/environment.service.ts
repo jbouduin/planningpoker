@@ -1,5 +1,4 @@
 import { injectable } from 'inversify';
-
 import { IEnvironmentService } from '../interfaces';
 
 @injectable()

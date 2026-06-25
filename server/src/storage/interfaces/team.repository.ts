@@ -1,8 +1,8 @@
-import { EPokerStatus } from 'shared-lib';
-import { ITeam } from '../../objects';
+import { EGameState } from 'shared-lib';
+import { IServerTeam } from '../../objects';
 import { IBaseRepository } from './base.repository';
 
-export interface ITeamRepository extends IBaseRepository<ITeam> {
+export interface ITeamRepository extends IBaseRepository<IServerTeam> {
   setLastAccessTime(teamName: string): void;
-  setStatus(teamName: string, status: EPokerStatus): void;
+  setGameState(teamName: string, gameState: EGameState): void;
 }

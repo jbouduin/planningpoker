@@ -1,12 +1,5 @@
 import { describe, test } from '@jest/globals';
-
-import {
-  EClientMessageType,
-  EErrorCode,
-  EMemberChangeType,
-  ERole,
-  IChangeScrumMasterMessage
-} from '../../../../shared-lib/src';
+import { EClientMessageType, EErrorCode, EParticipantChangeType, ERole, IChangeScrumMasterMessage } from 'shared-lib';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from './helpers/util';
@@ -35,9 +28,9 @@ describe('Change scrum master => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedRole, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.ChangedRole, {
         participantId: participant1.participantId,
         role: ERole.ScrumMaster
       })
@@ -47,8 +40,8 @@ describe('Change scrum master => OK', () => {
     // Test: participant 1 messages
     participant1
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedRole, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.ChangedRole, {
         participantId: scrumMaster.participantId,
         role: ERole.Developer
       })
@@ -58,11 +51,11 @@ describe('Change scrum master => OK', () => {
     // Test: participant 2 messages
     participant2
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedRole, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.ChangedRole, {
         participantId: scrumMaster.participantId,
         role: ERole.Developer
       })
-      .expectNextMessageIsMemberChange(EMemberChangeType.ChangedRole, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.ChangedRole, {
         participantId: participant1.participantId,
         role: ERole.ScrumMaster
       })
@@ -96,7 +89,7 @@ describe('Change scrum master => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
@@ -129,7 +122,7 @@ describe('Change scrum master => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
@@ -165,7 +158,7 @@ describe('Change scrum master => Failure', () => {
     // Test: scrum master messages
     scrumMaster1
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
@@ -207,17 +200,17 @@ describe('Change scrum master => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNextMessageIsError(EErrorCode.NewScrumMasterIsNotConnected)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNoMoreMessages();
 
     // Test: disconnected participant messages
@@ -253,7 +246,7 @@ describe('Change scrum master => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -289,7 +282,7 @@ describe('Change scrum master => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
@@ -323,14 +316,14 @@ describe('Change scrum master => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
     participant1
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant 2 should have received 1 error

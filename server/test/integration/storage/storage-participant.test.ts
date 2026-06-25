@@ -1,10 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
-
-import STORAGETYPES from '../../../src/storage/storage.types';
-
-import { ECardSet } from '../../../../shared-lib/src';
+import { ECardSetType } from 'shared-lib';
 import { IServerParticipant } from '../../../src/objects';
 import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
+import STORAGETYPES from '../../../src/storage/storage.types';
 import { Util } from './util';
 
 describe('CRUD', () => {
@@ -76,7 +74,7 @@ describe('CRUD', () => {
   test('delete after joining a team', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -96,7 +94,7 @@ describe('CRUD', () => {
   test('delete after estimating', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -122,7 +120,7 @@ describe('CRUD', () => {
   test('delete after estimating without starting estimations', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -148,7 +146,7 @@ describe('join and leave team', () => {
   test('join team', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -164,7 +162,7 @@ describe('join and leave team', () => {
   test('leave team', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);

@@ -1,8 +1,8 @@
-import { IEstimation } from 'shared-lib';
+import { EstimationDto } from 'shared-lib';
 
-export class Estimation implements IEstimation {
+export class Estimation implements EstimationDto {
   //#region IEstimation properties --------------------------------------------
-  // public revealed: boolean;
+  // TODO public revealed: boolean; → we do not want other participants to intercept messages to check the estimations
   public participantId: string;
   public cardIndex: number | undefined;
   //#endregion

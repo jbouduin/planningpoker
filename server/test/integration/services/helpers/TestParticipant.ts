@@ -1,4 +1,4 @@
-import { ERole } from '../../../../../shared-lib/src';
+import { ERole } from 'shared-lib';
 import { IHandlerService } from '../../../../src/services/interfaces';
 import { ATestParticipant, IATestParticipant } from './ATestParticipant';
 

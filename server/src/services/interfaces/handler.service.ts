@@ -1,5 +1,5 @@
-import { AClientMessage } from 'shared-lib';
-import { LooseObject, IServerParticipant } from '../../objects';
+import { AClientMessage, LooseObjectDto } from 'shared-lib';
+import { IServerParticipant } from '../../objects';
 import { IWebSocket } from '../websocket';
 
 /**
@@ -52,5 +52,5 @@ export interface IHandlerService {
   /**
    * cleans up the storage and sends a server reset message to every connected participant
    */
-  handleReset(): LooseObject;
+  handleReset(): LooseObjectDto;
 }

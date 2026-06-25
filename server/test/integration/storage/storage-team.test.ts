@@ -1,7 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
-
-import { ECardSet, EPokerStatus } from '../../../../shared-lib/src';
-import { IServerParticipant, ITeam } from '../../../src/objects';
+import { ECardSetType, EGameState } from 'shared-lib';
+import { IServerParticipant, IServerTeam } from '../../../src/objects';
 import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
 import STORAGETYPES from '../../../src/storage/storage.types';
 import { Util } from './util';
@@ -10,19 +9,19 @@ describe('CRUD', () => {
   test('Create', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // test
-    expect(team.status).toBe(EPokerStatus.Cleared);
+    expect(team.gameState).toBe(EGameState.Cleared);
     expect(team.teamName).toBe(Util.team1Name);
   });
 
   test('Update', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -31,11 +30,11 @@ describe('CRUD', () => {
     expect(retrieved).toBeDefined();
     if (retrieved) {
       // update
-      retrieved.status = EPokerStatus.Started;
+      retrieved.gameState = EGameState.Started;
       // retrieve and test
       retrieved = container.get<IStorageService>(STORAGETYPES.StorageService).getTeam(Util.team1Name);
       if (retrieved) {
-        expect(retrieved.status).toBe(EPokerStatus.Started);
+        expect(retrieved.gameState).toBe(EGameState.Started);
       }
     }
   });
@@ -43,7 +42,7 @@ describe('CRUD', () => {
   test('Delete', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -59,7 +58,7 @@ describe('CRUD', () => {
   test('Delete with members', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -81,7 +80,7 @@ describe('CRUD', () => {
   test('Delete with estimations', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -112,7 +111,7 @@ describe('Queries', () => {
   test('GetTeam returns team', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -121,7 +120,7 @@ describe('Queries', () => {
     // test
     expect(retrieved).toBeDefined();
     if (retrieved) {
-      expect(retrieved.status).toBe(EPokerStatus.Cleared);
+      expect(retrieved.gameState).toBe(EGameState.Cleared);
       expect(retrieved.teamName).toBe(Util.team1Name);
     }
   });
@@ -129,7 +128,7 @@ describe('Queries', () => {
   test('GetTeam returns undefined', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -140,8 +139,8 @@ describe('Queries', () => {
   test('All teams', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet1 = factory.createCardSet(ECardSet.Fibonacci);
-    const cardSet2 = factory.createCardSet(ECardSet.Cohn);
+    const cardSet1 = factory.createCardSet(ECardSetType.Fibonacci);
+    const cardSet2 = factory.createCardSet(ECardSetType.Cohn);
     // Setup: create team 1
     const team1 = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team1, cardSet1);
@@ -152,15 +151,15 @@ describe('Queries', () => {
     const allTeams = container.get<IStorageService>(STORAGETYPES.StorageService).allTeams();
     // test
     expect(allTeams).toHaveLength(2);
-    expect(allTeams.find((t: ITeam) => t.teamName === Util.team1Name)).toBeDefined();
-    expect(allTeams.find((t: ITeam) => t.teamName === Util.team2Name)).toBeDefined();
+    expect(allTeams.find((t: IServerTeam) => t.teamName === Util.team1Name)).toBeDefined();
+    expect(allTeams.find((t: IServerTeam) => t.teamName === Util.team2Name)).toBeDefined();
   });
 
   test('Filter teams', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet1 = factory.createCardSet(ECardSet.Fibonacci);
-    const cardSet2 = factory.createCardSet(ECardSet.Cohn);
+    const cardSet1 = factory.createCardSet(ECardSetType.Fibonacci);
+    const cardSet2 = factory.createCardSet(ECardSetType.Cohn);
     // Setup: create team 1
     const team1 = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team1, cardSet1);
@@ -170,17 +169,17 @@ describe('Queries', () => {
     // filter teams
     const filterTeams = container
       .get<IStorageService>(STORAGETYPES.StorageService)
-      .filterTeams((t: ITeam) => t.teamName === Util.team1Name);
+      .filterTeams((t: IServerTeam) => t.teamName === Util.team1Name);
     // test
     expect(filterTeams).toHaveLength(1);
-    expect(filterTeams.find((t: ITeam) => t.teamName === Util.team1Name)).toBeDefined();
-    expect(filterTeams.find((t: ITeam) => t.teamName === Util.team2Name)).toBeUndefined();
+    expect(filterTeams.find((t: IServerTeam) => t.teamName === Util.team1Name)).toBeDefined();
+    expect(filterTeams.find((t: IServerTeam) => t.teamName === Util.team2Name)).toBeUndefined();
   });
 
   test('Team exists: Yes', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -191,7 +190,7 @@ describe('Queries', () => {
   test('Team exists: No', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);

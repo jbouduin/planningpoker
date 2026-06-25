@@ -1,13 +1,12 @@
 import { describe, test } from '@jest/globals';
-
 import {
   EClientMessageType,
   EErrorCode,
-  EMemberChangeType,
-  EParticipantStatus,
+  EParticipantChangeType,
+  EParticipantState,
   ERole,
   IRemoveMessage
-} from '../../../../shared-lib/src';
+} from 'shared-lib';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from './helpers/util';
@@ -36,23 +35,23 @@ describe('Remove => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
-        status: EParticipantStatus.Left
+        state: EParticipantState.Left
       })
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
-        status: EParticipantStatus.Left
+        state: EParticipantState.Left
       })
       .expectNoMoreMessages();
 
@@ -89,7 +88,7 @@ describe('Remove => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
@@ -126,16 +125,16 @@ describe('Remove => Failure', () => {
     // Test: scrum master messages
     scrumMaster1
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -176,16 +175,16 @@ describe('Remove => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNextMessageIsError(EErrorCode.ScrumMasterRequired)
       .expectNoMoreMessages();
 
@@ -219,17 +218,17 @@ describe('Remove => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -266,17 +265,17 @@ describe('Remove => Failure', () => {
     // Test: scrum master 1 messages
     scrumMaster1
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
@@ -285,8 +284,8 @@ describe('Remove => Failure', () => {
     // Test: scrum master 2 messages
     scrumMaster2
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNoMoreMessages();
 
     // Test: participant 2 messages

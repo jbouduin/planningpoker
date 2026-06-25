@@ -1,16 +1,16 @@
-import { EErrorCode, EMemberChangeType, EPokerStatus, ICardSet, IEstimation } from 'shared-lib';
-import { ITeam, IServerParticipant } from '../../objects';
+import { CardSetDto, EErrorCode, EGameState, EParticipantChangeType, EstimationDto } from 'shared-lib';
+import { IServerParticipant, IServerTeam } from '../../objects';
 import { IWebSocket } from '../websocket';
 
 export interface IMessageService {
-  broadcastCardSet(members: Array<IServerParticipant>, cardSet: ICardSet): void;
+  broadcastCardSet(members: Array<IServerParticipant>, cardSet: CardSetDto): void;
   broadcastClearEstimations(members: Array<IServerParticipant>): void;
-  broadcastEstimations(members: Array<IServerParticipant>, estimations: Array<IEstimation>): void;
-  broadcastPokerStatus(members: Array<IServerParticipant>, status: EPokerStatus): void;
+  broadcastEstimations(members: Array<IServerParticipant>, estimations: Array<EstimationDto>): void;
+  broadcastGameState(members: Array<IServerParticipant>, gameState: EGameState): void;
   broadcastMemberChange(
     members: Array<IServerParticipant>,
     changedMember: IServerParticipant,
-    change: EMemberChangeType
+    change: EParticipantChangeType
   ): void;
   broadcastReset(members: Array<IServerParticipant>): void;
   broadcastSessionEnded(members: Array<IServerParticipant>): void;
@@ -22,9 +22,9 @@ export interface IMessageService {
   sendSelf(to: IServerParticipant): void;
   sendAllInfo(
     to: IServerParticipant,
-    team: ITeam,
+    team: IServerTeam,
     members: Array<IServerParticipant>,
-    cardSet: ICardSet,
-    estimations: Array<IEstimation> | null
+    cardSet: CardSetDto,
+    estimations: Array<EstimationDto> | null
   ): void;
 }

@@ -1,7 +1,7 @@
-import { ICardSet } from 'shared-lib';
+import { CardSetDto } from 'shared-lib';
 
 export interface ICardSetRepository {
   removeCardSet(teamName: string): boolean;
-  getCardSet(teamName: string): ICardSet | undefined;
-  setCardSet(teamName: string, cardSet: ICardSet): void;
+  getCardSet(teamName: string): CardSetDto | undefined;
+  setCardSet(teamName: string, cardSet: CardSetDto): void;
 }

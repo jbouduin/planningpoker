@@ -1,10 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
-
-import { IEstimation } from '../../../../shared-lib/src';
-import { EstimationRepository } from '../../../src/storage/implementation/estimation.repository';
-import { FactoryService } from '../../../src/storage/implementation/factory.service';
-import { IEstimationRepository } from '../../../src/storage/interfaces/estimation.repository';
-import { IFactoryService } from '../../../src/storage/interfaces/factory.service';
+import { EstimationDto } from 'shared-lib';
+import { EstimationRepository, FactoryService } from '../../../src/storage/implementation';
+import { IEstimationRepository, IFactoryService } from '../../../src/storage/interfaces';
 
 describe('start- estimate - delete - restart', () => {
   const participantId1 = 'participant1';
@@ -96,10 +93,10 @@ describe('multiple participants', () => {
     const estimations = repository.getEstimations(teamName1);
     expect(estimations.length).toBe(2);
     expect(
-      estimations.find((e: IEstimation) => e.participantId === participantId1 && e.cardIndex === cardIndex1)
+      estimations.find((e: EstimationDto) => e.participantId === participantId1 && e.cardIndex === cardIndex1)
     ).toBeDefined();
     expect(
-      estimations.find((e: IEstimation) => e.participantId === participantId2 && e.cardIndex === cardIndex2)
+      estimations.find((e: EstimationDto) => e.participantId === participantId2 && e.cardIndex === cardIndex2)
     ).toBeDefined();
   });
 
@@ -112,10 +109,10 @@ describe('multiple participants', () => {
     const estimations = repository.getEstimations(teamName1);
     expect(estimations.length).toBe(2);
     expect(
-      estimations.find((e: IEstimation) => e.participantId === participantId1 && e.cardIndex === cardIndex1)
+      estimations.find((e: EstimationDto) => e.participantId === participantId1 && e.cardIndex === cardIndex1)
     ).toBeDefined();
     expect(
-      estimations.find((e: IEstimation) => e.participantId === participantId2 && e.cardIndex === cardIndex3)
+      estimations.find((e: EstimationDto) => e.participantId === participantId2 && e.cardIndex === cardIndex3)
     ).toBeDefined();
   });
 
@@ -128,9 +125,9 @@ describe('multiple participants', () => {
     const estimations = repository.getEstimations(teamName1);
     expect(estimations.length).toBe(1);
     expect(
-      estimations.find((e: IEstimation) => e.participantId === participantId1 && e.cardIndex === cardIndex1)
+      estimations.find((e: EstimationDto) => e.participantId === participantId1 && e.cardIndex === cardIndex1)
     ).toBeDefined();
-    expect(estimations.find((e: IEstimation) => e.participantId === participantId2)).toBeUndefined();
+    expect(estimations.find((e: EstimationDto) => e.participantId === participantId2)).toBeUndefined();
   });
 });
 
@@ -155,9 +152,9 @@ describe('remove', () => {
     const estimations = repository.getEstimations(teamName1);
     expect(estimations.length).toBe(1);
     expect(
-      estimations.find((e: IEstimation) => e.participantId === participantId2 && e.cardIndex === cardIndex2)
+      estimations.find((e: EstimationDto) => e.participantId === participantId2 && e.cardIndex === cardIndex2)
     ).toBeDefined();
-    expect(estimations.find((e: IEstimation) => e.participantId === participantId1)).toBeUndefined();
+    expect(estimations.find((e: EstimationDto) => e.participantId === participantId1)).toBeUndefined();
     expect(estimations[0].cardIndex).toBe(cardIndex2);
     expect(estimations[0].participantId).toBe(participantId2);
     expect(repository.getEstimations(teamName2).length).toBe(2);

@@ -1,0 +1,30 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EErrorCode = void 0;
+var EErrorCode;
+(function (EErrorCode) {
+    EErrorCode[EErrorCode["NoError"] = 0] = "NoError";
+    EErrorCode[EErrorCode["TeamAlreadyExists"] = 100] = "TeamAlreadyExists";
+    EErrorCode[EErrorCode["TeamNotFound"] = 101] = "TeamNotFound";
+    EErrorCode[EErrorCode["TeamNameMayNotBeEmtpy"] = 102] = "TeamNameMayNotBeEmtpy";
+    EErrorCode[EErrorCode["ParticipantNotFound"] = 200] = "ParticipantNotFound";
+    EErrorCode[EErrorCode["ParticipantNotInTeam"] = 201] = "ParticipantNotInTeam";
+    EErrorCode[EErrorCode["ParticipantAllReadyInTeam"] = 202] = "ParticipantAllReadyInTeam";
+    EErrorCode[EErrorCode["ParticipantNameMayNotBeEmpty"] = 203] = "ParticipantNameMayNotBeEmpty";
+    EErrorCode[EErrorCode["NewScrumMasterIsNotConnected"] = 204] = "NewScrumMasterIsNotConnected";
+    EErrorCode[EErrorCode["ParticipantHasNoRole"] = 300] = "ParticipantHasNoRole";
+    EErrorCode[EErrorCode["ScrumMasterRequired"] = 301] = "ScrumMasterRequired";
+    EErrorCode[EErrorCode["ObserverCanNotEstimate"] = 302] = "ObserverCanNotEstimate";
+    EErrorCode[EErrorCode["UnknownEstimationCardMissing"] = 400] = "UnknownEstimationCardMissing";
+    EErrorCode[EErrorCode["MoreThanTwoEstimationCardsRequired"] = 401] = "MoreThanTwoEstimationCardsRequired";
+    EErrorCode[EErrorCode["EstimationNotStarted"] = 402] = "EstimationNotStarted";
+    EErrorCode[EErrorCode["EstimationAlreadyStarted"] = 403] = "EstimationAlreadyStarted";
+    EErrorCode[EErrorCode["OnlyObserversOnline"] = 404] = "OnlyObserversOnline";
+    EErrorCode[EErrorCode["InvalidEstimation"] = 405] = "InvalidEstimation";
+    EErrorCode[EErrorCode["LeaveNotAllowedDuringEstimation"] = 406] = "LeaveNotAllowedDuringEstimation";
+    EErrorCode[EErrorCode["ChangeCardSetNotAllowedDuringEstimation"] = 407] = "ChangeCardSetNotAllowedDuringEstimation";
+    EErrorCode[EErrorCode["ServerError"] = 500] = "ServerError";
+    EErrorCode[EErrorCode["NotImplemented"] = 501] = "NotImplemented";
+    EErrorCode[EErrorCode["UnknownClientMessageType"] = 502] = "UnknownClientMessageType";
+})(EErrorCode || (exports.EErrorCode = EErrorCode = {}));
+//# sourceMappingURL=error-code.enum.js.map

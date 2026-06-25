@@ -1,13 +1,10 @@
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-
-import SERVICETYPES from '../../services/service.types';
-import STORAGETYPES from '../../storage/storage.types';
-
-import { EErrorCode } from 'shared-lib';
-import { LooseObject } from '../../objects';
+import { EErrorCode, LooseObjectDto } from 'shared-lib';
 import { IHandlerService, ISerializationService } from '../../services/interfaces';
+import SERVICETYPES from '../../services/service.types';
 import { IStorageService } from '../../storage/interfaces';
+import STORAGETYPES from '../../storage/storage.types';
 import { ISystemController } from '../interfaces';
 
 @injectable()
@@ -31,9 +28,9 @@ export class SystemController implements ISystemController {
   //#endregion
 
   //#region ISystemController methods -----------------------------------------
-  public deleteTeam(teamname: string): LooseObject {
+  public deleteTeam(teamname: string): LooseObjectDto {
     const team = this.storageService.getTeam(teamname);
-    const response: LooseObject = {};
+    const response: LooseObjectDto = {};
     if (team) {
       this.storageService.deleteTeam(teamname);
     } else {
@@ -43,9 +40,9 @@ export class SystemController implements ISystemController {
     return response;
   }
 
-  public disconnectParticipant(participantId: string): LooseObject {
+  public disconnectParticipant(participantId: string): LooseObjectDto {
     const participant = this.storageService.getParticipant(participantId);
-    const response: LooseObject = {};
+    const response: LooseObjectDto = {};
     if (participant) {
       participant.socket.close();
       response.errorCode = EErrorCode.NoError;
@@ -57,19 +54,19 @@ export class SystemController implements ISystemController {
     return response;
   }
 
-  public resetServer(): LooseObject {
+  public resetServer(): LooseObjectDto {
     return this.handlerService.handleReset();
   }
 
-  public getTeam(teamName: string): LooseObject {
+  public getTeam(teamName: string): LooseObjectDto {
     return this.serializationService.serializeTeam(teamName);
   }
 
-  public getAllTeams(): LooseObject {
+  public getAllTeams(): LooseObjectDto {
     return this.serializationService.serializeAllTeams();
   }
 
-  public getParticipants(): LooseObject {
+  public getParticipants(): LooseObjectDto {
     return this.serializationService.serializeParticipants();
   }
   //#endregion

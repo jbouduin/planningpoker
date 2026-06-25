@@ -1,33 +1,31 @@
 import { describe, expect, test } from '@jest/globals';
-
 import {
-  ECardSet,
+  CardDto,
+  ECardSetType,
   EClientMessageType,
   EErrorCode,
-  EParticipantStatus,
+  EParticipantState,
   ERole,
   EServerMessageType,
-  ICard,
   ICardSetMessage,
   ICreateMessage,
   IEstimationListMessage,
   IInitMessage,
-  IMemberListMessage,
+  IParticipantListMessage,
   ISelfMessage,
   ITeamNameMessage
-} from '../../../../shared-lib/src';
-import SERVICETYPES from '../../../src/services/service.types';
-import STORAGETYPES from '../../../src/storage/storage.types';
-
+} from 'shared-lib';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { IFactoryService } from '../../../src/storage/interfaces';
+import STORAGETYPES from '../../../src/storage/storage.types';
 import { ITestScrumMaster } from './helpers/TestScrumMaster';
 import { Util } from './helpers/util';
 
 describe('create => OK', () => {
   test('Standard Create', () => {
     const container = Util.getContainer();
-    const tshirt = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.TShirt);
+    const tshirt = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.TShirt);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
     // Setup: create unaffected Team
@@ -39,7 +37,7 @@ describe('create => OK', () => {
       Util.team1Name,
       Util.scrumMaster1Nick,
       false,
-      ECardSet.TShirt
+      ECardSetType.TShirt
     );
 
     // Test: Scrum master initial messages
@@ -51,16 +49,16 @@ describe('create => OK', () => {
       })
       .expectNextMessageIs(EServerMessageType.Self, (m: ISelfMessage) => {
         expect(m.data.nick).toBe(Util.scrumMaster1Nick);
-        expect(m.data.status).toBe(EParticipantStatus.Connected);
+        expect(m.data.state).toBe(EParticipantState.Connected);
         expect(m.data.role).toBe(ERole.ScrumMaster);
         expect(m.data.observer).toBe(false);
       })
       .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => expect(m.data).toBe(Util.team1Name))
-      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
-        expect(m.data.cardSet).toBe(ECardSet.TShirt);
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSetType.TShirt);
         expect(m.data.cards).toHaveLength(tshirt.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList, (m: IMemberListMessage) => expect(m.data.length).toBe(0))
+      .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) => expect(m.data.length).toBe(0))
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data.length).toBe(0)
       )
@@ -80,7 +78,7 @@ describe('create => OK', () => {
       Util.team1Name,
       Util.scrumMaster1Nick,
       true,
-      ECardSet.TShirt
+      ECardSetType.TShirt
     );
 
     // Test: check if the observer flag was send correctly
@@ -89,7 +87,7 @@ describe('create => OK', () => {
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIs(EServerMessageType.Self, (m: ISelfMessage) => expect(m.data.observer).toBe(true))
       .expectNextMessageIs(EServerMessageType.TeamName)
-      .expectNextMessageIs(EServerMessageType.CardList)
+      .expectNextMessageIs(EServerMessageType.CardSet)
       .expectNextMessageIs(EServerMessageType.MemberList)
       .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
@@ -99,7 +97,7 @@ describe('create => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // Setup: customize a card set
-    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const customizedCohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     customizedCohn.cards.splice(9, 3);
 
     // Run: create the team
@@ -108,7 +106,7 @@ describe('create => OK', () => {
       Util.team1Name,
       Util.scrumMaster1Nick,
       true,
-      ECardSet.Custom,
+      ECardSetType.Custom,
       customizedCohn
     );
 
@@ -118,8 +116,8 @@ describe('create => OK', () => {
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIs(EServerMessageType.Self)
       .expectNextMessageIs(EServerMessageType.TeamName)
-      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
-        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
       })
       .expectNextMessageIs(EServerMessageType.MemberList)
@@ -131,7 +129,7 @@ describe('create => OK', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // Setup: get Cohn set for testing afterwards
-    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
 
     // Run: create the team
     const scrumMaster: ITestScrumMaster = Util.createTeam(
@@ -139,7 +137,7 @@ describe('create => OK', () => {
       Util.team1Name,
       Util.scrumMaster1Nick,
       true,
-      ECardSet.Custom,
+      ECardSetType.Custom,
       undefined
     );
 
@@ -149,8 +147,8 @@ describe('create => OK', () => {
       .expectNextMessageIs(EServerMessageType.Init)
       .expectNextMessageIs(EServerMessageType.Self)
       .expectNextMessageIs(EServerMessageType.TeamName)
-      .expectNextMessageIs(EServerMessageType.CardList, (m: ICardSetMessage) => {
-        expect(m.data.cardSet).toBe(ECardSet.Cohn);
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+        expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
       })
       .expectNextMessageIs(EServerMessageType.MemberList)
@@ -177,7 +175,7 @@ describe('Create => Failure', () => {
       data: {
         nick: Util.scrumMaster1Nick,
         observer: false,
-        cardSet: ECardSet.Cohn
+        cardSet: ECardSetType.Cohn
       }
     };
     scrumMaster.sendMessage(message, Util.team1Name);
@@ -206,7 +204,7 @@ describe('Create => Failure', () => {
       unaffectedTeam.teamName,
       Util.scrumMaster1Nick,
       false,
-      ECardSet.TShirt
+      ECardSetType.TShirt
     );
 
     // Test: scrum master messages
@@ -225,8 +223,8 @@ describe('Create => Failure', () => {
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
     // Setup: customize a card set: take the unknown estimation out
-    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
+    const indexOfUnknown = cohn.cards.findIndex((card: CardDto) => card.isUnknownEstimation);
     cohn.cards.splice(indexOfUnknown, 1);
 
     // Run: create the team
@@ -235,7 +233,7 @@ describe('Create => Failure', () => {
       Util.team1Name,
       Util.scrumMaster1Nick,
       true,
-      ECardSet.Custom,
+      ECardSetType.Custom,
       cohn
     );
 
@@ -251,7 +249,7 @@ describe('Create => Failure', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
     // Setup: customize a card set
-    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSet.Cohn);
+    const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     cohn.cards.splice(1, 11);
 
     // Run: create the team
@@ -260,7 +258,7 @@ describe('Create => Failure', () => {
       Util.team1Name,
       Util.scrumMaster1Nick,
       true,
-      ECardSet.Custom,
+      ECardSetType.Custom,
       cohn
     );
 
@@ -285,7 +283,7 @@ describe('Create => Failure', () => {
       '',
       Util.scrumMaster1Nick,
       false,
-      ECardSet.TShirt
+      ECardSetType.TShirt
     );
 
     // Test: Scrum master messages
@@ -307,7 +305,13 @@ describe('Create => Failure', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Run: Create team
-    const scrumMaster: ITestScrumMaster = Util.createTeam(handlerService, Util.team1Name, '', false, ECardSet.TShirt);
+    const scrumMaster: ITestScrumMaster = Util.createTeam(
+      handlerService,
+      Util.team1Name,
+      '',
+      false,
+      ECardSetType.TShirt
+    );
 
     // Test: scrum master messages
     scrumMaster

@@ -1,19 +1,19 @@
 import { inject, Service, signal, Signal, WritableSignal } from '@angular/core';
 import {
   AServerMessage,
-  EPokerStatus,
+  EGameState,
   EServerMessageType,
   ICardSet,
   ICardSetMessage,
   IErrorMessage,
   IEstimation,
   IEstimationListMessage,
+  IGameStateChangedMessage,
   IInitMessage,
   IMemberChange,
-  IMemberChangeMessage,
+  IMemberChangedMessage,
   IMemberListMessage,
   IParticipant,
-  IPokerStatusChangedMessage,
   ISelfMessage,
   ITeamNameMessage
 } from 'shared-lib';
@@ -31,7 +31,7 @@ export class MessageDispatcherService {
   private readonly _memberChanged: WritableSignal<IMemberChange | null>;
   private readonly _memberList: WritableSignal<Array<IParticipant>>;
   private readonly _ping: WritableSignal<number>;
-  private readonly _pokerStatus: WritableSignal<EPokerStatus>;
+  private readonly _pokerStatus: WritableSignal<EGameState>;
   private readonly _self: WritableSignal<IParticipant | null>;
   private readonly _serverReset: WritableSignal<number>;
   private readonly _teamIdle: WritableSignal<number>;
@@ -50,7 +50,7 @@ export class MessageDispatcherService {
     this._memberChanged = signal<IMemberChange | null>(null);
     this._memberList = signal<Array<IParticipant>>(new Array<IParticipant>());
     this._ping = signal<number>(0);
-    this._pokerStatus = signal<EPokerStatus>(EPokerStatus.Cleared);
+    this._pokerStatus = signal<EGameState>(EGameState.Cleared);
     this._self = signal<IParticipant | null>(null);
     this._serverReset = signal<number>(0);
     this._teamIdle = signal<number>(0);
@@ -96,7 +96,7 @@ export class MessageDispatcherService {
     return this._ping;
   }
 
-  public get pokerStatus(): WritableSignal<EPokerStatus> {
+  public get pokerStatus(): WritableSignal<EGameState> {
     return this._pokerStatus;
   }
 
@@ -121,7 +121,7 @@ export class MessageDispatcherService {
   public processServerMessage(message: AServerMessage): boolean {
     let canContinue = true;
     switch (message.type) {
-      case EServerMessageType.CardList:
+      case EServerMessageType.CardSet:
         this._cardSet.set((<ICardSetMessage>message).data);
         break;
       case EServerMessageType.ClearEstimations:
@@ -133,27 +133,26 @@ export class MessageDispatcherService {
       case EServerMessageType.EndSession:
         this._endSession.update((prev: number) => prev + 1);
         break;
-      // TODO → still have to decide on this one. It is a special case as some errors do require to end the session
       case EServerMessageType.Error:
         canContinue = this.errorHandlerSvc.processError((<IErrorMessage>message).data);
         break;
       case EServerMessageType.EstimationList:
         this._estimationList.set((<IEstimationListMessage>message).data);
         break;
+      case EServerMessageType.GameStateChanged:
+        this._pokerStatus.set((<IGameStateChangedMessage>message).data);
+        break;
       case EServerMessageType.Init:
         this._init.set((<IInitMessage>message).data);
         break;
       case EServerMessageType.MemberChanged:
-        this._memberChanged.set((<IMemberChangeMessage>message).data);
+        this._memberChanged.set((<IMemberChangedMessage>message).data);
         break;
       case EServerMessageType.MemberList:
         this._memberList.set((<IMemberListMessage>message).data);
         break;
       case EServerMessageType.Ping:
         this._ping.update((prev: number) => prev + 1);
-        break;
-      case EServerMessageType.PokerStatus:
-        this._pokerStatus.set((<IPokerStatusChangedMessage>message).data);
         break;
       case EServerMessageType.Self:
         this._self.set((<ISelfMessage>message).data);

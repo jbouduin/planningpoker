@@ -1,11 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
-
 import { IServerParticipant } from '../../../src/objects';
-import { MembershipRepository } from '../../../src/storage/implementation/membership.repository';
-import { IMembershipRepository } from '../../../src/storage/interfaces/membership.repository';
-import { IServerParticipantRepository } from '../../../src/storage/interfaces/server-participant.repository';
-import { ITeamRepository } from '../../../src/storage/interfaces/team.repository';
+import { MembershipRepository } from '../../../src/storage/implementation';
+import { IMembershipRepository, IServerParticipantRepository, ITeamRepository } from '../../../src/storage/interfaces';
 import { Util } from '../util';
 
 describe('Member scope', () => {

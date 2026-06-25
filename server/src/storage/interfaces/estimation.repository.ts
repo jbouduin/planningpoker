@@ -1,10 +1,10 @@
-import { IEstimation } from 'shared-lib';
+import { EstimationDto } from 'shared-lib';
 
 export interface IEstimationRepository {
-  deleteEstimation(teamName: string, participantId: string): IEstimation;
-  getEstimations(teamName: string): Array<IEstimation>;
+  deleteEstimation(teamName: string, participantId: string): EstimationDto;
+  getEstimations(teamName: string): Array<EstimationDto>;
   removeTeam(teamName: string): void;
   removeParticipant(teamName: string, participantId: string): void;
   startEstimating(teamName: string): void;
-  upsertEstimation(teamName: string, participantId: string, cardIndex: number | undefined): IEstimation;
+  upsertEstimation(teamName: string, participantId: string, cardIndex: number | undefined): EstimationDto;
 }

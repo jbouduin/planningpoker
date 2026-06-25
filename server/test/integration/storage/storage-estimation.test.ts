@@ -1,6 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-
-import { ECardSet, EPokerStatus, ICard, IEstimation } from '../../../../shared-lib/src';
+import { CardDto, ECardSetType, EGameState, EstimationDto } from 'shared-lib';
 import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
 import STORAGETYPES from '../../../src/storage/storage.types';
 import { Util } from './util';
@@ -16,7 +15,7 @@ describe('CRUD', () => {
   test('create (upsert)', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -41,7 +40,7 @@ describe('CRUD', () => {
   test('update (upsert)', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -70,7 +69,7 @@ describe('CRUD', () => {
   test('delete', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -100,7 +99,7 @@ describe('CRUD when estimation has not started', () => {
   test('create', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -122,7 +121,7 @@ describe('CRUD when estimation has not started', () => {
   test('update', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -148,7 +147,7 @@ describe('CRUD when estimation has not started', () => {
   test('delete', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -176,7 +175,7 @@ describe('Reveal', () => {
   test('All have estimated', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // create first participant
     const participant1 = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant1);
@@ -203,14 +202,14 @@ describe('Reveal', () => {
     // reveal
     const [status, estimations] = container.get<IStorageService>(STORAGETYPES.StorageService).reveal(Util.team1Name);
     // test
-    expect(status).toBe(EPokerStatus.Revealed);
+    expect(status).toBe(EGameState.Revealed);
     expect(estimations).toHaveLength(2);
-    const estimation1 = estimations.find((e: IEstimation) => e.participantId === participant1.participantId);
+    const estimation1 = estimations.find((e: EstimationDto) => e.participantId === participant1.participantId);
     expect(estimation1).toBeDefined();
     if (estimation1) {
       expect(estimation1.cardIndex).toBe(1);
     }
-    const estimation2 = estimations.find((e: IEstimation) => e.participantId === participant2.participantId);
+    const estimation2 = estimations.find((e: EstimationDto) => e.participantId === participant2.participantId);
     expect(estimation2).toBeDefined();
     if (estimation2) {
       expect(estimation2.cardIndex).toBe(2);
@@ -220,7 +219,7 @@ describe('Reveal', () => {
   test('One participant has not estimated', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant 1
     const participant1 = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant1);
@@ -243,32 +242,32 @@ describe('Reveal', () => {
     // reveal
     const [status, estimations] = container.get<IStorageService>(STORAGETYPES.StorageService).reveal(Util.team1Name);
     // test
-    expect(status).toBe(EPokerStatus.Revealed);
+    expect(status).toBe(EGameState.Revealed);
     expect(estimations).toHaveLength(2);
-    const estimation1 = estimations.find((e: IEstimation) => e.participantId === participant1.participantId);
+    const estimation1 = estimations.find((e: EstimationDto) => e.participantId === participant1.participantId);
     expect(estimation1).toBeDefined();
     if (estimation1) {
       expect(estimation1.cardIndex).toBe(1);
     }
-    const estimation2 = estimations.find((e: IEstimation) => e.participantId === participant2.participantId);
+    const estimation2 = estimations.find((e: EstimationDto) => e.participantId === participant2.participantId);
     expect(estimation2).toBeDefined();
     if (estimation2) {
-      const estimationCard = cardSet.cards.find((card: ICard) => card.isUnknownEstimation);
+      const estimationCard = cardSet.cards.find((card: CardDto) => card.isUnknownEstimation);
       expect(estimationCard).toBeDefined();
     }
     // retrieve
     const retrieved = container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name);
     // Test: retrieved
     expect(retrieved).toHaveLength(2);
-    const retrieved1 = estimations.find((e: IEstimation) => e.participantId === participant1.participantId);
+    const retrieved1 = estimations.find((e: EstimationDto) => e.participantId === participant1.participantId);
     expect(retrieved1).toBeDefined();
     if (retrieved1) {
       expect(retrieved1.cardIndex).toBe(1);
     }
-    const retrieved2 = estimations.find((e: IEstimation) => e.participantId === participant2.participantId);
+    const retrieved2 = estimations.find((e: EstimationDto) => e.participantId === participant2.participantId);
     expect(retrieved2).toBeDefined();
     if (retrieved2) {
-      const estimationCard = cardSet.cards.find((card: ICard) => card.isUnknownEstimation);
+      const estimationCard = cardSet.cards.find((card: CardDto) => card.isUnknownEstimation);
       expect(estimationCard).toBeDefined();
     }
   });

@@ -2,10 +2,8 @@ import { inject, injectable } from 'inversify';
 import { Writable } from 'stream';
 import * as winston from 'winston';
 import { format, transports } from 'winston';
-
-import SERVICETYPES from '../service.types';
-
 import { IEnvironmentService, ILoggerService, LogType } from '../interfaces';
+import SERVICETYPES from '../service.types';
 
 @injectable()
 export class LoggerService implements ILoggerService {

@@ -1,9 +1,7 @@
 import { injectable } from 'inversify';
+import { CardDto, CardSetDto, ECardSetType, EParticipantState, ERole, EstimationDto } from 'shared-lib';
 import { v4 as Uuid } from 'uuid';
-
-import { ECardSet, EParticipantStatus, ERole, ICard, ICardSet, IEstimation } from 'shared-lib';
-
-import { Estimation, IServerParticipant, ITeam, ServerParticipant, Team } from '../../objects';
+import { Estimation, IServerParticipant, IServerTeam, ServerParticipant, ServerTeam } from '../../objects';
 import { IWebSocket } from '../../services/websocket';
 import { IFactoryService } from '../interfaces';
 
@@ -20,16 +18,16 @@ export class FactoryService implements IFactoryService {
   //#endregion
 
   //#region IFactoryService methods -------------------------------------------
-  public createCardSet(set: ECardSet): ICardSet {
-    let cards: Array<ICard>;
+  public createCardSet(set: ECardSetType): CardSetDto {
+    let cards: Array<CardDto>;
     switch (set) {
-      case ECardSet.Fibonacci:
+      case ECardSetType.Fibonacci:
         cards = this.generateFibonacci();
         break;
-      case ECardSet.TShirt:
+      case ECardSetType.TShirt:
         cards = this.generateShirts();
         break;
-      case ECardSet.Cohn:
+      case ECardSetType.Cohn:
       default:
         cards = this.generateCohn();
         break;
@@ -40,7 +38,7 @@ export class FactoryService implements IFactoryService {
     };
   }
 
-  public createEstimation(participantId: string, cardIndex: number | undefined): IEstimation {
+  public createEstimation(participantId: string, cardIndex: number | undefined): EstimationDto {
     return new Estimation(participantId, cardIndex);
   }
 
@@ -51,19 +49,19 @@ export class FactoryService implements IFactoryService {
         participantId: Uuid(),
         role: ERole.Unknown,
         observer: false,
-        status: EParticipantStatus.Connected
+        state: EParticipantState.Connected
       },
       socket
     );
   }
 
-  public createTeam(teamName: string): ITeam {
-    return new Team(teamName);
+  public createTeam(teamName: string): IServerTeam {
+    return new ServerTeam(teamName);
   }
   //#endregion
 
   //#region private methods ---------------------------------------------------
-  private generateCohn(): Array<ICard> {
+  private generateCohn(): Array<CardDto> {
     let idx = 0;
     return [
       { index: idx++, label: '0', isIcon: false, isUnknownEstimation: false, isEstimation: true },
@@ -83,7 +81,7 @@ export class FactoryService implements IFactoryService {
     ];
   }
 
-  private generateFibonacci(): Array<ICard> {
+  private generateFibonacci(): Array<CardDto> {
     let idx = 0;
     return [
       { index: idx++, label: '0', isIcon: false, isUnknownEstimation: false, isEstimation: true },
@@ -103,7 +101,7 @@ export class FactoryService implements IFactoryService {
     ];
   }
 
-  private generateShirts(): Array<ICard> {
+  private generateShirts(): Array<CardDto> {
     let idx = 0;
     return [
       { index: idx++, label: '0', isIcon: false, isUnknownEstimation: false, isEstimation: true },

@@ -1,6 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-
-import { ECardSet, EErrorCode, EParticipantStatus } from '../../../../shared-lib/src';
+import { ECardSetType, EErrorCode, EParticipantState } from 'shared-lib';
 import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
 import STORAGETYPES from '../../../src/storage/storage.types';
 import { Util } from './util';
@@ -9,7 +8,7 @@ describe('Join/Leave', () => {
   test('Join', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // create first participant
     const participant1 = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant1);
@@ -33,7 +32,7 @@ describe('Join/Leave', () => {
   test('Leave', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // create first participant
     const participant1 = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant1);
@@ -61,7 +60,7 @@ describe('Can rejoin', () => {
   test('Can', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // create first participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -91,7 +90,7 @@ describe('Can rejoin', () => {
   test('Can not: participant does not exist', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -106,7 +105,7 @@ describe('Can rejoin', () => {
   test('Can not: participant not in team', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // create first participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -122,8 +121,8 @@ describe('Can rejoin', () => {
   test('Can not: participant in other team', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet1 = factory.createCardSet(ECardSet.Fibonacci);
-    const cardSet2 = factory.createCardSet(ECardSet.Cohn);
+    const cardSet1 = factory.createCardSet(ECardSetType.Fibonacci);
+    const cardSet2 = factory.createCardSet(ECardSetType.Cohn);
     // create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -146,7 +145,7 @@ describe('Queries', () => {
   test('Get first connected team member: defined', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -169,19 +168,19 @@ describe('Queries', () => {
   test('Get first connected Team member: undefined', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
     // Setup: create participant 1
     const participant1 = factory.createParticipant(Util.getSocket());
-    participant1.status = EParticipantStatus.Disconnected;
+    participant1.state = EParticipantState.Disconnected;
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant1);
     // Setup: participant 1 joins team
     container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant1.participantId);
     // Setup: create participant 2
     const participant2 = factory.createParticipant(Util.getSocket());
-    participant2.status = EParticipantStatus.Disconnected;
+    participant2.state = EParticipantState.Disconnected;
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant2);
     // participant 2 joins
     container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant2.participantId);
@@ -197,7 +196,7 @@ describe('Queries', () => {
   test('Get connected Team members', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -220,7 +219,7 @@ describe('Queries', () => {
   test('Get Team of participant', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -243,7 +242,7 @@ describe('Queries', () => {
   test('Get Team of participant undefined', () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);

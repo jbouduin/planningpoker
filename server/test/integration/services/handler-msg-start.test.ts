@@ -1,14 +1,13 @@
 import { describe, test } from '@jest/globals';
-
 import {
   EClientMessageType,
   EErrorCode,
-  EMemberChangeType,
-  EPokerStatus,
+  EGameState,
+  EParticipantChangeType,
   ERole,
   EServerMessageType,
   IStartMessage
-} from '../../../../shared-lib/src';
+} from 'shared-lib';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from './helpers/util';
@@ -36,16 +35,16 @@ describe('Start => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant 1 should have received 1 clear + 1 poker status
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -76,7 +75,7 @@ describe('start => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
@@ -109,7 +108,7 @@ describe('start => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
@@ -174,7 +173,7 @@ describe('start => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -207,7 +206,7 @@ describe('start => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -245,9 +244,9 @@ describe('start => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.EstimationAlreadyStarted)
       .expectNoMoreMessages();
 
@@ -255,7 +254,7 @@ describe('start => Failure', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -285,13 +284,16 @@ describe('start => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.OnlyObserversOnline)
       .expectNoMoreMessages();
 
     // Test: observer 1 messages
-    observer1.initializeMessageQueue().expectNextMessageIsMemberChange(EMemberChangeType.Joined).expectNoMoreMessages();
+    observer1
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNoMoreMessages();
 
     // Test: observer 2 messages
     observer2.initializeMessageQueue().expectNoMoreMessages();

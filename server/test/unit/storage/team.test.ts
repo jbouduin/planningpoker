@@ -1,10 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
-
-import { EPokerStatus } from '../../../../shared-lib/src';
-import { FactoryService } from '../../../src/storage/implementation/factory.service';
-import { TeamRepository } from '../../../src/storage/implementation/team.repository';
-import { IFactoryService } from '../../../src/storage/interfaces/factory.service';
-import { ITeamRepository } from '../../../src/storage/interfaces/team.repository';
+import { EGameState } from 'shared-lib';
+import { FactoryService, TeamRepository } from '../../../src/storage/implementation';
+import { IFactoryService, ITeamRepository } from '../../../src/storage/interfaces';
 
 describe('ITeamRepository', () => {
   test('create team', () => {
@@ -36,11 +33,11 @@ describe('ITeamRepository', () => {
     const factory: IFactoryService = new FactoryService();
     const team = factory.createTeam(teamName);
     repository.add(team);
-    repository.setStatus(teamName, EPokerStatus.Started);
+    repository.setGameState(teamName, EGameState.Started);
     const retrieved = repository.get(teamName);
     if (retrieved) {
       expect(retrieved.lastAccessTime > lastAccess);
-      expect(retrieved.status).toBe(EPokerStatus.Started);
+      expect(retrieved.gameState).toBe(EGameState.Started);
     }
   });
 });

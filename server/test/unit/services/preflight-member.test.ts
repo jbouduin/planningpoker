@@ -1,20 +1,19 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
-
 import {
   EClientMessageType,
   EErrorCode,
   IChangeNickMessage,
   IChangeScrumMasterMessage,
   IObserveMessage,
-  IObserverChange,
-  IRemoveMessage
-} from '../../../../shared-lib/src';
+  IRemoveMessage,
+  ObserverChangeDto
+} from 'shared-lib';
 import { IStorageService } from '../../../src/storage/interfaces';
 import { Util } from '../util';
 
 describe('preflight Observe - toggle self', () => {
-  const data: IObserverChange = {
+  const data: ObserverChangeDto = {
     member: Util.participant1Name,
     observer: true
   };
@@ -86,7 +85,7 @@ describe('preflight Observe - toggle self', () => {
 
 describe('preflight Observe - toggle other', () => {
   test('OK', () => {
-    const data: IObserverChange = {
+    const data: ObserverChangeDto = {
       member: Util.participant2Name,
       observer: true
     };
@@ -107,7 +106,7 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const data: IObserverChange = {
+    const data: ObserverChangeDto = {
       member: Util.participant2Name,
       observer: true
     };
@@ -130,7 +129,7 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const data: IObserverChange = {
+    const data: ObserverChangeDto = {
       member: Util.participant2Name,
       observer: true
     };
@@ -153,7 +152,7 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const data: IObserverChange = {
+    const data: ObserverChangeDto = {
       member: Util.participant2Name,
       observer: true
     };
@@ -176,7 +175,7 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => sender not scrum master', () => {
-    const data: IObserverChange = {
+    const data: ObserverChangeDto = {
       member: Util.participant2Name,
       observer: true
     };
@@ -199,7 +198,7 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => toggled participant does not exist', () => {
-    const data: IObserverChange = {
+    const data: ObserverChangeDto = {
       member: Util.participant2Name,
       observer: true
     };
@@ -222,7 +221,7 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => toggled participant not in team', () => {
-    const data: IObserverChange = {
+    const data: ObserverChangeDto = {
       member: Util.participant2Name,
       observer: true
     };
@@ -245,7 +244,7 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => toggled participant in another team', () => {
-    const data: IObserverChange = {
+    const data: ObserverChangeDto = {
       member: Util.participant2Name,
       observer: true
     };

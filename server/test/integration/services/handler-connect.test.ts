@@ -1,5 +1,4 @@
 import { describe, test } from '@jest/globals';
-
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from './helpers/util';

@@ -1,24 +1,23 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
-
 import {
-  ECardSet,
+  CardDto,
+  CreateDto,
+  ECardSetType,
   EClientMessageType,
   EErrorCode,
-  ICard,
   IChangeCardSetMessage,
-  ICreate,
   ICreateMessage
-} from '../../../../shared-lib/src';
-import { FactoryService } from '../../../src/storage/implementation/factory.service';
+} from 'shared-lib';
+import { FactoryService } from '../../../src/storage/implementation';
 import { IStorageService } from '../../../src/storage/interfaces';
 import { Util } from '../util';
 
 describe('preflight cardSet OK', () => {
   test('create OK with standard cardset', () => {
-    const data: ICreate = {
+    const data: CreateDto = {
       observer: false,
-      cardSet: ECardSet.Cohn,
+      cardSet: ECardSetType.Cohn,
       nick: Util.scrummasterName
     };
     const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
@@ -31,11 +30,11 @@ describe('preflight cardSet OK', () => {
   });
 
   test('create OK with customized cardset', () => {
-    const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
+    const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     cohn.cards.splice(9, 3);
-    const data: ICreate = {
+    const data: CreateDto = {
       observer: false,
-      cardSet: ECardSet.Custom,
+      cardSet: ECardSetType.Custom,
       nick: Util.scrummasterName,
       cards: cohn
     };
@@ -49,7 +48,7 @@ describe('preflight cardSet OK', () => {
   });
 
   test('change cardset OK with standard cardset', () => {
-    const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
+    const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
@@ -66,7 +65,7 @@ describe('preflight cardSet OK', () => {
   });
 
   test('change cardset OK with customized cardset', () => {
-    const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
+    const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     cohn.cards.splice(9, 3);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,
@@ -86,12 +85,12 @@ describe('preflight cardSet OK', () => {
 
 describe('preflight cardSet not OK', () => {
   test('Create with unknown estimation missing', () => {
-    const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
+    const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
+    const indexOfUnknown = cohn.cards.findIndex((card: CardDto) => card.isUnknownEstimation);
     cohn.cards.splice(indexOfUnknown, 1);
-    const data: ICreate = {
+    const data: CreateDto = {
       observer: false,
-      cardSet: ECardSet.Custom,
+      cardSet: ECardSetType.Custom,
       nick: Util.scrummasterName,
       cards: cohn
     };
@@ -107,8 +106,8 @@ describe('preflight cardSet not OK', () => {
   });
 
   test('Change cardset with unknown estimation missing', () => {
-    const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
-    const indexOfUnknown = cohn.cards.findIndex((card: ICard) => card.isUnknownEstimation);
+    const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
+    const indexOfUnknown = cohn.cards.findIndex((card: CardDto) => card.isUnknownEstimation);
     cohn.cards.splice(indexOfUnknown, 1);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,
@@ -128,11 +127,11 @@ describe('preflight cardSet not OK', () => {
   });
 
   test('Create with less than two estimation cards', () => {
-    const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
+    const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     cohn.cards.splice(1, 11);
-    const data: ICreate = {
+    const data: CreateDto = {
       observer: false,
-      cardSet: ECardSet.Custom,
+      cardSet: ECardSetType.Custom,
       nick: Util.scrummasterName,
       cards: cohn
     };
@@ -148,7 +147,7 @@ describe('preflight cardSet not OK', () => {
   });
 
   test('Change cardset with less than two estimation cards', () => {
-    const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
+    const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     cohn.cards.splice(1, 11);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,

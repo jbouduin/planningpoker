@@ -10,7 +10,7 @@ export class I18nService {
   private readonly translateSvc: TranslateService;
   //#endregion
 
-  // TODO
+  // TODO use environment
   public readonly supportedLanguages = ['de-DE', 'en-US'];
   //#region Constructor & C° --------------------------------------------------
   public constructor() {

@@ -1,10 +1,8 @@
 import 'reflect-metadata';
-
-import SERVICETYPES from './services/service.types';
-
+import app from './app';
 import container from './inversify.config';
 import { ILoggerService } from './services/interfaces';
-import app from './app';
+import SERVICETYPES from './services/service.types';
 
 const PORT = 3001;
 

@@ -1,4 +1,4 @@
-import { IServerResetMessage, EServerMessageType } from 'shared-lib';
+import { EServerMessageType, IServerResetMessage } from 'shared-lib';
 import { ServerMessage } from './server-message';
 
 export class ServerResetMessage extends ServerMessage<void> implements IServerResetMessage {

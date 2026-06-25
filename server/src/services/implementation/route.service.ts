@@ -2,12 +2,10 @@ import { Request, Response, Router } from 'express';
 import * as expressWs from 'express-ws';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-
 import CONTROLLERTYPES from '../../controllers/controller.types';
-import SERVICETYPES from '../service.types';
-
 import { IApiController, ISystemController } from '../../controllers/interfaces';
 import { IEnvironmentService, ILoggerService, IRouteService } from '../interfaces';
+import SERVICETYPES from '../service.types';
 
 @injectable()
 export class RouteService implements IRouteService {
@@ -37,13 +35,7 @@ export class RouteService implements IRouteService {
     const router = Router();
     this.setSystemRoutes(router);
     this.setApiRoutes(router);
-
-    // fallback
-    // router.all(
-    //   '',
-    //   (_request: Request, response: Response) => {
-    //     response.sendStatus(404);
-    //   });
+    // Fallback
     router.use((_request: Request, response: Response) => {
       response.sendStatus(404);
     });

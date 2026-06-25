@@ -1,7 +1,7 @@
-import { LooseObject } from '../../objects';
+import { LooseObjectDto } from 'shared-lib';
 
 export interface ISerializationService {
-  serializeAllTeams(): LooseObject;
-  serializeTeam(teamname: string): LooseObject;
-  serializeParticipants(): LooseObject;
+  serializeAllTeams(): LooseObjectDto;
+  serializeTeam(teamname: string): LooseObjectDto;
+  serializeParticipants(): LooseObjectDto;
 }

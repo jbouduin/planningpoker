@@ -1,21 +1,16 @@
 import { Container } from 'inversify';
-// import { It, Mock } from 'moq.ts';
-
+import { It, Mock } from 'moq.ts';
 import {
-  ECardSet,
+  CardDto,
+  CardSetDto,
+  ECardSetType,
   EClientMessageType,
   ERole,
   EServerMessageType,
-  ICard,
-  ICardSet,
   ICreateMessage,
   IJoinMessage,
   IPauseMessage
-} from '../../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../../src/services/service.types';
-import STORAGETYPES from '../../../../src/storage/storage.types';
-
+} from 'shared-lib';
 import {
   CronService,
   EnvironmentService,
@@ -34,6 +29,7 @@ import {
   ISenderService,
   LogType
 } from '../../../../src/services/interfaces';
+import SERVICETYPES from '../../../../src/services/service.types';
 import {
   CardSetRepository,
   EstimationRepository,
@@ -52,10 +48,10 @@ import {
   IStorageService,
   ITeamRepository
 } from '../../../../src/storage/interfaces';
+import STORAGETYPES from '../../../../src/storage/storage.types';
 import { ITestParticipant, TestParticipant } from './TestParticipant';
 import { ITestScrumMaster } from './TestScrumMaster';
 import { UnaffectedTeam } from './UnaffectedTeam';
-import { It, Mock } from 'moq.ts';
 
 export class Util {
   public static scrumMaster1Nick = 'John Doe';
@@ -75,7 +71,7 @@ export class Util {
     EServerMessageType.Init,
     EServerMessageType.Self,
     EServerMessageType.TeamName,
-    EServerMessageType.CardList,
+    EServerMessageType.CardSet,
     EServerMessageType.MemberList,
     EServerMessageType.EstimationList
   ];
@@ -84,7 +80,7 @@ export class Util {
     EServerMessageType.Init,
     EServerMessageType.Self,
     EServerMessageType.TeamName,
-    EServerMessageType.CardList,
+    EServerMessageType.CardSet,
     EServerMessageType.MemberList,
     EServerMessageType.EstimationList
   ];
@@ -185,8 +181,8 @@ export class Util {
     teamName: string,
     scrumMasterNick: string,
     observer = false,
-    cardSet?: ECardSet,
-    cards?: ICardSet
+    cardSet?: ECardSetType,
+    cards?: CardSetDto
   ): ITestScrumMaster {
     const scrumMaster = this.connectParticipant(handlerService);
     const message: ICreateMessage = {
@@ -195,7 +191,7 @@ export class Util {
       data: {
         nick: scrumMasterNick,
         observer: observer,
-        cardSet: cardSet || ECardSet.Cohn,
+        cardSet: cardSet || ECardSetType.Cohn,
         cards: cards
       }
     };
@@ -205,17 +201,17 @@ export class Util {
 
   public static createUnaffectedTeam(handlerService: IHandlerService): UnaffectedTeam {
     const teamName = 'Unaffected Team';
-    const scrumMaster = this.createTeam(handlerService, teamName, 'Unaffected Scrum Master', false, ECardSet.Cohn);
+    const scrumMaster = this.createTeam(handlerService, teamName, 'Unaffected Scrum Master', false, ECardSetType.Cohn);
     const participant = this.joinTeam(handlerService, teamName, 'Unaffected Participant');
     return new UnaffectedTeam(scrumMaster, participant, teamName);
   }
 
-  public static unknownEstimationIndex(cardSet: ECardSet): number {
+  public static unknownEstimationIndex(cardSet: ECardSetType): number {
     return (
       this.getContainer()
         .get<IFactoryService>(STORAGETYPES.FactoryService)
         .createCardSet(cardSet)
-        .cards.find((card: ICard) => card.isUnknownEstimation)?.index || -1
+        .cards.find((card: CardDto) => card.isUnknownEstimation)?.index || -1
     );
   }
 }

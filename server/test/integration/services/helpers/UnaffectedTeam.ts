@@ -1,5 +1,4 @@
-// import { EServerMessageType } from "../../../../../shared-lib/src";
-import { EServerMessageType } from '../../../../../shared-lib/src';
+import { EServerMessageType } from 'shared-lib';
 import { ITestParticipant } from './TestParticipant';
 import { ITestScrumMaster } from './TestScrumMaster';
 

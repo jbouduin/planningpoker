@@ -1,11 +1,11 @@
-import { ECardSet, ICardSet, IEstimation } from 'shared-lib';
+import { ECardSetType, CardSetDto, EstimationDto } from 'shared-lib';
 
-import { IServerParticipant, ITeam } from '../../objects';
+import { IServerParticipant, IServerTeam } from '../../objects';
 import { IWebSocket } from '../../services/websocket';
 
 export interface IFactoryService {
-  createCardSet(set: ECardSet): ICardSet;
-  createEstimation(participantId: string, cardIndex: number | undefined): IEstimation;
+  createCardSet(set: ECardSetType): CardSetDto;
+  createEstimation(participantId: string, cardIndex: number | undefined): EstimationDto;
   createParticipant(socket: IWebSocket): IServerParticipant;
-  createTeam(teamName: string): ITeam;
+  createTeam(teamName: string): IServerTeam;
 }

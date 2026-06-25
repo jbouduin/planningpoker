@@ -1,17 +1,16 @@
 import { describe, expect, test } from '@jest/globals';
-
 import {
   EClientMessageType,
   EErrorCode,
-  EMemberChangeType,
-  EParticipantStatus,
-  EPokerStatus,
+  EGameState,
+  EParticipantChangeType,
+  EParticipantState,
   EServerMessageType,
   IEstimateMessage,
   IEstimationListMessage,
   ILeaveMessage,
   IStartMessage
-} from '../../../../shared-lib/src';
+} from 'shared-lib';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from './helpers/util';
@@ -42,28 +41,28 @@ describe('Leaving when connected => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
-        status: EParticipantStatus.Left
+        state: EParticipantState.Left
       })
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
-        status: EParticipantStatus.Left
+        state: EParticipantState.Left
       })
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsSelf({ status: EParticipantStatus.Left })
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsSelf({ state: EParticipantState.Left })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -111,16 +110,16 @@ describe('Leaving when connected => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
-        status: EParticipantStatus.Left
+        state: EParticipantState.Left
       })
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(0)
@@ -131,13 +130,13 @@ describe('Leaving when connected => OK', () => {
     observer
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
-        status: EParticipantStatus.Left
+        state: EParticipantState.Left
       })
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(0)
@@ -147,13 +146,13 @@ describe('Leaving when connected => OK', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsSelf({ status: EParticipantStatus.Left })
+      .expectNextMessageIsSelf({ state: EParticipantState.Left })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -188,15 +187,15 @@ describe('Leaving when connected => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.EndSession)
       .expectNoMoreMessages();
 
     // Test: participant should have received 1 MC join + 1 session ended
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.EndSession)
       .expectNoMoreMessages();
 
@@ -236,21 +235,21 @@ describe('Leaving after being disconnected', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
-        status: EParticipantStatus.Left
+        state: EParticipantState.Left
       })
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Left, {
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
-        status: EParticipantStatus.Left
+        state: EParticipantState.Left
       })
       .expectNoMoreMessages();
 
@@ -261,7 +260,7 @@ describe('Leaving after being disconnected', () => {
     reconnect
       .initializeMessageQueue(false)
       .expectNextMessageIsInit()
-      .expectNextMessageIsSelf({ participantId: reconnect.participantId, status: EParticipantStatus.Left })
+      .expectNextMessageIsSelf({ participantId: reconnect.participantId, state: EParticipantState.Left })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -292,7 +291,7 @@ describe('Leaving when connected => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -327,7 +326,7 @@ describe('Leaving when connected => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -394,7 +393,7 @@ describe('Leaving when connected => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -438,26 +437,26 @@ describe('Leaving when connected => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.LeaveNotAllowedDuringEstimation)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EPokerStatus.Started)
+      .expectNextMessageIsPokerStatus(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -492,14 +491,17 @@ describe('Leaving after being disconnected => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: observer messages
-    observer.initializeMessageQueue().expectNextMessageIsMemberChange(EMemberChangeType.Joined).expectNoMoreMessages();
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNoMoreMessages();
 
     // Test: participant messages
     participant.initializeMessageQueue().expectNoMoreMessages();
@@ -541,9 +543,9 @@ describe('Leaving after being disconnected => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: observer messages
@@ -587,7 +589,7 @@ describe('Leaving after being disconnected => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -635,9 +637,9 @@ describe('Leaving after being disconnected => Failure', () => {
     // Test: scrum master 1 messages
     scrumMaster1
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Disconnected)
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -655,7 +657,7 @@ describe('Leaving after being disconnected => Failure', () => {
     // Test: scrum master 2 messages
     scrumMaster2
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant 2 messages

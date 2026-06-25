@@ -1,5 +1,5 @@
-import { EErrorCode, EPokerStatus, ICardSet, IEstimation } from 'shared-lib';
-import { IServerParticipant, ITeam } from '../../objects';
+import { EErrorCode, EGameState, CardSetDto, EstimationDto } from 'shared-lib';
+import { IServerParticipant, IServerTeam } from '../../objects';
 
 export interface IStorageService {
   //#region participant -------------------------------------------------------
@@ -44,11 +44,11 @@ export interface IStorageService {
   //#endregion
 
   //#region team --------------------------------------------------------------
-  addTeam(team: ITeam, cardSet: ICardSet): void;
-  allTeams(): Array<ITeam>;
+  addTeam(team: IServerTeam, cardSet: CardSetDto): void;
+  allTeams(): Array<IServerTeam>;
   deleteTeam(teamName: string): Array<IServerParticipant>;
-  filterTeams(filter: (team: ITeam) => boolean): Array<ITeam>;
-  getTeam(teamName: string): ITeam | undefined;
+  filterTeams(filter: (team: IServerTeam) => boolean): Array<IServerTeam>;
+  getTeam(teamName: string): IServerTeam | undefined;
   teamExists(teamName: string): boolean;
   //#endregion
 
@@ -57,21 +57,21 @@ export interface IStorageService {
   getFirstConnectedTeamMember(teamName: string): IServerParticipant | undefined;
   getConnectedTeamMembers(teamName: string): Array<IServerParticipant>;
   getTeamMembers(teamName: string): Array<IServerParticipant>;
-  getTeamOfParticipant(participantId: string): ITeam | undefined;
+  getTeamOfParticipant(participantId: string): IServerTeam | undefined;
   joinTeam(teamName: string, participantId: string): void;
   leaveTeam(teamName: string, participantId: string): void;
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  deleteEstimation(teamName: string, participantId: string): IEstimation;
-  getEstimations(teamName: string): Array<IEstimation>;
-  reveal(teamName: string): [EPokerStatus, Array<IEstimation>];
-  startEstimating(teamName: string): EPokerStatus;
-  upsertEstimation(teamName: string, participantId: string, cardIndex: number): IEstimation;
+  deleteEstimation(teamName: string, participantId: string): EstimationDto;
+  getEstimations(teamName: string): Array<EstimationDto>;
+  reveal(teamName: string): [EGameState, Array<EstimationDto>];
+  startEstimating(teamName: string): EGameState;
+  upsertEstimation(teamName: string, participantId: string, cardIndex: number): EstimationDto;
   //#endregion
 
   //#endregion cardset --------------------------------------------------------
-  setCardSet(teamName: string, cardSet: ICardSet): void;
-  getCardSet(teamName: string): ICardSet;
+  setCardSet(teamName: string, cardSet: CardSetDto): void;
+  getCardSet(teamName: string): CardSetDto;
   //#endregion
 }

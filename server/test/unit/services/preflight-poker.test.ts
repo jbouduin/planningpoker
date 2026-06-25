@@ -1,17 +1,16 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
-
 import {
-  ECardSet,
+  ECardSetType,
   EClientMessageType,
   EErrorCode,
-  EPokerStatus,
+  EGameState,
   IChangeCardSetMessage,
   IEstimateMessage,
   IRevealMessage,
   IStartMessage
-} from '../../../../shared-lib/src';
-import { FactoryService } from '../../../src/storage/implementation/factory.service';
+} from 'shared-lib';
+import { FactoryService } from '../../../src/storage/implementation';
 import { IStorageService } from '../../../src/storage/interfaces';
 import { Util } from '../util';
 
@@ -116,7 +115,7 @@ describe('preflight Start', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
-      .returns(Util.getTeam1(EPokerStatus.Started))
+      .returns(Util.getTeam1(EGameState.Started))
       .setup((service: IStorageService) => service.getConnectedTeamMembers(Util.team1Name))
       .returns([Util.getParticipant1(), Util.getParticipant2()]);
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
@@ -154,7 +153,7 @@ describe('preflight Reveal', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
-      .returns(Util.getTeam1(EPokerStatus.Started));
+      .returns(Util.getTeam1(EGameState.Started));
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
   });
 
@@ -170,7 +169,7 @@ describe('preflight Reveal', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
-      .returns(Util.getTeam1(EPokerStatus.Started));
+      .returns(Util.getTeam1(EGameState.Started));
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
       EErrorCode.ParticipantNotFound
     );
@@ -188,7 +187,7 @@ describe('preflight Reveal', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(false)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
-      .returns(Util.getTeam1(EPokerStatus.Started));
+      .returns(Util.getTeam1(EGameState.Started));
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
       EErrorCode.TeamNotFound
     );
@@ -242,7 +241,7 @@ describe('preflight Reveal', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
-      .returns(Util.getTeam1(EPokerStatus.Started));
+      .returns(Util.getTeam1(EGameState.Started));
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
       EErrorCode.ScrumMasterRequired
     );
@@ -260,7 +259,7 @@ describe('preflight Reveal', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
-      .returns(Util.getTeam1(EPokerStatus.Cleared));
+      .returns(Util.getTeam1(EGameState.Cleared));
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
       EErrorCode.EstimationNotStarted
     );
@@ -278,7 +277,7 @@ describe('preflight Reveal', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
-      .returns(Util.getTeam1(EPokerStatus.Revealed));
+      .returns(Util.getTeam1(EGameState.Revealed));
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
       EErrorCode.EstimationNotStarted
     );
@@ -286,7 +285,7 @@ describe('preflight Reveal', () => {
 });
 
 describe('preflight ChangeCardSet', () => {
-  const cardSet = new FactoryService().createCardSet(ECardSet.Cohn);
+  const cardSet = new FactoryService().createCardSet(ECardSetType.Cohn);
 
   test('OK', () => {
     const message: IChangeCardSetMessage = {
@@ -395,7 +394,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Change cardset not allowed during estimation', () => {
-    const cohn = new FactoryService().createCardSet(ECardSet.Cohn);
+    const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     cohn.cards.splice(1, 11);
     const message: IChangeCardSetMessage = {
       type: EClientMessageType.ChangeCardSet,
@@ -408,7 +407,7 @@ describe('preflight ChangeCardSet', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.scrummasterName))
-      .returns(Util.getTeam1(EPokerStatus.Started));
+      .returns(Util.getTeam1(EGameState.Started));
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
       EErrorCode.ChangeCardSetNotAllowedDuringEstimation
     );
@@ -424,7 +423,7 @@ describe('preflight Estimate', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
-      .returns(Util.getTeam1(EPokerStatus.Started))
+      .returns(Util.getTeam1(EGameState.Started))
       .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
       .returns(Util.getCardSet());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);
@@ -438,7 +437,7 @@ describe('preflight Estimate', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
-      .returns(Util.getTeam1(EPokerStatus.Started))
+      .returns(Util.getTeam1(EGameState.Started))
       .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
       .returns(Util.getCardSet());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
@@ -454,7 +453,7 @@ describe('preflight Estimate', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(false)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
-      .returns(Util.getTeam1(EPokerStatus.Started))
+      .returns(Util.getTeam1(EGameState.Started))
       .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
       .returns(Util.getCardSet());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
@@ -486,7 +485,7 @@ describe('preflight Estimate', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
-      .returns(Util.getTeam2(EPokerStatus.Started))
+      .returns(Util.getTeam2(EGameState.Started))
       .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
       .returns(Util.getCardSet());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
@@ -502,7 +501,7 @@ describe('preflight Estimate', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.observerName1))
-      .returns(Util.getTeam1(EPokerStatus.Started))
+      .returns(Util.getTeam1(EGameState.Started))
       .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
       .returns(Util.getCardSet());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
@@ -518,7 +517,7 @@ describe('preflight Estimate', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
-      .returns(Util.getTeam1(EPokerStatus.Cleared))
+      .returns(Util.getTeam1(EGameState.Cleared))
       .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
       .returns(Util.getCardSet());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
@@ -534,7 +533,7 @@ describe('preflight Estimate', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
-      .returns(Util.getTeam1(EPokerStatus.Revealed))
+      .returns(Util.getTeam1(EGameState.Revealed))
       .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
       .returns(Util.getCardSet());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
@@ -551,7 +550,7 @@ describe('preflight Estimate', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
-      .returns(Util.getTeam1(EPokerStatus.Started))
+      .returns(Util.getTeam1(EGameState.Started))
       .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
       .returns(Util.getCardSet());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(
@@ -573,7 +572,7 @@ describe('preflight witdraw estimation', () => {
       .setup((service: IStorageService) => service.teamExists(Util.team1Name))
       .returns(true)
       .setup((service: IStorageService) => service.getTeamOfParticipant(Util.participant1Name))
-      .returns(Util.getTeam1(EPokerStatus.Started))
+      .returns(Util.getTeam1(EGameState.Started))
       .setup((service: IStorageService) => service.getCardSet(Util.team1Name))
       .returns(Util.getCardSet());
     expect(Util.getPreflightService().preflight(storage.object(), message, Util.team1Name)).toBe(EErrorCode.NoError);

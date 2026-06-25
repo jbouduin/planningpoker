@@ -1,26 +1,25 @@
 import { describe, expect, test } from '@jest/globals';
-
 import {
-  ECardSet,
+  ECardSetType,
   EClientMessageType,
   EErrorCode,
-  EMemberChangeType,
-  EPokerStatus,
+  EGameState,
+  EParticipantChangeType,
   ERole,
   EServerMessageType,
+  EstimationDto,
   IErrorMessage,
   IEstimateMessage,
-  IEstimation,
   IEstimationListMessage,
-  IMemberChangeMessage,
-  IPokerStatusChangedMessage,
+  IGameStateChangedMessage,
+  IParticipantChangedMessage,
   IRevealMessage,
   IStartMessage
-} from '../../../../shared-lib/src';
+} from 'shared-lib';
 import { IHandlerService } from '../../../src/services/interfaces';
 import SERVICETYPES from '../../../src/services/service.types';
-import { Util } from './helpers/util';
 import { TestFunction } from '../../types';
+import { Util } from './helpers/util';
 
 describe('Reveal => OK', () => {
   test('Reveal', () => {
@@ -52,22 +51,26 @@ describe('Reveal => OK', () => {
     participant.sendMessage(estimateMessage);
 
     // Setup: calculate the unknown estimation index for the Cohn cardset
-    const unknownEstimationIndex = Util.unknownEstimationIndex(ECardSet.Cohn);
+    const unknownEstimationIndex = Util.unknownEstimationIndex(ECardSetType.Cohn);
 
     // Setup: validation method for the first estimation list message
-    const checkFirstEstimationList: TestFunction<Array<IEstimation>> = (estimations: Array<IEstimation>) => {
+    const checkFirstEstimationList: TestFunction<Array<EstimationDto>> = (estimations: Array<EstimationDto>) => {
       expect(estimations).toHaveLength(1);
       expect(estimations[0].participantId).toBe(participant.participantId);
       expect(estimations[0].cardIndex).toBe(givenEstimation);
     };
 
     // Setup: validation method for the second estimation list message
-    const checkSecondEstimationList: TestFunction<Array<IEstimation>> = (estimations: Array<IEstimation>) => {
+    const checkSecondEstimationList: TestFunction<Array<EstimationDto>> = (estimations: Array<EstimationDto>) => {
       expect(estimations).toHaveLength(2);
-      const participantEstimation = estimations.find((e: IEstimation) => e.participantId === participant.participantId);
+      const participantEstimation = estimations.find(
+        (e: EstimationDto) => e.participantId === participant.participantId
+      );
       expect(participantEstimation).toBeDefined();
       expect(participantEstimation?.cardIndex).toBe(givenEstimation);
-      const scrumMasterEstimation = estimations.find((e: IEstimation) => e.participantId === scrumMaster.participantId);
+      const scrumMasterEstimation = estimations.find(
+        (e: EstimationDto) => e.participantId === scrumMaster.participantId
+      );
       expect(scrumMasterEstimation).toBeDefined();
       expect(scrumMasterEstimation?.cardIndex).toBe(unknownEstimationIndex);
     };
@@ -83,18 +86,18 @@ describe('Reveal => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IMemberChangeMessage) =>
-        expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+        expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         checkFirstEstimationList(m.data)
       )
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Revealed)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Revealed)
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         checkSecondEstimationList(m.data)
@@ -106,14 +109,14 @@ describe('Reveal => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIs(
-        EServerMessageType.PokerStatus,
-        (m: IPokerStatusChangedMessage) => m.data === EPokerStatus.Started
+        EServerMessageType.GameStateChanged,
+        (m: IGameStateChangedMessage) => m.data === EGameState.Started
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         checkFirstEstimationList(m.data)
       )
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Revealed)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Revealed)
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         checkSecondEstimationList(m.data)
@@ -156,12 +159,12 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IMemberChangeMessage) =>
-        expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+        expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) =>
         expect(m.data.code).toBe(EErrorCode.ParticipantNotFound)
@@ -172,8 +175,8 @@ describe('Reveal => Failure', () => {
     participant.initializeMessageQueue();
     participant
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
 
@@ -211,12 +214,12 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IMemberChangeMessage) =>
-        expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+        expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) =>
         expect(m.data.code).toBe(EErrorCode.TeamNotFound)
@@ -227,8 +230,8 @@ describe('Reveal => Failure', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
 
@@ -267,12 +270,12 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IMemberChangeMessage) =>
-        expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+        expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
 
@@ -280,8 +283,8 @@ describe('Reveal => Failure', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
 
@@ -327,12 +330,12 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster1
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IMemberChangeMessage) =>
-        expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+        expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
 
@@ -340,8 +343,8 @@ describe('Reveal => Failure', () => {
     participant1
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
 
@@ -376,8 +379,8 @@ describe('Reveal => Failure', () => {
     // Test: Scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IMemberChangeMessage) =>
-        expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+        expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) =>
         expect(m.data.code).toBe(EErrorCode.EstimationNotStarted)
@@ -421,12 +424,12 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IMemberChangeMessage) =>
-        expect(m.data.memberStatusChange).toBe(EMemberChangeType.Joined)
+      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+        expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
 
@@ -434,8 +437,8 @@ describe('Reveal => Failure', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.PokerStatus, (m: IPokerStatusChangedMessage) =>
-        expect(m.data).toBe(EPokerStatus.Started)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+        expect(m.data).toBe(EGameState.Started)
       )
       .expectNextMessageIsError(EErrorCode.ScrumMasterRequired)
       .expectNoMoreMessages();

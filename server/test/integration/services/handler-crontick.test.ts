@@ -1,10 +1,7 @@
 import { describe, test } from '@jest/globals';
-
-import { EMemberChangeType, EServerMessageType } from '../../../../shared-lib/src';
-
-import SERVICETYPES from '../../../src/services/service.types';
-
+import { EParticipantChangeType, EServerMessageType } from 'shared-lib';
 import { IHandlerService } from '../../../src/services/interfaces';
+import SERVICETYPES from '../../../src/services/service.types';
 import { Util } from './helpers/util';
 
 describe('Cron tick', () => {
@@ -45,7 +42,7 @@ describe('Cron tick', () => {
     // Test: scrum master 2 should have received join only
     scrumMaster2
       .initializeMessageQueue()
-      .expectNextMessageIsMemberChange(EMemberChangeType.Joined)
+      .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
     // Test: participant 2 should have received no additional messages

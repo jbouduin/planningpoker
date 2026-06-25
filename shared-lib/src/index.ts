@@ -1,3 +1,3 @@
-export * from './interfaces';
+export * from './dto';
 export * from './messages';
 export * from './responses';

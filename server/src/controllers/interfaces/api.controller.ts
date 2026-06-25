@@ -1,6 +1,6 @@
-import { ICanRejoinResponse, ICardSet } from 'shared-lib';
+import { CanRejoinDto, CardSetDto } from 'shared-lib';
 
 export interface IApiController {
-  availableCardSets(): Array<ICardSet>;
-  canRejoin(teamName: string, participantId: string): ICanRejoinResponse;
+  availableCardSets(): Array<CardSetDto>;
+  canRejoin(teamName: string, participantId: string): CanRejoinDto;
 }

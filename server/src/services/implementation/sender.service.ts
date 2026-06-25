@@ -1,9 +1,6 @@
 import { inject, injectable } from 'inversify';
-
 import { AServerMessage } from 'shared-lib';
-
 import SERVICETYPES from '../service.types';
-
 import { IServerParticipant } from '../../objects';
 import { ILoggerService, ISenderService } from '../interfaces';
 import { IWebSocket, ReadyState } from '../websocket';

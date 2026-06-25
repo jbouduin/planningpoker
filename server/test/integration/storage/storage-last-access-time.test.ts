@@ -1,11 +1,9 @@
 import { describe, expect, test } from '@jest/globals';
-
-import STORAGETYPES from '../../../src/storage/storage.types';
-
-import { ECardSet } from '../../../../shared-lib/src';
-import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
-import { Util } from './util';
+import { ECardSetType } from 'shared-lib';
 import { IServerParticipant } from '../../../src/objects';
+import { IFactoryService, IStorageService } from '../../../src/storage/interfaces';
+import STORAGETYPES from '../../../src/storage/storage.types';
+import { Util } from './util';
 
 /**
  * All tests should contain a sleep to avoid false alerts
@@ -14,7 +12,7 @@ describe('Last access time updated', () => {
   test('after participant joins', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -46,7 +44,7 @@ describe('Last access time updated', () => {
   test('after participant leaves', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create team
     const team = factory.createTeam(Util.team1Name);
     container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
@@ -78,7 +76,7 @@ describe('Last access time updated', () => {
   test('after giving an estimation', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -113,7 +111,7 @@ describe('Last access time updated', () => {
   test('after deleting an estimation', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -152,7 +150,7 @@ describe('Last access time updated', () => {
   test('after starting estimations', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -184,7 +182,7 @@ describe('Last access time updated', () => {
   test('after revealing', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -210,7 +208,7 @@ describe('Last access time updated', () => {
   test('after changing the cardset', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -242,7 +240,7 @@ describe('Last access time updated', () => {
   test('after deleting a team member', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -277,7 +275,7 @@ describe('Last access time NOT updated', () => {
   test('after retrieving the estimations', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -309,7 +307,7 @@ describe('Last access time NOT updated', () => {
   test('after filtering the participants', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -341,7 +339,7 @@ describe('Last access time NOT updated', () => {
   test('after getting the team members', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);
@@ -373,7 +371,7 @@ describe('Last access time NOT updated', () => {
   test('after getting the first connected team member', async () => {
     const container = Util.getContainer();
     const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
-    const cardSet = factory.createCardSet(ECardSet.Fibonacci);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
     // Setup: create participant
     const participant = factory.createParticipant(Util.getSocket());
     container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant);

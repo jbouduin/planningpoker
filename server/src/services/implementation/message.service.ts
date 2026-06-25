@@ -1,14 +1,13 @@
 import { inject, injectable } from 'inversify';
-
 import {
   AServerMessage,
+  CardSetDto,
   EErrorCode,
-  EMemberChangeType,
-  EPokerStatus,
-  ICardSet,
-  IEstimation,
-  IMemberChange,
-  IParticipant
+  EGameState,
+  EParticipantChangeType,
+  EstimationDto,
+  ParticipantChangeDto,
+  ParticipantDto
 } from 'shared-lib';
 import {
   CardSetMessage,
@@ -17,17 +16,17 @@ import {
   EndSessionMessage,
   ErrorMessage,
   EstimationListMessage,
+  GameStateChangedMessage,
   InitMessage,
-  MemberChangeMessage,
-  MemberListMessage,
+  ParticipantChangedMessage,
+  ParticipantListMessage,
   PingMessage,
-  PokerStatusChangedMessage,
   SelfMessage,
   ServerResetMessage,
   TeamIdleMessage,
   TeamNameMessage
 } from '../../messages';
-import { IServerParticipant, ITeam } from '../../objects';
+import { IServerParticipant, IServerTeam } from '../../objects';
 import { IMessageService, ISenderService } from '../interfaces';
 import SERVICETYPES from '../service.types';
 import { IWebSocket } from '../websocket';
@@ -45,7 +44,7 @@ export class MessageService implements IMessageService {
   //#endregion
 
   //#region IMessageService broadcast methods ---------------------------------
-  public broadcastCardSet(members: Array<IServerParticipant>, cardSet: ICardSet): void {
+  public broadcastCardSet(members: Array<IServerParticipant>, cardSet: CardSetDto): void {
     members.forEach((p: IServerParticipant) => this.sendCardSet(p, cardSet));
   }
 
@@ -53,18 +52,18 @@ export class MessageService implements IMessageService {
     members.forEach((p: IServerParticipant) => this.sendClearEstimations(p));
   }
 
-  public broadcastEstimations(members: Array<IServerParticipant>, estimations: Array<IEstimation>): void {
+  public broadcastEstimations(members: Array<IServerParticipant>, estimations: Array<EstimationDto>): void {
     members.forEach((p: IServerParticipant) => this.sendEstimations(p, estimations));
   }
 
-  public broadcastPokerStatus(members: Array<IServerParticipant>, status: EPokerStatus): void {
-    members.forEach((p: IServerParticipant) => this.sendPokerStatusChanged(p, status));
+  public broadcastGameState(members: Array<IServerParticipant>, gameState: EGameState): void {
+    members.forEach((p: IServerParticipant) => this.sendGameStateChanged(p, gameState));
   }
 
   public broadcastMemberChange(
     members: Array<IServerParticipant>,
     changedMember: IServerParticipant,
-    change: EMemberChangeType
+    change: EParticipantChangeType
   ): void {
     members.forEach((p: IServerParticipant) => this.sendMemberChange(p, changedMember, change));
   }
@@ -105,10 +104,10 @@ export class MessageService implements IMessageService {
 
   public sendAllInfo(
     to: IServerParticipant,
-    team: ITeam,
+    team: IServerTeam,
     members: Array<IServerParticipant>,
-    cardSet: ICardSet,
-    estimations: Array<IEstimation> | null
+    cardSet: CardSetDto,
+    estimations: Array<EstimationDto> | null
   ): void {
     let message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
     this.senderService.sendToParticipant(to, message);
@@ -116,13 +115,13 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
     message = new CardSetMessage(cardSet);
     this.senderService.sendToParticipant(to, message);
-    message = new MemberListMessage(members.map((p: IServerParticipant) => p.self));
+    message = new ParticipantListMessage(members.map((p: IServerParticipant) => p.self));
     this.senderService.sendToParticipant(to, message);
     if (estimations !== null) {
       message = new EstimationListMessage(estimations);
       this.senderService.sendToParticipant(to, message);
     }
-    message = new PokerStatusChangedMessage(team.status);
+    message = new GameStateChangedMessage(team.gameState);
     this.senderService.sendToParticipant(to, message);
     message = new EndInitMessage();
     this.senderService.sendToParticipant(to, message);
@@ -135,7 +134,7 @@ export class MessageService implements IMessageService {
   //#endregion
 
   //#region private send methods ----------------------------------------------
-  private sendCardSet(to: IServerParticipant, cardSet: ICardSet): void {
+  private sendCardSet(to: IServerParticipant, cardSet: CardSetDto): void {
     const message: AServerMessage = new CardSetMessage(cardSet);
     this.senderService.sendToParticipant(to, message);
   }
@@ -145,28 +144,32 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendEstimations(to: IServerParticipant, estimations: Array<IEstimation>): void {
+  private sendEstimations(to: IServerParticipant, estimations: Array<EstimationDto>): void {
     const message: AServerMessage = new EstimationListMessage(estimations);
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendMemberChange(to: IServerParticipant, changedMember: IServerParticipant, change: EMemberChangeType): void {
-    const data: IMemberChange = {
-      memberStatusChange: change,
+  private sendMemberChange(
+    to: IServerParticipant,
+    changedMember: IServerParticipant,
+    change: EParticipantChangeType
+  ): void {
+    const data: ParticipantChangeDto = {
+      changeType: change,
       member: {
-        status: changedMember.status,
+        state: changedMember.state,
         nick: changedMember.nick,
         participantId: changedMember.participantId,
         role: changedMember.role,
         observer: changedMember.observer
       }
     };
-    const message: AServerMessage = new MemberChangeMessage(data);
+    const message: AServerMessage = new ParticipantChangedMessage(data);
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendPokerStatusChanged(to: IServerParticipant, status: EPokerStatus): void {
-    const message: AServerMessage = new PokerStatusChangedMessage(status);
+  private sendGameStateChanged(to: IServerParticipant, gameState: EGameState): void {
+    const message: AServerMessage = new GameStateChangedMessage(gameState);
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -188,10 +191,10 @@ export class MessageService implements IMessageService {
   //#endregion
 
   //#region Private prepare message data methods ------------------------------
-  private prepareParticipantsData(participants: Array<IServerParticipant>): Array<IParticipant> {
+  private prepareParticipantsData(participants: Array<IServerParticipant>): Array<ParticipantDto> {
     return participants.map((participant) => {
       return {
-        status: participant.status,
+        state: participant.state,
         nick: participant.nick,
         participantId: participant.participantId,
         role: participant.role,

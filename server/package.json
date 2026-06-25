@@ -4,12 +4,13 @@
   "description": "The planning poker back-end",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -b",
+    "build:prod": "tsc -b",
+    "build:test": "tsc -p tsconfig.test.json",
     "start": "node ./dist/server.js",
     "dev": "nodemon",
     "prod": "npm run build && node dist/server.js",
     "test:ci": "jest -c jest.ci.config.ts",
-    "test:unit": "jest -c jest.unit.config.ts --coverage",
+    "test:unit": "build:test && jest -c jest.unit.config.ts --coverage",
     "test:integration": "jest -c jest.integration.config.ts --coverage"
   },
   "author": "Johan Bouduin",

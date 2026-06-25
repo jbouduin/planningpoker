@@ -1,5 +1,5 @@
 import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
-import { EMemberChangeType, EParticipantStatus, IMemberChange, IParticipant } from 'shared-lib';
+import { EParticipantChangeType, EParticipantStatus, IMemberChange, IParticipant } from 'shared-lib';
 import {
   extract,
   ISimpleDialogParams,
@@ -74,50 +74,50 @@ export class TeamService {
   private handleMemberChanged(data: IMemberChange): void {
     const participant = data.member;
     switch (data.memberStatusChange) {
-      case EMemberChangeType.ChangedNick:
+      case EParticipantChangeType.ChangedNick:
         this.members.update((current: Array<IParticipant>) =>
           current.map((p: IParticipant) =>
             p.participantId === participant.participantId ? { ...p, nick: participant.nick } : p
           )
         );
         break;
-      case EMemberChangeType.ChangedRole:
+      case EParticipantChangeType.ChangedRole:
         this.members.update((current: Array<IParticipant>) =>
           current.map((p: IParticipant) =>
             p.participantId === participant.participantId ? { ...p, role: participant.role } : p
           )
         );
         break;
-      case EMemberChangeType.Disconnected:
+      case EParticipantChangeType.Disconnected:
         this.members.update((current: Array<IParticipant>) =>
           current.map((p: IParticipant) =>
             p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Disconnected } : p
           )
         );
         break;
-      case EMemberChangeType.Joined:
+      case EParticipantChangeType.Joined:
         this.members.update((current: Array<IParticipant>) => [...current, participant]);
         break;
-      case EMemberChangeType.Left:
+      case EParticipantChangeType.Left:
         this.members.update((current: Array<IParticipant>) =>
           current.filter((p: IParticipant) => p.participantId !== participant.participantId)
         );
         break;
-      case EMemberChangeType.Observe:
+      case EParticipantChangeType.Observe:
         this.members.update((current: Array<IParticipant>) =>
           current.map((p: IParticipant) =>
             p.participantId === participant.participantId ? { ...p, observer: participant.observer } : p
           )
         );
         break;
-      case EMemberChangeType.Paused:
+      case EParticipantChangeType.Paused:
         this.members.update((current: Array<IParticipant>) =>
           current.map((p: IParticipant) =>
             p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Paused } : p
           )
         );
         break;
-      case EMemberChangeType.Rejoined:
+      case EParticipantChangeType.Rejoined:
         this.members.update((current: Array<IParticipant>) =>
           current.map((p: IParticipant) =>
             p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Connected } : p

@@ -1,10 +1,10 @@
-import { LooseObject } from '../../objects';
+import { LooseObjectDto } from 'shared-lib';
 
 export interface ISystemController {
-  deleteTeam(teamname: string): LooseObject;
-  disconnectParticipant(participantId: string): LooseObject;
-  resetServer(): LooseObject;
-  getTeam(teamName: string): LooseObject;
-  getAllTeams(): LooseObject;
-  getParticipants(): LooseObject;
+  deleteTeam(teamname: string): LooseObjectDto;
+  disconnectParticipant(participantId: string): LooseObjectDto;
+  resetServer(): LooseObjectDto;
+  getTeam(teamName: string): LooseObjectDto;
+  getAllTeams(): LooseObjectDto;
+  getParticipants(): LooseObjectDto;
 }
