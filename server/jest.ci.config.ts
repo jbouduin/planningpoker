@@ -1,15 +1,9 @@
-import type { JestConfigWithTsJest } from 'ts-jest';
+import { Config } from 'jest';
 
-const jestConfig: JestConfigWithTsJest = {
-  preset: 'ts-jest/presets/js-with-ts-esm',
-  roots: ['./test'],
+const jestConfig: Config = {
+  roots: ['./dist/test'],
   testEnvironment: 'node',
-  testMatch: ['**/?(*.)+(spec|test).+(ts|tsx|js)'],
-  transform: {
-    '^.+\\.m?[tj]sx?$': ['ts-jest', { tsconfig: 'tsconfig.json' }]
-  },
-  transformIgnorePatterns: ['node_modules/(?!moq\.ts)'],
-  setupFiles: ['./test/init.ts']
+  collectCoverage: false
 };
 
 export default jestConfig;

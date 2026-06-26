@@ -3,11 +3,11 @@ import { GameMessage } from '../types';
 
 export function isGameMessage(msg: AServerMessage): msg is GameMessage {
   return [
-    EServerMessageType.CardList,
+    EServerMessageType.CardSet,
     EServerMessageType.EndSession,
     EServerMessageType.EstimationList,
     EServerMessageType.ClearEstimations,
-    EServerMessageType.PokerStatus,
+    EServerMessageType.GameStateChanged,
     EServerMessageType.TeamIdle,
     EServerMessageType.ServerReset
   ].includes(msg.type);

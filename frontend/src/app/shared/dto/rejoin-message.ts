@@ -1,5 +1,4 @@
 import { EClientMessageType, IRejoinMessage } from 'shared-lib';
-
 import { BaseClientMessage } from './base-client-message';
 
 export class RejoinMessage extends BaseClientMessage<string> implements IRejoinMessage {

@@ -8,12 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ECardSet } from 'shared-lib';
+import { ECardSetType } from 'shared-lib';
 import { extract, SessionService } from '../../../../core';
 import { ECreateJoinFormMode } from './create-join-form-mode';
 
 export interface ICardSetSelectItem {
-  set: ECardSet;
+  set: ECardSetType;
   label: string;
 }
 
@@ -87,7 +87,7 @@ export class CreateJoinFormComponent {
     this.formData = this.formBuilder.group({
       team: new FormControl('', [Validators.required]),
       nick: new FormControl('', [Validators.required]),
-      cardSet: new FormControl(ECardSet.Cohn, [Validators.required])
+      cardSet: new FormControl(ECardSetType.Cohn, [Validators.required])
     });
     this.observer = false;
   }
@@ -106,10 +106,10 @@ export class CreateJoinFormComponent {
   //#region Event triggers ----------------------------------------------------
   public submit(): void {
     if (this.formMode == ECreateJoinFormMode.Create) {
-      const cardSet = this.formData.get('cardSet')?.value as ECardSet;
-      if (cardSet === ECardSet.Custom) {
+      const cardSet = this.formData.get('cardSet')?.value as ECardSetType;
+      if (cardSet === ECardSetType.Custom) {
         // const params: ICardSetDialogParams = {
-        //   cardSets: [ECardSet.Cohn, ECardSet.Fibonacci, ECardSet.TShirt],
+        //   cardSets: [ECardSetType.Cohn, ECardSetType.Fibonacci, ECardSetType.TShirt],
         //   currentCards: null,
         //   currentCardSet: null
         // };
@@ -147,10 +147,10 @@ export class CreateJoinFormComponent {
   //#region mock methods ------------------------------------------------------
   private getCardSetValues(): Array<ICardSetSelectItem> {
     return [
-      { set: ECardSet.Cohn, label: extract('CardSet.DisplayName.Cohn') },
-      { set: ECardSet.Fibonacci, label: extract('CardSet.DisplayName.Fibonacci') },
-      { set: ECardSet.TShirt, label: extract('CardSet.DisplayName.TShirt') }
-      //{ set: ECardSet.Custom, label: extract('CardSet.DisplayName.Custom') },
+      { set: ECardSetType.Cohn, label: extract('CardSet.DisplayName.Cohn') },
+      { set: ECardSetType.Fibonacci, label: extract('CardSet.DisplayName.Fibonacci') },
+      { set: ECardSetType.TShirt, label: extract('CardSet.DisplayName.TShirt') }
+      //{ set: ECardSetType.Custom, label: extract('CardSet.DisplayName.Custom') },
     ];
   }
 }

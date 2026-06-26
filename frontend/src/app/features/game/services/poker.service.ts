@@ -1,5 +1,5 @@
 import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
-import { EPokerStatus, ICard, IEstimation, IParticipant } from 'shared-lib';
+import { EGameState, CardDto, EstimationDto, ParticipantDto } from 'shared-lib';
 import { Member, MessageDispatcherService, SessionService, SocketService } from '../../../core';
 import { EstimateMessage, RevealMessage, StartMessage } from '../../../shared/dto';
 import { TeamService } from '../../team/services';
@@ -20,7 +20,7 @@ export class PokerService {
   //#endregion
 
   //#region Signals -----------------------------------------------------------
-  public readonly pokerState: WritableSignal<EPokerStatus>;
+  public readonly pokerState: WritableSignal<EGameState>;
   public readonly estimations: WritableSignal<Array<Estimation>>;
   //#endregion
 
@@ -32,7 +32,7 @@ export class PokerService {
     this.socketSvc = inject(SocketService);
     this.teamSvc = inject(TeamService);
     // Initialize service signals
-    this.pokerState = signal(EPokerStatus.Cleared);
+    this.pokerState = signal(EGameState.Cleared);
     this.estimations = signal<Array<Estimation>>(new Array<Estimation>());
     // Initialize private fields
     this.myParticipantId = null;
@@ -115,41 +115,41 @@ export class PokerService {
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------
-  private handlePokerState(data: EPokerStatus): void {
+  private handlePokerState(data: EGameState): void {
     this.pokerState.set(data);
     // todo rebuild the list of estimations.
     switch (data) {
-      case EPokerStatus.Cleared:
-        // this.calculateEstimationList(new Array<IEstimation>(), this.getAllMembers());
+      case EGameState.Cleared:
+        // this.calculateEstimationList(new Array<EstimationDto>(), this.getAllMembers());
         break;
-      case EPokerStatus.Started:
+      case EGameState.Started:
         // TODO check what this does when rejoining
-        // this.calculateEstimationList(new Array<IEstimation>(), this.getAllMembers());
+        // this.calculateEstimationList(new Array<EstimationDto>(), this.getAllMembers());
         break;
-      case EPokerStatus.Revealed:
+      case EGameState.Revealed:
         // TODO: switch estimations revealed flag → apparently not required
         break;
     }
   }
 
   private resetService(): void {
-    this.pokerState.set(EPokerStatus.Cleared);
+    this.pokerState.set(EGameState.Cleared);
     this.estimations.set(new Array<Estimation>());
   }
 
-  private calculateEstimationList(estimationList: Array<IEstimation>, allMembers: Array<Member>): void {
+  private calculateEstimationList(estimationList: Array<EstimationDto>, allMembers: Array<Member>): void {
     let result: Array<Estimation>;
     const pokerState = this.pokerState();
     // console.log('build estimation list -> state', pokerState);
     // console.log('build estimation list -> estimations', estimationList);
     // console.log('build estimation list -> all members', allMembers);
     const cards = this.gameSvc.cards();
-    if (pokerState !== EPokerStatus.Cleared && cards != null) {
+    if (pokerState !== EGameState.Cleared && cards != null) {
       // TODO use only non-observers, and participants that are online
       result = allMembers.map((member: Member) => {
-        const givenEstimation = estimationList.find((e: IEstimation) => e.participantId === member.participantId);
-        const card = givenEstimation ? cards.find((c: ICard) => c.index === givenEstimation.cardIndex) || null : null;
-        return new Estimation(member, card, pokerState === EPokerStatus.Revealed || member.me);
+        const givenEstimation = estimationList.find((e: EstimationDto) => e.participantId === member.participantId);
+        const card = givenEstimation ? cards.find((c: CardDto) => c.index === givenEstimation.cardIndex) || null : null;
+        return new Estimation(member, card, pokerState === EGameState.Revealed || member.me);
       });
       result = this.sortEstimations(pokerState, result);
     } else {
@@ -161,7 +161,7 @@ export class PokerService {
 
   private getAllMembers(): Array<Member> {
     const me = this.sessionSvc.me();
-    const others = this.teamSvc.members().map((p: IParticipant) => new Member(p, false));
+    const others = this.teamSvc.members().map((p: ParticipantDto) => new Member(p, false));
     return me ? [me, ...others] : others;
   }
 
@@ -177,9 +177,9 @@ export class PokerService {
    * @param pokerState
    * @param estimations
    */
-  private sortEstimations(pokerState: EPokerStatus, estimations: Array<Estimation>): Array<Estimation> {
+  private sortEstimations(pokerState: EGameState, estimations: Array<Estimation>): Array<Estimation> {
     let result = new Array<Estimation>();
-    if (pokerState === EPokerStatus.Started) {
+    if (pokerState === EGameState.Started) {
       const myEstimation = estimations.find((e: Estimation) => e.member.me);
       const estimationsWithValue = estimations
         .filter((e: Estimation) => e.card !== null && !e.member.me)

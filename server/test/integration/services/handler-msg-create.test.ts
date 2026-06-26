@@ -4,12 +4,12 @@ import {
   ECardSetType,
   EClientMessageType,
   EErrorCode,
+  EGameState,
   EParticipantState,
   ERole,
   EServerMessageType,
   ICardSetMessage,
   ICreateMessage,
-  IEstimationListMessage,
   IInitMessage,
   IParticipantListMessage,
   ISelfMessage,
@@ -59,9 +59,8 @@ describe('create => OK', () => {
         expect(m.data.cards).toHaveLength(tshirt.cards.length);
       })
       .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) => expect(m.data.length).toBe(0))
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        expect(m.data.length).toBe(0)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -89,7 +88,8 @@ describe('create => OK', () => {
       .expectNextMessageIs(EServerMessageType.TeamName)
       .expectNextMessageIs(EServerMessageType.CardSet)
       .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EstimationList)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
   });
 
@@ -121,7 +121,8 @@ describe('create => OK', () => {
         expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
       })
       .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EstimationList)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
   });
 
@@ -152,7 +153,8 @@ describe('create => OK', () => {
         expect(m.data.cards).toHaveLength(cohn.cards.length);
       })
       .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EstimationList)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
   });
 });

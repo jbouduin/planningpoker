@@ -3,6 +3,7 @@ import {
   ECardSetType,
   EClientMessageType,
   EErrorCode,
+  EGameState,
   EParticipantChangeType,
   EParticipantState,
   ERole,
@@ -20,7 +21,7 @@ import STORAGETYPES from '../../../src/storage/storage.types.js';
 import { Util } from './helpers/util.js';
 
 describe('Join => OK', () => {
-  test('Join', () => {
+  test('Join team', () => {
     const container = Util.getContainer();
     const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -66,6 +67,8 @@ describe('Join => OK', () => {
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(0)
       )
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -98,6 +101,8 @@ describe('Join => OK', () => {
       .expectNextMessageIs(EServerMessageType.CardSet)
       .expectNextMessageIs(EServerMessageType.MemberList)
       .expectNextMessageIs(EServerMessageType.EstimationList)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -131,6 +136,8 @@ describe('Join => OK', () => {
       })
       .expectNextMessageIs(EServerMessageType.MemberList)
       .expectNextMessageIs(EServerMessageType.EstimationList)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -190,6 +197,7 @@ describe('Join => OK', () => {
   });
 
   test('Join a team that is estimating', () => {
+    // TODO this is currently not testing what it says: the game is not started anywhere
     const container = Util.getContainer();
     const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -235,6 +243,8 @@ describe('Join => OK', () => {
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(0)
       )
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

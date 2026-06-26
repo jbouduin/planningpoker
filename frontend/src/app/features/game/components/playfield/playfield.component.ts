@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EPokerStatus } from 'shared-lib';
+import { EGameState } from 'shared-lib';
 import { extract } from '../../../../core';
 import { CardComponent } from '../../../../shared/components';
 import { PokerService } from '../../services';
@@ -34,7 +34,7 @@ export class PlayfieldComponent {
 
   //#region Auxiliary Methods -------------------------------------------------
   protected isCardEnabled(estimation: Estimation): boolean {
-    return this.pokerSvc.pokerState() == EPokerStatus.Started && estimation.member.me;
+    return this.pokerSvc.pokerState() == EGameState.Started && estimation.member.me;
   }
   //#endregion
 }

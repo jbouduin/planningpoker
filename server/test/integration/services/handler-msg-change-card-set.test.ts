@@ -221,7 +221,7 @@ describe('Change card set => Failure', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EGameState.Started)
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.ChangeCardSetNotAllowedDuringEstimation)
       .expectNoMoreMessages();
 
@@ -229,7 +229,7 @@ describe('Change card set => Failure', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIsPokerStatus(EGameState.Started)
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

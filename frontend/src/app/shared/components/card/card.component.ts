@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { ICard } from 'shared-lib';
+import { CardDto } from 'shared-lib';
 
 @Component({
   selector: 'app-card',
@@ -15,7 +15,7 @@ export class CardComponent {
   /**
    * If card is null, the logo is displayed
    */
-  @Input() public card: ICard | null;
+  @Input() public card: CardDto | null;
   @Input() public enabled: boolean;
   @Input() public revealed: boolean;
   @Input() public mine: boolean;

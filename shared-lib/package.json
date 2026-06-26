@@ -2,17 +2,14 @@
   "name": "shared-lib",
   "version": "2.0.1",
   "description": "Shared library for planning poker",
-  "main": "dist/index.js",
-  "module": "dist/esm/index.js",
+  "main": "./dist/esm/index.js",
+  "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/index.js"
-    }
+    ".": "./dist/esm/index.js"
   },
-  "types": "dist/index.d.ts",
+  "types": "./dist/esm.index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.esm.json"
+    "build": "tsc -p tsconfig.esm.json"
   },
   "author": "Johan Bouduin",
   "license": "ISC",

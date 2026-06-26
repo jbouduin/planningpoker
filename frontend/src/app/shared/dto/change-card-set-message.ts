@@ -1,10 +1,9 @@
-import { EClientMessageType, ICardSet, IChangeCardSetMessage } from 'shared-lib';
-
+import { CardSetDto, EClientMessageType, IChangeCardSetMessage } from 'shared-lib';
 import { BaseClientMessage } from './base-client-message';
 
-export class ChangeCardSetMessage extends BaseClientMessage<ICardSet> implements IChangeCardSetMessage {
+export class ChangeCardSetMessage extends BaseClientMessage<CardSetDto> implements IChangeCardSetMessage {
   //#region Constructor & C° --------------------------------------------------
-  public constructor(sender: string, data: ICardSet) {
+  public constructor(sender: string, data: CardSetDto) {
     super(sender, EClientMessageType.ChangeCardSet, data);
   }
   //#endregion

@@ -1,6 +1,6 @@
 import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
-import { AClientMessage, ECardSet, EParticipantStatus, ERole, ICardSet, IError, IParticipant } from 'shared-lib';
+import { AClientMessage, CardSetDto, ECardSetType, EParticipantState, ERole, ParticipantDto } from 'shared-lib';
 import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../../shared/dto';
 import { extract } from '../extract';
 import { ApiService } from './api.service';
@@ -150,8 +150,8 @@ export class SessionService {
     team: string,
     nick: string,
     observer: boolean,
-    cardSet: ECardSet,
-    cards: ICardSet | undefined
+    cardSet: ECardSetType,
+    cards: CardSetDto | undefined
   ): void {
     this.log.debug(`creating: ${nick}@${team}`);
     this.initialMessage = new CreateMessage('', {
@@ -211,15 +211,6 @@ export class SessionService {
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------
-  private handleError(data: IError): void {
-    // TODO create the error handler service let it handle the error as before
-    //
-    // if (this.errorHandlerService.handleErrorMessage(message)) {
-    //   this.resetServices();
-    // }
-    this.uiEventsSvc.showError(`Error: ${data.code}: ${data.message}`);
-  }
-
   private handleEndInit(): void {
     this.sessionState.set(ESessionState.Active);
   }
@@ -243,7 +234,7 @@ export class SessionService {
     this.resetService();
   }
 
-  private handleInit(data: IParticipant): void {
+  private handleInit(data: ParticipantDto): void {
     this.sessionState.set(ESessionState.Entering);
     if (this.initialMessage) {
       this.initialMessage.senderId = data.participantId;
@@ -255,8 +246,8 @@ export class SessionService {
     this.localStorageSvc.nick = data.nick;
   }
 
-  private handleSelf(data: IParticipant): void {
-    if (data.status === EParticipantStatus.Left) {
+  private handleSelf(data: ParticipantDto): void {
+    if (data.state === EParticipantState.Left) {
       this.localStorageSvc.clear();
       this.resetService();
     } else {
@@ -268,7 +259,7 @@ export class SessionService {
       this.currentParticipantId = data.participantId;
       this.localStorageSvc.nick = data.nick;
       this.localStorageSvc.participantId = data.participantId;
-      if (data.status === EParticipantStatus.Paused) {
+      if (data.state === EParticipantState.Paused) {
         this.sessionState.set(ESessionState.Suspended);
         this.socketSvc.disconnect();
       }

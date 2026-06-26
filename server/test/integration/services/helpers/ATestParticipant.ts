@@ -88,7 +88,7 @@ export interface IATestParticipant {
    *
    * @param status - the expected poker status
    */
-  expectNextMessageIsPokerStatus(status: EGameState): IATestParticipant;
+  expectNextMessageIsGameStateChanged(status: EGameState): IATestParticipant;
 
   /**
    * Expects the next message to be a self message.
@@ -182,9 +182,10 @@ export abstract class ATestParticipant implements IATestParticipant {
   public dumpMessages(skipInitialMessages = true): IATestParticipant {
     /* eslint-disable no-console */
     if (skipInitialMessages) {
-      console.log(JSON.stringify(this.send.mock.calls.slice(this.expectedNumberOfInitialMessages), null, 2));
+      // console.log(JSON.stringify(this.send.mock.calls.slice(this.expectedNumberOfInitialMessages), null, 2));
+      console.log(this.send.mock.calls.slice(this.expectedNumberOfInitialMessages));
     } else {
-      console.log(JSON.stringify(this.send.mock.calls, null, 2));
+      console.log(this.send.mock.calls);
     }
     /* eslint-enable no-console */
     return this;
@@ -230,7 +231,7 @@ export abstract class ATestParticipant implements IATestParticipant {
     });
   }
 
-  public expectNextMessageIsPokerStatus(status: EGameState): IATestParticipant {
+  public expectNextMessageIsGameStateChanged(status: EGameState): IATestParticipant {
     return this.expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
       expect(m.data).toBe(status)
     );
@@ -250,13 +251,14 @@ export abstract class ATestParticipant implements IATestParticipant {
     );
   }
 
-  expectNextMessageIsInit(options?: ParticipantDtoOptions): IATestParticipant {
+  public expectNextMessageIsInit(options?: ParticipantDtoOptions): IATestParticipant {
     return this.expectNextMessageIs(EServerMessageType.Init, (m: IInitMessage) => {
       expect(m.data.nick.length).toBeGreaterThan(0);
       expect(m.data.participantId.length).toBeGreaterThan(0);
       this.checkParticipantOptions(m.data, options);
     });
   }
+
   public expectNoMoreMessages(): void {
     if (this.currentMessageIndex === undefined || !this.messageIterator) {
       throw Error('Initialize iterator first');
@@ -293,6 +295,7 @@ export abstract class ATestParticipant implements IATestParticipant {
       }
     }
   }
+
   /* eslint-disable @typescript-eslint/no-empty-function */
   private noop(..._args: Array<unknown>): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */

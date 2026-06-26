@@ -1,30 +1,22 @@
-import type { JestConfigWithTsJest } from 'ts-jest';
+import { Config } from 'jest';
 
-const jestConfig: JestConfigWithTsJest = {
-  preset: 'ts-jest/presets/js-with-ts-esm',
-  roots: ['./test/integration'],
+const jestConfig: Config = {
+  roots: ['./dist/test/test/integration'],
   testEnvironment: 'node',
-  testMatch: ['**/?(*.)+(spec|test).+(ts|tsx|js)'],
-  transform: {
-    // "^.+\\.(ts|tsx)$":
-    '^.+\\.m?[tj]sx?$': ['ts-jest', { tsconfig: 'tsconfig.json' }]
-  },
-  transformIgnorePatterns: ['node_modules/(?!moq\.ts)'],
-  setupFiles: ['./test/init.ts'],
-  testPathIgnorePatterns: ['do-not-commit.*'],
-  coverageDirectory: 'reports/integration-test/coverage',
+  collectCoverage: true,
+  coverageDirectory: 'reports/integration/coverage',
   collectCoverageFrom: [
-    '**/storage/implementation/*',
-    '**/services/implementation/*',
-    '!**/services/implementation/cron.service.ts',
-    '!**/services/implementation/environment.service.ts',
-    '!**/services/implementation/logger.service.ts',
-    '!**/services/implementation/route.service.ts',
-    '!**/services/implementation/sender.service.ts',
-    '!**/services/implementation/serialization.service.ts',
-    '!**/services/implementation/socket.service.ts',
+    'dist/test/**/storage/implementation/*.js',
+    'dist/test/**/services/implementation/*.js',
+    '!**/services/implementation/cron.service.js',
+    '!**/services/implementation/environment.service.js',
+    '!**/services/implementation/logger.service.js',
+    '!**/services/implementation/route.service.js',
+    '!**/services/implementation/sender.service.js',
+    '!**/services/implementation/serialization.service.js',
+    '!**/services/implementation/socket.service.js',
     '!**/*.types.*',
-    '!**/index.ts',
+    '!**/index.js',
     '!**/do-not-commit*'
   ],
   reporters: [
@@ -33,7 +25,7 @@ const jestConfig: JestConfigWithTsJest = {
       './node_modules/jest-html-reporter',
       {
         pageTitle: 'Planning poker server test suite',
-        outputPath: 'reports/integration-test/jest/index.html',
+        outputPath: 'reports/integration/jest/index.html',
         includeFailureMsg: true
         // "styleOverridePath": "src/teststyle.css"
       }

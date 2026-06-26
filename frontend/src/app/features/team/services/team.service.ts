@@ -1,5 +1,5 @@
 import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
-import { EParticipantChangeType, EParticipantStatus, IMemberChange, IParticipant } from 'shared-lib';
+import { EParticipantChangeType, EParticipantState, ParticipantChangeDto, ParticipantDto } from 'shared-lib';
 import {
   extract,
   ISimpleDialogParams,
@@ -17,7 +17,7 @@ export class TeamService {
   //#endregion
 
   //#region Signals -----------------------------------------------------------
-  public members: WritableSignal<Array<IParticipant>>;
+  public members: WritableSignal<Array<ParticipantDto>>;
   //#region
 
   //#region Constructor & C° -------------------------------------------------
@@ -26,7 +26,7 @@ export class TeamService {
     this.socketSvc = inject(SocketService);
     this.uiEventsSvc = inject(UiEventsService);
     // Initialize service signals
-    this.members = signal<Array<IParticipant>>(new Array<IParticipant>());
+    this.members = signal<Array<ParticipantDto>>(new Array<ParticipantDto>());
     // register message handlers
     const dispatcherSvc = inject(MessageDispatcherService);
     this.registerMessageHandlers(dispatcherSvc);
@@ -67,60 +67,60 @@ export class TeamService {
     this.resetService();
   }
 
-  private handleMemberList(data: Array<IParticipant>): void {
+  private handleMemberList(data: Array<ParticipantDto>): void {
     this.members.set(data);
   }
 
-  private handleMemberChanged(data: IMemberChange): void {
+  private handleMemberChanged(data: ParticipantChangeDto): void {
     const participant = data.member;
-    switch (data.memberStatusChange) {
+    switch (data.changeType) {
       case EParticipantChangeType.ChangedNick:
-        this.members.update((current: Array<IParticipant>) =>
-          current.map((p: IParticipant) =>
+        this.members.update((current: Array<ParticipantDto>) =>
+          current.map((p: ParticipantDto) =>
             p.participantId === participant.participantId ? { ...p, nick: participant.nick } : p
           )
         );
         break;
       case EParticipantChangeType.ChangedRole:
-        this.members.update((current: Array<IParticipant>) =>
-          current.map((p: IParticipant) =>
+        this.members.update((current: Array<ParticipantDto>) =>
+          current.map((p: ParticipantDto) =>
             p.participantId === participant.participantId ? { ...p, role: participant.role } : p
           )
         );
         break;
       case EParticipantChangeType.Disconnected:
-        this.members.update((current: Array<IParticipant>) =>
-          current.map((p: IParticipant) =>
-            p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Disconnected } : p
+        this.members.update((current: Array<ParticipantDto>) =>
+          current.map((p: ParticipantDto) =>
+            p.participantId === participant.participantId ? { ...p, status: EParticipantState.Disconnected } : p
           )
         );
         break;
       case EParticipantChangeType.Joined:
-        this.members.update((current: Array<IParticipant>) => [...current, participant]);
+        this.members.update((current: Array<ParticipantDto>) => [...current, participant]);
         break;
       case EParticipantChangeType.Left:
-        this.members.update((current: Array<IParticipant>) =>
-          current.filter((p: IParticipant) => p.participantId !== participant.participantId)
+        this.members.update((current: Array<ParticipantDto>) =>
+          current.filter((p: ParticipantDto) => p.participantId !== participant.participantId)
         );
         break;
       case EParticipantChangeType.Observe:
-        this.members.update((current: Array<IParticipant>) =>
-          current.map((p: IParticipant) =>
+        this.members.update((current: Array<ParticipantDto>) =>
+          current.map((p: ParticipantDto) =>
             p.participantId === participant.participantId ? { ...p, observer: participant.observer } : p
           )
         );
         break;
       case EParticipantChangeType.Paused:
-        this.members.update((current: Array<IParticipant>) =>
-          current.map((p: IParticipant) =>
-            p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Paused } : p
+        this.members.update((current: Array<ParticipantDto>) =>
+          current.map((p: ParticipantDto) =>
+            p.participantId === participant.participantId ? { ...p, status: EParticipantState.Paused } : p
           )
         );
         break;
       case EParticipantChangeType.Rejoined:
-        this.members.update((current: Array<IParticipant>) =>
-          current.map((p: IParticipant) =>
-            p.participantId === participant.participantId ? { ...p, status: EParticipantStatus.Connected } : p
+        this.members.update((current: Array<ParticipantDto>) =>
+          current.map((p: ParticipantDto) =>
+            p.participantId === participant.participantId ? { ...p, status: EParticipantState.Connected } : p
           )
         );
         break;

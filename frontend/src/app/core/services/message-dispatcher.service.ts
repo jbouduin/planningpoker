@@ -3,17 +3,17 @@ import {
   AServerMessage,
   EGameState,
   EServerMessageType,
-  ICardSet,
+  CardSetDto,
   ICardSetMessage,
   IErrorMessage,
-  IEstimation,
+  EstimationDto,
   IEstimationListMessage,
   IGameStateChangedMessage,
   IInitMessage,
-  IMemberChange,
-  IMemberChangedMessage,
-  IMemberListMessage,
-  IParticipant,
+  ParticipantChangeDto,
+  IParticipantChangedMessage,
+  IParticipantListMessage,
+  ParticipantDto,
   ISelfMessage,
   ITeamNameMessage
 } from 'shared-lib';
@@ -22,17 +22,17 @@ import { ErrorHandlerService } from './error-handler.service';
 @Service()
 export class MessageDispatcherService {
   //#region Private Fields ----------------------------------------------------
-  private readonly _cardSet: WritableSignal<ICardSet | null>;
+  private readonly _cardSet: WritableSignal<CardSetDto | null>;
   private readonly _clearEstimations: WritableSignal<number>;
   private readonly _endInit: WritableSignal<number>;
   private readonly _endSession: WritableSignal<number>;
-  private readonly _estimationList: WritableSignal<Array<IEstimation>>;
-  private readonly _init: WritableSignal<IParticipant | null>;
-  private readonly _memberChanged: WritableSignal<IMemberChange | null>;
-  private readonly _memberList: WritableSignal<Array<IParticipant>>;
+  private readonly _estimationList: WritableSignal<Array<EstimationDto>>;
+  private readonly _init: WritableSignal<ParticipantDto | null>;
+  private readonly _memberChanged: WritableSignal<ParticipantChangeDto | null>;
+  private readonly _memberList: WritableSignal<Array<ParticipantDto>>;
   private readonly _ping: WritableSignal<number>;
   private readonly _pokerStatus: WritableSignal<EGameState>;
-  private readonly _self: WritableSignal<IParticipant | null>;
+  private readonly _self: WritableSignal<ParticipantDto | null>;
   private readonly _serverReset: WritableSignal<number>;
   private readonly _teamIdle: WritableSignal<number>;
   private readonly _teamName: WritableSignal<string | null>;
@@ -41,17 +41,17 @@ export class MessageDispatcherService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
-    this._cardSet = signal<ICardSet | null>(null);
+    this._cardSet = signal<CardSetDto | null>(null);
     this._clearEstimations = signal<number>(0);
     this._endInit = signal<number>(0);
     this._endSession = signal<number>(0);
-    this._estimationList = signal<Array<IEstimation>>(new Array<IEstimation>());
-    this._init = signal<IParticipant | null>(null);
-    this._memberChanged = signal<IMemberChange | null>(null);
-    this._memberList = signal<Array<IParticipant>>(new Array<IParticipant>());
+    this._estimationList = signal<Array<EstimationDto>>(new Array<EstimationDto>());
+    this._init = signal<ParticipantDto | null>(null);
+    this._memberChanged = signal<ParticipantChangeDto | null>(null);
+    this._memberList = signal<Array<ParticipantDto>>(new Array<ParticipantDto>());
     this._ping = signal<number>(0);
     this._pokerStatus = signal<EGameState>(EGameState.Cleared);
-    this._self = signal<IParticipant | null>(null);
+    this._self = signal<ParticipantDto | null>(null);
     this._serverReset = signal<number>(0);
     this._teamIdle = signal<number>(0);
     this._teamName = signal<string | null>(null);
@@ -60,7 +60,7 @@ export class MessageDispatcherService {
   //#endregion
 
   //#region Getters-Setters ---------------------------------------------------
-  public get cardSet(): Signal<ICardSet | null> {
+  public get cardSet(): Signal<CardSetDto | null> {
     return this._cardSet;
   }
 
@@ -76,19 +76,19 @@ export class MessageDispatcherService {
     return this._endSession;
   }
 
-  public get estimationList(): Signal<Array<IEstimation>> {
+  public get estimationList(): Signal<Array<EstimationDto>> {
     return this._estimationList;
   }
 
-  public get init(): Signal<IParticipant | null> {
+  public get init(): Signal<ParticipantDto | null> {
     return this._init;
   }
 
-  public get memberChanged(): Signal<IMemberChange | null> {
+  public get memberChanged(): Signal<ParticipantChangeDto | null> {
     return this._memberChanged;
   }
 
-  public get memberList(): WritableSignal<Array<IParticipant>> {
+  public get memberList(): WritableSignal<Array<ParticipantDto>> {
     return this._memberList;
   }
 
@@ -100,7 +100,7 @@ export class MessageDispatcherService {
     return this._pokerStatus;
   }
 
-  public get self(): WritableSignal<IParticipant | null> {
+  public get self(): WritableSignal<ParticipantDto | null> {
     return this._self;
   }
 
@@ -146,10 +146,10 @@ export class MessageDispatcherService {
         this._init.set((<IInitMessage>message).data);
         break;
       case EServerMessageType.MemberChanged:
-        this._memberChanged.set((<IMemberChangedMessage>message).data);
+        this._memberChanged.set((<IParticipantChangedMessage>message).data);
         break;
       case EServerMessageType.MemberList:
-        this._memberList.set((<IMemberListMessage>message).data);
+        this._memberList.set((<IParticipantListMessage>message).data);
         break;
       case EServerMessageType.Ping:
         this._ping.update((prev: number) => prev + 1);

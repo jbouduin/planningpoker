@@ -65,6 +65,13 @@ export default [
     }
   },
   {
+    files: ['server/test/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off'
+    }
+  },
+  {
     ignores: [
       '**/node_modules/**',
       '**/dist/**',

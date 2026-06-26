@@ -1,5 +1,4 @@
 import { EClientMessageType, IChangeNickMessage } from 'shared-lib';
-
 import { BaseClientMessage } from './base-client-message';
 
 export class ChangeNickMessage extends BaseClientMessage<string> implements IChangeNickMessage {

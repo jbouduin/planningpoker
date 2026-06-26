@@ -4,6 +4,7 @@ import {
   AClientMessage,
   CardDto,
   CardSetDto,
+  CreateDto,
   EClientMessageType,
   EErrorCode,
   EGameState,
@@ -18,7 +19,9 @@ import {
   ILeaveMessage,
   IObserveMessage,
   IRejoinMessage,
-  IRemoveMessage
+  IRemoveMessage,
+  JoinDto,
+  ObserverChangeDto
 } from 'shared-lib';
 import type { IServerParticipant } from '../../objects/interfaces/index.js';
 import type { IStorageService } from '../../storage/interfaces/index.js';
@@ -108,13 +111,14 @@ export class PreflightService implements IPreflightService {
    */
   private preflightCreate(storage: IStorageService, teamName: string, message: ICreateMessage): EErrorCode {
     let result = EErrorCode.NoError;
+    const data = message.data as CreateDto;
     if (storage.teamExists(teamName)) {
       result = EErrorCode.TeamAlreadyExists;
-    } else if (message.data.nick.length === 0) {
+    } else if (data.nick.length == 0) {
       result = EErrorCode.ParticipantNameMayNotBeEmpty;
     } else {
-      if (message.data.cards) {
-        result = this.checkCardSet(message.data.cards);
+      if (data.cards) {
+        result = this.checkCardSet(data.cards);
       }
     }
     return result;
@@ -224,8 +228,8 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.EstimationNotStarted;
       } else {
         if (message.data) {
-          const cardSet = storage.getCardSet(teamName);
-          const theEstimation = cardSet.cards.find((card: CardDto) => card.index === message.data);
+          const cards = storage.getCardSet(teamName).cards as Array<CardDto>;
+          const theEstimation = cards.find((card: CardDto) => card.index === message.data);
           if (theEstimation === undefined) {
             result = EErrorCode.InvalidEstimation;
           }
@@ -247,7 +251,8 @@ export class PreflightService implements IPreflightService {
     message: IJoinMessage
   ): EErrorCode {
     let result = EErrorCode.NoError;
-    if (message.data.nick.length === 0) {
+    const data = message.data as JoinDto;
+    if (data.nick.length === 0) {
       result = EErrorCode.ParticipantNameMayNotBeEmpty;
     } else if (!storage.teamExists(teamName)) {
       result = EErrorCode.TeamNotFound;
@@ -319,16 +324,17 @@ export class PreflightService implements IPreflightService {
     message: IObserveMessage
   ): EErrorCode {
     let result = EErrorCode.NoError;
+    const data = message.data as ObserverChangeDto;
     if (!storage.teamExists(teamName)) {
       result = EErrorCode.TeamNotFound;
     } else if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
       result = EErrorCode.ParticipantNotInTeam;
-    } else if (sender.participantId !== message.data.member) {
+    } else if (sender.participantId !== data.member) {
       if (sender.role !== ERole.ScrumMaster) {
         result = EErrorCode.ScrumMasterRequired;
-      } else if (!storage.participantExists(message.data.member)) {
+      } else if (!storage.participantExists(data.member)) {
         result = EErrorCode.ParticipantNotFound;
-      } else if (storage.getTeamOfParticipant(message.data.member)?.teamName !== teamName) {
+      } else if (storage.getTeamOfParticipant(data.member)?.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
       }
     }
@@ -467,11 +473,12 @@ export class PreflightService implements IPreflightService {
    * - the cardset must at least contain two cards which are estimations
    */
   private checkCardSet(cardSet: CardSetDto): EErrorCode {
-    const unknownEstimationCard = cardSet.cards.find((card: CardDto) => card.isUnknownEstimation);
+    const cards = cardSet.cards as Array<CardDto>;
+    const unknownEstimationCard = cards.find((card: CardDto) => card.isUnknownEstimation);
     if (!unknownEstimationCard) {
       return EErrorCode.UnknownEstimationCardMissing;
     }
-    const estimationCards = cardSet.cards.filter((card: CardDto) => card.isEstimation).length;
+    const estimationCards = cards.filter((card: CardDto) => card.isEstimation).length;
     if (estimationCards < 2) {
       return EErrorCode.MoreThanTwoEstimationCardsRequired;
     }

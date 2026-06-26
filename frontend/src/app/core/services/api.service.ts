@@ -1,12 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
-import { ICanRejoinResponse, ICardSet } from 'shared-lib';
-
-// TODO move to shared-lib
-// interface LooseObject {
-//   [key: string]: any; //eslint-disable-line
-// }
+import { CanRejoinDto, CardSetDto } from 'shared-lib';
 
 @Service()
 export class ApiService {
@@ -23,21 +18,21 @@ export class ApiService {
   //#region Public methods ----------------------------------------------------
   public checkCanRejoin(teamName: string, participantId: string): Observable<boolean> {
     return this.httpClient
-      .get<ICanRejoinResponse>(`/api/team/${teamName}/participant/${participantId}`, {
+      .get<CanRejoinDto>(`/api/team/${teamName}/participant/${participantId}`, {
         observe: 'response',
         responseType: 'json'
       })
       .pipe(
-        map((res: HttpResponse<ICanRejoinResponse>) => res.body?.canRejoin === true),
+        map((res: HttpResponse<CanRejoinDto>) => res.body?.canRejoin === true),
         catchError(() => of(false))
       );
   }
 
-  public getAllCardSets(): Observable<Array<ICardSet>> {
-    return this.httpClient.get<Array<ICardSet>>('/api/cardsets', { observe: 'response', responseType: 'json' }).pipe(
-      catchError((error: HttpResponse<Array<ICardSet>>) => of(error)),
-      map((response: HttpResponse<Array<ICardSet>>) => {
-        return response.body || new Array<ICardSet>();
+  public getAllCardSets(): Observable<Array<CardSetDto>> {
+    return this.httpClient.get<Array<CardSetDto>>('/api/cardsets', { observe: 'response', responseType: 'json' }).pipe(
+      catchError((error: HttpResponse<Array<CardSetDto>>) => of(error)),
+      map((response: HttpResponse<Array<CardSetDto>>) => {
+        return response.body || new Array<CardSetDto>();
       })
     );
   }

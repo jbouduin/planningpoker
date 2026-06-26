@@ -10,9 +10,9 @@
     "start": "node ./dist/server.js",
     "dev": "nodemon",
     "prod": "npm run build:prod && node dist/server.js",
-    "test:ci": "npm run build:test && jest -c jest.ci.config.ts",
-    "test:unit": "npm run build:test && jest -c jest.unit.config.ts --coverage",
-    "test:integration": "npm run build:test && jest -c jest.integration.config.ts --coverage"
+    "test:ci": "npm run build:test && cross-env NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/jest/bin/jest.js -c jest.ci.config.ts",
+    "test:unit": "npm run build:test && cross-env NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/jest/bin/jest.js -c jest.unit.config.ts --coverage",
+    "test:integration": "npm run build:test && cross-env NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/jest/bin/jest.js -c jest.integration.config.ts --coverage"
   },
   "author": "Johan Bouduin",
   "license": "UNLICENSED",
@@ -37,6 +37,7 @@
     "@types/node": "^18.19.130",
     "@types/qs": "^6.9.7",
     "@types/ws": "^8.2.0",
+    "cross-env": "^10.1.0",
     "jest": "^30.4.2",
     "jest-html-reporter": "^4.4.0",
     "moq.ts": "^10.0.2",

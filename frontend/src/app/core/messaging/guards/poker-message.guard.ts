@@ -6,7 +6,7 @@ export function isPokerMessage(msg: AServerMessage): msg is PokerMessage {
     EServerMessageType.EndSession,
     EServerMessageType.EstimationList,
     EServerMessageType.ClearEstimations,
-    EServerMessageType.PokerStatus,
+    EServerMessageType.GameStateChanged,
     EServerMessageType.ServerReset
   ].includes(msg.type);
 }

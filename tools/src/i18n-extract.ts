@@ -189,7 +189,7 @@ function extractEnumKeys(fileNames: Array<string>): Array<string> {
 function writeEnumExtract(keys: Array<string>): void {
   const enumTranslationKeyFile = 'src/app/core/services/enum-translation-keys.ts';
   console.log(`writing enum translation keys to ${enumTranslationKeyFile}`);
-  fs.writeFileSync(enumTranslationKeyFile, `import { extract } from '../extract'\n\n${buildEnumKeyLines(keys)}\n`);
+  fs.writeFileSync(enumTranslationKeyFile, `import { extract } from '../extract;'\n\n${buildEnumKeyLines(keys)}\n`);
 }
 
 function buildEnumKeyLines(keys: Array<string>): string {

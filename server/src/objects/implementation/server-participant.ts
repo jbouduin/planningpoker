@@ -7,7 +7,7 @@ export class ServerParticipant implements IServerParticipant {
   private readonly _participant: ParticipantDto;
   //#endregion
 
-  //#region IServerParticipant properties -------------------------------------
+  //#region Getters-Setters ---------------------------------------------------
   public socket: IWebSocket;
   public get self(): ParticipantDto {
     return this._participant;
@@ -34,6 +34,7 @@ export class ServerParticipant implements IServerParticipant {
   }
 
   public get role(): ERole {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this._participant.role;
   }
 
@@ -42,8 +43,10 @@ export class ServerParticipant implements IServerParticipant {
   }
 
   public get state(): EParticipantState {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this._participant.state;
   }
+
   public set state(value: EParticipantState) {
     this._participant.state = value;
   }
@@ -54,6 +57,5 @@ export class ServerParticipant implements IServerParticipant {
     this._participant = participant;
     this.socket = socket;
   }
-
   //#endregion
 }

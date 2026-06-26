@@ -1,10 +1,9 @@
-import { EClientMessageType, ICreate, ICreateMessage } from 'shared-lib';
-
+import { EClientMessageType, CreateDto, ICreateMessage } from 'shared-lib';
 import { BaseClientMessage } from './base-client-message';
 
-export class CreateMessage extends BaseClientMessage<ICreate> implements ICreateMessage {
+export class CreateMessage extends BaseClientMessage<CreateDto> implements ICreateMessage {
   //#region Constructor & C° --------------------------------------------------
-  public constructor(sender: string, data: ICreate) {
+  public constructor(sender: string, data: CreateDto) {
     super(sender, EClientMessageType.Create, data);
   }
   //#endregion

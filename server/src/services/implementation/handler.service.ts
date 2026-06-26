@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import {
   AClientMessage,
+  CreateDto,
   ECardSetType,
   EClientMessageType,
   EErrorCode,
@@ -19,13 +20,14 @@ import {
   IObserveMessage,
   IRejoinMessage,
   IRemoveMessage,
-  LooseObjectDto
+  JoinDto,
+  LooseObjectDto,
+  ObserverChangeDto
 } from 'shared-lib';
 import { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
 import { IFactoryService, IStorageService } from '../../storage/interfaces/index.js';
 import STORAGETYPES from '../../storage/storage.types.js';
-import type { IHandlerService, ILoggerService, IMessageService } from '../interfaces/index.js';
-import type { IPreflightService } from '../interfaces/index.js';
+import type { IHandlerService, ILoggerService, IMessageService, IPreflightService } from '../interfaces/index.js';
 import SERVICETYPES from '../service.types.js';
 import { IWebSocket } from '../websocket.js';
 
@@ -223,7 +225,7 @@ export class HandlerService implements IHandlerService {
           this.handleRejoin(sender, teamName, <IRejoinMessage>message, ws);
           break;
         }
-        // The default (EErrorCode.UnknownVerb) is already handled in preflight
+        // The default (EErrorCode.UnknownClientMessage) is already handled in preflight
       } // end switch
     }
   }
@@ -275,15 +277,17 @@ export class HandlerService implements IHandlerService {
 
   private handleCreate(sender: IServerParticipant, teamName: string, message: ICreateMessage): void {
     this.loggerService.info('Server', `Create: '${sender.nick}' is creating '${teamName}'`);
+    const data = message.data as CreateDto;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const cardSet =
-      message.data.cardSet == ECardSetType.Custom
-        ? message.data.cards || this.factoryService.createCardSet(ECardSetType.Cohn)
-        : this.factoryService.createCardSet(message.data.cardSet);
+      data.cardSet == ECardSetType.Custom
+        ? data.cards || this.factoryService.createCardSet(ECardSetType.Cohn)
+        : this.factoryService.createCardSet(data.cardSet);
     // create the team
     const newTeam = this.factoryService.createTeam(teamName);
     this.storage.addTeam(newTeam, cardSet);
-    sender.observer = message.data.observer;
-    sender.nick = message.data.nick;
+    sender.observer = data.observer;
+    sender.nick = data.nick;
     sender.role = ERole.ScrumMaster;
     // join the team
     this.storage.joinTeam(teamName, sender.participantId);
@@ -306,9 +310,10 @@ export class HandlerService implements IHandlerService {
 
   private handleJoin(sender: IServerParticipant, teamName: string, message: IJoinMessage): void {
     this.loggerService.info('Server', `Join: '${sender.nick}' is joining '${teamName}'`);
+    const data = message.data as JoinDto;
     sender.role = ERole.Developer;
-    sender.observer = message.data.observer;
-    sender.nick = message.data.nick;
+    sender.observer = data.observer;
+    sender.nick = data.nick;
     const team = this.storage.getTeam(teamName);
     if (team) {
       this.storage.joinTeam(teamName, sender.participantId);
@@ -387,9 +392,10 @@ export class HandlerService implements IHandlerService {
   }
 
   private handleObserve(teamName: string, message: IObserveMessage): void {
-    const member = this.storage.getParticipant(message.data.member);
-    if (member && member.observer !== message.data.observer) {
-      member.observer = message.data.observer;
+    const data = message.data as ObserverChangeDto;
+    const member = this.storage.getParticipant(data.member);
+    if (member && member.observer !== data.observer) {
+      member.observer = data.observer;
       this.messageService.broadcastMemberChange(
         this.storage
           .getConnectedTeamMembers(teamName)

@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { UiEventsService } from './ui-events.service';
-import { EErrorCode, IError } from 'shared-lib';
+import { EErrorCode, ErrorDto } from 'shared-lib';
 import { SnackbarParams } from './snackbar.params';
 
 @Service()
@@ -16,7 +16,7 @@ export class ErrorHandlerService {
   //#endregion
 
   //#region Public Methods ----------------------------------------------------
-  public processError(error: IError): boolean {
+  public processError(error: ErrorDto): boolean {
     const code = error.code;
     let canContinue =
       code != EErrorCode.TeamAlreadyExists && code != EErrorCode.TeamNotFound && code != EErrorCode.ParticipantNotFound;

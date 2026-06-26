@@ -157,10 +157,12 @@ export class MessageService implements IMessageService {
     const data: ParticipantChangeDto = {
       changeType: change,
       member: {
+        /* eslint-disable @typescript-eslint/no-unsafe-assignment */
         state: changedMember.state,
+        role: changedMember.role,
+        /* eslint-enable @typescript-eslint/no-unsafe-assignment */
         nick: changedMember.nick,
         participantId: changedMember.participantId,
-        role: changedMember.role,
         observer: changedMember.observer
       }
     };
@@ -192,7 +194,8 @@ export class MessageService implements IMessageService {
 
   //#region Private prepare message data methods ------------------------------
   private prepareParticipantsData(participants: Array<IServerParticipant>): Array<ParticipantDto> {
-    return participants.map((participant) => {
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+    return participants.map((participant: IServerParticipant) => {
       return {
         state: participant.state,
         nick: participant.nick,
@@ -201,6 +204,7 @@ export class MessageService implements IMessageService {
         observer: participant.observer
       };
     });
+    /* eslint-enable @typescript-eslint/no-unsafe-assignment */
   }
   //#endregion
 }

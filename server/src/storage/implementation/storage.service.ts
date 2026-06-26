@@ -164,7 +164,8 @@ export class StorageService implements IStorageService {
     const cardSet = this.cardSetRepository.getCardSet(teamName);
     const result = this.estimationRepository.getEstimations(teamName);
     if (cardSet) {
-      const unknownEstimationIndex = cardSet.cards.find((card: CardDto) => card.isUnknownEstimation)!.index;
+      const cards = cardSet.cards as Array<CardDto>;
+      const unknownEstimationIndex = cards.find((card: CardDto) => card.isUnknownEstimation)!.index;
       this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: IServerParticipant) => {
         if (!result.find((e: EstimationDto) => e.participantId === p.participantId)) {
           const estimation = this.estimationRepository.upsertEstimation(

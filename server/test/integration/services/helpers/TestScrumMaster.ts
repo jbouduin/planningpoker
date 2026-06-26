@@ -6,6 +6,6 @@ export type ITestScrumMaster = IATestParticipant;
 export class TestScrumMaster extends ATestParticipant implements ITestScrumMaster {
   public constructor(handlerService: IHandlerService) {
     super(handlerService);
-    this.expectedNumberOfInitialMessages = 6;
+    this.expectedNumberOfInitialMessages = 7;
   }
 }

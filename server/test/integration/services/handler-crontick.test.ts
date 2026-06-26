@@ -28,7 +28,6 @@ describe('Cron tick', () => {
     // RUN: participants will close their sockets
     scrumMaster1.closeSocket();
     participant1.closeSocket();
-
     // Test: scrum master messages
     scrumMaster1
       .initializeMessageQueue()

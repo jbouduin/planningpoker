@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, Signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { EPokerStatus } from 'shared-lib';
+import { EGameState } from 'shared-lib';
 import { CardComponent } from '../../../../shared/components';
 import { GameService, PokerService } from '../../services';
 
@@ -25,7 +25,7 @@ export class MyHandComponent {
   public constructor(gameSvc: GameService, pokerSvc: PokerService) {
     this.gameSvc = gameSvc;
     this.pokerSvc = pokerSvc;
-    this.canEstimate = computed(() => gameSvc.cards() != null && pokerSvc.pokerState() == EPokerStatus.Started);
+    this.canEstimate = computed(() => gameSvc.cards() != null && pokerSvc.pokerState() == EGameState.Started);
   }
   //#endregion
 

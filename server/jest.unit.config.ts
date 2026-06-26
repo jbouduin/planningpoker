@@ -1,21 +1,13 @@
-import type { JestConfigWithTsJest } from 'ts-jest';
+import { Config } from 'jest';
 
-const jestConfig: JestConfigWithTsJest = {
-  preset: 'ts-jest/presets/js-with-ts-esm',
-  roots: ['./test/unit'],
+const jestConfig: Config = {
+  roots: ['./dist/test/test/unit'],
   testEnvironment: 'node',
-  testMatch: ['**/?(*.)+(spec|test).+(ts|tsx|js)'],
-  transform: {
-    // "^.+\\.(ts|tsx)$":
-    '^.+\\.m?[tj]sx?$': ['ts-jest', { tsconfig: 'tsconfig.json' }]
-  },
-  transformIgnorePatterns: ['node_modules/(?!moq\.ts)'],
-  setupFiles: ['./test/init.ts'],
-  testPathIgnorePatterns: ['do-not-commit.*'],
+  collectCoverage: true,
   coverageDirectory: 'reports/unit-test/coverage',
   collectCoverageFrom: [
-    '!**/objects/implementation/*',
-    '!**/services/websocket.ts',
+    '!**/objects/implementation/*.js',
+    '!**/services/websocket.js',
     // "**/services/implementation/handler.service.ts",
     // "**/services/implementation/preflight.service.ts",
     // "**/storage/implementation/storage.service.ts",

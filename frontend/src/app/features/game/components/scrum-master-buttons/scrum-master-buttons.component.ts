@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, Signal } from '@angular/core';
 import { extract } from '../../../../core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EPokerStatus } from 'shared-lib';
+import { EGameState } from 'shared-lib';
 import { PokerService } from '../../services';
 import { Estimation } from '../../services/estimation';
 
@@ -36,7 +36,7 @@ export class ScrumMasterButtonsComponent {
   public constructor(pokerSvc: PokerService) {
     this.pokerSvc = pokerSvc;
     this.disableChangeCardSet = this.showReveal = computed(() => {
-      return this.pokerSvc.pokerState() != EPokerStatus.Cleared;
+      return this.pokerSvc.pokerState() != EGameState.Cleared;
     });
     this.disableForceReveal = computed(() => {
       const estimations = this.pokerSvc.estimations();
@@ -47,11 +47,11 @@ export class ScrumMasterButtonsComponent {
       return estimations.find((e: Estimation) => e.card == null) != undefined;
     });
     this.showReveal = computed(() => {
-      return this.pokerSvc.pokerState() == EPokerStatus.Started;
+      return this.pokerSvc.pokerState() == EGameState.Started;
     });
     this.showStart = computed(() => {
       const pokerState = this.pokerSvc.pokerState();
-      return pokerState == EPokerStatus.Cleared || pokerState == EPokerStatus.Revealed;
+      return pokerState == EGameState.Cleared || pokerState == EGameState.Revealed;
     });
   }
   //#endregion

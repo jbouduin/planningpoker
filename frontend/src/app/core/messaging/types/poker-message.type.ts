@@ -1,12 +1,12 @@
 import {
   IClearEstimationsMessage,
   IEstimationListMessage,
-  IPokerStatusChangedMessage,
+  IGameStateChangedMessage,
   IServerResetMessage
 } from 'shared-lib';
 
 export type PokerMessage =
   | IEstimationListMessage
   | IClearEstimationsMessage
-  | IPokerStatusChangedMessage
+  | IGameStateChangedMessage
   | IServerResetMessage;

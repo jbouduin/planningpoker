@@ -51,7 +51,7 @@ import type {
 import STORAGETYPES from '../../../../src/storage/storage.types.js';
 import type { ITestParticipant } from './TestParticipant.js';
 import { TestParticipant } from './TestParticipant.js';
-import { ITestScrumMaster } from './TestScrumMaster.js';
+import { ITestScrumMaster, TestScrumMaster } from './TestScrumMaster.js';
 import { UnaffectedTeam } from './UnaffectedTeam.js';
 
 export class Util {
@@ -130,6 +130,10 @@ export class Util {
     return new TestParticipant(handlerService, role);
   }
 
+  public static connectScrumMaster(handlerService: IHandlerService): ITestParticipant {
+    return new TestScrumMaster(handlerService);
+  }
+
   public static joinTeam(
     handlerService: IHandlerService,
     teamName: string,
@@ -185,7 +189,7 @@ export class Util {
     cardSet?: ECardSetType,
     cards?: CardSetDto
   ): ITestScrumMaster {
-    const scrumMaster = this.connectParticipant(handlerService);
+    const scrumMaster = this.connectScrumMaster(handlerService);
     const message: ICreateMessage = {
       type: EClientMessageType.Create,
       senderId: scrumMaster.participantId,
@@ -208,6 +212,7 @@ export class Util {
   }
 
   public static unknownEstimationIndex(cardSet: ECardSetType): number {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return (
       this.getContainer()
         .get<IFactoryService>(STORAGETYPES.FactoryService)

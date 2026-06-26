@@ -1,8 +1,9 @@
-import { IParticipant, EParticipantStatus, ERole } from 'shared-lib';
+import { ParticipantDto, EParticipantState, ERole } from 'shared-lib';
 
 export class Member {
+  // TODO check if these props can be readonly
   //#region Public properties -------------------------------------------------
-  public status: EParticipantStatus;
+  public state: EParticipantState;
   public nick: string;
   public participantId: string;
   public role: ERole;
@@ -11,8 +12,8 @@ export class Member {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(participant: IParticipant, me: boolean) {
-    this.status = participant.status;
+  public constructor(participant: ParticipantDto, me: boolean) {
+    this.state = participant.state;
     this.nick = participant.nick;
     this.participantId = participant.participantId;
     this.role = participant.role;
