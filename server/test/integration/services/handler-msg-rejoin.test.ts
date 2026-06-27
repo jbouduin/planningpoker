@@ -79,11 +79,11 @@ describe('Rejoin => OK', () => {
         expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
         expect(m.data[0].role).toBe(ERole.ScrumMaster);
       })
+      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(0)
       )
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
-      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -237,11 +237,11 @@ describe('Rejoin => OK', () => {
         expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
         expect(m.data[0].role).toBe(ERole.ScrumMaster);
       })
+      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(0)
       )
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
-      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -303,9 +303,10 @@ describe('Rejoin => OK', () => {
       })
       .expectNoMoreMessages();
 
-    // Test: participant messages
+    // Test: participant 1 messages
     participant1.initializeMessageQueue().expectNoMoreMessages();
 
+    // Test: participant 2 messagess
     participant2
       .initializeMessageQueue()
       .initializeMessageQueue()
@@ -319,6 +320,7 @@ describe('Rejoin => OK', () => {
         state: EParticipantState.Connected
       })
       .expectNoMoreMessages();
+
     // Test: rejoining participant messages (init sequence)
     rejoiningParticipant
       .initializeMessageQueue(false)
@@ -337,11 +339,11 @@ describe('Rejoin => OK', () => {
       .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) =>
         expect(m.data).toHaveLength(2)
       )
+      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

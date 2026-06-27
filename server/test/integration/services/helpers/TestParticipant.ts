@@ -7,6 +7,7 @@ export type ITestParticipant = IATestParticipant;
 export class TestParticipant extends ATestParticipant implements ITestParticipant {
   public constructor(handlerService: IHandlerService, role = ERole.Developer) {
     super(handlerService, role);
-    this.expectedNumberOfInitialMessages = 8;
+    this.initSequenceLength = 6;
+    this.postInitSequenceLength = 2;
   }
 }

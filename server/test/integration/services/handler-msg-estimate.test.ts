@@ -2,13 +2,12 @@ import { describe, expect, test } from '@jest/globals';
 import {
   EClientMessageType,
   EErrorCode,
-  EParticipantChangeType,
   EGameState,
+  EParticipantChangeType,
   EServerMessageType,
-  IEstimateMessage,
   EstimationDto,
-  IEstimationListMessage,
-  IStartMessage
+  IEstimateMessage,
+  IEstimationListMessage
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -34,20 +33,10 @@ describe('Estimate => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: start estimation
-    const message: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(message);
+    Util.startEstimating(scrumMaster);
 
     // Run: estimate
-    const estimateMessage: IEstimateMessage = {
-      senderId: participant.participantId,
-      data: 2,
-      type: EClientMessageType.Estimate
-    };
-    participant.sendMessage(estimateMessage);
+    Util.estimate(participant, 2);
 
     // Test: scrum master messages
     scrumMaster
@@ -86,38 +75,27 @@ describe('Estimate => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: validate estimationlist
-    const validateEstimationListFn: BiTestFunction<Array<EstimationDto>, number | undefined> = (
+    const validateEstimationListFn: BiTestFunction<Array<EstimationDto>, number | null> = (
       l: Array<EstimationDto>,
-      cardIndex: number | undefined
+      cardIndex: number | null
     ) => {
       expect(l).toHaveLength(1);
       expect(l[0].participantId).toBe(participant.participantId);
-      expect(l[0].cardIndex).toBe(cardIndex);
+      if (cardIndex != null) {
+        expect(l[0].cardIndex).toBe(cardIndex);
+      } else {
+        expect(l[0].cardIndex).toBeNull();
+      }
     };
 
     // Setup: start estimation
-    const message: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(message);
+    Util.startEstimating(scrumMaster);
 
     // Setup: estimate
-    const estimateMessage: IEstimateMessage = {
-      senderId: participant.participantId,
-      data: 2,
-      type: EClientMessageType.Estimate
-    };
-    participant.sendMessage(estimateMessage);
+    Util.estimate(participant, 2);
 
-    // Run: withdraw
-    const withDrawMessage = {
-      senderId: participant.participantId,
-      data: undefined,
-      type: EClientMessageType.Estimate
-    };
-    participant.sendMessage(withDrawMessage);
+    // Setup: withdraw
+    Util.estimate(participant, null);
 
     // Test: scrum master messages
     scrumMaster
@@ -129,7 +107,7 @@ describe('Estimate => OK', () => {
         validateEstimationListFn(m.data, 2)
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        validateEstimationListFn(m.data, undefined)
+        validateEstimationListFn(m.data, null)
       )
       .expectNoMoreMessages();
 
@@ -142,7 +120,7 @@ describe('Estimate => OK', () => {
         validateEstimationListFn(m.data, 2)
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        validateEstimationListFn(m.data, undefined)
+        validateEstimationListFn(m.data, null)
       )
       .expectNoMoreMessages();
 
@@ -162,9 +140,9 @@ describe('Estimate => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: validate estimationlist
-    const validateEstimationListFn: BiTestFunction<Array<EstimationDto>, number | undefined> = (
+    const validateEstimationListFn: BiTestFunction<Array<EstimationDto>, number | null> = (
       l: Array<EstimationDto>,
-      cardIndex: number | undefined
+      cardIndex: number | null
     ) => {
       expect(l).toHaveLength(1);
       expect(l[0].participantId).toBe(participant.participantId);
@@ -172,30 +150,16 @@ describe('Estimate => OK', () => {
     };
 
     // Setup: start estimation
-    const message: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(message);
+    Util.startEstimating(scrumMaster);
 
     // Setup: estimate
-    const estimateMessage: IEstimateMessage = {
-      senderId: participant.participantId,
-      data: 2,
-      type: EClientMessageType.Estimate
-    };
-    participant.sendMessage(estimateMessage);
+    Util.estimate(participant, 2);
 
     // Run: update estimation
-    const updateMessage = {
-      senderId: participant.participantId,
-      data: 3,
-      type: EClientMessageType.Estimate
-    };
-    participant.sendMessage(updateMessage);
+    Util.estimate(participant, 3);
 
     // Test: scrum master messages
+    scrumMaster.dumpMessages();
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
@@ -240,12 +204,7 @@ describe('Estimate => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: start estimation
-    const message: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(message);
+    Util.startEstimating(scrumMaster);
 
     // Run: estimate
     const estimateMessage: IEstimateMessage = {
@@ -287,12 +246,7 @@ describe('Estimate => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: start estimation
-    const message: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(message);
+    Util.startEstimating(scrumMaster);
 
     // Run: estimate
     const estimateMessage: IEstimateMessage = {
@@ -363,12 +317,7 @@ describe('Estimate => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: start estimation
-    const message: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(message);
+    Util.startEstimating(scrumMaster);
 
     // Run: estimate
     const estimateMessage: IEstimateMessage = {
@@ -398,7 +347,7 @@ describe('Estimate => Failure', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  test('poker status is not started', () => {
+  test('Game status is "not started"', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
@@ -410,12 +359,7 @@ describe('Estimate => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: estimate
-    const estimateMessage: IEstimateMessage = {
-      senderId: participant.participantId,
-      data: 2,
-      type: EClientMessageType.Estimate
-    };
-    participant.sendMessage(estimateMessage);
+    Util.estimate(participant, 2);
 
     // Test: scrum master messages
     scrumMaster
@@ -445,20 +389,10 @@ describe('Estimate => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: start estimation
-    const message: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(message);
+    Util.startEstimating(scrumMaster);
 
     // Run: estimate
-    const estimateMessage: IEstimateMessage = {
-      senderId: participant.participantId,
-      data: 55,
-      type: EClientMessageType.Estimate
-    };
-    participant.sendMessage(estimateMessage);
+    Util.estimate(participant, 55);
 
     // Test: scrum master messages
     scrumMaster
@@ -492,20 +426,10 @@ describe('Estimate => Failure', () => {
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
 
     // Setup: start estimation
-    const message: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(message);
+    Util.startEstimating(scrumMaster);
 
     // Run: estimate
-    const estimateMessage: IEstimateMessage = {
-      senderId: observer.participantId,
-      data: 2,
-      type: EClientMessageType.Estimate
-    };
-    observer.sendMessage(estimateMessage);
+    Util.estimate(observer, 2);
 
     // Test: scrum master messages
     scrumMaster

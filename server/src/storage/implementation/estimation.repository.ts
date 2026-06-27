@@ -21,7 +21,7 @@ export class EstimationRepository implements IEstimationRepository {
     if (teamEstimations) {
       teamEstimations.delete(participantId);
     }
-    return new Estimation(participantId, undefined);
+    return new Estimation(participantId, null);
   }
 
   public getEstimations(teamName: string): Array<EstimationDto> {

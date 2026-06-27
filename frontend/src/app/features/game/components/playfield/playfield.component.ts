@@ -34,7 +34,7 @@ export class PlayfieldComponent {
 
   //#region Auxiliary Methods -------------------------------------------------
   protected isCardEnabled(estimation: Estimation): boolean {
-    return this.pokerSvc.pokerState() == EGameState.Started && estimation.member.me;
+    return this.pokerSvc.gameState() == EGameState.Started && estimation.member.me;
   }
   //#endregion
 }

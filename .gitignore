@@ -1,3 +1,4 @@
 node_modules
 *.deleteme
 frontend/src/app/core/services/enum-translation-keys.ts
+*.code-search

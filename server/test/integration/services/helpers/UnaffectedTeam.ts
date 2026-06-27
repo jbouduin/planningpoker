@@ -8,11 +8,11 @@ export class UnaffectedTeam {
   public readonly teamName: string;
 
   public expectIsUnaffected(): void {
-    this.scrumMaster.initializeMessageQueue();
-    this.scrumMaster.expectNextMessageIs(EServerMessageType.MemberChanged);
-    this.scrumMaster.expectNoMoreMessages();
-    this.participant.initializeMessageQueue();
-    this.participant.expectNoMoreMessages();
+    this.scrumMaster
+      .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.MemberChanged)
+      .expectNoMoreMessages();
+    this.participant.initializeMessageQueue().expectNoMoreMessages();
   }
 
   public constructor(scrumMaster: ITestScrumMaster, participant: ITestParticipant, teamName: string) {

@@ -15,7 +15,7 @@ import SERVICETYPES from '../../../src/services/service.types.js';
 import { Util } from './helpers/util.js';
 
 describe('Close', () => {
-  test('A participant disconnects', () => {
+  test('A participant disconnects - standard scenario', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
@@ -60,7 +60,7 @@ describe('Close', () => {
     unaffectedTeam.expectIsUnaffected();
   });
 
-  test('A participant disconnects after estimating', () => {
+  test('A participant that estimated disconnects', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 

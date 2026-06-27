@@ -36,7 +36,7 @@ export class ScrumMasterButtonsComponent {
   public constructor(pokerSvc: PokerService) {
     this.pokerSvc = pokerSvc;
     this.disableChangeCardSet = this.showReveal = computed(() => {
-      return this.pokerSvc.pokerState() != EGameState.Cleared;
+      return this.pokerSvc.gameState() != EGameState.Cleared;
     });
     this.disableForceReveal = computed(() => {
       const estimations = this.pokerSvc.estimations();
@@ -47,11 +47,11 @@ export class ScrumMasterButtonsComponent {
       return estimations.find((e: Estimation) => e.card == null) != undefined;
     });
     this.showReveal = computed(() => {
-      return this.pokerSvc.pokerState() == EGameState.Started;
+      return this.pokerSvc.gameState() == EGameState.Started;
     });
     this.showStart = computed(() => {
-      const pokerState = this.pokerSvc.pokerState();
-      return pokerState == EGameState.Cleared || pokerState == EGameState.Revealed;
+      const gameState = this.pokerSvc.gameState();
+      return gameState == EGameState.Cleared || gameState == EGameState.Revealed;
     });
   }
   //#endregion
@@ -61,7 +61,7 @@ export class ScrumMasterButtonsComponent {
     this.pokerSvc.reveal();
   }
 
-  public start(): void {
+  protected start(): void {
     this.pokerSvc.start();
   }
 

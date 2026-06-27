@@ -87,6 +87,16 @@ export class MessageService implements IMessageService {
     this.senderService.sendToSocket(ws, message);
   }
 
+  public sendEstimations(to: IServerParticipant, estimations: Array<EstimationDto>): void {
+    const message: AServerMessage = new EstimationListMessage(estimations);
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  public sendGameStateChanged(to: IServerParticipant, gameState: EGameState): void {
+    const message: AServerMessage = new GameStateChangedMessage(gameState);
+    this.senderService.sendToParticipant(to, message);
+  }
+
   public sendInit(to: IServerParticipant): void {
     const message: AServerMessage = new InitMessage(this.prepareParticipantsData([to])[0]);
     this.senderService.sendToParticipant(to, message);
@@ -102,12 +112,11 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  public sendAllInfo(
+  public sendInitSequence(
     to: IServerParticipant,
     team: IServerTeam,
     members: Array<IServerParticipant>,
-    cardSet: CardSetDto,
-    estimations: Array<EstimationDto> | null
+    cardSet: CardSetDto
   ): void {
     let message: AServerMessage = new SelfMessage(this.prepareParticipantsData([to])[0]);
     this.senderService.sendToParticipant(to, message);
@@ -116,12 +125,6 @@ export class MessageService implements IMessageService {
     message = new CardSetMessage(cardSet);
     this.senderService.sendToParticipant(to, message);
     message = new ParticipantListMessage(members.map((p: IServerParticipant) => p.self));
-    this.senderService.sendToParticipant(to, message);
-    if (estimations !== null) {
-      message = new EstimationListMessage(estimations);
-      this.senderService.sendToParticipant(to, message);
-    }
-    message = new GameStateChangedMessage(team.gameState);
     this.senderService.sendToParticipant(to, message);
     message = new EndInitMessage();
     this.senderService.sendToParticipant(to, message);
@@ -144,11 +147,6 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
-  private sendEstimations(to: IServerParticipant, estimations: Array<EstimationDto>): void {
-    const message: AServerMessage = new EstimationListMessage(estimations);
-    this.senderService.sendToParticipant(to, message);
-  }
-
   private sendMemberChange(
     to: IServerParticipant,
     changedMember: IServerParticipant,
@@ -167,11 +165,6 @@ export class MessageService implements IMessageService {
       }
     };
     const message: AServerMessage = new ParticipantChangedMessage(data);
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  private sendGameStateChanged(to: IServerParticipant, gameState: EGameState): void {
-    const message: AServerMessage = new GameStateChangedMessage(gameState);
     this.senderService.sendToParticipant(to, message);
   }
 

@@ -16,15 +16,16 @@ export interface IMessageService {
   broadcastSessionEnded(members: Array<IServerParticipant>): void;
   broadcastTeamIdle(members: Array<IServerParticipant>): void;
   sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void;
+  sendEstimations(to: IServerParticipant, estimations: Array<EstimationDto>): void;
   sendException(socket: IWebSocket, errorMessage: string): void;
+  sendGameStateChanged(to: IServerParticipant, gameState: EGameState): void;
   sendInit(to: IServerParticipant): void;
   sendPing(to: IServerParticipant): void;
   sendSelf(to: IServerParticipant): void;
-  sendAllInfo(
+  sendInitSequence(
     to: IServerParticipant,
     team: IServerTeam,
     members: Array<IServerParticipant>,
-    cardSet: CardSetDto,
-    estimations: Array<EstimationDto> | null
+    cardSet: CardSetDto
   ): void;
 }

@@ -1,5 +1,5 @@
 export enum EServerMessageType {
-  CardSet = 'card-lset',
+  CardSet = 'card-set',
   ClearEstimations = 'clear-estimations',
   EndInit = 'end-init',
   EndSession = 'end-session',

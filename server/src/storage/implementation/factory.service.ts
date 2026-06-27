@@ -39,7 +39,7 @@ export class FactoryService implements IFactoryService {
     };
   }
 
-  public createEstimation(participantId: string, cardIndex: number | undefined): EstimationDto {
+  public createEstimation(participantId: string, cardIndex: number | null): EstimationDto {
     return new Estimation(participantId, cardIndex);
   }
 

@@ -6,10 +6,11 @@ import {
   ECardSetType,
   EClientMessageType,
   ERole,
-  EServerMessageType,
   ICreateMessage,
+  IEstimateMessage,
   IJoinMessage,
-  IPauseMessage
+  IPauseMessage,
+  IStartMessage
 } from 'shared-lib';
 import {
   CronService,
@@ -49,6 +50,7 @@ import type {
   ITeamRepository
 } from '../../../../src/storage/interfaces/index.js';
 import STORAGETYPES from '../../../../src/storage/storage.types.js';
+import { IATestParticipant } from './ATestParticipant.js';
 import type { ITestParticipant } from './TestParticipant.js';
 import { TestParticipant } from './TestParticipant.js';
 import { ITestScrumMaster, TestScrumMaster } from './TestScrumMaster.js';
@@ -68,23 +70,23 @@ export class Util {
   public static nonExistingTeam = '假想组';
   public static unknownParticipantId = 'unknown participant id';
 
-  public static createMessageTypesExpected = [
-    EServerMessageType.Init,
-    EServerMessageType.Self,
-    EServerMessageType.TeamName,
-    EServerMessageType.CardSet,
-    EServerMessageType.MemberList,
-    EServerMessageType.EstimationList
-  ];
+  // public static createMessageTypesExpected = [
+  //   EServerMessageType.Init,
+  //   EServerMessageType.Self,
+  //   EServerMessageType.TeamName,
+  //   EServerMessageType.CardSet,
+  //   EServerMessageType.MemberList,
+  //   EServerMessageType.EstimationList
+  // ];
 
-  public static joinMessageTypesExpected = [
-    EServerMessageType.Init,
-    EServerMessageType.Self,
-    EServerMessageType.TeamName,
-    EServerMessageType.CardSet,
-    EServerMessageType.MemberList,
-    EServerMessageType.EstimationList
-  ];
+  // public static joinMessageTypesExpected = [
+  //   EServerMessageType.Init,
+  //   EServerMessageType.Self,
+  //   EServerMessageType.TeamName,
+  //   EServerMessageType.CardSet,
+  //   EServerMessageType.MemberList,
+  //   EServerMessageType.EstimationList
+  // ];
 
   public static getContainer(): Container {
     const logMock = new Mock<ILoggerService>()
@@ -209,6 +211,29 @@ export class Util {
     const scrumMaster = this.createTeam(handlerService, teamName, 'Unaffected Scrum Master', false, ECardSetType.Cohn);
     const participant = this.joinTeam(handlerService, teamName, 'Unaffected Participant');
     return new UnaffectedTeam(scrumMaster, participant, teamName);
+  }
+
+  public static startEstimating(scrumMaster: ITestScrumMaster): void {
+    const message: IStartMessage = {
+      senderId: scrumMaster.participantId,
+      data: undefined,
+      type: EClientMessageType.Start
+    };
+    scrumMaster.sendMessage(message);
+  }
+
+  /**
+   * Estimate or withdraw estimation
+   * @param participant the participant that estimates or withdraws it's estimation
+   * @param card the index of the card (not the position in the array!). Pass `null` to withdraw an estimation
+   */
+  public static estimate(participant: IATestParticipant, card: number | null): void {
+    const estimateMessage: IEstimateMessage = {
+      senderId: participant.participantId,
+      data: card,
+      type: EClientMessageType.Estimate
+    };
+    participant.sendMessage(estimateMessage);
   }
 
   public static unknownEstimationIndex(cardSet: ECardSetType): number {

@@ -8,6 +8,7 @@ import {
   EParticipantState,
   ERole,
   EServerMessageType,
+  EstimationDto,
   ICardSetMessage,
   IEstimationListMessage,
   IJoinMessage,
@@ -18,6 +19,8 @@ import type { IHandlerService } from '../../../src/services/interfaces/index.js'
 import SERVICETYPES from '../../../src/services/service.types.js';
 import { IFactoryService } from '../../../src/storage/interfaces/index.js';
 import STORAGETYPES from '../../../src/storage/storage.types.js';
+import { TriTestFunction } from '../../types.js';
+import { IATestParticipant } from './helpers/ATestParticipant.js';
 import { Util } from './helpers/util.js';
 
 describe('Join => OK', () => {
@@ -64,11 +67,11 @@ describe('Join => OK', () => {
         expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
         expect(m.data[0].role).toBe(ERole.ScrumMaster);
       })
+      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         expect(m.data).toHaveLength(0)
       )
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
-      .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -100,9 +103,9 @@ describe('Join => OK', () => {
       .expectNextMessageIs(EServerMessageType.TeamName)
       .expectNextMessageIs(EServerMessageType.CardSet)
       .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EstimationList)
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -135,9 +138,9 @@ describe('Join => OK', () => {
         expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
       })
       .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EstimationList)
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
+      .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -205,13 +208,38 @@ describe('Join => OK', () => {
     // Setup: create unaffected Team
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
-    // Setup: create the team with participant
+    // Setup: create the team
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
+
+    // Setup: validate estimationlist
+    const validateEstimationListFn: TriTestFunction<Array<EstimationDto>, number | null, IATestParticipant> = (
+      l: Array<EstimationDto>,
+      cardIndex: number | null,
+      participant: IATestParticipant
+    ) => {
+      expect(l).toHaveLength(1);
+      expect(l[0].participantId).toBe(participant.participantId);
+      if (cardIndex != null) {
+        expect(l[0].cardIndex).toBe(cardIndex);
+      } else {
+        expect(l[0].cardIndex).toBeNull();
+      }
+    };
+
+    Util.startEstimating(scrumMaster);
+    Util.estimate(scrumMaster, 2);
+
+    // Setup: join
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
+      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, 2, scrumMaster)
+      )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined, {
         participantId: participant.participantId,
         role: ERole.Developer,
@@ -240,11 +268,11 @@ describe('Join => OK', () => {
         expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
         expect(m.data[0].role).toBe(ERole.ScrumMaster);
       })
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        expect(m.data).toHaveLength(0)
-      )
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+        validateEstimationListFn(m.data, 2, scrumMaster)
+      )
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -395,6 +423,7 @@ describe('Join => Failure', () => {
   });
 
   test('Sender already in the team', () => {
+    // If the sender is already in the team → join is handled as rejoin
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 

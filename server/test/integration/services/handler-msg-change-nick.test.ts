@@ -5,7 +5,7 @@ import SERVICETYPES from '../../../src/services/service.types.js';
 import { Util } from './helpers/util.js';
 
 describe('Change nick => OK', () => {
-  test('Change nick', () => {
+  test('Change nick of 1', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 

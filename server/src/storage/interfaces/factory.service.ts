@@ -4,7 +4,7 @@ import { IWebSocket } from '../../services/websocket.js';
 
 export interface IFactoryService {
   createCardSet(set: ECardSetType): CardSetDto;
-  createEstimation(participantId: string, cardIndex: number | undefined): EstimationDto;
+  createEstimation(participantId: string, cardIndex: number | null): EstimationDto;
   createParticipant(socket: IWebSocket): IServerParticipant;
   createTeam(teamName: string): IServerTeam;
 }

@@ -1,113 +1,124 @@
-import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
-import { EGameState, CardDto, EstimationDto, ParticipantDto } from 'shared-lib';
+import { computed, effect, inject, Service, Signal, signal, WritableSignal } from '@angular/core';
+import { CardDto, EGameState, EstimationDto } from 'shared-lib';
 import { Member, MessageDispatcherService, SessionService, SocketService } from '../../../core';
 import { EstimateMessage, RevealMessage, StartMessage } from '../../../shared/dto';
-import { TeamService } from '../../team/services';
 import { Estimation } from './estimation';
 import { GameService } from './game.service';
 
 @Service()
 export class PokerService {
   //#region private readonly fields -------------------------------------------
-  private readonly gameSvc: GameService;
   private readonly sessionSvc: SessionService;
   private readonly socketSvc: SocketService;
-  private readonly teamSvc: TeamService;
+  private readonly _gameState: WritableSignal<EGameState>;
   //#endregion
 
-  //#region Private Fields ----------------------------------------------------
-  private myParticipantId: string | null;
+  //#region Private Signals ---------------------------------------------------
+  private allMembers: Signal<Array<Member>>;
+  private cards: Signal<Array<CardDto> | null>;
+  private givenEstimations: WritableSignal<Map<string, EstimationDto>>;
   //#endregion
 
-  //#region Signals -----------------------------------------------------------
-  public readonly pokerState: WritableSignal<EGameState>;
-  public readonly estimations: WritableSignal<Array<Estimation>>;
+  //#region Public Signals ----------------------------------------------------
+  public estimations: Signal<Array<Estimation>>;
+  //#endregion
+
+  //#region Getters: Signals --------------------------------------------------
+  public get gameState(): Signal<EGameState> {
+    return this._gameState;
+  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
-    // Inject other services
-    this.gameSvc = inject(GameService);
+    // --- Inject other services ---
     this.sessionSvc = inject(SessionService);
     this.socketSvc = inject(SocketService);
-    this.teamSvc = inject(TeamService);
-    // Initialize service signals
-    this.pokerState = signal(EGameState.Cleared);
-    this.estimations = signal<Array<Estimation>>(new Array<Estimation>());
-    // Initialize private fields
-    this.myParticipantId = null;
-    // register message handlers
+    // --- Initialize service signals ---
+    this._gameState = signal(EGameState.Cleared);
+    // --- Initialize mirroring signals ---
+    const gameSvc = inject(GameService);
+    this.allMembers = gameSvc.allMembers;
+    this.cards = gameSvc.cards;
+    // --- initialize own signals ---
+    this.givenEstimations = signal<Map<string, EstimationDto>>(new Map());
+    this.estimations = computed(() => {
+      return this.calculateEstimationList();
+    });
+    // --- register message handlers ---
     const dispatcherSvc = inject(MessageDispatcherService);
     this.registerMessageHandlers(dispatcherSvc);
   }
 
-  private registerMessageHandlers(_dispatcherSvc: MessageDispatcherService): void {
-    const adapterSvc = inject(MessageDispatcherService);
-    // effect(() => {
-    //   if (adapterSvc.clearEstimations()) {
-    //     this.estimations.set(new Array<Estimation>());
-    //   }
-    // });
+  private registerMessageHandlers(dispatcherSvc: MessageDispatcherService): void {
     effect(() => {
-      if (adapterSvc.endSession()) {
+      if (dispatcherSvc.clearEstimations()) {
+        this.givenEstimations.set(new Map());
+      }
+    });
+
+    effect(() => {
+      const estimations = dispatcherSvc.estimationList();
+
+      if (estimations) {
+        this.givenEstimations.update((oldMap: Map<string, EstimationDto>) => {
+          const newMap = new Map(oldMap);
+          estimations.forEach((e: EstimationDto) => {
+            if (e.cardIndex == undefined) {
+              newMap.delete(e.participantId);
+            } else {
+              newMap.set(e.participantId, e);
+            }
+          });
+          return newMap;
+        });
+      }
+    });
+
+    effect(() => {
+      if (dispatcherSvc.endSession() || dispatcherSvc.serverReset() || dispatcherSvc.teamIdle()) {
         this.resetService();
       }
     });
+
     effect(() => {
-      if (adapterSvc.serverReset()) {
-        this.resetService();
-      }
+      this.handleGameState(dispatcherSvc.pokerStatus());
     });
-    effect(() => {
-      if (adapterSvc.teamIdle()) {
-        this.resetService();
-      }
-    });
-    // effect(() => {
-    //   this.calculateEstimationList(adapterSvc.estimationList(), this.getAllMembers());
-    // });
-    // effect(() => {
-    //   this.handlePokerState(adapterSvc.pokerStatus());
-    // });
-    // effect(() => {
-    //   const me = this.sessionSvc.me();
-    //   if (me != null) {
-    //     this.myParticipantId = me.participantId;
-    //   } else {
-    //     this.myParticipantId = null;
-    //   }
-    // });
   }
   //#endregion
 
   //#region Public Methods ----------------------------------------------------
   public withDraw(): void {
-    if (this.myParticipantId !== null) {
-      const message = new EstimateMessage(this.myParticipantId, -1);
+    const me = this.sessionSvc.me();
+    if (me != null) {
+      const message = new EstimateMessage(me.participantId, null);
       this.socketSvc.sendMessage(message);
     }
     // TODO else error
   }
 
   public estimate(index: number): void {
-    if (this.myParticipantId !== null) {
-      const message = new EstimateMessage(this.myParticipantId, index);
+    const me = this.sessionSvc.me();
+    if (me != null) {
+      const message = new EstimateMessage(me.participantId, index);
       this.socketSvc.sendMessage(message);
     }
     // TODO else error
   }
 
   public reveal(): void {
-    if (this.myParticipantId !== null) {
-      const message = new RevealMessage(this.myParticipantId);
+    const me = this.sessionSvc.me();
+    if (me != null) {
+      const message = new RevealMessage(me.participantId);
       this.socketSvc.sendMessage(message);
     }
     // TODO else error
   }
 
   public start(): void {
-    if (this.myParticipantId !== null) {
-      const message = new StartMessage(this.myParticipantId);
+    const me = this.sessionSvc.me();
+    if (me != null) {
+      const message = new StartMessage(me.participantId);
       this.socketSvc.sendMessage(message);
     }
     // TODO else error
@@ -115,71 +126,59 @@ export class PokerService {
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------
-  private handlePokerState(data: EGameState): void {
-    this.pokerState.set(data);
-    // todo rebuild the list of estimations.
+  private handleGameState(data: EGameState): void {
+    this._gameState.set(data);
     switch (data) {
       case EGameState.Cleared:
-        // this.calculateEstimationList(new Array<EstimationDto>(), this.getAllMembers());
+        this.givenEstimations.update(() => new Map());
         break;
       case EGameState.Started:
-        // TODO check what this does when rejoining
-        // this.calculateEstimationList(new Array<EstimationDto>(), this.getAllMembers());
+        this.givenEstimations.update(() => new Map());
         break;
-      case EGameState.Revealed:
-        // TODO: switch estimations revealed flag → apparently not required
-        break;
+      // case EGameState.Revealed: → no additional action required
     }
   }
 
   private resetService(): void {
-    this.pokerState.set(EGameState.Cleared);
-    this.estimations.set(new Array<Estimation>());
+    this._gameState.set(EGameState.Cleared);
+    this.givenEstimations.update(() => new Map());
   }
 
-  private calculateEstimationList(estimationList: Array<EstimationDto>, allMembers: Array<Member>): void {
-    let result: Array<Estimation>;
-    const pokerState = this.pokerState();
-    // console.log('build estimation list -> state', pokerState);
-    // console.log('build estimation list -> estimations', estimationList);
-    // console.log('build estimation list -> all members', allMembers);
-    const cards = this.gameSvc.cards();
-    if (pokerState !== EGameState.Cleared && cards != null) {
-      // TODO use only non-observers, and participants that are online
-      result = allMembers.map((member: Member) => {
-        const givenEstimation = estimationList.find((e: EstimationDto) => e.participantId === member.participantId);
-        const card = givenEstimation ? cards.find((c: CardDto) => c.index === givenEstimation.cardIndex) || null : null;
-        return new Estimation(member, card, pokerState === EGameState.Revealed || member.me);
+  private calculateEstimationList(): Array<Estimation> {
+    const currentState = this._gameState();
+    const members = this.allMembers();
+    const cards = this.cards();
+    const givenEstimations = this.givenEstimations();
+
+    let result = new Array<Estimation>();
+    if (cards != null && cards.length > 0 && members.length > 0 && currentState != EGameState.Cleared) {
+      result = members.map((member: Member) => {
+        const givenEstimation = givenEstimations.get(member.participantId);
+        const card = givenEstimation
+          ? cards?.find((c: CardDto) => c.index === givenEstimation.cardIndex) || null
+          : null;
+        return new Estimation(member, card, currentState == EGameState.Revealed || member.me);
       });
-      result = this.sortEstimations(pokerState, result);
-    } else {
-      result = new Array<Estimation>();
+      result = this.sortEstimations(currentState, result);
     }
-    // console.log('build estimation list -> result', result);
-    this.estimations.set(result);
-  }
-
-  private getAllMembers(): Array<Member> {
-    const me = this.sessionSvc.me();
-    const others = this.teamSvc.members().map((p: ParticipantDto) => new Member(p, false));
-    return me ? [me, ...others] : others;
+    return result;
   }
 
   /**
    * Sort the estimations.
    *
-   * - If `pokerState == EPokerState.Started` then:
+   * - If `gameState == EGameState.Started` then:
    *   - put my estimation in front
    *   - followed by estimations that have a card, ordered by nickname
    *   - followed by estimations with no card, ordered by nickname
-   * - If `pokerState == EPokerState.Revelad` then order by card index, by nickname
+   * - If `gameState == EGame.Revelad` then order by card index, by nickname
    *
-   * @param pokerState
+   * @param gameState
    * @param estimations
    */
-  private sortEstimations(pokerState: EGameState, estimations: Array<Estimation>): Array<Estimation> {
+  private sortEstimations(gameState: EGameState, estimations: Array<Estimation>): Array<Estimation> {
     let result = new Array<Estimation>();
-    if (pokerState === EGameState.Started) {
+    if (gameState === EGameState.Started) {
       const myEstimation = estimations.find((e: Estimation) => e.member.me);
       const estimationsWithValue = estimations
         .filter((e: Estimation) => e.card !== null && !e.member.me)

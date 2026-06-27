@@ -1,5 +1,4 @@
 <div class="button-row">
-  {{ pokerSvc.pokerState() }}
   <div *ngIf="showStart()" class="game-button">
     <button id="start-button" mat-stroked-button color="primary" (click)="start()">
       {{ START_LABEL | translate }}

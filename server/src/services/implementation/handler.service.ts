@@ -226,7 +226,7 @@ export class HandlerService implements IHandlerService {
           break;
         }
         // The default (EErrorCode.UnknownClientMessage) is already handled in preflight
-      } // end switch
+      }
     }
   }
 
@@ -291,8 +291,9 @@ export class HandlerService implements IHandlerService {
     sender.role = ERole.ScrumMaster;
     // join the team
     this.storage.joinTeam(teamName, sender.participantId);
-    // provide the sender with the current game state
-    this.messageService.sendAllInfo(sender, newTeam, new Array<IServerParticipant>(), cardSet, null);
+    // provide the sender with the current team state
+    this.messageService.sendInitSequence(sender, newTeam, new Array<IServerParticipant>(), cardSet);
+    this.messageService.sendGameStateChanged(sender, newTeam.gameState);
   }
 
   private handleEstimate(sender: IServerParticipant, teamName: string, message: IEstimateMessage): void {
@@ -317,16 +318,18 @@ export class HandlerService implements IHandlerService {
     const team = this.storage.getTeam(teamName);
     if (team) {
       this.storage.joinTeam(teamName, sender.participantId);
-      // send the current team state
-      this.messageService.sendAllInfo(
+      // send team info
+      this.messageService.sendInitSequence(
         sender,
         team,
         this.storage
           .getTeamMembers(teamName)
           .filter((p: IServerParticipant) => p.participantId !== sender.participantId),
-        this.storage.getCardSet(teamName),
-        this.storage.getEstimations(teamName)
+        this.storage.getCardSet(teamName)
       );
+      // send game info
+      this.messageService.sendGameStateChanged(sender, team.gameState);
+      this.messageService.sendEstimations(sender, this.storage.getEstimations(teamName));
       // tell the others someone joined
       this.messageService.broadcastMemberChange(
         this.storage
@@ -440,15 +443,18 @@ export class HandlerService implements IHandlerService {
       // update the original participant
       oldParticipant.state = EParticipantState.Connected;
       oldParticipant.socket = ws;
-      this.messageService.sendAllInfo(
+      // send team info
+      this.messageService.sendInitSequence(
         oldParticipant,
         team,
         this.storage
           .getTeamMembers(teamName)
           .filter((p: IServerParticipant) => p.participantId !== oldParticipant.participantId),
-        this.storage.getCardSet(teamName),
-        this.storage.getEstimations(teamName)
+        this.storage.getCardSet(teamName)
       );
+      // send game info
+      this.messageService.sendGameStateChanged(sender, team.gameState);
+      this.messageService.sendEstimations(sender, this.storage.getEstimations(teamName));
       // if no one else is connected, make this one the new scrum master
       const connectedTeamMembers = this.storage
         .getConnectedTeamMembers(teamName)

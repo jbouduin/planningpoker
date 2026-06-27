@@ -44,11 +44,22 @@ export interface IATestParticipant {
   closeSocket(): void;
 
   /**
-   * Write the received messages as JSON to the console.
-   * This method is banned and only to be used for debugging
-   * @param skipInitialMessages - If set to false, the initial message sequence is dumped also. Default true
+   * Write the next message to the console
    */
-  dumpMessages(skipInitialMessages?: boolean): IATestParticipant;
+  dumpNextMessage(): IATestParticipant;
+
+  /**
+   * Write the received messages to the console.
+   * This method is banned and only to be used for debugging
+   * @param skipInitSequence - If set to false, the initial message sequence is dumped also. Default true
+   * @param skipPostInitSequence - If set to false, the post initial message sequence is dumped also. Default true
+   */
+  dumpMessages(skipInitSequence?: boolean, skipPostInitSequence?: boolean): IATestParticipant;
+
+  /**
+   * Dumps the remaining messages in the queue.
+   */
+  dumpRemainingMessages(): IATestParticipant;
 
   /**
    * Expects the next message to be of the given type, calling the validation function if defined.
@@ -114,9 +125,10 @@ export interface IATestParticipant {
 
   /**
    * Sets the pointer to the next message to the first one in the queue.
-   * @param skipInitialMessages - pass 'false' when counting should start after the initial message sequence. Default true
+   * @param skipInitSequence - pass `false` when next message should be the first. Default true
+   * @param skipPostInitSequence - pass `false`, when next message should the first the first after the init sequence. Default true
    */
-  initializeMessageQueue(skipInitialMessages?: boolean): IATestParticipant;
+  initializeMessageQueue(skipInitSequence?: boolean, skipPostInitSequence?: boolean): IATestParticipant;
 
   /**
    * calls IHandlerService.handleMessage
@@ -124,6 +136,13 @@ export interface IATestParticipant {
    * @param teamName - the target team of the message. This sets the target for all subsequent calls. If undefined, the previously set team is targetted
    */
   sendMessage(message: AClientMessage, teamName?: string): void;
+
+  /**
+   * Increase the current message index with number.
+   * If this would go over the end of the message queue it makes the test fail
+   * @param count the number of messages to skip
+   */
+  skip(count: number): IATestParticipant;
 }
 
 export abstract class ATestParticipant implements IATestParticipant {
@@ -137,16 +156,8 @@ export abstract class ATestParticipant implements IATestParticipant {
   //#endregion
 
   //#region protected properties ----------------------------------------------
-  protected expectedNumberOfInitialMessages: number;
-  protected get allMessages(): Array<AServerMessage> {
-    return this.send.mock.calls.map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]));
-  }
-
-  protected get messagesAfterInitialMessages(): Array<AServerMessage> {
-    return this.send.mock.calls
-      .map((message: [message: string]) => <AServerMessage>JSON.parse(message[0]))
-      .filter((_message: AServerMessage, idx: number) => idx >= this.expectedNumberOfInitialMessages);
-  }
+  protected initSequenceLength: number;
+  protected postInitSequenceLength: number;
   //#endregion
 
   //#region IATestParticipant properties --------------------------------------
@@ -168,8 +179,9 @@ export abstract class ATestParticipant implements IATestParticipant {
     };
     this.participant = handlerService.handleConnect(this.socket);
     this.participant.role = role;
-    this.expectedNumberOfInitialMessages = 0;
     this.teamName = '';
+    this.initSequenceLength = 0;
+    this.postInitSequenceLength = 0;
   }
   //#endregion
 
@@ -179,20 +191,50 @@ export abstract class ATestParticipant implements IATestParticipant {
     this.socket.readyState == ReadyState.CLOSED;
   }
 
-  public dumpMessages(skipInitialMessages = true): IATestParticipant {
-    /* eslint-disable no-console */
-    if (skipInitialMessages) {
-      // console.log(JSON.stringify(this.send.mock.calls.slice(this.expectedNumberOfInitialMessages), null, 2));
-      console.log(this.send.mock.calls.slice(this.expectedNumberOfInitialMessages));
-    } else {
-      console.log(this.send.mock.calls);
-    }
-    /* eslint-enable no-console */
+  public dumpNextMessage(): IATestParticipant {
+    this.validateQueue();
+    // eslint-disable-next-line no-console
+    console.log(this.messageIterator![this.currentMessageIndex!]);
     return this;
   }
 
-  public initializeMessageQueue(skipInitialMessages = true): IATestParticipant {
-    this.messageIterator = skipInitialMessages ? this.messagesAfterInitialMessages : this.allMessages;
+  public dumpMessages(skipInitSequence = true, skipPostInitSequence = true): IATestParticipant {
+    let skip = 0;
+
+    if (skipInitSequence) {
+      skip += this.initSequenceLength;
+      if (skipPostInitSequence) {
+        skip += this.postInitSequenceLength;
+      }
+    }
+
+    // console.log(JSON.stringify(this.send.mock.calls.slice(skip), null, 2));
+    // eslint-disable-next-line no-console
+    console.log(this.send.mock.calls.slice(skip));
+
+    return this;
+  }
+
+  public dumpRemainingMessages(): IATestParticipant {
+    this.validateQueue();
+    expect(this.currentMessageIndex).toBeLessThan(this.messageIterator!.length);
+    // eslint-disable-next-line no-console
+    console.log(this.messageIterator!.slice(this.currentMessageIndex));
+    return this;
+  }
+
+  public initializeMessageQueue(skipInitSequence = true, skipPostInitSequence = true): IATestParticipant {
+    let skip = 0;
+    if (skipInitSequence) {
+      skip += this.initSequenceLength;
+      if (skipPostInitSequence) {
+        skip += this.postInitSequenceLength;
+      }
+    }
+    const allMessages = this.send.mock.calls.map(
+      (message: [message: string]) => <AServerMessage>JSON.parse(message[0])
+    );
+    this.messageIterator = allMessages.slice(skip);
     this.currentMessageIndex = 0;
     return this;
   }
@@ -201,17 +243,15 @@ export abstract class ATestParticipant implements IATestParticipant {
     type: EServerMessageType,
     validation?: (message: T) => void
   ): IATestParticipant {
-    if (this.currentMessageIndex === undefined || !this.messageIterator) {
-      throw Error('Initialize iterator first');
-    } else {
-      expect(this.currentMessageIndex).toBeLessThan(this.messageIterator.length);
-      const message = this.messageIterator[this.currentMessageIndex];
-      this.currentMessageIndex++;
-      expect(message.type).toBe(type);
-      if (validation) {
-        validation(<T>message);
-      }
+    this.validateQueue();
+    expect(this.currentMessageIndex).toBeLessThan(this.messageIterator!.length);
+    const message = this.messageIterator![this.currentMessageIndex!];
+    this.currentMessageIndex!++;
+    expect(message.type).toBe(type);
+    if (validation) {
+      validation(<T>message);
     }
+
     return this;
   }
 
@@ -274,8 +314,16 @@ export abstract class ATestParticipant implements IATestParticipant {
     this.handlerService.handleMessage(message, this.teamName, this.socket);
   }
 
+  public skip(count: number): IATestParticipant {
+    this.validateQueue();
+    expect(this.currentMessageIndex! + count).toBeLessThanOrEqual(this.messageIterator!.length);
+    this.currentMessageIndex! += count;
+
+    return this;
+  }
   //#endregion
 
+  //#region Auxiliary Methods -------------------------------------------------
   private checkParticipantOptions(participant: ParticipantDto, options?: ParticipantDtoOptions): void {
     if (options) {
       if (options.nick) {
@@ -299,4 +347,18 @@ export abstract class ATestParticipant implements IATestParticipant {
   /* eslint-disable @typescript-eslint/no-empty-function */
   private noop(..._args: Array<unknown>): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
+
+  /**
+   * Check if
+   * - the queue has been initialized → throws if not
+   * - the current message index is less than the length of the queue using `expect`
+   */
+  private validateQueue(): void {
+    if (this.currentMessageIndex === undefined || !this.messageIterator) {
+      throw Error('Initialize iterator first');
+    } else {
+      expect(this.currentMessageIndex).toBeLessThan(this.messageIterator.length);
+    }
+  }
+  //#endregion
 }

@@ -564,7 +564,7 @@ describe('preflight witdraw estimation', () => {
     const message: IEstimateMessage = {
       type: EClientMessageType.Estimate,
       senderId: Util.participant1Name,
-      data: undefined
+      data: null
     };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))

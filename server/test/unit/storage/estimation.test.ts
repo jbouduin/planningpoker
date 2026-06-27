@@ -21,8 +21,8 @@ describe('start- estimate - delete - restart', () => {
   test('create estimation without value', () => {
     const participantId1 = 'participant';
     const factory: IFactoryService = new FactoryService();
-    const estimation = factory.createEstimation(participantId1, undefined);
-    expect(estimation.cardIndex).toBeUndefined();
+    const estimation = factory.createEstimation(participantId1, null);
+    expect(estimation.cardIndex).toBeNull();
     expect(estimation.participantId).toBe(participantId1);
   });
 
@@ -51,7 +51,7 @@ describe('start- estimate - delete - restart', () => {
     repository.startEstimating(teamName);
     repository.upsertEstimation(teamName, participantId1, cardIndex1);
     const estimation = repository.deleteEstimation(teamName, participantId1);
-    expect(estimation.cardIndex).toBeUndefined();
+    expect(estimation.cardIndex).toBeNull();
     const estimations = repository.getEstimations(teamName);
     expect(estimations.length).toBe(0);
   });

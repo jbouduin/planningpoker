@@ -25,7 +25,7 @@ export class MyHandComponent {
   public constructor(gameSvc: GameService, pokerSvc: PokerService) {
     this.gameSvc = gameSvc;
     this.pokerSvc = pokerSvc;
-    this.canEstimate = computed(() => gameSvc.cards() != null && pokerSvc.pokerState() == EGameState.Started);
+    this.canEstimate = computed(() => gameSvc.cards() != null && pokerSvc.gameState() == EGameState.Started);
   }
   //#endregion
 

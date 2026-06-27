@@ -59,8 +59,8 @@ describe('create => OK', () => {
         expect(m.data.cards).toHaveLength(tshirt.cards.length);
       })
       .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) => expect(m.data.length).toBe(0))
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -88,8 +88,8 @@ describe('create => OK', () => {
       .expectNextMessageIs(EServerMessageType.TeamName)
       .expectNextMessageIs(EServerMessageType.CardSet)
       .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNoMoreMessages();
   });
 
@@ -121,8 +121,8 @@ describe('create => OK', () => {
         expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
       })
       .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNoMoreMessages();
   });
 
@@ -153,8 +153,8 @@ describe('create => OK', () => {
         expect(m.data.cards).toHaveLength(cohn.cards.length);
       })
       .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNoMoreMessages();
   });
 });

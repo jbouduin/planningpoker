@@ -58,6 +58,7 @@ describe('Change card set => OK', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
+
       .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => expectCardSetFn(m.data))
       .expectNoMoreMessages();
 
@@ -91,6 +92,7 @@ describe('Change card set => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
+
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
@@ -131,6 +133,7 @@ describe('Change card set => Failure', () => {
     // Test: scrum master 1 messages
     scrumMaster1
       .initializeMessageQueue()
+
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNoMoreMessages();
 
