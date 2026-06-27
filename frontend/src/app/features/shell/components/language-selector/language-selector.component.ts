@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { I18nService } from '../../../../core';
@@ -11,11 +11,6 @@ import { I18nService } from '../../../../core';
   styleUrl: './language-selector.component.scss'
 })
 export class LanguageSelectorComponent {
-  //#region Input -------------------------------------------------------------
-  // TODO check what this was
-  @Input() icon = false;
-  //#endregion
-
   //#region Private fields ----------------------------------------------------
   private readonly i18nSvc: I18nService;
   //#endregion
