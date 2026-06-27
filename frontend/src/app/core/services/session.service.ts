@@ -208,6 +208,10 @@ export class SessionService {
     this.initialMessage = new LeaveMessage(participantId, participantId);
     this.socketSvc.connect(team);
   }
+
+  public pause(): void {
+    this.uiEventsSvc.showError('Not implemented');
+  }
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------

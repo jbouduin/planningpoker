@@ -2,12 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, Signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ERole } from 'shared-lib';
+import { EGameState, ERole } from 'shared-lib';
 import { extract, Member, SessionService } from '../../../../core';
-import { MessageBoxParams } from '../../../../shared';
-import { DialogService } from '../../../../shared';
-import { TeamService } from '../../../team';
-import { GameService } from '../../services';
+import { DialogService, MessageBoxParams } from '../../../../shared';
+import { GameService, PokerService } from '../../services';
 import { MemberComponent } from '../member/member.component';
 
 @Component({
@@ -20,7 +18,7 @@ export class MembersPanelComponent {
   //#region Private fields ----------------------------------------------------
   private readonly sessionSvc: SessionService;
   private readonly dialogSvc: DialogService;
-  private readonly teamSvc: TeamService;
+  // private readonly teamSvc: TeamService;
   //#endregion
 
   //#region Translation keys --------------------------------------------------
@@ -33,25 +31,28 @@ export class MembersPanelComponent {
   //#endregion
 
   //#region Signals -----------------------------------------------------------
-  protected readonly scrumMaster: Signal<Member | null>;
+  protected readonly canLeave: Signal<boolean>;
+  protected readonly canPause: Signal<boolean>;
   protected readonly developers: Signal<Array<Member>>;
   protected readonly observers: Signal<Array<Member>>;
-  //#endregion
-
-  //#region Getters -----------------------------------------------------------
-  protected get canPause(): boolean {
-    return false;
-  }
+  protected readonly scrumMaster: Signal<Member | null>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(dialogSvc: DialogService, gameSvc: GameService, sessionSvc: SessionService, teamSvc: TeamService) {
-    // inject other Services
+  public constructor(
+    dialogSvc: DialogService,
+    gameSvc: GameService,
+    pokerService: PokerService,
+    sessionSvc: SessionService
+  ) {
     this.dialogSvc = dialogSvc;
     this.sessionSvc = sessionSvc;
-    this.teamSvc = teamSvc;
-    this.scrumMaster = computed(() => {
-      return gameSvc.allMembers().find((m) => m.role == ERole.ScrumMaster) || null;
+    // --- set signals ---
+    this.canLeave = computed(() => {
+      return pokerService.gameState() != EGameState.Started;
+    });
+    this.canPause = computed(() => {
+      return sessionSvc.me()?.role != ERole.ScrumMaster && pokerService.gameState() != EGameState.Started;
     });
     this.developers = computed(() => {
       return gameSvc
@@ -64,6 +65,9 @@ export class MembersPanelComponent {
         .allMembers()
         .filter((m: Member) => m.observer && m.role != ERole.ScrumMaster)
         .sort((a, b) => a.nick.localeCompare(b.nick));
+    });
+    this.scrumMaster = computed(() => {
+      return gameSvc.allMembers().find((m) => m.role == ERole.ScrumMaster) || null;
     });
   }
   //#endregion
@@ -87,7 +91,7 @@ export class MembersPanelComponent {
   }
 
   protected pause(): void {
-    // TODO implement pause
+    this.sessionSvc.pause();
   }
   //#endregion
 }
