@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed, Signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import { extract } from '../../../../core';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 import { RouterModule } from '@angular/router';
+import { versionInfo } from '../../../../core/services/version-info';
+import { PokerService } from '../../../game';
+import { EGameState } from 'shared-lib';
 
 @Component({
   selector: 'app-header',
@@ -20,15 +23,21 @@ export class HeaderComponent {
   protected readonly ROUTE_LABEL_LEGAL = extract('Navigation.RouteLabel.Legal');
   //#endregion
 
+  //#region Signals -----------------------------------------------------------
+  protected canNavigate: Signal<boolean>;
+  //#endregion
+
   //#region Getters -----------------------------------------------------------
   public get version(): string {
-    // TODO return `Planning-poker v${versionInfo.version}`;
-    return 'Planning-poker vx.y.z';
+    return `Planning-poker v${versionInfo.version}`;
   }
+  //#endregion
 
-  public get canNavigate(): boolean {
-    // TODO
-    return true;
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(pokerSvc: PokerService) {
+    this.canNavigate = computed(() => {
+      return pokerSvc.gameState() != EGameState.Started;
+    });
   }
   //#endregion
 }
