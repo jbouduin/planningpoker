@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import {
   AClientMessage,
+  CardDto,
   CreateDto,
   ECardSetType,
   EClientMessageType,
@@ -24,7 +25,7 @@ import {
   LooseObjectDto,
   ObserverChangeDto
 } from 'shared-lib';
-import { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import { IServerEstimation, IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
 import { IFactoryService, IStorageService } from '../../storage/interfaces/index.js';
 import STORAGETYPES from '../../storage/storage.types.js';
 import type { IHandlerService, ILoggerService, IMessageService, IPreflightService } from '../interfaces/index.js';
@@ -96,8 +97,12 @@ export class HandlerService implements IHandlerService {
           // if the team is estimating remove the senders estimation and send an update to the others
           if (team.gameState === EGameState.Started) {
             this.storage.deleteEstimation(team.teamName, closed.participantId);
-            const estimations = this.storage.getEstimations(team.teamName);
-            this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(team.teamName), estimations);
+            const estimationDtos = this.mapServerEstimationsToDtos(this.storage.getEstimations(team.teamName));
+            this.messageService.broadcastEstimations(
+              team.gameState,
+              this.storage.getConnectedTeamMembers(team.teamName),
+              estimationDtos
+            );
           }
         } else {
           this.storage.deleteParticipant(closed.participantId, undefined);
@@ -225,6 +230,9 @@ export class HandlerService implements IHandlerService {
           this.handleRejoin(sender, teamName, <IRejoinMessage>message, ws);
           break;
         }
+        case EClientMessageType.WithdrawEstimation: {
+          this.handleEstimationWithdrawn(teamName, sender.participantId);
+        }
         // The default (EErrorCode.UnknownClientMessage) is already handled in preflight
       }
     }
@@ -297,15 +305,13 @@ export class HandlerService implements IHandlerService {
   }
 
   private handleEstimate(sender: IServerParticipant, teamName: string, message: IEstimateMessage): void {
-    let result: EstimationDto;
     const team = this.storage.getTeam(teamName);
     if (team) {
-      if (message.data) {
-        result = this.storage.upsertEstimation(teamName, sender.participantId, message.data);
-      } else {
-        result = this.storage.deleteEstimation(teamName, sender.participantId);
-      }
-      this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(teamName), [result]);
+      const upserted = this.storage.upsertEstimation(teamName, sender.participantId, message.data);
+      const result = this.factoryService.createEstimation(upserted.participantId, upserted.cardIndex);
+      this.messageService.broadcastEstimations(team.gameState, this.storage.getConnectedTeamMembers(teamName), [
+        result
+      ]);
     }
   }
 
@@ -329,7 +335,8 @@ export class HandlerService implements IHandlerService {
       );
       // send game info
       this.messageService.sendGameStateChanged(sender, team.gameState);
-      this.messageService.sendEstimations(sender, this.storage.getEstimations(teamName));
+      const estimationsDtos = this.mapServerEstimationsToDtos(this.storage.getEstimations(team.teamName));
+      this.messageService.sendEstimation(team.gameState, sender, estimationsDtos);
       // tell the others someone joined
       this.messageService.broadcastMemberChange(
         this.storage
@@ -387,8 +394,12 @@ export class HandlerService implements IHandlerService {
       } else {
         const team = this.storage.getTeam(teamName);
         if (team && team.gameState === EGameState.Started) {
-          const estimations = this.storage.getEstimations(teamName);
-          this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(teamName), estimations);
+          const estimationDtos = this.mapServerEstimationsToDtos(this.storage.getEstimations(team.teamName));
+          this.messageService.broadcastEstimations(
+            team.gameState,
+            this.storage.getConnectedTeamMembers(teamName),
+            estimationDtos
+          );
         }
       }
     }
@@ -425,8 +436,12 @@ export class HandlerService implements IHandlerService {
     const team = this.storage.getTeam(teamName);
     if (team && team.gameState === EGameState.Started) {
       this.storage.deleteEstimation(teamName, sender.participantId);
-      const estimations = this.storage.getEstimations(teamName);
-      this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(teamName), estimations);
+      const estimationDtos = this.mapServerEstimationsToDtos(this.storage.getEstimations(team.teamName));
+      this.messageService.broadcastEstimations(
+        team.gameState,
+        this.storage.getConnectedTeamMembers(teamName),
+        estimationDtos
+      );
     }
     // Acknowledge to the sender
     this.messageService.sendSelf(sender);
@@ -454,7 +469,8 @@ export class HandlerService implements IHandlerService {
       );
       // send game info
       this.messageService.sendGameStateChanged(sender, team.gameState);
-      this.messageService.sendEstimations(sender, this.storage.getEstimations(teamName));
+      const estimationDtos = this.mapServerEstimationsToDtos(this.storage.getEstimations(team.teamName));
+      this.messageService.sendEstimation(team.gameState, sender, estimationDtos);
       // if no one else is connected, make this one the new scrum master
       const connectedTeamMembers = this.storage
         .getConnectedTeamMembers(teamName)
@@ -474,15 +490,53 @@ export class HandlerService implements IHandlerService {
   }
 
   private handleReveal(teamName: string): void {
-    const result = this.storage.reveal(teamName);
-    this.messageService.broadcastGameState(this.storage.getConnectedTeamMembers(teamName), result[0]);
-    this.messageService.broadcastEstimations(this.storage.getConnectedTeamMembers(teamName), result[1]);
+    const team = this.storage.getTeam(teamName);
+    if (team) {
+      this.storage.reveal(teamName);
+      this.messageService.broadcastGameState(this.storage.getConnectedTeamMembers(teamName), EGameState.Revealed);
+      const estimations = this.storage.getEstimations(teamName);
+      const estimationMap = new Map<string, IServerEstimation>(
+        estimations.map((e: IServerEstimation) => [e.participantId, e])
+      );
+      const unknownEstimation = this.storage
+        .getCardSet(teamName)
+        .cards.find((c: CardDto) => c.isUnknownEstimation == true)! as CardDto;
+      const allParticipants = this.storage.getTeamMembers(teamName);
+      allParticipants.forEach((p: IServerParticipant) => {
+        if (!estimationMap.has(p.participantId)) {
+          estimations.push({
+            participantId: p.participantId,
+            cardIndex: unknownEstimation.index
+          });
+        }
+      });
+      const estimationDtos = this.mapServerEstimationsToDtos(estimations);
+
+      this.messageService.broadcastEstimations(
+        team.gameState,
+        this.storage.getConnectedTeamMembers(teamName),
+        estimationDtos
+      );
+    }
   }
 
   private handleStart(teamName: string): void {
     const result = this.storage.startEstimating(teamName);
     this.messageService.broadcastClearEstimations(this.storage.getConnectedTeamMembers(teamName));
     this.messageService.broadcastGameState(this.storage.getConnectedTeamMembers(teamName), result);
+  }
+
+  private handleEstimationWithdrawn(teamName: string, participantId: string): void {
+    this.storage.deleteEstimation(teamName, participantId);
+    this.messageService.broadcastEstimationWithDrawn(this.storage.getTeamMembers(teamName), participantId);
+  }
+  //#endregion
+
+  //#region Auxiliary Methods -------------------------------------------------
+  private mapServerEstimationsToDtos(estimations: Array<IServerEstimation>): Array<EstimationDto> {
+    return estimations.map((estimation: IServerEstimation) =>
+      this.factoryService.createEstimation(estimation.participantId, estimation.cardIndex)
+    );
   }
   //#endregion
 }

@@ -1,10 +1,9 @@
 import { inject, injectable } from 'inversify';
-import { EErrorCode, EGameState, CardDto, CardSetDto, EstimationDto } from 'shared-lib';
-import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import { CardSetDto, EErrorCode, EGameState } from 'shared-lib';
+import type { IServerEstimation, IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
 import type {
   ICardSetRepository,
   IEstimationRepository,
-  IFactoryService,
   IMembershipRepository,
   IServerParticipantRepository,
   IStorageService,
@@ -21,14 +20,13 @@ export class StorageService implements IStorageService {
   private readonly membershipRepository: IMembershipRepository;
   private readonly participantRepository: IServerParticipantRepository;
   private readonly teamRepository: ITeamRepository;
-  private cnt: number;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     @inject(STORAGETYPES.CardSetRepository) cardSetRepository: ICardSetRepository,
     @inject(STORAGETYPES.EstimationRepository) estimationRepository: IEstimationRepository,
-    @inject(STORAGETYPES.FactoryService) factoryService: IFactoryService,
+    // @inject(STORAGETYPES.FactoryService) factoryService: IFactoryService,
     @inject(STORAGETYPES.MembershipRepository) membershipRepository: IMembershipRepository,
     @inject(STORAGETYPES.ServerParticipantRepository) participantRepository: IServerParticipantRepository,
     @inject(STORAGETYPES.TeamRepository) teamRepository: ITeamRepository
@@ -39,7 +37,6 @@ export class StorageService implements IStorageService {
     this.membershipRepository = membershipRepository;
     this.participantRepository = participantRepository;
     this.teamRepository = teamRepository;
-    this.cnt = 0;
   }
   //#endregion
 
@@ -151,34 +148,17 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  public deleteEstimation(teamName: string, participantId: string): EstimationDto {
+  public deleteEstimation(teamName: string, participantId: string): void {
     this.teamRepository.setLastAccessTime(teamName);
-    return this.estimationRepository.deleteEstimation(teamName, participantId);
+    this.estimationRepository.deleteEstimation(teamName, participantId);
   }
 
-  public getEstimations(teamName: string): Array<EstimationDto> {
+  public getEstimations(teamName: string): Array<IServerEstimation> {
     return this.estimationRepository.getEstimations(teamName);
   }
 
-  public reveal(teamName: string): [EGameState, Array<EstimationDto>] {
-    const cardSet = this.cardSetRepository.getCardSet(teamName);
-    const result = this.estimationRepository.getEstimations(teamName);
-    if (cardSet) {
-      const cards = cardSet.cards as Array<CardDto>;
-      const unknownEstimationIndex = cards.find((card: CardDto) => card.isUnknownEstimation)!.index;
-      this.membershipRepository.getConnectedTeamMembers(teamName).forEach((p: IServerParticipant) => {
-        if (!result.find((e: EstimationDto) => e.participantId === p.participantId)) {
-          const estimation = this.estimationRepository.upsertEstimation(
-            teamName,
-            p.participantId,
-            unknownEstimationIndex
-          );
-          result.push(estimation);
-        }
-      });
-    }
+  public reveal(teamName: string): void {
     this.teamRepository.setGameState(teamName, EGameState.Revealed);
-    return [EGameState.Revealed, result];
   }
 
   public startEstimating(teamName: string): EGameState {
@@ -187,7 +167,7 @@ export class StorageService implements IStorageService {
     return EGameState.Started;
   }
 
-  public upsertEstimation(teamName: string, participantId: string, cardIndex: number): EstimationDto {
+  public upsertEstimation(teamName: string, participantId: string, cardIndex: number): IServerEstimation {
     this.teamRepository.setLastAccessTime(teamName);
     return this.estimationRepository.upsertEstimation(teamName, participantId, cardIndex);
   }

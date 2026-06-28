@@ -13,6 +13,9 @@ import { Estimation } from '../../services/estimation';
   styleUrl: './scrum-master-buttons.component.scss'
 })
 export class ScrumMasterButtonsComponent {
+  // TODO allow scrum master to clear estimations when status == revealed, without starting another round
+  // or allow using change cardset when status is revealed, which triggers clear also when change committed
+
   //#region Translation Keys --------------------------------------------------
   protected readonly CHANGE_CARDSET_LABEL = extract('ScrumMasterButtons.Component.Button.ChangeCardSet.Label');
   protected readonly REVEAL_LABEL = extract('ScrumMasterButtons.Component.Button.Reveal.Label');
@@ -35,16 +38,17 @@ export class ScrumMasterButtonsComponent {
   //#region Constructor & C° --------------------------------------------------
   public constructor(pokerSvc: PokerService) {
     this.pokerSvc = pokerSvc;
-    this.disableChangeCardSet = this.showReveal = computed(() => {
-      return this.pokerSvc.gameState() != EGameState.Cleared;
+    this.disableChangeCardSet = computed(() => {
+      const gameState = this.pokerSvc.gameState();
+      return gameState == EGameState.Started || gameState == EGameState.Revealed;
     });
     this.disableForceReveal = computed(() => {
       const estimations = this.pokerSvc.estimations();
-      return estimations.find((e: Estimation) => e.card == null) == undefined;
+      return estimations.findIndex((e: Estimation) => e.hasEstimated == false) == -1;
     });
     this.disableReveal = computed(() => {
       const estimations = this.pokerSvc.estimations();
-      return estimations.find((e: Estimation) => e.card == null) != undefined;
+      return estimations.findIndex((e: Estimation) => e.hasEstimated == false) >= 0;
     });
     this.showReveal = computed(() => {
       return this.pokerSvc.gameState() == EGameState.Started;

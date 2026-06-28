@@ -9,7 +9,6 @@ import {
   EServerMessageType,
   EstimationDto,
   IErrorMessage,
-  IEstimateMessage,
   IEstimationListMessage,
   IGameStateChangedMessage,
   IParticipantChangedMessage,
@@ -18,11 +17,11 @@ import {
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
-import { TestFunction } from '../../types.js';
+import { BiTestFunction } from '../../types.js';
 import { Util } from './helpers/util.js';
 
 describe('Reveal => OK', () => {
-  test('Reveal', () => {
+  test('Standard use-case', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
@@ -43,31 +42,35 @@ describe('Reveal => OK', () => {
 
     // Setup: participant estimates
     const givenEstimation = 2;
-    const estimateMessage: IEstimateMessage = {
-      senderId: participant.participantId,
-      data: givenEstimation,
-      type: EClientMessageType.Estimate
-    };
-    participant.sendMessage(estimateMessage);
+    Util.estimate(participant, givenEstimation);
 
     // Setup: calculate the unknown estimation index for the Cohn cardset
     const unknownEstimationIndex = Util.unknownEstimationIndex(ECardSetType.Cohn);
 
     // Setup: validation method for the first estimation list message
-    const checkFirstEstimationList: TestFunction<Array<EstimationDto>> = (estimations: Array<EstimationDto>) => {
+    const checkFirstEstimationList: BiTestFunction<Array<EstimationDto>, number | null> = (
+      estimations: Array<EstimationDto>,
+      cardIndex: number | null
+    ) => {
       expect(estimations).toHaveLength(1);
       expect(estimations[0].participantId).toBe(participant.participantId);
-      expect(estimations[0].cardIndex).toBe(givenEstimation);
+      if (cardIndex === null) {
+        expect(estimations[0].cardIndex).toBeNull();
+      } else {
+        expect(estimations[0].cardIndex).toBe(cardIndex);
+      }
     };
 
     // Setup: validation method for the second estimation list message
-    const checkSecondEstimationList: TestFunction<Array<EstimationDto>> = (estimations: Array<EstimationDto>) => {
+    const checkSecondEstimationList: BiTestFunction<Array<EstimationDto>, number | null> = (
+      estimations: Array<EstimationDto>,
+      cardIndex: number | null
+    ) => {
       expect(estimations).toHaveLength(2);
       const participantEstimation = estimations.find(
         (e: EstimationDto) => e.participantId === participant.participantId
       );
-      expect(participantEstimation).toBeDefined();
-      expect(participantEstimation?.cardIndex).toBe(givenEstimation);
+      expect(participantEstimation?.cardIndex).toBe(cardIndex);
       const scrumMasterEstimation = estimations.find(
         (e: EstimationDto) => e.participantId === scrumMaster.participantId
       );
@@ -94,13 +97,13 @@ describe('Reveal => OK', () => {
         expect(m.data).toBe(EGameState.Started)
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        checkFirstEstimationList(m.data)
+        checkFirstEstimationList(m.data, null)
       )
       .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
         expect(m.data).toBe(EGameState.Revealed)
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        checkSecondEstimationList(m.data)
+        checkSecondEstimationList(m.data, givenEstimation)
       )
       .expectNoMoreMessages();
 
@@ -113,13 +116,13 @@ describe('Reveal => OK', () => {
         (m: IGameStateChangedMessage) => m.data === EGameState.Started
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        checkFirstEstimationList(m.data)
+        checkFirstEstimationList(m.data, givenEstimation)
       )
       .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
         expect(m.data).toBe(EGameState.Revealed)
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        checkSecondEstimationList(m.data)
+        checkSecondEstimationList(m.data, givenEstimation)
       )
       .expectNoMoreMessages();
 

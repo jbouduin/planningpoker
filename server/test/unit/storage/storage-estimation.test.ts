@@ -50,8 +50,7 @@ describe('start- estimate - delete - restart', () => {
     const repository: IEstimationRepository = new EstimationRepository();
     repository.startEstimating(teamName);
     repository.upsertEstimation(teamName, participantId1, cardIndex1);
-    const estimation = repository.deleteEstimation(teamName, participantId1);
-    expect(estimation.cardIndex).toBeNull();
+    repository.deleteEstimation(teamName, participantId1);
     const estimations = repository.getEstimations(teamName);
     expect(estimations.length).toBe(0);
   });

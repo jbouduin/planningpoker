@@ -41,7 +41,6 @@ export class PreflightService implements IPreflightService {
     if (!sender) {
       return EErrorCode.ParticipantNotFound;
     }
-
     // message type specific validations
     let result: EErrorCode;
     switch (message.type) {
@@ -94,6 +93,10 @@ export class PreflightService implements IPreflightService {
       }
       case EClientMessageType.Rejoin: {
         result = this.preflightRejoin(storageService, sender, teamName, <IRejoinMessage>message);
+        break;
+      }
+      case EClientMessageType.WithdrawEstimation: {
+        result = this.preflightWithdrawEstimation(storageService, sender, teamName);
         break;
       }
       default:
@@ -461,6 +464,34 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotFound;
       } else if (storage.getTeamOfParticipant(message.data)?.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * - team must exist
+   * - sender must be in the team
+   * - game state must be started
+   */
+  private preflightWithdrawEstimation(
+    storage: IStorageService,
+    sender: IServerParticipant,
+    teamName: string
+  ): EErrorCode {
+    let result = EErrorCode.NoError;
+    if (!storage.teamExists(teamName)) {
+      result = EErrorCode.TeamNotFound;
+    } else if (sender.observer) {
+      result = EErrorCode.ObserverCanNotEstimate;
+    } else {
+      const team = storage.getTeamOfParticipant(sender.participantId);
+      if (!team) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (team.teamName !== teamName) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (team.gameState !== EGameState.Started) {
+        result = EErrorCode.EstimationNotStarted;
       }
     }
     return result;

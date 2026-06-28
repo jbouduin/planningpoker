@@ -17,7 +17,6 @@ export class SocketService implements ISocketService {
     @inject(SERVICETYPES.HandlerService) handlerService: IHandlerService,
     @inject(SERVICETYPES.LoggerService) loggerService: ILoggerService
   ) {
-    loggerService.info('Server', 'SocketService constructor');
     this.loggerService = loggerService;
     this.handlerService = handlerService;
     this.pingInterval = 0;
@@ -56,6 +55,7 @@ export class SocketService implements ISocketService {
       });
     });
 
+    this.loggerService.info('Server', 'SocketService initialized');
     // expressWs.app.use('/game', router);
   }
   //#endregion

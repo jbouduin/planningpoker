@@ -1,10 +1,10 @@
-import { EstimationDto } from 'shared-lib';
+import type { IServerEstimation } from '../../objects/interfaces/index.js';
 
 export interface IEstimationRepository {
-  deleteEstimation(teamName: string, participantId: string): EstimationDto;
-  getEstimations(teamName: string): Array<EstimationDto>;
+  deleteEstimation(teamName: string, participantId: string): void;
+  getEstimations(teamName: string): Array<IServerEstimation>;
   removeTeam(teamName: string): void;
   removeParticipant(teamName: string, participantId: string): void;
   startEstimating(teamName: string): void;
-  upsertEstimation(teamName: string, participantId: string, cardIndex: number | undefined): EstimationDto;
+  upsertEstimation(teamName: string, participantId: string, cardIndex: number | undefined): IServerEstimation;
 }

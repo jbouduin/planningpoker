@@ -5,14 +5,14 @@ export class Estimation {
   //#region Public properties -------------------------------------------------
   public readonly card: CardDto | null;
   public readonly member: Member;
-  public readonly revealed: boolean;
+  public readonly hasEstimated: boolean;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(member: Member, card: CardDto | null, revealed: boolean) {
+  public constructor(member: Member, card: CardDto | null, hasEstimated: boolean) {
     this.member = member;
     this.card = card;
-    this.revealed = revealed;
+    this.hasEstimated = hasEstimated;
   }
   //#endregion
 }

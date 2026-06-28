@@ -16,6 +16,7 @@ import {
   EndSessionMessage,
   ErrorMessage,
   EstimationListMessage,
+  EstimationWithdrawnMessage,
   GameStateChangedMessage,
   InitMessage,
   ParticipantChangedMessage,
@@ -52,8 +53,16 @@ export class MessageService implements IMessageService {
     members.forEach((p: IServerParticipant) => this.sendClearEstimations(p));
   }
 
-  public broadcastEstimations(members: Array<IServerParticipant>, estimations: Array<EstimationDto>): void {
-    members.forEach((p: IServerParticipant) => this.sendEstimations(p, estimations));
+  public broadcastEstimations(
+    gameState: EGameState,
+    members: Array<IServerParticipant>,
+    estimations: Array<EstimationDto>
+  ): void {
+    members.forEach((p: IServerParticipant) => this.sendEstimation(gameState, p, estimations));
+  }
+
+  public broadcastEstimationWithDrawn(members: Array<IServerParticipant>, participantId: string): void {
+    members.forEach((p: IServerParticipant) => this.sendEstimationWithDrawn(p, participantId));
   }
 
   public broadcastGameState(members: Array<IServerParticipant>, gameState: EGameState): void {
@@ -87,8 +96,14 @@ export class MessageService implements IMessageService {
     this.senderService.sendToSocket(ws, message);
   }
 
-  public sendEstimations(to: IServerParticipant, estimations: Array<EstimationDto>): void {
-    const message: AServerMessage = new EstimationListMessage(estimations);
+  public sendEstimation(gameState: EGameState, to: IServerParticipant, estimations: Array<EstimationDto>): void {
+    const transformed: Array<EstimationDto> = estimations.map((e: EstimationDto) => {
+      return {
+        participantId: e.participantId,
+        cardIndex: gameState == EGameState.Revealed || e.participantId === to.participantId ? e.cardIndex : null
+      };
+    });
+    const message: AServerMessage = new EstimationListMessage(transformed);
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -139,6 +154,11 @@ export class MessageService implements IMessageService {
   //#region private send methods ----------------------------------------------
   private sendCardSet(to: IServerParticipant, cardSet: CardSetDto): void {
     const message: AServerMessage = new CardSetMessage(cardSet);
+    this.senderService.sendToParticipant(to, message);
+  }
+
+  private sendEstimationWithDrawn(to: IServerParticipant, participantId: string): void {
+    const message: AServerMessage = new EstimationWithdrawnMessage(participantId);
     this.senderService.sendToParticipant(to, message);
   }
 

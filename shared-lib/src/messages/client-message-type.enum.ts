@@ -11,5 +11,6 @@ export enum EClientMessageType {
   Rejoin = 'rejoin',
   Remove = 'remove',
   Reveal = 'reveal',
-  Start = 'start'
+  Start = 'start',
+  WithdrawEstimation = 'withdraw-estimation'
 }

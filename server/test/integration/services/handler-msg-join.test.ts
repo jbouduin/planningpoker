@@ -24,7 +24,7 @@ import { IATestParticipant } from './helpers/ATestParticipant.js';
 import { Util } from './helpers/util.js';
 
 describe('Join => OK', () => {
-  test('Join team', () => {
+  test('Join as developer', () => {
     const container = Util.getContainer();
     const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -200,7 +200,6 @@ describe('Join => OK', () => {
   });
 
   test('Join a team that is estimating', () => {
-    // TODO this is currently not testing what it says: the game is not started anywhere
     const container = Util.getContainer();
     const cohn = container.get<IFactoryService>(STORAGETYPES.FactoryService).createCardSet(ECardSetType.Cohn);
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
@@ -219,7 +218,7 @@ describe('Join => OK', () => {
     ) => {
       expect(l).toHaveLength(1);
       expect(l[0].participantId).toBe(participant.participantId);
-      if (cardIndex != null) {
+      if (cardIndex !== null) {
         expect(l[0].cardIndex).toBe(cardIndex);
       } else {
         expect(l[0].cardIndex).toBeNull();
@@ -271,7 +270,7 @@ describe('Join => OK', () => {
       .expectNextMessageIs(EServerMessageType.EndInit)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        validateEstimationListFn(m.data, 2, scrumMaster)
+        validateEstimationListFn(m.data, null, scrumMaster)
       )
       .expectNoMoreMessages();
 
@@ -342,7 +341,7 @@ describe('Join => Failure', () => {
       .expectNoMoreMessages();
   });
 
-  test('Team not found', () => {
+  test('Team not found - Other teams exist', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 

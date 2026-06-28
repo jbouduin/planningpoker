@@ -279,6 +279,7 @@ export class SessionService {
     this.me.set(null);
     this.teamName.set(null);
     this.sessionState.set(ESessionState.Inactive);
+    this.socketSvc.disconnect();
   }
   //#endregion
 }

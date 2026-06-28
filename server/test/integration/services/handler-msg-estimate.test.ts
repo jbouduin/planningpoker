@@ -7,15 +7,16 @@ import {
   EServerMessageType,
   EstimationDto,
   IEstimateMessage,
-  IEstimationListMessage
+  IEstimationListMessage,
+  IEstimationWithdrawnMessage
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
-import { BiTestFunction, TestFunction } from '../../types.js';
+import { BiTestFunction } from '../../types.js';
 import { Util } from './helpers/util.js';
 
 describe('Estimate => OK', () => {
-  test('Give estimation', () => {
+  test('Standard use-case', () => {
     const container = Util.getContainer();
     const handlerService = container.get<IHandlerService>(SERVICETYPES.HandlerService);
 
@@ -23,10 +24,17 @@ describe('Estimate => OK', () => {
     const unaffectedTeam = Util.createUnaffectedTeam(handlerService);
 
     // Setup: validate estimationlist
-    const validateEstimationListFn: TestFunction<Array<EstimationDto>> = (l: Array<EstimationDto>) => {
+    const validateEstimationListFn: BiTestFunction<Array<EstimationDto>, number | null> = (
+      l: Array<EstimationDto>,
+      cardIndex: number | null
+    ) => {
       expect(l).toHaveLength(1);
       expect(l[0].participantId).toBe(participant.participantId);
-      expect(l[0].cardIndex).toBe(2);
+      if (cardIndex !== null) {
+        expect(l[0].cardIndex).toBe(cardIndex);
+      } else {
+        expect(l[0].cardIndex).toBeNull();
+      }
     };
     // Setup: create team with one participant
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
@@ -45,7 +53,7 @@ describe('Estimate => OK', () => {
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        validateEstimationListFn(m.data)
+        validateEstimationListFn(m.data, null)
       )
       .expectNoMoreMessages();
 
@@ -55,7 +63,7 @@ describe('Estimate => OK', () => {
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        validateEstimationListFn(m.data)
+        validateEstimationListFn(m.data, 2)
       )
       .expectNoMoreMessages();
 
@@ -95,7 +103,7 @@ describe('Estimate => OK', () => {
     Util.estimate(participant, 2);
 
     // Setup: withdraw
-    Util.estimate(participant, null);
+    Util.withdrawEstimation(participant);
 
     // Test: scrum master messages
     scrumMaster
@@ -104,11 +112,11 @@ describe('Estimate => OK', () => {
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        validateEstimationListFn(m.data, 2)
-      )
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         validateEstimationListFn(m.data, null)
       )
+      .expectNextMessageIs(EServerMessageType.EstimationWithdrawn, (m: IEstimationWithdrawnMessage) => {
+        expect(m.data).toBe(participant.participantId);
+      })
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -119,9 +127,9 @@ describe('Estimate => OK', () => {
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
         validateEstimationListFn(m.data, 2)
       )
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        validateEstimationListFn(m.data, null)
-      )
+      .expectNextMessageIs(EServerMessageType.EstimationWithdrawn, (m: IEstimationWithdrawnMessage) => {
+        expect(m.data).toBe(participant.participantId);
+      })
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -146,7 +154,11 @@ describe('Estimate => OK', () => {
     ) => {
       expect(l).toHaveLength(1);
       expect(l[0].participantId).toBe(participant.participantId);
-      expect(l[0].cardIndex).toBe(cardIndex);
+      if (cardIndex === null) {
+        expect(l[0].cardIndex).toBeNull();
+      } else {
+        expect(l[0].cardIndex).toBe(cardIndex);
+      }
     };
 
     // Setup: start estimation
@@ -159,17 +171,16 @@ describe('Estimate => OK', () => {
     Util.estimate(participant, 3);
 
     // Test: scrum master messages
-    scrumMaster.dumpMessages();
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIs(EServerMessageType.ClearEstimations)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        validateEstimationListFn(m.data, 2)
+        validateEstimationListFn(m.data, null)
       )
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
-        validateEstimationListFn(m.data, 3)
+        validateEstimationListFn(m.data, null)
       )
       .expectNoMoreMessages();
 

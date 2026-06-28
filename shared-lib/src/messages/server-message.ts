@@ -22,6 +22,7 @@ export type ISelfMessage = IServerMessage<ParticipantDto>;
 export type IServerResetMessage = IServerMessage<void>;
 export type ITeamIdleMessage = IServerMessage<void>;
 export type ITeamNameMessage = IServerMessage<string>;
+export type IEstimationWithdrawnMessage = IServerMessage<string>;
 
 export type AServerMessage =
   | ICardSetMessage
@@ -38,4 +39,5 @@ export type AServerMessage =
   | ISelfMessage
   | IServerResetMessage
   | ITeamIdleMessage
-  | ITeamNameMessage;
+  | ITeamNameMessage
+  | IEstimationWithdrawnMessage;

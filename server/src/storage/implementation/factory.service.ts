@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { CardDto, CardSetDto, ECardSetType, EParticipantState, ERole, EstimationDto } from 'shared-lib';
 import { v4 as Uuid } from 'uuid';
-import { Estimation, ServerParticipant, ServerTeam } from '../../objects/implementation/index.js';
+import { ServerParticipant, ServerTeam } from '../../objects/implementation/index.js';
 import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
 import { IWebSocket } from '../../services/websocket.js';
 import type { IFactoryService } from '../interfaces/index.js';
@@ -40,7 +40,10 @@ export class FactoryService implements IFactoryService {
   }
 
   public createEstimation(participantId: string, cardIndex: number | null): EstimationDto {
-    return new Estimation(participantId, cardIndex);
+    return {
+      cardIndex: cardIndex,
+      participantId: participantId
+    };
   }
 
   public createParticipant(socket: IWebSocket): IServerParticipant {

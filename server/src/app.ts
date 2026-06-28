@@ -17,6 +17,7 @@ class App {
 
   public constructor() {
     const loggerService = container.get<ILoggerService>(SERVICETYPES.LoggerService);
+
     const app = express();
     app.use(
       logger({
@@ -27,6 +28,8 @@ class App {
         colorize: false
       })
     );
+    loggerService.logMyLevel();
+
     this.expressWS = expressWs(app);
 
     container.get<ISocketService>(SERVICETYPES.SocketService).initializeService(this.expressWS);

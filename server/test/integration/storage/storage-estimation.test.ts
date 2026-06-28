@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { CardDto, ECardSetType, EGameState, EstimationDto } from 'shared-lib';
+import { ECardSetType, EstimationDto } from 'shared-lib';
 import type { IFactoryService, IStorageService } from '../../../src/storage/interfaces/index.js';
 import STORAGETYPES from '../../../src/storage/storage.types.js';
 import { Util } from './util.js';
@@ -200,10 +200,9 @@ describe('Reveal', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .upsertEstimation(Util.team1Name, participant2.participantId, 2);
     // reveal
-    const [status, estimations] = container.get<IStorageService>(STORAGETYPES.StorageService).reveal(Util.team1Name);
+    container.get<IStorageService>(STORAGETYPES.StorageService).reveal(Util.team1Name);
     // test
-    expect(status).toBe(EGameState.Revealed);
-    expect(estimations).toHaveLength(2);
+    const estimations = container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name);
     const estimation1 = estimations.find((e: EstimationDto) => e.participantId === participant1.participantId);
     expect(estimation1).toBeDefined();
     if (estimation1) {
@@ -240,35 +239,58 @@ describe('Reveal', () => {
       .get<IStorageService>(STORAGETYPES.StorageService)
       .upsertEstimation(Util.team1Name, participant1.participantId, 1);
     // reveal
-    const [status, estimations] = container.get<IStorageService>(STORAGETYPES.StorageService).reveal(Util.team1Name);
+    container.get<IStorageService>(STORAGETYPES.StorageService).reveal(Util.team1Name);
     // test
-    expect(status).toBe(EGameState.Revealed);
-    expect(estimations).toHaveLength(2);
+    const estimations = container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name);
+    expect(estimations).toHaveLength(1);
     const estimation1 = estimations.find((e: EstimationDto) => e.participantId === participant1.participantId);
     expect(estimation1).toBeDefined();
     if (estimation1) {
       expect(estimation1.cardIndex).toBe(1);
     }
-    const estimation2 = estimations.find((e: EstimationDto) => e.participantId === participant2.participantId);
-    expect(estimation2).toBeDefined();
-    if (estimation2) {
-      const estimationCard = cardSet.cards.find((card: CardDto) => card.isUnknownEstimation);
-      expect(estimationCard).toBeDefined();
-    }
-    // retrieve
-    const retrieved = container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name);
-    // Test: retrieved
-    expect(retrieved).toHaveLength(2);
-    const retrieved1 = estimations.find((e: EstimationDto) => e.participantId === participant1.participantId);
-    expect(retrieved1).toBeDefined();
-    if (retrieved1) {
-      expect(retrieved1.cardIndex).toBe(1);
-    }
-    const retrieved2 = estimations.find((e: EstimationDto) => e.participantId === participant2.participantId);
-    expect(retrieved2).toBeDefined();
-    if (retrieved2) {
-      const estimationCard = cardSet.cards.find((card: CardDto) => card.isUnknownEstimation);
-      expect(estimationCard).toBeDefined();
+  });
+
+  test('One participant has withdrawn his estimation', () => {
+    const container = Util.getContainer();
+    const factory = container.get<IFactoryService>(STORAGETYPES.FactoryService);
+    const cardSet = factory.createCardSet(ECardSetType.Fibonacci);
+    // Setup: create participant 1
+    const participant1 = factory.createParticipant(Util.getSocket());
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant1);
+    // Setup: create participant 2
+    const participant2 = factory.createParticipant(Util.getSocket());
+    container.get<IStorageService>(STORAGETYPES.StorageService).addParticipant(participant2);
+    // Setup: create team
+    const team = factory.createTeam(Util.team1Name);
+    container.get<IStorageService>(STORAGETYPES.StorageService).addTeam(team, cardSet);
+    // participant 1 joins team
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant1.participantId);
+    // participant 2 joins team
+    container.get<IStorageService>(STORAGETYPES.StorageService).joinTeam(Util.team1Name, participant2.participantId);
+    // start estimating
+    container.get<IStorageService>(STORAGETYPES.StorageService).startEstimating(Util.team1Name);
+    // estimation of participant 1
+    container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .upsertEstimation(Util.team1Name, participant1.participantId, 1);
+    // estimation of participant 2
+    container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .upsertEstimation(Util.team1Name, participant2.participantId, 2);
+    // withdrawal of participant 2
+    container
+      .get<IStorageService>(STORAGETYPES.StorageService)
+      .deleteEstimation(Util.team1Name, participant2.participantId);
+    // reveal
+
+    container.get<IStorageService>(STORAGETYPES.StorageService).reveal(Util.team1Name);
+    // test
+    const estimations = container.get<IStorageService>(STORAGETYPES.StorageService).getEstimations(Util.team1Name);
+    expect(estimations).toHaveLength(1);
+    const estimation1 = estimations.find((e: EstimationDto) => e.participantId === participant1.participantId);
+    expect(estimation1).toBeDefined();
+    if (estimation1) {
+      expect(estimation1.cardIndex).toBe(1);
     }
   });
 });

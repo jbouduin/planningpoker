@@ -13,5 +13,6 @@ export enum EServerMessageType {
   Self = 'self',
   ServerReset = 'server-reset',
   TeamIdle = 'team-idle',
-  TeamName = 'team-name'
+  TeamName = 'team-name',
+  EstimationWithdrawn = 'estimation-withdrawn'
 }

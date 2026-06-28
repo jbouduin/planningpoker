@@ -1,7 +1,7 @@
 import { computed, effect, inject, Service, Signal, signal, WritableSignal } from '@angular/core';
 import { CardDto, EGameState, EstimationDto } from 'shared-lib';
 import { Member, MessageDispatcherService, SessionService, SocketService } from '../../../core';
-import { EstimateMessage, RevealMessage, StartMessage } from '../../../shared/dto';
+import { EstimateMessage, RevealMessage, StartMessage, WithdrawEstimationMessage } from '../../../shared/dto';
 import { Estimation } from './estimation';
 import { GameService } from './game.service';
 
@@ -64,11 +64,7 @@ export class PokerService {
         this.givenEstimations.update((oldMap: Map<string, EstimationDto>) => {
           const newMap = new Map(oldMap);
           estimations.forEach((e: EstimationDto) => {
-            if (e.cardIndex == undefined) {
-              newMap.delete(e.participantId);
-            } else {
-              newMap.set(e.participantId, e);
-            }
+            newMap.set(e.participantId, e);
           });
           return newMap;
         });
@@ -84,6 +80,18 @@ export class PokerService {
     effect(() => {
       this.handleGameState(dispatcherSvc.pokerStatus());
     });
+
+    effect(() => {
+      const withdrawal = dispatcherSvc.estimationWithdrawn();
+      if (withdrawal !== null) {
+        this.givenEstimations.update((oldMap: Map<string, EstimationDto>) => {
+          const newMap = new Map(oldMap);
+          newMap.delete(withdrawal);
+          return newMap;
+        });
+      }
+      dispatcherSvc.resetWithdrawnSignal();
+    });
   }
   //#endregion
 
@@ -91,7 +99,7 @@ export class PokerService {
   public withDraw(): void {
     const me = this.sessionSvc.me();
     if (me != null) {
-      const message = new EstimateMessage(me.participantId, null);
+      const message = new WithdrawEstimationMessage(me.participantId);
       this.socketSvc.sendMessage(message);
     }
     // TODO else error
@@ -149,15 +157,14 @@ export class PokerService {
     const members = this.allMembers();
     const cards = this.cards();
     const givenEstimations = this.givenEstimations();
-
     let result = new Array<Estimation>();
     if (cards != null && cards.length > 0 && members.length > 0 && currentState != EGameState.Cleared) {
       result = members.map((member: Member) => {
-        const givenEstimation = givenEstimations.get(member.participantId);
+        const givenEstimation = givenEstimations.get(member.participantId) ?? null;
         const card = givenEstimation
           ? cards?.find((c: CardDto) => c.index === givenEstimation.cardIndex) || null
           : null;
-        return new Estimation(member, card, currentState == EGameState.Revealed || member.me);
+        return new Estimation(member, card, givenEstimation !== null);
       });
       result = this.sortEstimations(currentState, result);
     }

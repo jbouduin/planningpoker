@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, Signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { EGameState } from 'shared-lib';
+import { CardDto, EGameState } from 'shared-lib';
 import { CardComponent } from '../../../../shared/components';
 import { GameService, PokerService } from '../../services';
+import { IDisplayCard } from '../../../../shared/components/card/display-card';
 
 @Component({
   selector: 'app-my-hand',
@@ -19,6 +20,7 @@ export class MyHandComponent {
 
   //#region Signals -----------------------------------------------------------
   protected readonly canEstimate: Signal<boolean>;
+  protected readonly displayCards: Signal<Array<IDisplayCard>>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -26,6 +28,24 @@ export class MyHandComponent {
     this.gameSvc = gameSvc;
     this.pokerSvc = pokerSvc;
     this.canEstimate = computed(() => gameSvc.cards() != null && pokerSvc.gameState() == EGameState.Started);
+    this.displayCards = computed(() => {
+      let result = new Array<IDisplayCard>();
+      const cards = gameSvc.cards();
+      const gameState = pokerSvc.gameState();
+      if (cards !== null && cards.length > 0) {
+        result = cards.map((c: CardDto) => {
+          const displayCard: IDisplayCard = {
+            isAvailable: true,
+            card: c,
+            enabled: gameState == EGameState.Started,
+            intent: 'none',
+            member: null
+          };
+          return displayCard;
+        });
+      }
+      return result;
+    });
   }
   //#endregion
 

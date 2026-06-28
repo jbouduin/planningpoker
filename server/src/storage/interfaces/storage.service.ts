@@ -1,5 +1,5 @@
-import { EErrorCode, EGameState, CardSetDto, EstimationDto } from 'shared-lib';
-import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
+import { EErrorCode, EGameState, CardSetDto } from 'shared-lib';
+import type { IServerEstimation, IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
 
 export interface IStorageService {
   //#region participant -------------------------------------------------------
@@ -63,11 +63,11 @@ export interface IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
-  deleteEstimation(teamName: string, participantId: string): EstimationDto;
-  getEstimations(teamName: string): Array<EstimationDto>;
-  reveal(teamName: string): [EGameState, Array<EstimationDto>];
+  deleteEstimation(teamName: string, participantId: string): void;
+  getEstimations(teamName: string): Array<IServerEstimation>;
+  reveal(teamName: string): void;
   startEstimating(teamName: string): EGameState;
-  upsertEstimation(teamName: string, participantId: string, cardIndex: number): EstimationDto;
+  upsertEstimation(teamName: string, participantId: string, cardIndex: number): IServerEstimation;
   //#endregion
 
   //#endregion cardset --------------------------------------------------------

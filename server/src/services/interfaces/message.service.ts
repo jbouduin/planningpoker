@@ -5,7 +5,12 @@ import { IWebSocket } from '../websocket.js';
 export interface IMessageService {
   broadcastCardSet(members: Array<IServerParticipant>, cardSet: CardSetDto): void;
   broadcastClearEstimations(members: Array<IServerParticipant>): void;
-  broadcastEstimations(members: Array<IServerParticipant>, estimations: Array<EstimationDto>): void;
+  broadcastEstimations(
+    gameState: EGameState,
+    members: Array<IServerParticipant>,
+    estimations: Array<EstimationDto>
+  ): void;
+  broadcastEstimationWithDrawn(members: Array<IServerParticipant>, participantId: string): void;
   broadcastGameState(members: Array<IServerParticipant>, gameState: EGameState): void;
   broadcastMemberChange(
     members: Array<IServerParticipant>,
@@ -16,7 +21,7 @@ export interface IMessageService {
   broadcastSessionEnded(members: Array<IServerParticipant>): void;
   broadcastTeamIdle(members: Array<IServerParticipant>): void;
   sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void;
-  sendEstimations(to: IServerParticipant, estimations: Array<EstimationDto>): void;
+  sendEstimation(gameState: EGameState, to: IServerParticipant, estimations: Array<EstimationDto>): void;
   sendException(socket: IWebSocket, errorMessage: string): void;
   sendGameStateChanged(to: IServerParticipant, gameState: EGameState): void;
   sendInit(to: IServerParticipant): void;

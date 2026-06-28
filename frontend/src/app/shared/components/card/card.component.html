@@ -1,46 +1,43 @@
 <button
   class="card-button"
-  [class.mine]="mine"
-  [class.disabled]="!enabled"
-  [class.isAvailableCard]="isAvailableCard"
-  [class.hasNoEstimation]="!card"
+  [class.intent-primary]="displayCard.intent == 'primary'"
+  [class.disabled]="!displayCard.enabled"
+  [class.isAvailableCard]="displayCard.isAvailable"
   (click)="click()"
-  [disabled]="!enabled"
+  [disabled]="!displayCard.enabled"
 >
-  <!-- if card is set (available cards and estimations) -->
-  <div *ngIf="card; else nocard" class="value-wrapper">
-    <div *ngIf="showFaceUp; else showFaceDown" class="value-wrapper">
-      <div *ngIf="isIcon; else noIcon" class="value-wrapper">
+  <div *ngIf="displayCard.isAvailable; else notAvailable" class="value-wrapper">
+    <div *ngIf="displayCard.card !== null; else showAsFaceDown" class="value-wrapper">
+      <div *ngIf="displayCard.card.isIcon; else noIcon" class="value-wrapper">
         <div class="top-value">
-          <mat-icon class="top-value">{{ label }}</mat-icon>
+          <mat-icon class="top-value">{{ displayCard.card.label }}</mat-icon>
         </div>
         <div class="center-value">
-          <mat-icon class="center-value">{{ label }}</mat-icon>
+          <mat-icon class="center-value">{{ displayCard.card.label }}</mat-icon>
         </div>
         <div class="bottom-value">
-          <mat-icon class="bottom-value">{{ label }}</mat-icon>
+          <mat-icon class="bottom-value">{{ displayCard.card.label }}</mat-icon>
         </div>
       </div>
       <ng-template #noIcon>
         <div class="top-value">
-          <span>{{ label }}</span>
+          <span>{{ displayCard.card.label }}</span>
         </div>
         <div class="center-value">
-          <span>{{ label }}</span>
+          <span>{{ displayCard.card.label }}</span>
         </div>
         <div class="bottom-value">
-          <span>{{ label }}</span>
+          <span>{{ displayCard.card.label }}</span>
         </div>
       </ng-template>
     </div>
-    <ng-template #showFaceDown>
+    <ng-template #showAsFaceDown>
       <div>
         <img src="logo_40x40.png" />
       </div>
     </ng-template>
   </div>
-  <!-- If card is not set (placeholders): display a greyed out logo -->
-  <ng-template #nocard>
+  <ng-template #notAvailable>
     <div>
       <img class="greyed" src="logo_40x40.png" />
     </div>

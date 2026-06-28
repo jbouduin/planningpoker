@@ -15,7 +15,8 @@ import {
   IParticipantListMessage,
   ParticipantDto,
   ISelfMessage,
-  ITeamNameMessage
+  ITeamNameMessage,
+  IEstimationWithdrawnMessage
 } from 'shared-lib';
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -36,6 +37,7 @@ export class MessageDispatcherService {
   private readonly _serverReset: WritableSignal<number>;
   private readonly _teamIdle: WritableSignal<number>;
   private readonly _teamName: WritableSignal<string | null>;
+  private readonly _estimationWithdrawn: WritableSignal<string | null>;
   private readonly errorHandlerSvc: ErrorHandlerService;
   //#endregion
 
@@ -55,6 +57,7 @@ export class MessageDispatcherService {
     this._serverReset = signal<number>(0);
     this._teamIdle = signal<number>(0);
     this._teamName = signal<string | null>(null);
+    this._estimationWithdrawn = signal<string | null>(null);
     this.errorHandlerSvc = inject(ErrorHandlerService);
   }
   //#endregion
@@ -88,32 +91,36 @@ export class MessageDispatcherService {
     return this._memberChanged;
   }
 
-  public get memberList(): WritableSignal<Array<ParticipantDto>> {
+  public get memberList(): Signal<Array<ParticipantDto>> {
     return this._memberList;
   }
 
-  public get ping(): WritableSignal<number> {
+  public get ping(): Signal<number> {
     return this._ping;
   }
 
-  public get pokerStatus(): WritableSignal<EGameState> {
+  public get pokerStatus(): Signal<EGameState> {
     return this._pokerStatus;
   }
 
-  public get self(): WritableSignal<ParticipantDto | null> {
+  public get self(): Signal<ParticipantDto | null> {
     return this._self;
   }
 
-  public get serverReset(): WritableSignal<number> {
+  public get serverReset(): Signal<number> {
     return this._serverReset;
   }
 
-  public get teamIdle(): WritableSignal<number> {
+  public get teamIdle(): Signal<number> {
     return this._teamIdle;
   }
 
   public get teamName(): Signal<string | null> {
     return this._teamName;
+  }
+
+  public get estimationWithdrawn(): Signal<string | null> {
+    return this._estimationWithdrawn;
   }
   //#endregion
 
@@ -165,9 +172,16 @@ export class MessageDispatcherService {
         break;
       case EServerMessageType.TeamName:
         this._teamName.set((<ITeamNameMessage>message).data);
+        break;
+      case EServerMessageType.EstimationWithdrawn:
+        this._estimationWithdrawn.set((<IEstimationWithdrawnMessage>message).data);
     }
 
     return canContinue;
+  }
+
+  public resetWithdrawnSignal(): void {
+    this._estimationWithdrawn.set(null);
   }
   //#endregion
 }

@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed, Signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EGameState } from 'shared-lib';
 import { extract } from '../../../../core';
 import { CardComponent } from '../../../../shared/components';
+import { IDisplayCard } from '../../../../shared/components/card/display-card';
 import { PokerService } from '../../services';
 import { Estimation } from '../../services/estimation';
 
@@ -15,6 +16,8 @@ import { Estimation } from '../../services/estimation';
   styleUrl: './playfield.component.scss'
 })
 export class PlayfieldComponent {
+  protected readonly displayCards: Signal<Array<IDisplayCard>>;
+
   //#region Protected Fields --------------------------------------------------
   protected ME_LABEL = extract('Label.Generic.Me');
   protected readonly pokerSvc: PokerService;
@@ -22,19 +25,27 @@ export class PlayfieldComponent {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(pokerSvc: PokerService) {
+    this.displayCards = computed(() => {
+      const estimations = pokerSvc.estimations();
+      const gameState = pokerSvc.gameState();
+      return estimations.map((e: Estimation) => {
+        const displayCard: IDisplayCard = {
+          isAvailable: e.hasEstimated,
+          member: e.member,
+          card: e.card,
+          enabled: e.member.me && gameState == EGameState.Started,
+          intent: e.member.me ? 'primary' : 'none'
+        };
+        return displayCard;
+      });
+    });
     this.pokerSvc = pokerSvc;
   }
   //#endregion
 
   //#region UI-Triggers -------------------------------------------------------
   public cardClicked(): void {
-    // BUG this.pokerSvc.withDraw(); does not work currently
-  }
-  //#endregion
-
-  //#region Auxiliary Methods -------------------------------------------------
-  protected isCardEnabled(estimation: Estimation): boolean {
-    return this.pokerSvc.gameState() == EGameState.Started && estimation.member.me;
+    this.pokerSvc.withDraw();
   }
   //#endregion
 }

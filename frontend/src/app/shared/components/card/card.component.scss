@@ -17,6 +17,11 @@ button.isAvailableCard {
     border-color: lightgray;
     color: lightgray;
   }
+
+  &.intent-primary {
+    color: #002cff;
+    border-color: #002cff;
+  }
 }
 
 // Style the estimations
@@ -24,12 +29,12 @@ button:not(.isAvailableCard) {
   border-color: black;
   color: black;
 
-  &.hasNoEstimation {
-    border-color: lightgray;
-    color: lightgray;
-  }
+  // &.hasNoEstimation {
+  //   border-color: lightgray;
+  //   color: lightgray;
+  // }
 
-  &.mine {
+  &.intent-primary {
     color: #002cff;
     border-color: #002cff;
   }

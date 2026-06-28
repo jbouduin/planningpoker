@@ -11,3 +11,4 @@ export * from './rejoin-message';
 export * from './remove-message';
 export * from './reveal-message';
 export * from './start-message';
+export * from './withdraw-estimation-message';

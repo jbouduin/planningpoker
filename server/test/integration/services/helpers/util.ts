@@ -10,7 +10,8 @@ import {
   IEstimateMessage,
   IJoinMessage,
   IPauseMessage,
-  IStartMessage
+  IStartMessage,
+  IWithDrawMessage
 } from 'shared-lib';
 import {
   CronService,
@@ -227,13 +228,22 @@ export class Util {
    * @param participant the participant that estimates or withdraws it's estimation
    * @param card the index of the card (not the position in the array!). Pass `null` to withdraw an estimation
    */
-  public static estimate(participant: IATestParticipant, card: number | null): void {
+  public static estimate(participant: IATestParticipant, card: number): void {
     const estimateMessage: IEstimateMessage = {
       senderId: participant.participantId,
       data: card,
       type: EClientMessageType.Estimate
     };
     participant.sendMessage(estimateMessage);
+  }
+
+  public static withdrawEstimation(participant: IATestParticipant): void {
+    const withdrawMessage: IWithDrawMessage = {
+      data: undefined,
+      senderId: participant.participantId,
+      type: EClientMessageType.WithdrawEstimation
+    };
+    participant.sendMessage(withdrawMessage);
   }
 
   public static unknownEstimationIndex(cardSet: ECardSetType): number {

@@ -11,6 +11,8 @@ export interface ILoggerService {
   warning(logType: LogType, message: string): void;
   logError(logType: LogType, error: Error): void;
 
+  logMyLevel(): void;
+
   getDefaultLogFormat(label: string): winston.Logform.Format;
   getLog(logType?: LogType, size?: number): Array<string>;
 }

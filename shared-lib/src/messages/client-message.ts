@@ -11,7 +11,7 @@ export type IChangeCardSetMessage = IClientMessage<CardSetDto>;
 export type IChangeNickMessage = IClientMessage<string>;
 export type IChangeScrumMasterMessage = IClientMessage<string>;
 export type ICreateMessage = IClientMessage<CreateDto>;
-export type IEstimateMessage = IClientMessage<number | null>;
+export type IEstimateMessage = IClientMessage<number>;
 export type IJoinMessage = IClientMessage<JoinDto>;
 export type ILeaveMessage = IClientMessage<string>;
 export type IObserveMessage = IClientMessage<ObserverChangeDto>;
@@ -20,6 +20,7 @@ export type IRejoinMessage = IClientMessage<string>;
 export type IRemoveMessage = IClientMessage<string>;
 export type IRevealMessage = IClientMessage<void>;
 export type IStartMessage = IClientMessage<void>;
+export type IWithDrawMessage = IClientMessage<void>;
 
 export type AClientMessage =
   | IChangeCardSetMessage
@@ -34,4 +35,5 @@ export type AClientMessage =
   | IRejoinMessage
   | IRemoveMessage
   | IRevealMessage
-  | IStartMessage;
+  | IStartMessage
+  | IWithDrawMessage;

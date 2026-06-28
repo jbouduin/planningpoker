@@ -73,6 +73,7 @@ export class TeamService {
 
   private handleMemberChanged(data: ParticipantChangeDto): void {
     const participant = data.member;
+    // TODO: snackbars if not self
     switch (data.changeType) {
       case EParticipantChangeType.ChangedNick:
         this.members.update((current: Array<ParticipantDto>) =>

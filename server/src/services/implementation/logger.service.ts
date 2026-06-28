@@ -25,8 +25,9 @@ export class LoggerService implements ILoggerService {
   //#region Constructor & C° --------------------------------------------------
   public constructor(@inject(SERVICETYPES.EnvironmentService) environmentService: IEnvironmentService) {
     this.buffer = new Array<string>();
-    this.consoleTransport = new transports.Console({ level: environmentService.logLevel.toLowerCase() });
-    this.defaultStreamTransport = this.initializeStreamTransport(environmentService.logLevel.toLowerCase());
+    const level = environmentService.logLevel.toLowerCase();
+    this.consoleTransport = new transports.Console({ level: level });
+    this.defaultStreamTransport = this.initializeStreamTransport(level);
     this.serverLogger = this.initializeDefaultLogger('Server');
     this.socketLogger = this.initializeDefaultLogger('Socket');
   }
@@ -86,6 +87,10 @@ export class LoggerService implements ILoggerService {
         this.socketLogger.warn(error.stack);
         break;
     }
+  }
+
+  public logMyLevel(): void {
+    this.info('Server', `Loglevel = ${this.serverLogger.level}`);
   }
 
   public getDefaultLogFormat(label: string): winston.Logform.Format {
