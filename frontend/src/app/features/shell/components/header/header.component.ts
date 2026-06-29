@@ -2,13 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, Signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslatePipe } from '@ngx-translate/core';
-import { extract } from '../../../../core';
-import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 import { RouterModule } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { EGameState } from 'shared-lib';
+import { extract } from '../../../../core';
 import { versionInfo } from '../../../../core/services/version-info';
 import { PokerService } from '../../../game';
-import { EGameState } from 'shared-lib';
+import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 
 @Component({
   selector: 'app-header',

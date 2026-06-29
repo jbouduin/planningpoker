@@ -6,11 +6,11 @@ import {
   EClientMessageType,
   EErrorCode,
   EGameState,
-  ICreateMessage,
-  IJoinMessage,
-  ILeaveMessage,
-  IPauseMessage,
-  IRejoinMessage,
+  CreateMessageDto,
+  JoinMessageDto,
+  LeaveMessageDto,
+  PauseMessageDto,
+  RejoinMessageDto,
   JoinDto
 } from 'shared-lib';
 import type { IStorageService } from '../../../src/storage/interfaces/index.js';
@@ -23,7 +23,7 @@ describe('preflight Create', () => {
       cardSet: ECardSetType.Cohn,
       nick: Util.participant1Name
     };
-    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: CreateMessageDto = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -38,7 +38,7 @@ describe('preflight Create', () => {
       cardSet: ECardSetType.Cohn,
       nick: Util.participant1Name
     };
-    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: CreateMessageDto = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -55,7 +55,7 @@ describe('preflight Create', () => {
       cardSet: ECardSetType.Cohn,
       nick: Util.participant1Name
     };
-    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: CreateMessageDto = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(undefined)
@@ -72,7 +72,7 @@ describe('preflight Create', () => {
       cardSet: ECardSetType.Cohn,
       nick: Util.participant1Name
     };
-    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: CreateMessageDto = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -87,7 +87,7 @@ describe('preflight Create', () => {
       cardSet: ECardSetType.Cohn,
       nick: ''
     };
-    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
+    const message: CreateMessageDto = { type: EClientMessageType.Create, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -105,7 +105,7 @@ describe('preflight Join', () => {
       observer: false,
       nick: Util.participant1Name
     };
-    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
+    const message: JoinMessageDto = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -121,7 +121,7 @@ describe('preflight Join', () => {
       observer: false,
       nick: Util.participant1Name
     };
-    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
+    const message: JoinMessageDto = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(undefined)
@@ -139,7 +139,7 @@ describe('preflight Join', () => {
       observer: false,
       nick: Util.participant1Name
     };
-    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
+    const message: JoinMessageDto = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -157,7 +157,7 @@ describe('preflight Join', () => {
       observer: false,
       nick: Util.participant1Name
     };
-    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
+    const message: JoinMessageDto = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -175,7 +175,7 @@ describe('preflight Join', () => {
       observer: false,
       nick: Util.participant1Name
     };
-    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
+    const message: JoinMessageDto = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -193,7 +193,7 @@ describe('preflight Join', () => {
       observer: false,
       nick: ''
     };
-    const message: IJoinMessage = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
+    const message: JoinMessageDto = { type: EClientMessageType.Join, senderId: Util.participant1Name, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -208,7 +208,7 @@ describe('preflight Join', () => {
 });
 
 describe('preflight Leave - Normal', () => {
-  const message: ILeaveMessage = {
+  const message: LeaveMessageDto = {
     type: EClientMessageType.Leave,
     senderId: Util.participant1Name,
     data: Util.participant1Name
@@ -278,7 +278,7 @@ describe('preflight Leave - Normal', () => {
   });
 
   test('Failure => scrum master can not leave during estimation', () => {
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       type: EClientMessageType.Leave,
       senderId: Util.scrummasterName,
       data: Util.scrummasterName
@@ -297,7 +297,7 @@ describe('preflight Leave - Normal', () => {
 });
 
 describe('preflight Leave - After Disconnect', () => {
-  const message: ILeaveMessage = {
+  const message: LeaveMessageDto = {
     type: EClientMessageType.Leave,
     senderId: Util.participant1Name,
     data: Util.participant2Name
@@ -439,7 +439,7 @@ describe('preflight Leave - After Disconnect', () => {
 });
 
 describe('preflight Pause', () => {
-  const message: IPauseMessage = { type: EClientMessageType.Pause, senderId: Util.participant1Name, data: undefined };
+  const message: PauseMessageDto = { type: EClientMessageType.Pause, senderId: Util.participant1Name, data: undefined };
 
   test('OK', () => {
     const storage = new Mock<IStorageService>()
@@ -506,7 +506,7 @@ describe('preflight Pause', () => {
 });
 
 describe('preflight Rejoin', () => {
-  const message: IRejoinMessage = {
+  const message: RejoinMessageDto = {
     type: EClientMessageType.Rejoin,
     senderId: Util.participant1Name,
     data: Util.participant2Name

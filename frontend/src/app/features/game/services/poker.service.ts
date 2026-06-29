@@ -72,13 +72,13 @@ export class PokerService {
     });
 
     effect(() => {
-      if (dispatcherSvc.endSession() || dispatcherSvc.serverReset() || dispatcherSvc.teamIdle()) {
+      if (dispatcherSvc.sessionEnded()) {
         this.resetService();
       }
     });
 
     effect(() => {
-      this.handleGameState(dispatcherSvc.pokerStatus());
+      this.handleGameState(dispatcherSvc.gameStateChanged());
     });
 
     effect(() => {

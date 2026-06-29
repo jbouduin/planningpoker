@@ -1,5 +1,5 @@
 import { describe, test } from '@jest/globals';
-import { EParticipantChangeType, EParticipantState, EServerMessageType } from 'shared-lib';
+import { EParticipantChangeType, EParticipantState, ESessionEndedReason } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
 import { Util } from './helpers/util.js';
@@ -24,7 +24,7 @@ describe('Reset', () => {
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Paused)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ServerReset)
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.ServerReset)
       .expectNoMoreMessages();
 
     // Test: participant messages
@@ -33,13 +33,16 @@ describe('Reset', () => {
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Paused)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ServerReset)
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.ServerReset)
       .expectNoMoreMessages();
 
     // Test: paused participant messages
     paused.initializeMessageQueue().expectNextMessageIsSelf({ state: EParticipantState.Paused }).expectNoMoreMessages();
 
     // Test: observer messages
-    observer.initializeMessageQueue().expectNextMessageIs(EServerMessageType.ServerReset).expectNoMoreMessages();
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.ServerReset)
+      .expectNoMoreMessages();
   });
 });

@@ -1,12 +1,12 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
-import { EClientMessageType, EErrorCode, EGameState, IEstimateMessage, IWithDrawMessage } from 'shared-lib';
+import { EClientMessageType, EErrorCode, EGameState, EstimateMessageDto, WithDrawMessageDto } from 'shared-lib';
 import type { IStorageService } from '../../../src/storage/interfaces/index.js';
 import { Util } from '../util.js';
 
 describe('preflight Estimate', () => {
   test('Standard use-case', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -20,7 +20,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Edge case - card with index 0', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 0 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 0 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -34,7 +34,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(undefined)
@@ -50,7 +50,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -66,7 +66,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -82,7 +82,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => sender in another team', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -98,7 +98,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => observer can not estimate', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.observerName1, data: 1 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.observerName1, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.observerName1))
       .returns(Util.getObserver1())
@@ -114,7 +114,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => not started (Cleared)', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -130,7 +130,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => not started (Revealed)', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 1 };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -146,7 +146,7 @@ describe('preflight Estimate', () => {
   });
 
   test('Failure => non existing card', () => {
-    const message: IEstimateMessage = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 5 };
+    const message: EstimateMessageDto = { type: EClientMessageType.Estimate, senderId: Util.participant1Name, data: 5 };
 
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
@@ -165,7 +165,7 @@ describe('preflight Estimate', () => {
 
 describe('preflight witdraw estimation', () => {
   test('OK', () => {
-    const message: IWithDrawMessage = {
+    const message: WithDrawMessageDto = {
       type: EClientMessageType.Estimate,
       senderId: Util.participant1Name,
       data: undefined

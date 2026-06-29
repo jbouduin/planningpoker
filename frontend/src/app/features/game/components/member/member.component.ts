@@ -143,7 +143,7 @@ export class MemberComponent {
     this.changeScrumMasterDisabled = computed(() => {
       return (
         pokerSvc.gameState() == EGameState.Started ||
-        teamSvc.members().filter((p: ParticipantDto) => p.state == EParticipantState.Connected).length < 1
+        teamSvc.participants().filter((p: ParticipantDto) => p.state == EParticipantState.Connected).length < 1
       );
     });
 
@@ -179,7 +179,7 @@ export class MemberComponent {
         titleKey: extract('ChangeScrumMasterDialog.Component.Title'),
         participantLabelKey: extract('ChangeScrumMasterDialog.Select.ScrumMaster.Label'),
         participants: this.teamSvc
-          .members()
+          .participants()
           .filter((participant: ParticipantDto) => participant.participantId !== me.participantId)
       };
       this.dialogSvc

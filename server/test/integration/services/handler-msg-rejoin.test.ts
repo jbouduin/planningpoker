@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import {
+  CardSetMessageDto,
   ECardSetType,
   EClientMessageType,
   EErrorCode,
@@ -8,14 +9,13 @@ import {
   EParticipantState,
   ERole,
   EServerMessageType,
-  ICardSetMessage,
-  IEstimateMessage,
-  IEstimationListMessage,
-  IParticipantListMessage,
-  IPauseMessage,
-  IRejoinMessage,
-  IStartMessage,
-  ITeamNameMessage
+  EstimateMessageDto,
+  EstimationListMessageDto,
+  ParticipantListMessageDto,
+  PauseMessageDto,
+  RejoinMessageDto,
+  StartMessageDto,
+  TeamNameMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -38,7 +38,7 @@ describe('Rejoin => OK', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
@@ -62,26 +62,26 @@ describe('Rejoin => OK', () => {
     // Test: rejoining participant messages (init sequence)
     rejoiningParticipant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf({
         participantId: participant.participantId,
         role: ERole.Developer,
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) => {
+      .expectNextMessageIs(EServerMessageType.ParticipantList, (m: ParticipantListMessageDto) => {
         expect(m.data).toHaveLength(1);
         expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
         expect(m.data[0].role).toBe(ERole.ScrumMaster);
       })
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Cleared)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
@@ -106,7 +106,7 @@ describe('Rejoin => OK', () => {
 
     // RUN: reconnect
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: rejoiningParticipant.participantId,
       data: disconnected.participantId,
       type: EClientMessageType.Rejoin
@@ -148,7 +148,7 @@ describe('Rejoin => OK', () => {
 
     // RUN: reconnect
     const rejoiningScrumMaster = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: rejoiningScrumMaster.participantId,
       data: scrumMaster.participantId,
       type: EClientMessageType.Rejoin
@@ -186,7 +186,7 @@ describe('Rejoin => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: participants sends pause message
-    const pauseMessage: IPauseMessage = {
+    const pauseMessage: PauseMessageDto = {
       senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Pause
@@ -196,7 +196,7 @@ describe('Rejoin => OK', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
@@ -220,26 +220,26 @@ describe('Rejoin => OK', () => {
     // Test: rejoining participant messages (init sequence)
     rejoiningParticipant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf({
         participantId: participant.participantId,
         role: ERole.Developer,
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) => {
+      .expectNextMessageIs(EServerMessageType.ParticipantList, (m: ParticipantListMessageDto) => {
         expect(m.data).toHaveLength(1);
         expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
         expect(m.data[0].role).toBe(ERole.ScrumMaster);
       })
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Cleared)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
@@ -262,7 +262,7 @@ describe('Rejoin => OK', () => {
     const participant2 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: start estimating
-    const startMessage: IStartMessage = {
+    const startMessage: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -270,7 +270,7 @@ describe('Rejoin => OK', () => {
     scrumMaster.sendMessage(startMessage);
 
     // Setup: participant estimates
-    const estimateMessage: IEstimateMessage = {
+    const estimateMessage: EstimateMessageDto = {
       senderId: participant2.participantId,
       data: 2,
       type: EClientMessageType.Estimate
@@ -279,7 +279,7 @@ describe('Rejoin => OK', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: rejoiningParticipant.participantId,
       data: participant1.participantId,
       type: EClientMessageType.Rejoin
@@ -292,9 +292,9 @@ describe('Rejoin => OK', () => {
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Rejoined, {
@@ -310,9 +310,9 @@ describe('Rejoin => OK', () => {
     participant2
       .initializeMessageQueue()
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Rejoined, {
@@ -324,24 +324,24 @@ describe('Rejoin => OK', () => {
     // Test: rejoining participant messages (init sequence)
     rejoiningParticipant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf({
         participantId: participant1.participantId,
         role: ERole.Developer,
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) =>
+      .expectNextMessageIs(EServerMessageType.ParticipantList, (m: ParticipantListMessageDto) =>
         expect(m.data).toHaveLength(2)
       )
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNoMoreMessages();
@@ -365,7 +365,7 @@ describe('Rejoin => Failure', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: Util.unknownParticipantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
@@ -385,7 +385,7 @@ describe('Rejoin => Failure', () => {
     // Test: rejoining participant messages
     rejoiningParticipant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
@@ -406,7 +406,7 @@ describe('Rejoin => Failure', () => {
 
     // Run: create a new connection to rejoin and rejoin message non existing team
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
@@ -426,7 +426,7 @@ describe('Rejoin => Failure', () => {
     // Test: rejoining participant messages
     rejoiningParticipant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
@@ -450,7 +450,7 @@ describe('Rejoin => Failure', () => {
 
     // Run: create a participant that is already in a team and send rejoin message
     const rejoiningParticipant = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
@@ -490,7 +490,7 @@ describe('Rejoin => Failure', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: rejoiningParticipant.participantId,
       data: Util.unknownParticipantId,
       type: EClientMessageType.Rejoin
@@ -510,7 +510,7 @@ describe('Rejoin => Failure', () => {
     // Test: rejoining participant messages
     rejoiningParticipant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
@@ -534,7 +534,7 @@ describe('Rejoin => Failure', () => {
 
     // Run: create a new connection to rejoin and send rejoin message
     const rejoiningParticipant = Util.connectParticipant(handlerService);
-    const message: IRejoinMessage = {
+    const message: RejoinMessageDto = {
       senderId: rejoiningParticipant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Rejoin
@@ -554,7 +554,7 @@ describe('Rejoin => Failure', () => {
     // Test: rejoining participant messages
     rejoiningParticipant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 

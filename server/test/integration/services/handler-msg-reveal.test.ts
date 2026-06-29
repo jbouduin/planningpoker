@@ -6,14 +6,14 @@ import {
   EGameState,
   EParticipantChangeType,
   ERole,
+  ErrorMessageDto,
   EServerMessageType,
   EstimationDto,
-  IErrorMessage,
-  IEstimationListMessage,
-  IGameStateChangedMessage,
-  IParticipantChangedMessage,
-  IRevealMessage,
-  IStartMessage
+  EstimationListMessageDto,
+  GameStateChangedMessageDto,
+  ParticipantChangedMessageDto,
+  RevealMessageDto,
+  StartMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -33,7 +33,7 @@ describe('Reveal => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: start estimation
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -79,7 +79,7 @@ describe('Reveal => OK', () => {
     };
 
     // Run: Reveal
-    const revealMessage: IRevealMessage = {
+    const revealMessage: RevealMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Reveal
@@ -89,20 +89,20 @@ describe('Reveal => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.ParticipantChanged, (m: ParticipantChangedMessageDto) =>
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         checkFirstEstimationList(m.data, null)
       )
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Revealed)
       )
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         checkSecondEstimationList(m.data, givenEstimation)
       )
       .expectNoMoreMessages();
@@ -110,18 +110,18 @@ describe('Reveal => OK', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIs(
         EServerMessageType.GameStateChanged,
-        (m: IGameStateChangedMessage) => m.data === EGameState.Started
+        (m: GameStateChangedMessageDto) => m.data === EGameState.Started
       )
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         checkFirstEstimationList(m.data, givenEstimation)
       )
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Revealed)
       )
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         checkSecondEstimationList(m.data, givenEstimation)
       )
       .expectNoMoreMessages();
@@ -144,7 +144,7 @@ describe('Reveal => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: Run start
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -152,7 +152,7 @@ describe('Reveal => Failure', () => {
     scrumMaster.sendMessage(message);
 
     // Run: Reveal
-    const revealMessage: IRevealMessage = {
+    const revealMessage: RevealMessageDto = {
       senderId: 'unknown participant id',
       data: undefined,
       type: EClientMessageType.Reveal
@@ -162,14 +162,14 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.ParticipantChanged, (m: ParticipantChangedMessageDto) =>
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
-      .expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) =>
+      .expectNextMessageIs(EServerMessageType.Error, (m: ErrorMessageDto) =>
         expect(m.data.code).toBe(EErrorCode.ParticipantNotFound)
       )
       .expectNoMoreMessages();
@@ -177,8 +177,8 @@ describe('Reveal => Failure', () => {
     // Test: participant messages
     participant.initializeMessageQueue();
     participant
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
@@ -199,7 +199,7 @@ describe('Reveal => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: Run start
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -207,7 +207,7 @@ describe('Reveal => Failure', () => {
     scrumMaster.sendMessage(message);
 
     // Run: Reveal
-    const revealMessage: IRevealMessage = {
+    const revealMessage: RevealMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Reveal
@@ -217,14 +217,14 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.ParticipantChanged, (m: ParticipantChangedMessageDto) =>
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
-      .expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) =>
+      .expectNextMessageIs(EServerMessageType.Error, (m: ErrorMessageDto) =>
         expect(m.data.code).toBe(EErrorCode.TeamNotFound)
       )
       .expectNoMoreMessages();
@@ -232,8 +232,8 @@ describe('Reveal => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
@@ -255,7 +255,7 @@ describe('Reveal => Failure', () => {
     const teamLessParticipant = Util.connectParticipant(handlerService, ERole.ScrumMaster);
 
     // Setup: Run start
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -263,7 +263,7 @@ describe('Reveal => Failure', () => {
     scrumMaster.sendMessage(message);
 
     // Run: Reveal
-    const revealMessage: IRevealMessage = {
+    const revealMessage: RevealMessageDto = {
       senderId: teamLessParticipant.participantId,
       data: undefined,
       type: EClientMessageType.Reveal
@@ -273,11 +273,11 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.ParticipantChanged, (m: ParticipantChangedMessageDto) =>
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
@@ -285,8 +285,8 @@ describe('Reveal => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
@@ -294,7 +294,7 @@ describe('Reveal => Failure', () => {
     // Test: teamless participant
     teamLessParticipant
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -315,7 +315,7 @@ describe('Reveal => Failure', () => {
     const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: Run start
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster1.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -323,7 +323,7 @@ describe('Reveal => Failure', () => {
     scrumMaster1.sendMessage(message);
 
     // Run: Reveal
-    const revealMessage: IRevealMessage = {
+    const revealMessage: RevealMessageDto = {
       senderId: scrumMaster2.participantId,
       data: undefined,
       type: EClientMessageType.Reveal
@@ -333,11 +333,11 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster1
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.ParticipantChanged, (m: ParticipantChangedMessageDto) =>
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
@@ -345,8 +345,8 @@ describe('Reveal => Failure', () => {
     // Test: participant messages
     participant1
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
@@ -372,7 +372,7 @@ describe('Reveal => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: Reveal
-    const revealMessage: IRevealMessage = {
+    const revealMessage: RevealMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Reveal
@@ -382,10 +382,10 @@ describe('Reveal => Failure', () => {
     // Test: Scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.ParticipantChanged, (m: ParticipantChangedMessageDto) =>
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
-      .expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) =>
+      .expectNextMessageIs(EServerMessageType.Error, (m: ErrorMessageDto) =>
         expect(m.data.code).toBe(EErrorCode.EstimationNotStarted)
       )
       .expectNoMoreMessages();
@@ -409,7 +409,7 @@ describe('Reveal => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: Run start
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -417,7 +417,7 @@ describe('Reveal => Failure', () => {
     scrumMaster.sendMessage(message);
 
     // Run: Reveal
-    const revealMessage: IRevealMessage = {
+    const revealMessage: RevealMessageDto = {
       senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Reveal
@@ -427,11 +427,11 @@ describe('Reveal => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.ParticipantChanged, (m: ParticipantChangedMessageDto) =>
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
       .expectNoMoreMessages();
@@ -439,8 +439,8 @@ describe('Reveal => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
+      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
         expect(m.data).toBe(EGameState.Started)
       )
       .expectNextMessageIsError(EErrorCode.ScrumMasterRequired)

@@ -1,19 +1,21 @@
 import { expect, jest } from '@jest/globals';
 import {
-  AClientMessage,
-  AServerMessage,
+  AClientMessageDto,
+  AServerMessageDto,
   EErrorCode,
   EGameState,
   EParticipantChangeType,
   EParticipantState,
   ERole,
   EServerMessageType,
-  IErrorMessage,
-  IGameStateChangedMessage,
-  IInitMessage,
-  IParticipantChangedMessage,
-  ISelfMessage,
-  ParticipantDto
+  ESessionEndedReason,
+  ErrorMessageDto,
+  GameStateChangedMessageDto,
+  ParticipantChangedMessageDto,
+  ParticipantDto,
+  SelfMessageDto,
+  SessionEndedMessageDto,
+  StartHandshakeMessageDto
 } from 'shared-lib';
 import type { IServerParticipant } from '../../../../src/objects/interfaces/index.js';
 import type { IHandlerService } from '../../../../src/services/interfaces/index.js';
@@ -68,7 +70,7 @@ export interface IATestParticipant {
    * @param type - the message type. Uses jest.expect internally to validate that the type is correct
    * @param validation - a validation method. The method has to use jest.expect
    */
-  expectNextMessageIs<T extends AServerMessage>(
+  expectNextMessageIs<T extends AServerMessageDto>(
     type: EServerMessageType,
     validation?: (message: T) => void
   ): IATestParticipant;
@@ -112,11 +114,13 @@ export interface IATestParticipant {
    */
   expectNextMessageIsSelf(options?: ParticipantDtoOptions): IATestParticipant;
 
+  expectNextMessageIsSessionEnded(reason: ESessionEndedReason): IATestParticipant;
+
   /**
    * Expects the next message to be an init message.
    * @param options - ParticipantDtoOptions with expected values
    */
-  expectNextMessageIsInit(options?: ParticipantDtoOptions): IATestParticipant;
+  expectNextMessageIsStartHandshake(options?: ParticipantDtoOptions): IATestParticipant;
 
   /**
    * Expects that there are no more messages available.
@@ -135,7 +139,7 @@ export interface IATestParticipant {
    * @param message - a AClientMessage
    * @param teamName - the target team of the message. This sets the target for all subsequent calls. If undefined, the previously set team is targetted
    */
-  sendMessage(message: AClientMessage, teamName?: string): void;
+  sendMessage(message: AClientMessageDto, teamName?: string): void;
 
   /**
    * Increase the current message index with number.
@@ -149,7 +153,7 @@ export abstract class ATestParticipant implements IATestParticipant {
   //#region private properties ------------------------------------------------
   private readonly handlerService: IHandlerService;
   private currentMessageIndex: number | undefined;
-  private messageIterator: Array<AServerMessage> | undefined;
+  private messageIterator: Array<AServerMessageDto> | undefined;
   private participant: IServerParticipant;
   private send: jest.Mock<(_message: string) => void>;
   private teamName: string;
@@ -232,14 +236,14 @@ export abstract class ATestParticipant implements IATestParticipant {
       }
     }
     const allMessages = this.send.mock.calls.map(
-      (message: [message: string]) => <AServerMessage>JSON.parse(message[0])
+      (message: [message: string]) => <AServerMessageDto>JSON.parse(message[0])
     );
     this.messageIterator = allMessages.slice(skip);
     this.currentMessageIndex = 0;
     return this;
   }
 
-  public expectNextMessageIs<T extends AServerMessage>(
+  public expectNextMessageIs<T extends AServerMessageDto>(
     type: EServerMessageType,
     validation?: (message: T) => void
   ): IATestParticipant {
@@ -256,7 +260,7 @@ export abstract class ATestParticipant implements IATestParticipant {
   }
 
   public expectNextMessageIsError(errorCode: EErrorCode): IATestParticipant {
-    return this.expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) =>
+    return this.expectNextMessageIs(EServerMessageType.Error, (m: ErrorMessageDto) =>
       expect(m.data.code).toBe(errorCode)
     );
   }
@@ -265,14 +269,14 @@ export abstract class ATestParticipant implements IATestParticipant {
     changeType: EParticipantChangeType,
     options?: ParticipantDtoOptions
   ): IATestParticipant {
-    return this.expectNextMessageIs(EServerMessageType.MemberChanged, (m: IParticipantChangedMessage) => {
+    return this.expectNextMessageIs(EServerMessageType.ParticipantChanged, (m: ParticipantChangedMessageDto) => {
       expect(m.data.changeType).toBe(changeType);
       this.checkParticipantOptions(m.data.member, options);
     });
   }
 
   public expectNextMessageIsGameStateChanged(status: EGameState): IATestParticipant {
-    return this.expectNextMessageIs(EServerMessageType.GameStateChanged, (m: IGameStateChangedMessage) =>
+    return this.expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
       expect(m.data).toBe(status)
     );
   }
@@ -286,13 +290,19 @@ export abstract class ATestParticipant implements IATestParticipant {
       }
     }
 
-    return this.expectNextMessageIs(EServerMessageType.Self, (m: ISelfMessage) =>
+    return this.expectNextMessageIs(EServerMessageType.Self, (m: SelfMessageDto) =>
       this.checkParticipantOptions(m.data, options)
     );
   }
 
-  public expectNextMessageIsInit(options?: ParticipantDtoOptions): IATestParticipant {
-    return this.expectNextMessageIs(EServerMessageType.Init, (m: IInitMessage) => {
+  public expectNextMessageIsSessionEnded(reason: ESessionEndedReason): IATestParticipant {
+    return this.expectNextMessageIs(EServerMessageType.SessionEnded, (m: SessionEndedMessageDto) =>
+      expect(m.data).toBe(reason)
+    );
+  }
+
+  public expectNextMessageIsStartHandshake(options?: ParticipantDtoOptions): IATestParticipant {
+    return this.expectNextMessageIs(EServerMessageType.StartHandshake, (m: StartHandshakeMessageDto) => {
       expect(m.data.nick.length).toBeGreaterThan(0);
       expect(m.data.participantId.length).toBeGreaterThan(0);
       this.checkParticipantOptions(m.data, options);
@@ -307,7 +317,7 @@ export abstract class ATestParticipant implements IATestParticipant {
     }
   }
 
-  public sendMessage(message: AClientMessage, teamName?: string): void {
+  public sendMessage(message: AClientMessageDto, teamName?: string): void {
     if (teamName) {
       this.teamName = teamName;
     }

@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import {
+  CardSetMessageDto,
   ECardSetType,
   EClientMessageType,
   EErrorCode,
@@ -9,11 +10,10 @@ import {
   ERole,
   EServerMessageType,
   EstimationDto,
-  ICardSetMessage,
-  IEstimationListMessage,
-  IJoinMessage,
-  IParticipantListMessage,
-  ITeamNameMessage
+  EstimationListMessageDto,
+  JoinMessageDto,
+  ParticipantListMessageDto,
+  TeamNameMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -50,26 +50,26 @@ describe('Join => OK', () => {
     // Test: participant messages (init sequence)
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf({
         participantId: participant.participantId,
         role: ERole.Developer,
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) => {
+      .expectNextMessageIs(EServerMessageType.ParticipantList, (m: ParticipantListMessageDto) => {
         expect(m.data).toHaveLength(1);
         expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
         expect(m.data[0].role).toBe(ERole.ScrumMaster);
       })
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Cleared)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
@@ -98,12 +98,12 @@ describe('Join => OK', () => {
     // Test: participant messages (init sequence) - observer flag should be set
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf({ observer: true })
       .expectNextMessageIs(EServerMessageType.TeamName)
       .expectNextMessageIs(EServerMessageType.CardSet)
-      .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.ParticipantList)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
@@ -130,15 +130,15 @@ describe('Join => OK', () => {
     // Test: participant messages (init sequence) - check card list
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf()
       .expectNextMessageIs(EServerMessageType.TeamName)
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.ParticipantList)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNextMessageIs(EServerMessageType.EstimationList)
       .expectNoMoreMessages();
@@ -234,9 +234,9 @@ describe('Join => OK', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, 2, scrumMaster)
       )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined, {
@@ -250,26 +250,26 @@ describe('Join => OK', () => {
     // Test: participant messages (init sequence)
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf({
         participantId: participant.participantId,
         role: ERole.Developer,
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => m.data === Util.team1Name)
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) => {
+      .expectNextMessageIs(EServerMessageType.ParticipantList, (m: ParticipantListMessageDto) => {
         expect(m.data).toHaveLength(1);
         expect(m.data[0].nick).toBe(Util.scrumMaster1Nick);
         expect(m.data[0].role).toBe(ERole.ScrumMaster);
       })
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, null, scrumMaster)
       )
       .expectNoMoreMessages();
@@ -291,7 +291,7 @@ describe('Join => Failure', () => {
     const scrumMaster = Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
     const participant = Util.connectParticipant(handlerService);
     // Run: try to join with a wrong id
-    const message: IJoinMessage = {
+    const message: JoinMessageDto = {
       senderId: 'some participant id',
       type: EClientMessageType.Join,
       data: {
@@ -307,7 +307,7 @@ describe('Join => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
@@ -323,7 +323,7 @@ describe('Join => Failure', () => {
     const participant = Util.connectParticipant(handlerService);
 
     // Run: try to join a non-existing team
-    const message: IJoinMessage = {
+    const message: JoinMessageDto = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
@@ -336,7 +336,7 @@ describe('Join => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
   });
@@ -354,7 +354,7 @@ describe('Join => Failure', () => {
     const participant = Util.connectParticipant(handlerService);
 
     // Run: try to join a non-existing team
-    const message: IJoinMessage = {
+    const message: JoinMessageDto = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
@@ -370,7 +370,7 @@ describe('Join => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
 
@@ -392,7 +392,7 @@ describe('Join => Failure', () => {
     const scrumMaster2 = Util.createTeam(handlerService, Util.team2Name, Util.scrumMaster2Nick);
 
     // Run: participant tries to join team 2
-    const message: IJoinMessage = {
+    const message: JoinMessageDto = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
@@ -434,7 +434,7 @@ describe('Join => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: try to join the team again
-    const message: IJoinMessage = {
+    const message: JoinMessageDto = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
@@ -477,7 +477,7 @@ describe('Join => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNameMayNotBeEmpty)
       .expectNoMoreMessages();
 

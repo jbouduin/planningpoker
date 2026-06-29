@@ -6,10 +6,11 @@ import {
   EParticipantChangeType,
   EParticipantState,
   EServerMessageType,
-  IEstimateMessage,
-  IEstimationListMessage,
-  ILeaveMessage,
-  IStartMessage
+  ESessionEndedReason,
+  EstimateMessageDto,
+  EstimationListMessageDto,
+  LeaveMessageDto,
+  StartMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -29,7 +30,7 @@ describe('Leaving when connected => OK', () => {
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
 
     // Run: participant leaves
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: participant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Leave
@@ -82,7 +83,7 @@ describe('Leaving when connected => OK', () => {
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
 
     // Setup: start estimating
-    const startMessage: IStartMessage = {
+    const startMessage: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -90,7 +91,7 @@ describe('Leaving when connected => OK', () => {
     scrumMaster.sendMessage(startMessage);
 
     // Setup: participant estimates
-    const estimateMessage: IEstimateMessage = {
+    const estimateMessage: EstimateMessageDto = {
       senderId: participant.participantId,
       data: 2,
       type: EClientMessageType.Estimate
@@ -98,7 +99,7 @@ describe('Leaving when connected => OK', () => {
     participant.sendMessage(estimateMessage);
 
     // Run: participant leaves
-    const leaveMessage: ILeaveMessage = {
+    const leaveMessage: LeaveMessageDto = {
       senderId: participant.participantId,
       data: participant.participantId,
       type: EClientMessageType.Leave
@@ -112,16 +113,16 @@ describe('Leaving when connected => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
         state: EParticipantState.Left
       })
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
@@ -129,16 +130,16 @@ describe('Leaving when connected => OK', () => {
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Left, {
         participantId: participant.participantId,
         state: EParticipantState.Left
       })
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
@@ -147,9 +148,9 @@ describe('Leaving when connected => OK', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsSelf({ state: EParticipantState.Left })
@@ -172,7 +173,7 @@ describe('Leaving when connected => OK', () => {
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
 
     // Run: scrum master leaves
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: scrumMaster.participantId,
       data: scrumMaster.participantId,
       type: EClientMessageType.Leave
@@ -189,18 +190,21 @@ describe('Leaving when connected => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.EndSession)
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.Disbanded)
       .expectNoMoreMessages();
 
     // Test: participant should have received 1 MC join + 1 session ended
     participant
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.EndSession)
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.Disbanded)
       .expectNoMoreMessages();
 
     // Test: observer should have received 1 session ended
-    observer.initializeMessageQueue().expectNextMessageIs(EServerMessageType.EndSession).expectNoMoreMessages();
+    observer
+      .initializeMessageQueue()
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.Disbanded)
+      .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();
@@ -224,7 +228,7 @@ describe('Leaving after being disconnected', () => {
     const reconnect = Util.connectParticipant(handlerService);
 
     // Run: participant 1 leaves
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: reconnect.participantId,
       data: participant.participantId,
       type: EClientMessageType.Leave
@@ -259,7 +263,7 @@ describe('Leaving after being disconnected', () => {
     // Test: reconnected participant messages
     reconnect
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf({ participantId: reconnect.participantId, state: EParticipantState.Left })
       .expectNoMoreMessages();
 
@@ -281,7 +285,7 @@ describe('Leaving when connected => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: send leave message
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: Util.unknownParticipantId,
       type: EClientMessageType.Leave,
       data: Util.unknownParticipantId
@@ -316,7 +320,7 @@ describe('Leaving when connected => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: send leave message for non existing team
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: participant.participantId,
       type: EClientMessageType.Leave,
       data: participant.participantId
@@ -350,7 +354,7 @@ describe('Leaving when connected => Failure', () => {
     const participant = Util.connectParticipant(handlerService);
 
     // Run: send leave message
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: participant.participantId,
       type: EClientMessageType.Leave,
       data: participant.participantId
@@ -363,7 +367,7 @@ describe('Leaving when connected => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -383,7 +387,7 @@ describe('Leaving when connected => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: send leave message for another team
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: participant.participantId,
       type: EClientMessageType.Leave,
       data: participant.participantId
@@ -419,7 +423,7 @@ describe('Leaving when connected => Failure', () => {
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name, true);
 
     // Setup: start estimating
-    const startMessage: IStartMessage = {
+    const startMessage: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -427,7 +431,7 @@ describe('Leaving when connected => Failure', () => {
     scrumMaster.sendMessage(startMessage);
 
     // Run: scrum master leaves
-    const leaveMessage: ILeaveMessage = {
+    const leaveMessage: LeaveMessageDto = {
       senderId: scrumMaster.participantId,
       data: scrumMaster.participantId,
       type: EClientMessageType.Leave
@@ -439,7 +443,7 @@ describe('Leaving when connected => Failure', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.LeaveNotAllowedDuringEstimation)
       .expectNoMoreMessages();
@@ -448,14 +452,14 @@ describe('Leaving when connected => Failure', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
@@ -481,7 +485,7 @@ describe('Leaving after being disconnected => Failure', () => {
     const reconnect = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: sends leave message
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: reconnect.participantId,
       data: participant.participantId,
       type: EClientMessageType.Leave
@@ -532,7 +536,7 @@ describe('Leaving after being disconnected => Failure', () => {
     const reconnect = Util.connectParticipant(handlerService);
 
     // Run: participant 1 leaves
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: reconnect.participantId,
       data: Util.unknownParticipantId,
       type: EClientMessageType.Leave
@@ -557,7 +561,7 @@ describe('Leaving after being disconnected => Failure', () => {
     // Test: reconnected participant messages
     reconnect
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
@@ -579,7 +583,7 @@ describe('Leaving after being disconnected => Failure', () => {
 
     // Run: participant reconnects to leave
     const reconnect = Util.connectParticipant(handlerService);
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: reconnect.participantId,
       type: EClientMessageType.Leave,
       data: participant.participantId
@@ -593,12 +597,12 @@ describe('Leaving after being disconnected => Failure', () => {
       .expectNoMoreMessages();
 
     // Test: participant messages
-    participant.initializeMessageQueue(false).expectNextMessageIsInit().expectNoMoreMessages();
+    participant.initializeMessageQueue(false).expectNextMessageIsStartHandshake().expectNoMoreMessages();
 
     // Test: Reconnect messages
     reconnect
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -627,7 +631,7 @@ describe('Leaving after being disconnected => Failure', () => {
 
     // Run: participant reconnects to leave
     const reconnect = Util.connectParticipant(handlerService);
-    const message: ILeaveMessage = {
+    const message: LeaveMessageDto = {
       senderId: reconnect.participantId,
       type: EClientMessageType.Leave,
       data: participant1.participantId
@@ -651,7 +655,7 @@ describe('Leaving after being disconnected => Failure', () => {
     // Test: reconnect
     reconnect
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam);
 
     // Test: scrum master 2 messages

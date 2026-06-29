@@ -1,4 +1,4 @@
-import { AClientMessage, EErrorCode } from 'shared-lib';
+import { AClientMessageDto, EErrorCode } from 'shared-lib';
 import type { IStorageService } from '../../storage/interfaces/index.js';
 
 export interface IPreflightService {
@@ -11,5 +11,5 @@ export interface IPreflightService {
    *
    * @returns EErrorCode.NoError if preflight is ok, otherwise another error code
    */
-  preflight(storageService: IStorageService, message: AClientMessage, requestTeam: string): EErrorCode;
+  preflight(storageService: IStorageService, message: AClientMessageDto, requestTeam: string): EErrorCode;
 }

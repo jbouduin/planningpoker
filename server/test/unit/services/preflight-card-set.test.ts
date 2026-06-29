@@ -6,8 +6,8 @@ import {
   ECardSetType,
   EClientMessageType,
   EErrorCode,
-  IChangeCardSetMessage,
-  ICreateMessage
+  ChangeCardSetMessageDto,
+  CreateMessageDto
 } from 'shared-lib';
 import { FactoryService } from '../../../src/storage/implementation/index.js';
 import type { IStorageService } from '../../../src/storage/interfaces/index.js';
@@ -20,7 +20,7 @@ describe('preflight cardSet OK', () => {
       cardSet: ECardSetType.Cohn,
       nick: Util.scrummasterName
     };
-    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
+    const message: CreateMessageDto = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -38,7 +38,7 @@ describe('preflight cardSet OK', () => {
       nick: Util.scrummasterName,
       cards: cohn
     };
-    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
+    const message: CreateMessageDto = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -49,7 +49,7 @@ describe('preflight cardSet OK', () => {
 
   test('change cardset OK with standard cardset', () => {
     const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cohn
@@ -67,7 +67,7 @@ describe('preflight cardSet OK', () => {
   test('change cardset OK with customized cardset', () => {
     const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     cohn.cards.splice(9, 3);
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cohn
@@ -94,7 +94,7 @@ describe('preflight cardSet not OK', () => {
       nick: Util.scrummasterName,
       cards: cohn
     };
-    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
+    const message: CreateMessageDto = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -109,7 +109,7 @@ describe('preflight cardSet not OK', () => {
     const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     const indexOfUnknown = cohn.cards.findIndex((card: CardDto) => card.isUnknownEstimation);
     cohn.cards.splice(indexOfUnknown, 1);
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cohn
@@ -135,7 +135,7 @@ describe('preflight cardSet not OK', () => {
       nick: Util.scrummasterName,
       cards: cohn
     };
-    const message: ICreateMessage = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
+    const message: CreateMessageDto = { type: EClientMessageType.Create, senderId: Util.scrummasterName, data: data };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -149,7 +149,7 @@ describe('preflight cardSet not OK', () => {
   test('Change cardset with less than two estimation cards', () => {
     const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     cohn.cards.splice(1, 11);
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cohn

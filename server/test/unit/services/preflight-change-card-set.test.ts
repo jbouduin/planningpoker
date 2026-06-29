@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
-import { ECardSetType, EClientMessageType, EErrorCode, EGameState, IChangeCardSetMessage } from 'shared-lib';
+import { ChangeCardSetMessageDto, ECardSetType, EClientMessageType, EErrorCode, EGameState } from 'shared-lib';
 import { FactoryService } from '../../../src/storage/implementation/index.js';
 import type { IStorageService } from '../../../src/storage/interfaces/index.js';
 import { Util } from '../util.js';
@@ -9,7 +9,7 @@ describe('preflight ChangeCardSet', () => {
   const cardSet = new FactoryService().createCardSet(ECardSetType.Cohn);
 
   test('OK', () => {
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cardSet
@@ -25,7 +25,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cardSet
@@ -43,7 +43,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cardSet
@@ -61,7 +61,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cardSet
@@ -79,7 +79,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => sender in another team', () => {
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cardSet
@@ -97,7 +97,7 @@ describe('preflight ChangeCardSet', () => {
   });
 
   test('Failure => sender is not scrum master', () => {
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.participant1Name,
       data: cardSet
@@ -117,7 +117,7 @@ describe('preflight ChangeCardSet', () => {
   test('Change cardset not allowed during estimation', () => {
     const cohn = new FactoryService().createCardSet(ECardSetType.Cohn);
     cohn.cards.splice(1, 11);
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       type: EClientMessageType.ChangeCardSet,
       senderId: Util.scrummasterName,
       data: cohn

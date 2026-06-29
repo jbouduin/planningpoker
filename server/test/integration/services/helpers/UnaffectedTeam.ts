@@ -10,7 +10,7 @@ export class UnaffectedTeam {
   public expectIsUnaffected(): void {
     this.scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged)
+      .expectNextMessageIs(EServerMessageType.ParticipantChanged)
       .expectNoMoreMessages();
     this.participant.initializeMessageQueue().expectNoMoreMessages();
   }

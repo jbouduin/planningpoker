@@ -1,4 +1,4 @@
-import { AClientMessage, LooseObjectDto } from 'shared-lib';
+import { AClientMessageDto, LooseObjectDto } from 'shared-lib';
 import type { IServerParticipant } from '../../objects/interfaces/index.js';
 import { IWebSocket } from '../websocket.js';
 
@@ -42,7 +42,7 @@ export interface IHandlerService {
    * @param team - the team name, extracted from the URL
    * @param ws - the websocket that received the message
    */
-  handleMessage(message: AClientMessage, team: string, ws: IWebSocket): void;
+  handleMessage(message: AClientMessageDto, team: string, ws: IWebSocket): void;
 
   /**
    * Sends a ping message to every connected participant

@@ -1,12 +1,16 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
-import { EClientMessageType, EErrorCode, EGameState, IRevealMessage, IStartMessage } from 'shared-lib';
+import { EClientMessageType, EErrorCode, EGameState, RevealMessageDto, StartMessageDto } from 'shared-lib';
 import type { IStorageService } from '../../../src/storage/interfaces/index.js';
 import { Util } from '../util.js';
 
 describe('preflight Start', () => {
   test('OK', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderId: Util.scrummasterName, data: undefined };
+    const message: StartMessageDto = {
+      type: EClientMessageType.Start,
+      senderId: Util.scrummasterName,
+      data: undefined
+    };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -20,7 +24,11 @@ describe('preflight Start', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderId: Util.scrummasterName, data: undefined };
+    const message: StartMessageDto = {
+      type: EClientMessageType.Start,
+      senderId: Util.scrummasterName,
+      data: undefined
+    };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(undefined)
@@ -36,7 +44,11 @@ describe('preflight Start', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderId: Util.scrummasterName, data: undefined };
+    const message: StartMessageDto = {
+      type: EClientMessageType.Start,
+      senderId: Util.scrummasterName,
+      data: undefined
+    };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -52,7 +64,11 @@ describe('preflight Start', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderId: Util.scrummasterName, data: undefined };
+    const message: StartMessageDto = {
+      type: EClientMessageType.Start,
+      senderId: Util.scrummasterName,
+      data: undefined
+    };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -68,7 +84,11 @@ describe('preflight Start', () => {
   });
 
   test('Failure => sender in another team', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderId: Util.scrummasterName, data: undefined };
+    const message: StartMessageDto = {
+      type: EClientMessageType.Start,
+      senderId: Util.scrummasterName,
+      data: undefined
+    };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -84,7 +104,11 @@ describe('preflight Start', () => {
   });
 
   test('Failure => sender is not scrum master', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderId: Util.participant1Name, data: undefined };
+    const message: StartMessageDto = {
+      type: EClientMessageType.Start,
+      senderId: Util.participant1Name,
+      data: undefined
+    };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
       .returns(Util.getParticipant1())
@@ -98,7 +122,11 @@ describe('preflight Start', () => {
   });
 
   test('Failure => already started', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderId: Util.scrummasterName, data: undefined };
+    const message: StartMessageDto = {
+      type: EClientMessageType.Start,
+      senderId: Util.scrummasterName,
+      data: undefined
+    };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -114,7 +142,11 @@ describe('preflight Start', () => {
   });
 
   test('Fialure => only observers connected', () => {
-    const message: IStartMessage = { type: EClientMessageType.Start, senderId: Util.scrummasterName, data: undefined };
+    const message: StartMessageDto = {
+      type: EClientMessageType.Start,
+      senderId: Util.scrummasterName,
+      data: undefined
+    };
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
       .returns(Util.getScrummaster())
@@ -132,7 +164,7 @@ describe('preflight Start', () => {
 
 describe('preflight Reveal', () => {
   test('OK', () => {
-    const message: IRevealMessage = {
+    const message: RevealMessageDto = {
       type: EClientMessageType.Reveal,
       senderId: Util.scrummasterName,
       data: undefined
@@ -148,7 +180,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IRevealMessage = {
+    const message: RevealMessageDto = {
       type: EClientMessageType.Reveal,
       senderId: Util.scrummasterName,
       data: undefined
@@ -166,7 +198,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IRevealMessage = {
+    const message: RevealMessageDto = {
       type: EClientMessageType.Reveal,
       senderId: Util.scrummasterName,
       data: undefined
@@ -184,7 +216,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IRevealMessage = {
+    const message: RevealMessageDto = {
       type: EClientMessageType.Reveal,
       senderId: Util.scrummasterName,
       data: undefined
@@ -202,7 +234,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => sender in another team', () => {
-    const message: IRevealMessage = {
+    const message: RevealMessageDto = {
       type: EClientMessageType.Reveal,
       senderId: Util.scrummasterName,
       data: undefined
@@ -220,7 +252,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => sender is not scrum master', () => {
-    const message: IRevealMessage = {
+    const message: RevealMessageDto = {
       type: EClientMessageType.Reveal,
       senderId: Util.participant1Name,
       data: undefined
@@ -238,7 +270,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => not started (Cleared)', () => {
-    const message: IRevealMessage = {
+    const message: RevealMessageDto = {
       type: EClientMessageType.Reveal,
       senderId: Util.scrummasterName,
       data: undefined
@@ -256,7 +288,7 @@ describe('preflight Reveal', () => {
   });
 
   test('Failure => not started (Revealed)', () => {
-    const message: IRevealMessage = {
+    const message: RevealMessageDto = {
       type: EClientMessageType.Reveal,
       senderId: Util.scrummasterName,
       data: undefined

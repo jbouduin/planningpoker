@@ -1,6 +1,14 @@
 import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
-import { AClientMessage, CardSetDto, ECardSetType, EParticipantState, ERole, ParticipantDto } from 'shared-lib';
+import {
+  AClientMessageDto,
+  CardSetDto,
+  ECardSetType,
+  EParticipantState,
+  ERole,
+  ESessionEndedReason,
+  ParticipantDto
+} from 'shared-lib';
 import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../../shared/dto';
 import { extract } from '../extract';
 import { ApiService } from './api.service';
@@ -26,7 +34,7 @@ export class SessionService {
   //#endregion
 
   //#region private properties ------------------------------------------------
-  private initialMessage?: AClientMessage;
+  private initialMessage?: AClientMessageDto;
   private currentRole?: ERole;
   private currentParticipantId?: string;
   //#endregion
@@ -67,14 +75,14 @@ export class SessionService {
 
   private registerMessageHandlers(dispatcherSvc: MessageDispatcherService): void {
     effect(() => {
-      const init = dispatcherSvc.init();
+      const init = dispatcherSvc.startHandshake();
       if (init) {
         this.handleInit(init);
       }
     });
 
     effect(() => {
-      if (dispatcherSvc.endInit()) {
+      if (dispatcherSvc.endHandshake()) {
         this.handleEndInit();
       }
     });
@@ -94,20 +102,18 @@ export class SessionService {
     });
 
     effect(() => {
-      if (dispatcherSvc.endSession()) {
-        this.handleEndSession();
-      }
-    });
-
-    effect(() => {
-      if (dispatcherSvc.serverReset()) {
-        this.handleServerReset();
-      }
-    });
-
-    effect(() => {
-      if (dispatcherSvc.teamIdle()) {
-        this.handleTeamIdle();
+      const reason = dispatcherSvc.sessionEnded();
+      if (reason) {
+        switch (reason) {
+          case ESessionEndedReason.Disbanded:
+            this.handleDisbanded();
+            break;
+          case ESessionEndedReason.IdleTimeOut:
+            this.handleTeamOut();
+            break;
+          case ESessionEndedReason.ServerReset:
+            this.handleServerReset();
+        }
       }
     });
   }
@@ -219,7 +225,7 @@ export class SessionService {
     this.sessionState.set(ESessionState.Active);
   }
 
-  private handleEndSession(): void {
+  private handleDisbanded(): void {
     if (this.currentRole != ERole.ScrumMaster) {
       const params: ISimpleDialogParams = {
         dialogTitleKey: extract('MessageBox.The_scrummaster_has_ended_the_session.Title'),
@@ -234,7 +240,7 @@ export class SessionService {
     this.resetService();
   }
 
-  private handleTeamIdle(): void {
+  private handleTeamOut(): void {
     this.resetService();
   }
 

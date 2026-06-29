@@ -12,6 +12,7 @@ import { extract, SessionService, UiEventsService } from '../../../../core';
   styleUrl: './team-header.component.scss'
 })
 export class TeamHeaderComponent {
+  // FEATURE current backlog item name
   //#region Private fields ----------------------------------------------------
   private readonly uiEventsSvc: UiEventsService;
   private readonly clipboard: Clipboard;

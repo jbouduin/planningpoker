@@ -1,5 +1,5 @@
 import { describe, test } from '@jest/globals';
-import { AClientMessage, EErrorCode } from 'shared-lib';
+import { AClientMessageDto, EErrorCode } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
 import { Util } from './helpers/util.js';
@@ -21,7 +21,7 @@ describe('Unknown message type', () => {
       data: undefined,
       type: 'Unknown'
     };
-    scrumMaster.sendMessage(<AClientMessage>message);
+    scrumMaster.sendMessage(<AClientMessageDto>message);
 
     // Test: scrum master messages
     scrumMaster

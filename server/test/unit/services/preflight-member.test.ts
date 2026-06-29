@@ -1,23 +1,27 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
 import {
+  ChangeNickMessageDto,
+  ChangeScrumMasterMessageDto,
   EClientMessageType,
   EErrorCode,
-  IChangeNickMessage,
-  IChangeScrumMasterMessage,
-  IObserveMessage,
-  IRemoveMessage,
-  ObserverChangeDto
+  RemoveParticipantMessageDto,
+  ToggleObserverDto,
+  ToggleObserverMessageDto
 } from 'shared-lib';
 import type { IStorageService } from '../../../src/storage/interfaces/index.js';
 import { Util } from '../util.js';
 
 describe('preflight Observe - toggle self', () => {
-  const data: ObserverChangeDto = {
-    member: Util.participant1Name,
+  const data: ToggleObserverDto = {
+    participantId: Util.participant1Name,
     observer: true
   };
-  const message: IObserveMessage = { type: EClientMessageType.Observe, senderId: Util.participant1Name, data: data };
+  const message: ToggleObserverMessageDto = {
+    type: EClientMessageType.Observe,
+    senderId: Util.participant1Name,
+    data: data
+  };
 
   test('OK', () => {
     const storage = new Mock<IStorageService>()
@@ -85,11 +89,15 @@ describe('preflight Observe - toggle self', () => {
 
 describe('preflight Observe - toggle other', () => {
   test('OK', () => {
-    const data: ObserverChangeDto = {
-      member: Util.participant2Name,
+    const data: ToggleObserverDto = {
+      participantId: Util.participant2Name,
       observer: true
     };
-    const message: IObserveMessage = { type: EClientMessageType.Observe, senderId: Util.scrummasterName, data: data };
+    const message: ToggleObserverMessageDto = {
+      type: EClientMessageType.Observe,
+      senderId: Util.scrummasterName,
+      data: data
+    };
 
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
@@ -106,11 +114,15 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const data: ObserverChangeDto = {
-      member: Util.participant2Name,
+    const data: ToggleObserverDto = {
+      participantId: Util.participant2Name,
       observer: true
     };
-    const message: IObserveMessage = { type: EClientMessageType.Observe, senderId: Util.scrummasterName, data: data };
+    const message: ToggleObserverMessageDto = {
+      type: EClientMessageType.Observe,
+      senderId: Util.scrummasterName,
+      data: data
+    };
 
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
@@ -129,11 +141,15 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const data: ObserverChangeDto = {
-      member: Util.participant2Name,
+    const data: ToggleObserverDto = {
+      participantId: Util.participant2Name,
       observer: true
     };
-    const message: IObserveMessage = { type: EClientMessageType.Observe, senderId: Util.scrummasterName, data: data };
+    const message: ToggleObserverMessageDto = {
+      type: EClientMessageType.Observe,
+      senderId: Util.scrummasterName,
+      data: data
+    };
 
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
@@ -152,11 +168,15 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const data: ObserverChangeDto = {
-      member: Util.participant2Name,
+    const data: ToggleObserverDto = {
+      participantId: Util.participant2Name,
       observer: true
     };
-    const message: IObserveMessage = { type: EClientMessageType.Observe, senderId: Util.scrummasterName, data: data };
+    const message: ToggleObserverMessageDto = {
+      type: EClientMessageType.Observe,
+      senderId: Util.scrummasterName,
+      data: data
+    };
 
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
@@ -175,11 +195,15 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => sender not scrum master', () => {
-    const data: ObserverChangeDto = {
-      member: Util.participant2Name,
+    const data: ToggleObserverDto = {
+      participantId: Util.participant2Name,
       observer: true
     };
-    const message: IObserveMessage = { type: EClientMessageType.Observe, senderId: Util.participant1Name, data: data };
+    const message: ToggleObserverMessageDto = {
+      type: EClientMessageType.Observe,
+      senderId: Util.participant1Name,
+      data: data
+    };
 
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.participant1Name))
@@ -198,11 +222,15 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => toggled participant does not exist', () => {
-    const data: ObserverChangeDto = {
-      member: Util.participant2Name,
+    const data: ToggleObserverDto = {
+      participantId: Util.participant2Name,
       observer: true
     };
-    const message: IObserveMessage = { type: EClientMessageType.Observe, senderId: Util.scrummasterName, data: data };
+    const message: ToggleObserverMessageDto = {
+      type: EClientMessageType.Observe,
+      senderId: Util.scrummasterName,
+      data: data
+    };
 
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
@@ -221,11 +249,15 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => toggled participant not in team', () => {
-    const data: ObserverChangeDto = {
-      member: Util.participant2Name,
+    const data: ToggleObserverDto = {
+      participantId: Util.participant2Name,
       observer: true
     };
-    const message: IObserveMessage = { type: EClientMessageType.Observe, senderId: Util.scrummasterName, data: data };
+    const message: ToggleObserverMessageDto = {
+      type: EClientMessageType.Observe,
+      senderId: Util.scrummasterName,
+      data: data
+    };
 
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
@@ -244,11 +276,15 @@ describe('preflight Observe - toggle other', () => {
   });
 
   test('Failure => toggled participant in another team', () => {
-    const data: ObserverChangeDto = {
-      member: Util.participant2Name,
+    const data: ToggleObserverDto = {
+      participantId: Util.participant2Name,
       observer: true
     };
-    const message: IObserveMessage = { type: EClientMessageType.Observe, senderId: Util.scrummasterName, data: data };
+    const message: ToggleObserverMessageDto = {
+      type: EClientMessageType.Observe,
+      senderId: Util.scrummasterName,
+      data: data
+    };
 
     const storage = new Mock<IStorageService>()
       .setup((service: IStorageService) => service.getParticipant(Util.scrummasterName))
@@ -269,7 +305,7 @@ describe('preflight Observe - toggle other', () => {
 
 describe('preflight ChangeNick', () => {
   test('OK', () => {
-    const message: IChangeNickMessage = {
+    const message: ChangeNickMessageDto = {
       type: EClientMessageType.ChangeNick,
       senderId: Util.participant1Name,
       data: Util.participant2Name
@@ -283,7 +319,7 @@ describe('preflight ChangeNick', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IChangeNickMessage = {
+    const message: ChangeNickMessageDto = {
       type: EClientMessageType.ChangeNick,
       senderId: Util.participant1Name,
       data: Util.participant2Name
@@ -299,7 +335,7 @@ describe('preflight ChangeNick', () => {
   });
 
   test('Failure => Name may not be empty', () => {
-    const message: IChangeNickMessage = {
+    const message: ChangeNickMessageDto = {
       type: EClientMessageType.ChangeNick,
       senderId: Util.participant1Name,
       data: ''
@@ -317,7 +353,7 @@ describe('preflight ChangeNick', () => {
 
 describe('preflight Remove', () => {
   test('OK', () => {
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       type: EClientMessageType.Remove,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -338,7 +374,7 @@ describe('preflight Remove', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       type: EClientMessageType.Remove,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -361,7 +397,7 @@ describe('preflight Remove', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       type: EClientMessageType.Remove,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -384,7 +420,7 @@ describe('preflight Remove', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       type: EClientMessageType.Remove,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -407,7 +443,7 @@ describe('preflight Remove', () => {
   });
 
   test('Failure => sender not another team', () => {
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       type: EClientMessageType.Remove,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -429,7 +465,7 @@ describe('preflight Remove', () => {
     );
   });
   test('Failure => sender not scrum master', () => {
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       type: EClientMessageType.Remove,
       senderId: Util.participant1Name,
       data: Util.participant2Name
@@ -452,7 +488,7 @@ describe('preflight Remove', () => {
   });
 
   test('Failure => target does not exist', () => {
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       type: EClientMessageType.Remove,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -475,7 +511,7 @@ describe('preflight Remove', () => {
   });
 
   test('Failure => target not in team', () => {
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       type: EClientMessageType.Remove,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -498,7 +534,7 @@ describe('preflight Remove', () => {
   });
 
   test('Failure => target in another team', () => {
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       type: EClientMessageType.Remove,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -523,7 +559,7 @@ describe('preflight Remove', () => {
 
 describe('preflight ChangeScrumMaster', () => {
   test('OK', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -544,7 +580,7 @@ describe('preflight ChangeScrumMaster', () => {
   });
 
   test('Failure => sender does not exist', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -567,7 +603,7 @@ describe('preflight ChangeScrumMaster', () => {
   });
 
   test('Failure => team does not exist', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -590,7 +626,7 @@ describe('preflight ChangeScrumMaster', () => {
   });
 
   test('Failure => sender in no team', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -613,7 +649,7 @@ describe('preflight ChangeScrumMaster', () => {
   });
 
   test('Failure => sender not in team', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -636,7 +672,7 @@ describe('preflight ChangeScrumMaster', () => {
   });
 
   test('Failure => sender not scrum master', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.participant1Name,
       data: Util.participant2Name
@@ -659,7 +695,7 @@ describe('preflight ChangeScrumMaster', () => {
   });
 
   test('Failure => target does not exist', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -682,7 +718,7 @@ describe('preflight ChangeScrumMaster', () => {
   });
 
   test('Failure => target not in team', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -705,7 +741,7 @@ describe('preflight ChangeScrumMaster', () => {
   });
 
   test('Failure => target in another team', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.scrummasterName,
       data: Util.participant2Name
@@ -728,7 +764,7 @@ describe('preflight ChangeScrumMaster', () => {
   });
 
   test('Failure => new scrum master is not online', () => {
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       type: EClientMessageType.ChangeScrumMaster,
       senderId: Util.scrummasterName,
       data: Util.disconnectedName

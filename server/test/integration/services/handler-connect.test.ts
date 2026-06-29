@@ -12,6 +12,6 @@ describe('Connect', () => {
     const connected = Util.connectParticipant(handlerService);
 
     // Test: init message
-    connected.initializeMessageQueue(false).expectNextMessageIsInit().expectNoMoreMessages();
+    connected.initializeMessageQueue(false).expectNextMessageIsStartHandshake().expectNoMoreMessages();
   });
 });

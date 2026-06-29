@@ -5,7 +5,7 @@ import {
   EParticipantChangeType,
   EParticipantState,
   ERole,
-  IRemoveMessage
+  RemoveParticipantMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -25,7 +25,7 @@ describe('Remove => OK', () => {
     const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: remove the disconnected participant
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       senderId: scrumMaster.participantId,
       data: participant.participantId,
       type: EClientMessageType.Remove
@@ -78,7 +78,7 @@ describe('Remove => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: remove the disconnected participant
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       senderId: scrumMaster.participantId,
       data: participant.participantId,
       type: EClientMessageType.Remove
@@ -115,7 +115,7 @@ describe('Remove => Failure', () => {
     const scrumMaster2 = Util.connectParticipant(handlerService, ERole.ScrumMaster);
 
     // Run: remove the disconnected participant
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       senderId: scrumMaster2.participantId,
       data: participant.participantId,
       type: EClientMessageType.Remove
@@ -143,7 +143,7 @@ describe('Remove => Failure', () => {
     // Test: scrum master 2 messages
     scrumMaster2
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam);
 
     // Test: check if unaffected team is unaffected
@@ -165,7 +165,7 @@ describe('Remove => Failure', () => {
     const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: remove the disconnected participant
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       senderId: observer.participantId,
       data: participant.participantId,
       type: EClientMessageType.Remove
@@ -208,7 +208,7 @@ describe('Remove => Failure', () => {
     const participant = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: remove the disconnected participant
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       senderId: scrumMaster.participantId,
       data: Util.unknownParticipantId,
       type: EClientMessageType.Remove
@@ -255,7 +255,7 @@ describe('Remove => Failure', () => {
     const participant2 = Util.joinTeamAndDisconnect(handlerService, Util.team2Name, Util.participant2Nick);
 
     // Run: remove the disconnected participant
-    const message: IRemoveMessage = {
+    const message: RemoveParticipantMessageDto = {
       senderId: scrumMaster1.participantId,
       data: participant2.participantId,
       type: EClientMessageType.Remove

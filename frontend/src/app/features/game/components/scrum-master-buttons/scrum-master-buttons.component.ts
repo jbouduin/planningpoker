@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, Signal } from '@angular/core';
-import { extract } from '../../../../core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EGameState } from 'shared-lib';
+import { extract } from '../../../../core';
 import { PokerService } from '../../services';
 import { Estimation } from '../../services/estimation';
 

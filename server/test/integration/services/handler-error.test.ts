@@ -1,5 +1,5 @@
 import { describe, test } from '@jest/globals';
-import { EServerMessageType, IErrorMessage } from 'shared-lib';
+import { EServerMessageType, ErrorMessageDto } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
 import { Util } from './helpers/util.js';
@@ -21,7 +21,7 @@ describe('Handle Error', () => {
     // Test scrum master messages
     scrumMaster
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.Error, (m: IErrorMessage) => m.data.message === 'test error')
+      .expectNextMessageIs(EServerMessageType.Error, (m: ErrorMessageDto) => m.data.message === 'test error')
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

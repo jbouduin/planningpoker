@@ -1,4 +1,11 @@
-import { CardSetDto, EErrorCode, EGameState, EParticipantChangeType, EstimationDto } from 'shared-lib';
+import {
+  CardSetDto,
+  EErrorCode,
+  EGameState,
+  EParticipantChangeType,
+  ESessionEndedReason,
+  EstimationDto
+} from 'shared-lib';
 import type { IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
 import { IWebSocket } from '../websocket.js';
 
@@ -17,17 +24,15 @@ export interface IMessageService {
     changedMember: IServerParticipant,
     change: EParticipantChangeType
   ): void;
-  broadcastReset(members: Array<IServerParticipant>): void;
-  broadcastSessionEnded(members: Array<IServerParticipant>): void;
-  broadcastTeamIdle(members: Array<IServerParticipant>): void;
+  broadcastSessionEnded(members: Array<IServerParticipant>, reason: ESessionEndedReason): void;
   sendErrorMessageToSocket(ws: IWebSocket, code: EErrorCode): void;
   sendEstimation(gameState: EGameState, to: IServerParticipant, estimations: Array<EstimationDto>): void;
   sendException(socket: IWebSocket, errorMessage: string): void;
   sendGameStateChanged(to: IServerParticipant, gameState: EGameState): void;
-  sendInit(to: IServerParticipant): void;
+  sendStartHandshake(to: IServerParticipant): void;
   sendPing(to: IServerParticipant): void;
   sendSelf(to: IServerParticipant): void;
-  sendInitSequence(
+  sendHandshakeSequence(
     to: IServerParticipant,
     team: IServerTeam,
     members: Array<IServerParticipant>,

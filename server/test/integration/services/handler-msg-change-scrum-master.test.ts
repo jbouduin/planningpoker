@@ -1,5 +1,5 @@
 import { describe, test } from '@jest/globals';
-import { EClientMessageType, EErrorCode, EParticipantChangeType, ERole, IChangeScrumMasterMessage } from 'shared-lib';
+import { EClientMessageType, EErrorCode, EParticipantChangeType, ERole, ChangeScrumMasterMessageDto } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
 import { Util } from './helpers/util.js';
@@ -18,7 +18,7 @@ describe('Change scrum master => OK', () => {
     const participant2 = Util.joinTeam(handlerService, Util.team1Name, Util.participant2Nick);
 
     // Run: change scrum master to participant 1
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       senderId: scrumMaster.participantId,
       data: participant1.participantId,
       type: EClientMessageType.ChangeScrumMaster
@@ -79,7 +79,7 @@ describe('Change scrum master => Failure', () => {
     const participant1 = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change scrum master
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       senderId: Util.unknownParticipantId,
       data: participant1.participantId,
       type: EClientMessageType.ChangeScrumMaster
@@ -112,7 +112,7 @@ describe('Change scrum master => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change scrum master
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       senderId: scrumMaster.participantId,
       data: participant.participantId,
       type: EClientMessageType.ChangeScrumMaster
@@ -148,7 +148,7 @@ describe('Change scrum master => Failure', () => {
     const scrumMaster2 = Util.connectParticipant(handlerService, ERole.ScrumMaster);
 
     // Run: change scrum master to participant 1
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       senderId: scrumMaster2.participantId,
       data: participant1.participantId,
       type: EClientMessageType.ChangeScrumMaster
@@ -167,7 +167,7 @@ describe('Change scrum master => Failure', () => {
     // Test: scrum master 2 messages
     scrumMaster2
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -190,7 +190,7 @@ describe('Change scrum master => Failure', () => {
     const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick);
 
     // Run: change scrum master to disconnected user
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       senderId: scrumMaster.participantId,
       data: disconnected.participantId,
       type: EClientMessageType.ChangeScrumMaster
@@ -236,7 +236,7 @@ describe('Change scrum master => Failure', () => {
     const participant2 = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
 
     // Run: change scrum master to participant 2 who is in another team
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       senderId: scrumMaster.participantId,
       data: participant2.participantId,
       type: EClientMessageType.ChangeScrumMaster
@@ -272,7 +272,7 @@ describe('Change scrum master => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change scrum master to unknown participant
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       senderId: scrumMaster.participantId,
       data: 'unknown participant',
       type: EClientMessageType.ChangeScrumMaster
@@ -306,7 +306,7 @@ describe('Change scrum master => Failure', () => {
     const participant2 = Util.joinTeam(handlerService, Util.team1Name, Util.participant2Nick);
 
     // Run: change scrum master
-    const message: IChangeScrumMasterMessage = {
+    const message: ChangeScrumMasterMessageDto = {
       senderId: participant2.participantId,
       data: participant1.participantId,
       type: EClientMessageType.ChangeScrumMaster

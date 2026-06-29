@@ -3,8 +3,8 @@ import { Component, computed, Signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { CardDto, EGameState } from 'shared-lib';
 import { CardComponent } from '../../../../shared/components';
-import { GameService, PokerService } from '../../services';
 import { IDisplayCard } from '../../../../shared/components/card/display-card';
+import { GameService, PokerService } from '../../services';
 
 @Component({
   selector: 'app-my-hand',

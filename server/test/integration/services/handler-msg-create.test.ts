@@ -1,6 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 import {
   CardDto,
+  CardSetMessageDto,
+  CreateMessageDto,
   ECardSetType,
   EClientMessageType,
   EErrorCode,
@@ -8,12 +10,10 @@ import {
   EParticipantState,
   ERole,
   EServerMessageType,
-  ICardSetMessage,
-  ICreateMessage,
-  IInitMessage,
-  IParticipantListMessage,
-  ISelfMessage,
-  ITeamNameMessage
+  ParticipantListMessageDto,
+  SelfMessageDto,
+  StartHandshakeMessageDto,
+  TeamNameMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -43,23 +43,25 @@ describe('create => OK', () => {
     // Test: Scrum master initial messages
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init, (m: IInitMessage) => {
+      .expectNextMessageIs(EServerMessageType.StartHandshake, (m: StartHandshakeMessageDto) => {
         expect(m.data.participantId).toBeDefined();
         expect(m.data.participantId.length).toBeGreaterThan(0);
       })
-      .expectNextMessageIs(EServerMessageType.Self, (m: ISelfMessage) => {
+      .expectNextMessageIs(EServerMessageType.Self, (m: SelfMessageDto) => {
         expect(m.data.nick).toBe(Util.scrumMaster1Nick);
         expect(m.data.state).toBe(EParticipantState.Connected);
         expect(m.data.role).toBe(ERole.ScrumMaster);
         expect(m.data.observer).toBe(false);
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: ITeamNameMessage) => expect(m.data).toBe(Util.team1Name))
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => expect(m.data).toBe(Util.team1Name))
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.TShirt);
         expect(m.data.cards).toHaveLength(tshirt.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList, (m: IParticipantListMessage) => expect(m.data.length).toBe(0))
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.ParticipantList, (m: ParticipantListMessageDto) =>
+        expect(m.data.length).toBe(0)
+      )
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNoMoreMessages();
 
@@ -83,12 +85,12 @@ describe('create => OK', () => {
     // Test: check if the observer flag was send correctly
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
-      .expectNextMessageIs(EServerMessageType.Self, (m: ISelfMessage) => expect(m.data.observer).toBe(true))
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
+      .expectNextMessageIs(EServerMessageType.Self, (m: SelfMessageDto) => expect(m.data.observer).toBe(true))
       .expectNextMessageIs(EServerMessageType.TeamName)
       .expectNextMessageIs(EServerMessageType.CardSet)
-      .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.ParticipantList)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNoMoreMessages();
   });
@@ -113,15 +115,15 @@ describe('create => OK', () => {
     // Test: check if the card set message contains the correct data
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
       .expectNextMessageIs(EServerMessageType.Self)
       .expectNextMessageIs(EServerMessageType.TeamName)
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.ParticipantList)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNoMoreMessages();
   });
@@ -145,15 +147,15 @@ describe('create => OK', () => {
     // Test: check if the card set message contains the correct data
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
       .expectNextMessageIs(EServerMessageType.Self)
       .expectNextMessageIs(EServerMessageType.TeamName)
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => {
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
       })
-      .expectNextMessageIs(EServerMessageType.MemberList)
-      .expectNextMessageIs(EServerMessageType.EndInit)
+      .expectNextMessageIs(EServerMessageType.ParticipantList)
+      .expectNextMessageIs(EServerMessageType.EndHandshake)
       .expectNextMessageIsGameStateChanged(EGameState.Cleared)
       .expectNoMoreMessages();
   });
@@ -171,7 +173,7 @@ describe('Create => Failure', () => {
     const scrumMaster = Util.connectParticipant(handlerService);
 
     // Run: create the team passing an unknown participantId
-    const message: ICreateMessage = {
+    const message: CreateMessageDto = {
       type: EClientMessageType.Create,
       senderId: Util.unknownParticipantId,
       data: {
@@ -185,7 +187,7 @@ describe('Create => Failure', () => {
     // Test: Scrum master messages
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
 
@@ -212,7 +214,7 @@ describe('Create => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
       .expectNextMessageIsError(EErrorCode.TeamAlreadyExists)
       .expectNoMoreMessages();
 
@@ -242,7 +244,7 @@ describe('Create => Failure', () => {
     // Test: Scrum Master messages
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
       .expectNextMessageIsError(EErrorCode.UnknownEstimationCardMissing)
       .expectNoMoreMessages();
   });
@@ -267,7 +269,7 @@ describe('Create => Failure', () => {
     // Test: Scrum Master messages
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
       .expectNextMessageIsError(EErrorCode.MoreThanTwoEstimationCardsRequired)
       .expectNoMoreMessages();
   });
@@ -291,7 +293,7 @@ describe('Create => Failure', () => {
     // Test: Scrum master messages
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
       .expectNextMessageIsError(EErrorCode.TeamNameMayNotBeEmtpy)
       .expectNoMoreMessages();
 
@@ -318,7 +320,7 @@ describe('Create => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIs(EServerMessageType.Init)
+      .expectNextMessageIs(EServerMessageType.StartHandshake)
       .expectNextMessageIsError(EErrorCode.ParticipantNameMayNotBeEmpty)
       .expectNoMoreMessages();
 

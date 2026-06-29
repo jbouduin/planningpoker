@@ -1,14 +1,11 @@
 import { describe, expect, test } from '@jest/globals';
 import {
-  EClientMessageType,
   EGameState,
   EParticipantChangeType,
   EParticipantState,
   ERole,
   EServerMessageType,
-  IEstimateMessage,
-  IEstimationListMessage,
-  IStartMessage
+  EstimationListMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -73,20 +70,10 @@ describe('Close', () => {
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer2Name, true);
 
     // Setup: start estimating
-    const startMessage: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(startMessage);
+    Util.startEstimating(scrumMaster);
 
     // Setup: participant estimates
-    const estimateMessage: IEstimateMessage = {
-      senderId: participant.participantId,
-      data: 2,
-      type: EClientMessageType.Estimate
-    };
-    participant.sendMessage(estimateMessage);
+    Util.estimate(participant, 2);
 
     // Run: participant disconnects
     participant.closeSocket();
@@ -96,16 +83,16 @@ describe('Close', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected, {
         participantId: participant.participantId,
         state: EParticipantState.Disconnected
       })
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
@@ -113,16 +100,16 @@ describe('Close', () => {
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Disconnected, {
         participantId: participant.participantId,
         state: EParticipantState.Disconnected
       })
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
@@ -131,9 +118,9 @@ describe('Close', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNoMoreMessages();
@@ -216,7 +203,7 @@ describe('Close', () => {
     participant.closeSocket();
 
     // Test: participant messages
-    participant.initializeMessageQueue(false).expectNextMessageIsInit();
+    participant.initializeMessageQueue(false).expectNextMessageIsStartHandshake();
 
     // Test: check if unaffected team is unaffected
     unaffectedTeam.expectIsUnaffected();

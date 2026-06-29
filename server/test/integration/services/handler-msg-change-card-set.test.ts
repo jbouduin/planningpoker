@@ -2,16 +2,15 @@ import { describe, expect, test } from '@jest/globals';
 import {
   CardDto,
   CardSetDto,
+  CardSetMessageDto,
+  ChangeCardSetMessageDto,
   ECardSetType,
   EClientMessageType,
   EErrorCode,
   EGameState,
   EParticipantChangeType,
   ERole,
-  EServerMessageType,
-  ICardSetMessage,
-  IChangeCardSetMessage,
-  IStartMessage
+  EServerMessageType
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -41,7 +40,7 @@ describe('Change card set => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change card set
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       senderId: scrumMaster.participantId,
       data: customizedCohn,
       type: EClientMessageType.ChangeCardSet
@@ -52,14 +51,14 @@ describe('Change card set => OK', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => expectCardSetFn(m.data))
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => expectCardSetFn(m.data))
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
 
-      .expectNextMessageIs(EServerMessageType.CardSet, (m: ICardSetMessage) => expectCardSetFn(m.data))
+      .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => expectCardSetFn(m.data))
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -82,7 +81,7 @@ describe('Change card set => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change card set
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       senderId: scrumMaster.participantId,
       data: cohn,
       type: EClientMessageType.ChangeCardSet
@@ -123,7 +122,7 @@ describe('Change card set => Failure', () => {
     const scrumMaster2 = Util.connectParticipant(handlerService, ERole.ScrumMaster);
 
     // Run: change card set
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       senderId: scrumMaster2.participantId,
       data: customizedCohn,
       type: EClientMessageType.ChangeCardSet
@@ -143,7 +142,7 @@ describe('Change card set => Failure', () => {
     // Test: scrum master 2 messages
     scrumMaster2
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -167,7 +166,7 @@ describe('Change card set => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change card set
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       senderId: scrumMaster.participantId,
       data: customizedCohn,
       type: EClientMessageType.ChangeCardSet
@@ -204,15 +203,10 @@ describe('Change card set => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: start estimating
-    const startMessage: IStartMessage = {
-      senderId: scrumMaster.participantId,
-      data: undefined,
-      type: EClientMessageType.Start
-    };
-    scrumMaster.sendMessage(startMessage);
+    Util.startEstimating(scrumMaster);
 
     // Run: change card set
-    const changeCardSetmessage: IChangeCardSetMessage = {
+    const changeCardSetmessage: ChangeCardSetMessageDto = {
       senderId: scrumMaster.participantId,
       data: customizedCohn,
       type: EClientMessageType.ChangeCardSet
@@ -223,7 +217,7 @@ describe('Change card set => Failure', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.ChangeCardSetNotAllowedDuringEstimation)
       .expectNoMoreMessages();
@@ -231,7 +225,7 @@ describe('Change card set => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
@@ -255,7 +249,7 @@ describe('Change card set => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change card set
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       senderId: participant.participantId,
       data: customizedCohn,
       type: EClientMessageType.ChangeCardSet
@@ -295,7 +289,7 @@ describe('Change card set => Failure', () => {
     // Setup: participant joining team 1
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
     // Run: change card set
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       senderId: scrumMaster.participantId,
       data: customizedCohn,
       type: EClientMessageType.ChangeCardSet
@@ -332,7 +326,7 @@ describe('Change card set => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change card set
-    const message: IChangeCardSetMessage = {
+    const message: ChangeCardSetMessageDto = {
       senderId: scrumMaster.participantId,
       data: customizedCohn,
       type: EClientMessageType.ChangeCardSet

@@ -6,10 +6,10 @@ import {
   EParticipantChangeType,
   EParticipantState,
   EServerMessageType,
-  IEstimateMessage,
-  IEstimationListMessage,
-  IPauseMessage,
-  IStartMessage
+  EstimateMessageDto,
+  EstimationListMessageDto,
+  PauseMessageDto,
+  StartMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -28,7 +28,7 @@ describe('Pause => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: pause
-    const message: IPauseMessage = {
+    const message: PauseMessageDto = {
       senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Pause
@@ -70,7 +70,7 @@ describe('Pause => OK', () => {
     const observer = Util.joinTeam(handlerService, Util.team1Name, Util.observer1Name);
 
     // Setup: start estimating
-    const startMessage: IStartMessage = {
+    const startMessage: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -78,7 +78,7 @@ describe('Pause => OK', () => {
     scrumMaster.sendMessage(startMessage);
 
     // Setup: participant estimates
-    const estimateMessage: IEstimateMessage = {
+    const estimateMessage: EstimateMessageDto = {
       senderId: participant.participantId,
       data: 2,
       type: EClientMessageType.Estimate
@@ -86,7 +86,7 @@ describe('Pause => OK', () => {
     participant.sendMessage(estimateMessage);
 
     // Run: pause
-    const message: IPauseMessage = {
+    const message: PauseMessageDto = {
       senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Pause
@@ -100,16 +100,16 @@ describe('Pause => OK', () => {
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Paused, {
         participantId: participant.participantId,
         state: EParticipantState.Paused
       })
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
@@ -118,9 +118,9 @@ describe('Pause => OK', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsSelf({ state: EParticipantState.Paused })
@@ -129,16 +129,16 @@ describe('Pause => OK', () => {
     // Test: observer messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
       .expectNextMessageIsMemberChange(EParticipantChangeType.Paused, {
         participantId: participant.participantId,
         state: EParticipantState.Paused
       })
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(0)
       )
       .expectNoMoreMessages();
@@ -162,7 +162,7 @@ describe('Pause => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: pause
-    const message: IPauseMessage = {
+    const message: PauseMessageDto = {
       senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Pause
@@ -194,7 +194,7 @@ describe('Pause => Failure', () => {
     const participant = Util.connectParticipant(handlerService);
 
     // Run: pause
-    const message: IPauseMessage = {
+    const message: PauseMessageDto = {
       senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Pause
@@ -207,7 +207,7 @@ describe('Pause => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 

@@ -1,6 +1,6 @@
 import * as expressWs from 'express-ws';
 import { inject, injectable } from 'inversify';
-import { AClientMessage } from 'shared-lib';
+import { AClientMessageDto } from 'shared-lib';
 import type { IHandlerService, ILoggerService, ISocketService } from '../interfaces/index.js';
 import SERVICETYPES from '../service.types.js';
 
@@ -45,7 +45,7 @@ export class SocketService implements ISocketService {
       ws.on('message', (msg: string) => {
         try {
           // wwweslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const message: AClientMessage = JSON.parse(msg) as AClientMessage;
+          const message: AClientMessageDto = JSON.parse(msg) as AClientMessageDto;
           //eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           this.loggerService.info('Socket', `/${req.params.team} <= ${message.type} - ${JSON.stringify(message)}`);
           this.handlerService.handleMessage(message, team, ws);

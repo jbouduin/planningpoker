@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { CreateJoinFormComponent } from '../create-join-form/create-join-form.component';
 import { ECreateJoinFormMode } from '../create-join-form/create-join-form-mode';
+import { CreateJoinFormComponent } from '../create-join-form/create-join-form.component';
 
 @Component({
   selector: 'app-create',

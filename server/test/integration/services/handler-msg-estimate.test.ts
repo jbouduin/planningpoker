@@ -5,10 +5,10 @@ import {
   EGameState,
   EParticipantChangeType,
   EServerMessageType,
+  EstimateMessageDto,
   EstimationDto,
-  IEstimateMessage,
-  IEstimationListMessage,
-  IEstimationWithdrawnMessage
+  EstimationListMessageDto,
+  EstimationWithdrawnMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -50,9 +50,9 @@ describe('Estimate => OK', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, null)
       )
       .expectNoMoreMessages();
@@ -60,9 +60,9 @@ describe('Estimate => OK', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, 2)
       )
       .expectNoMoreMessages();
@@ -109,12 +109,12 @@ describe('Estimate => OK', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, null)
       )
-      .expectNextMessageIs(EServerMessageType.EstimationWithdrawn, (m: IEstimationWithdrawnMessage) => {
+      .expectNextMessageIs(EServerMessageType.EstimationWithdrawn, (m: EstimationWithdrawnMessageDto) => {
         expect(m.data).toBe(participant.participantId);
       })
       .expectNoMoreMessages();
@@ -122,12 +122,12 @@ describe('Estimate => OK', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, 2)
       )
-      .expectNextMessageIs(EServerMessageType.EstimationWithdrawn, (m: IEstimationWithdrawnMessage) => {
+      .expectNextMessageIs(EServerMessageType.EstimationWithdrawn, (m: EstimationWithdrawnMessageDto) => {
         expect(m.data).toBe(participant.participantId);
       })
       .expectNoMoreMessages();
@@ -174,12 +174,12 @@ describe('Estimate => OK', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, null)
       )
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, null)
       )
       .expectNoMoreMessages();
@@ -187,12 +187,12 @@ describe('Estimate => OK', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, 2)
       )
-      .expectNextMessageIs(EServerMessageType.EstimationList, (m: IEstimationListMessage) =>
+      .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         validateEstimationListFn(m.data, 3)
       )
       .expectNoMoreMessages();
@@ -218,7 +218,7 @@ describe('Estimate => Failure', () => {
     Util.startEstimating(scrumMaster);
 
     // Run: estimate
-    const estimateMessage: IEstimateMessage = {
+    const estimateMessage: EstimateMessageDto = {
       senderId: Util.unknownParticipantId,
       data: 2,
       type: EClientMessageType.Estimate
@@ -229,14 +229,14 @@ describe('Estimate => Failure', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.ParticipantNotFound)
       .expectNoMoreMessages();
@@ -260,7 +260,7 @@ describe('Estimate => Failure', () => {
     Util.startEstimating(scrumMaster);
 
     // Run: estimate
-    const estimateMessage: IEstimateMessage = {
+    const estimateMessage: EstimateMessageDto = {
       senderId: participant.participantId,
       data: 2,
       type: EClientMessageType.Estimate
@@ -271,14 +271,14 @@ describe('Estimate => Failure', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.TeamNotFound)
       .expectNoMoreMessages();
@@ -298,7 +298,7 @@ describe('Estimate => Failure', () => {
     const participant = Util.connectParticipant(handlerService);
 
     // Run: estimate
-    const estimateMessage: IEstimateMessage = {
+    const estimateMessage: EstimateMessageDto = {
       senderId: participant.participantId,
       data: 2,
       type: EClientMessageType.Estimate
@@ -308,7 +308,7 @@ describe('Estimate => Failure', () => {
     // Test: participant messages
     participant
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -331,7 +331,7 @@ describe('Estimate => Failure', () => {
     Util.startEstimating(scrumMaster);
 
     // Run: estimate
-    const estimateMessage: IEstimateMessage = {
+    const estimateMessage: EstimateMessageDto = {
       senderId: participant.participantId,
       data: 2,
       type: EClientMessageType.Estimate
@@ -342,14 +342,14 @@ describe('Estimate => Failure', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
@@ -409,14 +409,14 @@ describe('Estimate => Failure', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.InvalidEstimation)
       .expectNoMoreMessages();
@@ -446,14 +446,14 @@ describe('Estimate => Failure', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant messages
     observer
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.ObserverCanNotEstimate)
       .expectNoMoreMessages();

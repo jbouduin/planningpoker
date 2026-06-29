@@ -1,5 +1,5 @@
 import { describe, test } from '@jest/globals';
-import { EClientMessageType, EErrorCode, EParticipantChangeType, IChangeNickMessage } from 'shared-lib';
+import { ChangeNickMessageDto, EClientMessageType, EErrorCode, EParticipantChangeType } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
 import { Util } from './helpers/util.js';
@@ -18,7 +18,7 @@ describe('Change nick => OK', () => {
     const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick);
 
     // Run: scrum master changes his nick
-    const message: IChangeNickMessage = {
+    const message: ChangeNickMessageDto = {
       senderId: scrumMaster.participantId,
       data: Util.observer1Name,
       type: EClientMessageType.ChangeNick
@@ -67,7 +67,7 @@ describe('Change nick => Failure', () => {
     const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick);
 
     // Run: scrum master changes his nick
-    const message: IChangeNickMessage = {
+    const message: ChangeNickMessageDto = {
       senderId: Util.unknownParticipantId,
       data: Util.scrumMaster2Nick,
       type: EClientMessageType.ChangeNick
@@ -114,7 +114,7 @@ describe('Change nick => Failure', () => {
     const disconnected = Util.joinTeamAndDisconnect(handlerService, Util.team1Name, Util.participant2Nick);
 
     // Run: scrum master changes his nick
-    const message: IChangeNickMessage = {
+    const message: ChangeNickMessageDto = {
       senderId: scrumMaster.participantId,
       data: '',
       type: EClientMessageType.ChangeNick

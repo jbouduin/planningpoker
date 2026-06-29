@@ -1,5 +1,5 @@
 import { describe, test } from '@jest/globals';
-import { EParticipantChangeType, EServerMessageType } from 'shared-lib';
+import { EParticipantChangeType, EServerMessageType, ESessionEndedReason } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
 import { Util } from './helpers/util.js';
@@ -32,12 +32,15 @@ describe('Cron tick', () => {
     // Test: scrum master messages
     scrumMaster1
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.MemberChanged)
-      .expectNextMessageIs(EServerMessageType.TeamIdle)
+      .expectNextMessageIs(EServerMessageType.ParticipantChanged)
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.IdleTimeOut)
       .expectNoMoreMessages();
 
     // Test: participant 1 messages
-    participant1.initializeMessageQueue().expectNextMessageIs(EServerMessageType.TeamIdle).expectNoMoreMessages();
+    participant1
+      .initializeMessageQueue()
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.IdleTimeOut)
+      .expectNoMoreMessages();
 
     // Test: scrum master 2 should have received join only
     scrumMaster2

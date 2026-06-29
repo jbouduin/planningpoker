@@ -3,15 +3,15 @@ import { It, Mock } from 'moq.ts';
 import {
   CardDto,
   CardSetDto,
+  CreateMessageDto,
   ECardSetType,
   EClientMessageType,
   ERole,
-  ICreateMessage,
-  IEstimateMessage,
-  IJoinMessage,
-  IPauseMessage,
-  IStartMessage,
-  IWithDrawMessage
+  EstimateMessageDto,
+  JoinMessageDto,
+  PauseMessageDto,
+  StartMessageDto,
+  WithDrawMessageDto
 } from 'shared-lib';
 import {
   CronService,
@@ -72,20 +72,20 @@ export class Util {
   public static unknownParticipantId = 'unknown participant id';
 
   // public static createMessageTypesExpected = [
-  //   EServerMessageType.Init,
+  //   EServerMessageType.StartHandshake,
   //   EServerMessageType.Self,
   //   EServerMessageType.TeamName,
   //   EServerMessageType.CardSet,
-  //   EServerMessageType.MemberList,
+  //   EServerMessageType.ParticipantList,
   //   EServerMessageType.EstimationList
   // ];
 
   // public static joinMessageTypesExpected = [
-  //   EServerMessageType.Init,
+  //   EServerMessageType.StartHandshake,
   //   EServerMessageType.Self,
   //   EServerMessageType.TeamName,
   //   EServerMessageType.CardSet,
-  //   EServerMessageType.MemberList,
+  //   EServerMessageType.ParticipantList,
   //   EServerMessageType.EstimationList
   // ];
 
@@ -144,7 +144,7 @@ export class Util {
     observer = false
   ): ITestParticipant {
     const participant = this.connectParticipant(handlerService);
-    const message: IJoinMessage = {
+    const message: JoinMessageDto = {
       senderId: participant.participantId,
       type: EClientMessageType.Join,
       data: {
@@ -174,7 +174,7 @@ export class Util {
     observer = false
   ): ITestParticipant {
     const participant = this.joinTeam(handlerService, teamName, nickName, observer);
-    const message: IPauseMessage = {
+    const message: PauseMessageDto = {
       senderId: participant.participantId,
       type: EClientMessageType.Pause,
       data: undefined
@@ -193,7 +193,7 @@ export class Util {
     cards?: CardSetDto
   ): ITestScrumMaster {
     const scrumMaster = this.connectScrumMaster(handlerService);
-    const message: ICreateMessage = {
+    const message: CreateMessageDto = {
       type: EClientMessageType.Create,
       senderId: scrumMaster.participantId,
       data: {
@@ -215,7 +215,7 @@ export class Util {
   }
 
   public static startEstimating(scrumMaster: ITestScrumMaster): void {
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -229,7 +229,7 @@ export class Util {
    * @param card the index of the card (not the position in the array!). Pass `null` to withdraw an estimation
    */
   public static estimate(participant: IATestParticipant, card: number): void {
-    const estimateMessage: IEstimateMessage = {
+    const estimateMessage: EstimateMessageDto = {
       senderId: participant.participantId,
       data: card,
       type: EClientMessageType.Estimate
@@ -238,7 +238,7 @@ export class Util {
   }
 
   public static withdrawEstimation(participant: IATestParticipant): void {
-    const withdrawMessage: IWithDrawMessage = {
+    const withdrawMessage: WithDrawMessageDto = {
       data: undefined,
       senderId: participant.participantId,
       type: EClientMessageType.WithdrawEstimation

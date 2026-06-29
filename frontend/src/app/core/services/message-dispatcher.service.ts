@@ -1,22 +1,24 @@
 import { inject, Service, signal, Signal, WritableSignal } from '@angular/core';
 import {
-  AServerMessage,
-  EGameState,
-  EServerMessageType,
+  AServerMessageDto,
   CardSetDto,
-  ICardSetMessage,
-  IErrorMessage,
+  CardSetMessageDto,
+  EGameState,
+  ErrorMessageDto,
+  EServerMessageType,
+  ESessionEndedReason,
   EstimationDto,
-  IEstimationListMessage,
-  IGameStateChangedMessage,
-  IInitMessage,
+  EstimationListMessageDto,
+  EstimationWithdrawnMessageDto,
+  GameStateChangedMessageDto,
+  ParticipantChangedMessageDto,
   ParticipantChangeDto,
-  IParticipantChangedMessage,
-  IParticipantListMessage,
   ParticipantDto,
-  ISelfMessage,
-  ITeamNameMessage,
-  IEstimationWithdrawnMessage
+  ParticipantListMessageDto,
+  SelfMessageDto,
+  SessionEndedMessageDto,
+  StartHandshakeMessageDto,
+  TeamNameMessageDto
 } from 'shared-lib';
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -25,14 +27,14 @@ export class MessageDispatcherService {
   //#region Private Fields ----------------------------------------------------
   private readonly _cardSet: WritableSignal<CardSetDto | null>;
   private readonly _clearEstimations: WritableSignal<number>;
-  private readonly _endInit: WritableSignal<number>;
-  private readonly _endSession: WritableSignal<number>;
+  private readonly _endHandshake: WritableSignal<number>;
+  private readonly _sessionEnded: WritableSignal<ESessionEndedReason | null>;
   private readonly _estimationList: WritableSignal<Array<EstimationDto>>;
-  private readonly _init: WritableSignal<ParticipantDto | null>;
-  private readonly _memberChanged: WritableSignal<ParticipantChangeDto | null>;
-  private readonly _memberList: WritableSignal<Array<ParticipantDto>>;
+  private readonly _startHandshake: WritableSignal<ParticipantDto | null>;
+  private readonly _participantChanged: WritableSignal<ParticipantChangeDto | null>;
+  private readonly _participantList: WritableSignal<Array<ParticipantDto>>;
   private readonly _ping: WritableSignal<number>;
-  private readonly _pokerStatus: WritableSignal<EGameState>;
+  private readonly _gameStateChanged: WritableSignal<EGameState>;
   private readonly _self: WritableSignal<ParticipantDto | null>;
   private readonly _serverReset: WritableSignal<number>;
   private readonly _teamIdle: WritableSignal<number>;
@@ -45,14 +47,14 @@ export class MessageDispatcherService {
   public constructor() {
     this._cardSet = signal<CardSetDto | null>(null);
     this._clearEstimations = signal<number>(0);
-    this._endInit = signal<number>(0);
-    this._endSession = signal<number>(0);
+    this._endHandshake = signal<number>(0);
+    this._sessionEnded = signal<ESessionEndedReason | null>(null);
     this._estimationList = signal<Array<EstimationDto>>(new Array<EstimationDto>());
-    this._init = signal<ParticipantDto | null>(null);
-    this._memberChanged = signal<ParticipantChangeDto | null>(null);
-    this._memberList = signal<Array<ParticipantDto>>(new Array<ParticipantDto>());
+    this._startHandshake = signal<ParticipantDto | null>(null);
+    this._participantChanged = signal<ParticipantChangeDto | null>(null);
+    this._participantList = signal<Array<ParticipantDto>>(new Array<ParticipantDto>());
     this._ping = signal<number>(0);
-    this._pokerStatus = signal<EGameState>(EGameState.Cleared);
+    this._gameStateChanged = signal<EGameState>(EGameState.Cleared);
     this._self = signal<ParticipantDto | null>(null);
     this._serverReset = signal<number>(0);
     this._teamIdle = signal<number>(0);
@@ -71,48 +73,40 @@ export class MessageDispatcherService {
     return this._clearEstimations;
   }
 
-  public get endInit(): Signal<number> {
-    return this._endInit;
+  public get endHandshake(): Signal<number> {
+    return this._endHandshake;
   }
 
-  public get endSession(): Signal<number> {
-    return this._endSession;
+  public get gameStateChanged(): Signal<EGameState> {
+    return this._gameStateChanged;
+  }
+
+  public get sessionEnded(): Signal<ESessionEndedReason | null> {
+    return this._sessionEnded;
   }
 
   public get estimationList(): Signal<Array<EstimationDto>> {
     return this._estimationList;
   }
 
-  public get init(): Signal<ParticipantDto | null> {
-    return this._init;
+  public get startHandshake(): Signal<ParticipantDto | null> {
+    return this._startHandshake;
   }
 
-  public get memberChanged(): Signal<ParticipantChangeDto | null> {
-    return this._memberChanged;
+  public get participantChanged(): Signal<ParticipantChangeDto | null> {
+    return this._participantChanged;
   }
 
-  public get memberList(): Signal<Array<ParticipantDto>> {
-    return this._memberList;
+  public get participantList(): Signal<Array<ParticipantDto>> {
+    return this._participantList;
   }
 
   public get ping(): Signal<number> {
     return this._ping;
   }
 
-  public get pokerStatus(): Signal<EGameState> {
-    return this._pokerStatus;
-  }
-
   public get self(): Signal<ParticipantDto | null> {
     return this._self;
-  }
-
-  public get serverReset(): Signal<number> {
-    return this._serverReset;
-  }
-
-  public get teamIdle(): Signal<number> {
-    return this._teamIdle;
   }
 
   public get teamName(): Signal<string | null> {
@@ -125,56 +119,50 @@ export class MessageDispatcherService {
   //#endregion
 
   //#region Public Methods ----------------------------------------------------
-  public processServerMessage(message: AServerMessage): boolean {
+  public processServerMessage(message: AServerMessageDto): boolean {
     let canContinue = true;
     switch (message.type) {
       case EServerMessageType.CardSet:
-        this._cardSet.set((<ICardSetMessage>message).data);
+        this._cardSet.set((<CardSetMessageDto>message).data);
         break;
-      case EServerMessageType.ClearEstimations:
+      case EServerMessageType.EstimationsCleared:
         this._clearEstimations.update((prev: number) => prev + 1);
         break;
-      case EServerMessageType.EndInit:
-        this._endInit.update((prev: number) => prev + 1);
+      case EServerMessageType.EndHandshake:
+        this._endHandshake.update((prev: number) => prev + 1);
         break;
-      case EServerMessageType.EndSession:
-        this._endSession.update((prev: number) => prev + 1);
+      case EServerMessageType.SessionEnded:
+        this._sessionEnded.set((<SessionEndedMessageDto>message).data);
         break;
       case EServerMessageType.Error:
-        canContinue = this.errorHandlerSvc.processError((<IErrorMessage>message).data);
+        canContinue = this.errorHandlerSvc.processError((<ErrorMessageDto>message).data);
         break;
       case EServerMessageType.EstimationList:
-        this._estimationList.set((<IEstimationListMessage>message).data);
+        this._estimationList.set((<EstimationListMessageDto>message).data);
         break;
       case EServerMessageType.GameStateChanged:
-        this._pokerStatus.set((<IGameStateChangedMessage>message).data);
+        this._gameStateChanged.set((<GameStateChangedMessageDto>message).data);
         break;
-      case EServerMessageType.Init:
-        this._init.set((<IInitMessage>message).data);
+      case EServerMessageType.StartHandshake:
+        this._startHandshake.set((<StartHandshakeMessageDto>message).data);
         break;
-      case EServerMessageType.MemberChanged:
-        this._memberChanged.set((<IParticipantChangedMessage>message).data);
+      case EServerMessageType.ParticipantChanged:
+        this._participantChanged.set((<ParticipantChangedMessageDto>message).data);
         break;
-      case EServerMessageType.MemberList:
-        this._memberList.set((<IParticipantListMessage>message).data);
+      case EServerMessageType.ParticipantList:
+        this._participantList.set((<ParticipantListMessageDto>message).data);
         break;
       case EServerMessageType.Ping:
         this._ping.update((prev: number) => prev + 1);
         break;
       case EServerMessageType.Self:
-        this._self.set((<ISelfMessage>message).data);
-        break;
-      case EServerMessageType.ServerReset:
-        this._serverReset.update((prev: number) => prev + 1);
-        break;
-      case EServerMessageType.TeamIdle:
-        this._teamIdle.update((prev: number) => prev + 1);
+        this._self.set((<SelfMessageDto>message).data);
         break;
       case EServerMessageType.TeamName:
-        this._teamName.set((<ITeamNameMessage>message).data);
+        this._teamName.set((<TeamNameMessageDto>message).data);
         break;
       case EServerMessageType.EstimationWithdrawn:
-        this._estimationWithdrawn.set((<IEstimationWithdrawnMessage>message).data);
+        this._estimationWithdrawn.set((<EstimationWithdrawnMessageDto>message).data);
     }
 
     return canContinue;

@@ -6,7 +6,7 @@ import {
   EParticipantChangeType,
   ERole,
   EServerMessageType,
-  IStartMessage
+  StartMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -25,7 +25,7 @@ describe('Start => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: start estimating
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -36,14 +36,14 @@ describe('Start => OK', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant 1 should have received 1 clear + 1 poker status
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
@@ -65,7 +65,7 @@ describe('start => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: start estimating
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: 'some participant id',
       data: undefined,
       type: EClientMessageType.Start
@@ -98,7 +98,7 @@ describe('start => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: send start estimating to the wrong team
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -133,7 +133,7 @@ describe('start => Failure', () => {
     Util.createTeam(handlerService, Util.team1Name, Util.scrumMaster1Nick);
 
     // Run: send start estimating
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -143,7 +143,7 @@ describe('start => Failure', () => {
     // Test: scrum master messages
     scrumMaster
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -163,7 +163,7 @@ describe('start => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: send start estimating to another team
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -196,7 +196,7 @@ describe('start => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: send start estimating
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: participant.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -231,7 +231,7 @@ describe('start => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: start estimating
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start
@@ -245,7 +245,7 @@ describe('start => Failure', () => {
     scrumMaster
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.EstimationAlreadyStarted)
       .expectNoMoreMessages();
@@ -253,7 +253,7 @@ describe('start => Failure', () => {
     // Test: participant 1 should have received 1 clear + 1 poker status
     participant
       .initializeMessageQueue()
-      .expectNextMessageIs(EServerMessageType.ClearEstimations)
+      .expectNextMessageIs(EServerMessageType.EstimationsCleared)
       .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
@@ -274,7 +274,7 @@ describe('start => Failure', () => {
     const observer2 = Util.joinTeam(handlerService, Util.team1Name, Util.observer2Name, true);
 
     // Run: start estimating
-    const message: IStartMessage = {
+    const message: StartMessageDto = {
       senderId: scrumMaster.participantId,
       data: undefined,
       type: EClientMessageType.Start

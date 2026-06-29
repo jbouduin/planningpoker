@@ -1,5 +1,5 @@
 import { describe, test } from '@jest/globals';
-import { EClientMessageType, EErrorCode, EParticipantChangeType, IObserveMessage } from 'shared-lib';
+import { EClientMessageType, EErrorCode, EParticipantChangeType, ToggleObserverMessageDto } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
 import { Util } from './helpers/util.js';
@@ -17,10 +17,10 @@ describe('Toggle observe => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change own observer role
-    const message: IObserveMessage = {
+    const message: ToggleObserverMessageDto = {
       senderId: participant.participantId,
       data: {
-        member: participant.participantId,
+        participantId: participant.participantId,
         observer: true
       },
       type: EClientMessageType.Observe
@@ -59,10 +59,10 @@ describe('Toggle observe => OK', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: change observer role for someone else
-    const message: IObserveMessage = {
+    const message: ToggleObserverMessageDto = {
       senderId: scrumMaster.participantId,
       data: {
-        member: participant.participantId,
+        participantId: participant.participantId,
         observer: true
       },
       type: EClientMessageType.Observe
@@ -105,10 +105,10 @@ describe('Toggle observe => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Run: change own observer role
-    const message: IObserveMessage = {
+    const message: ToggleObserverMessageDto = {
       senderId: participant.participantId,
       data: {
-        member: participant.participantId,
+        participantId: participant.participantId,
         observer: true
       },
       type: EClientMessageType.Observe
@@ -143,10 +143,10 @@ describe('Toggle observe => Failure', () => {
     const participant2 = Util.connectParticipant(handlerService);
 
     // Run: change own observer role
-    const message: IObserveMessage = {
+    const message: ToggleObserverMessageDto = {
       senderId: participant2.participantId,
       data: {
-        member: participant2.participantId,
+        participantId: participant2.participantId,
         observer: true
       },
       type: EClientMessageType.Observe
@@ -165,7 +165,7 @@ describe('Toggle observe => Failure', () => {
     // Test: participant 2 messages
     participant2
       .initializeMessageQueue(false)
-      .expectNextMessageIsInit()
+      .expectNextMessageIsStartHandshake()
       .expectNextMessageIsError(EErrorCode.ParticipantNotInTeam)
       .expectNoMoreMessages();
 
@@ -187,10 +187,10 @@ describe('Toggle observe => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: change observer role for someone else
-    const message: IObserveMessage = {
+    const message: ToggleObserverMessageDto = {
       senderId: participant.participantId,
       data: {
-        member: scrumMaster.participantId,
+        participantId: scrumMaster.participantId,
         observer: true
       },
       type: EClientMessageType.Observe
@@ -225,10 +225,10 @@ describe('Toggle observe => Failure', () => {
     const participant = Util.joinTeam(handlerService, Util.team1Name, Util.participant1Nick);
 
     // Setup: change observer role for someone else
-    const message: IObserveMessage = {
+    const message: ToggleObserverMessageDto = {
       senderId: scrumMaster.participantId,
       data: {
-        member: Util.unknownParticipantId,
+        participantId: Util.unknownParticipantId,
         observer: true
       },
       type: EClientMessageType.Observe
@@ -265,10 +265,10 @@ describe('Toggle observe => Failure', () => {
     const participant2 = Util.joinTeam(handlerService, Util.team2Name, Util.participant2Nick);
 
     // Setup: change observer role for someone else
-    const message: IObserveMessage = {
+    const message: ToggleObserverMessageDto = {
       senderId: scrumMaster1.participantId,
       data: {
-        member: participant2.participantId,
+        participantId: participant2.participantId,
         observer: true
       },
       type: EClientMessageType.Observe

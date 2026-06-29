@@ -31,7 +31,7 @@ export class GameService {
     const teamSvc = inject(TeamService);
     this.allMembers = computed(() => {
       const me = sessionSvc.me();
-      const others = teamSvc.members().map((p: ParticipantDto) => new Member(p, false));
+      const others = teamSvc.participants().map((p: ParticipantDto) => new Member(p, false));
       return me ? [me, ...others] : others;
     });
   }
@@ -46,17 +46,7 @@ export class GameService {
       }
     });
     effect(() => {
-      if (dispatcherSvc.endSession()) {
-        this.resetService();
-      }
-    });
-    effect(() => {
-      if (dispatcherSvc.serverReset()) {
-        this.resetService();
-      }
-    });
-    effect(() => {
-      if (dispatcherSvc.teamIdle()) {
+      if (dispatcherSvc.sessionEnded()) {
         this.resetService();
       }
     });

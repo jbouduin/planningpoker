@@ -1,5 +1,5 @@
 import { inject, Service, signal, WritableSignal } from '@angular/core';
-import { AClientMessage, AServerMessage } from 'shared-lib';
+import { AClientMessageDto, AServerMessageDto } from 'shared-lib';
 import { LocalStorageService } from './local-storage.service';
 import { Logger } from './logger';
 import { MessageDispatcherService } from './message-dispatcher.service';
@@ -53,7 +53,7 @@ export class SocketService {
     }
   }
 
-  public sendMessage(message: AClientMessage): void {
+  public sendMessage(message: AClientMessageDto): void {
     if (this.canPerformActionOnSocket()) {
       this.log.debug(`=> ${message.type}`, message.data);
       this.webSocket?.send(JSON.stringify(message));
@@ -109,7 +109,7 @@ export class SocketService {
   }
 
   private onMessage(event: MessageEvent<string>): void {
-    const message: AServerMessage = JSON.parse(event.data) as AServerMessage;
+    const message: AServerMessageDto = JSON.parse(event.data) as AServerMessageDto;
     this.log.debug(`<= ${message.type}`, message.data);
     const canContinue = this.messageAdapterSvc.processServerMessage(message);
     if (!canContinue) {

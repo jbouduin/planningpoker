@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import { Mock } from 'moq.ts';
-import { AClientMessage, EErrorCode } from 'shared-lib';
+import { AClientMessageDto, EErrorCode } from 'shared-lib';
 import type { IStorageService } from '../../../src/storage/interfaces/index.js';
 import { Util } from '../util.js';
 
@@ -16,7 +16,7 @@ describe('Unknown message type', () => {
       .returns(Util.getTeam1())
       .setup((service: IStorageService) => service.getConnectedTeamMembers(Util.team1Name))
       .returns([Util.getParticipant1(), Util.getParticipant2()]);
-    expect(Util.getPreflightService().preflight(storage.object(), <AClientMessage>message, Util.team1Name)).toBe(
+    expect(Util.getPreflightService().preflight(storage.object(), <AClientMessageDto>message, Util.team1Name)).toBe(
       EErrorCode.UnknownClientMessageType
     );
   });
