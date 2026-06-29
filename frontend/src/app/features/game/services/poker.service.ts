@@ -159,13 +159,15 @@ export class PokerService {
     const givenEstimations = this.givenEstimations();
     let result = new Array<Estimation>();
     if (cards != null && cards.length > 0 && members.length > 0 && currentState != EGameState.Cleared) {
-      result = members.map((member: Member) => {
-        const givenEstimation = givenEstimations.get(member.participantId) ?? null;
-        const card = givenEstimation
-          ? cards?.find((c: CardDto) => c.index === givenEstimation.cardIndex) || null
-          : null;
-        return new Estimation(member, card, givenEstimation !== null);
-      });
+      result = members
+        .filter((member: Member) => !member.observer)
+        .map((member: Member) => {
+          const givenEstimation = givenEstimations.get(member.participantId) ?? null;
+          const card = givenEstimation
+            ? cards?.find((c: CardDto) => c.index === givenEstimation.cardIndex) || null
+            : null;
+          return new Estimation(member, card, givenEstimation !== null);
+        });
       result = this.sortEstimations(currentState, result);
     }
     return result;

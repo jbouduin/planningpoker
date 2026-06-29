@@ -1,13 +1,13 @@
+import { ComponentType } from '@angular/cdk/overlay';
 import { inject, Service } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { map, Observable } from 'rxjs';
 import { ISimpleDialogParams } from '../../core';
-import { MessageBoxComponent } from '../components';
-import { MessageBoxParams } from '../components';
+import { MessageBoxComponent, MessageBoxParams } from '../components';
 
 @Service()
 export class DialogService {
-  //#region private readonly properties ---------------------------------------
+  //#region Private readonly Fields -------------------------------------------
   private readonly dialog: MatDialog;
   //#endregion
 
@@ -44,6 +44,11 @@ export class DialogService {
       width: '250px',
       data: messageBoxParams
     });
+  }
+
+  public openDialog<T, D, Result>(component: ComponentType<T>, config: MatDialogConfig<D>): Observable<Result> {
+    const dialogRef = this.dialog.open(component, config);
+    return dialogRef.afterClosed() as Observable<Result>;
   }
   //#endregion
 }

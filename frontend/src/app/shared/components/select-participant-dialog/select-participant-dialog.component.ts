@@ -1,0 +1,91 @@
+import { CommonModule } from '@angular/common';
+import { Component, Inject } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatOptionModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe } from '@ngx-translate/core';
+import { ParticipantDto } from 'shared-lib';
+import { extract } from '../../../core';
+import { SelectParticipantDialogParams } from './select-participant-dialog.params';
+
+@Component({
+  selector: 'app-select-participant-dialog',
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatOptionModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    TranslatePipe
+  ],
+  templateUrl: './select-participant-dialog.component.html',
+  styleUrl: './select-participant-dialog.component.scss'
+})
+export class SelectParticipantDialogComponent {
+  //#region Private Fields ----------------------------------------------------
+  private readonly dialogRef: MatDialogRef<SelectParticipantDialogComponent>;
+  private readonly params: SelectParticipantDialogParams;
+  //#endregion
+
+  //#region Protected Fields --------------------------------------------------
+  protected readonly formData: FormGroup;
+  //#endregion
+
+  //#region Getters: Labels ---------------------------------------------------
+  protected get cancelButtonLabel(): string {
+    return extract('Button.Generic.Label.Cancel');
+  }
+
+  protected get participants(): Array<ParticipantDto> {
+    return this.params.participants;
+  }
+
+  protected get participantLabel(): string {
+    return this.params.participantLabelKey;
+  }
+
+  protected get saveButtonLabel(): string {
+    return extract('Button.Generic.Label.Save');
+  }
+
+  protected get title(): string {
+    return this.params.titleKey;
+  }
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(
+    dialogRef: MatDialogRef<SelectParticipantDialogComponent>,
+    formBuilder: FormBuilder,
+    @Inject(MAT_DIALOG_DATA) params: SelectParticipantDialogParams
+  ) {
+    this.params = params;
+    this.dialogRef = dialogRef;
+    this.formData = formBuilder.group({
+      nick: new FormControl('', [Validators.required])
+    });
+  }
+  //#endregion
+
+  //#region UI-Triggers -------------------------------------------------------
+  public cancel(): void {
+    this.dialogRef.close();
+  }
+
+  public save(): void {
+    this.dialogRef.close(this.formData.get('nick')?.value);
+  }
+
+  public getErrorMessage(name: string): string | undefined {
+    const formControl = this.formData.get(name);
+    if (formControl?.hasError('required')) {
+      return extract('Component.Error.Mandatory');
+    }
+    return undefined;
+  }
+  //#endregion
+}

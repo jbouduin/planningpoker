@@ -12,6 +12,7 @@ import { MessageBoxParams } from './message-box.params';
   styleUrls: ['./message-box.component.scss']
 })
 export class MessageBoxComponent {
+  // TODO rename to MessageDialogComponent
   //#region private properties ------------------------------------------------
   private readonly dialogRef: MatDialogRef<MessageBoxComponent>;
   private readonly params: MessageBoxParams;

@@ -1,5 +1,11 @@
 import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
-import { EParticipantChangeType, EParticipantState, ParticipantChangeDto, ParticipantDto } from 'shared-lib';
+import {
+  EParticipantChangeType,
+  EParticipantState,
+  ObserverChangeDto,
+  ParticipantChangeDto,
+  ParticipantDto
+} from 'shared-lib';
 import {
   extract,
   ISimpleDialogParams,
@@ -8,26 +14,31 @@ import {
   SocketService,
   UiEventsService
 } from '../../../core';
+import { ChangeNickMessage, ChangeScrumMasterMessage, SwitchObserverMessage, RemoveMessage } from '../../../shared/dto';
 
 @Service()
 export class TeamService {
-  //#region private readonly properties ---------------------------------------
+  //#region private readonly fields -------------------------------------------
   private readonly socketSvc: SocketService;
   private readonly uiEventsSvc: UiEventsService;
   //#endregion
 
   //#region Signals -----------------------------------------------------------
+  // TODO rename to participants
+  /**
+   * Participants, NOT including myself.
+   */
   public members: WritableSignal<Array<ParticipantDto>>;
   //#region
 
-  //#region Constructor & C° -------------------------------------------------
+  //#region Constructor & C° --------------------------------------------------
   public constructor() {
-    // Inject other service
+    // --- Inject other service ---
     this.socketSvc = inject(SocketService);
     this.uiEventsSvc = inject(UiEventsService);
-    // Initialize service signals
+    // --- Initialize service signals ---
     this.members = signal<Array<ParticipantDto>>(new Array<ParticipantDto>());
-    // register message handlers
+    // --- register message handlers ---
     const dispatcherSvc = inject(MessageDispatcherService);
     this.registerMessageHandlers(dispatcherSvc);
   }
@@ -59,7 +70,32 @@ export class TeamService {
       }
     });
   }
+  //#endregion
 
+  //#region Public Methods ----------------------------------------------------
+  public changeScrumMaster(myParticipantId: string, participantId: string): void {
+    const message = new ChangeScrumMasterMessage(myParticipantId, participantId);
+    this.socketSvc.sendMessage(message);
+  }
+
+  public changeNick(myParticipantId: string, nick: string): void {
+    const message = new ChangeNickMessage(myParticipantId, nick);
+    this.socketSvc.sendMessage(message);
+  }
+
+  public removeParticipant(myParticipantId: string, participantId: string): void {
+    const message = new RemoveMessage(myParticipantId, participantId);
+    this.socketSvc.sendMessage(message);
+  }
+
+  public switchObserving(myParticipantId: string, participantId: string, observe: boolean): void {
+    const data: ObserverChangeDto = {
+      member: participantId,
+      observer: observe
+    };
+    const message = new SwitchObserverMessage(myParticipantId, data);
+    this.socketSvc.sendMessage(message);
+  }
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------

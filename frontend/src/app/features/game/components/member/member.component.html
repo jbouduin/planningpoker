@@ -1,1 +1,50 @@
-<p>{{ member.nick }}</p>
+<div class="member">
+  <mat-icon class="member-icon">{{ personIcon }}</mat-icon>
+  <div class="member-nick-container">
+    <span id="{{ member.nick }}" class="member-nick">{{ member.nick }}</span>
+  </div>
+  <mat-icon class="member-icon">{{ connectionStatusIcon }}</mat-icon>
+  <button
+    *ngIf="canSwitchToObserver() || canSwitchToNonObserver()"
+    mat-icon-button
+    class="small-icon-button"
+    [matMenuTriggerFor]="menu"
+  >
+    <mat-icon>more_horiz</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button
+      *ngIf="canSwitchToObserver()"
+      mat-menu-item
+      [disabled]="obServerSwitchDisabled()"
+      (click)="switchObserverClick(true)"
+    >
+      {{ stopEstimatingLabel | translate }}
+    </button>
+    <button
+      *ngIf="canSwitchToNonObserver()"
+      mat-menu-item
+      [disabled]="obServerSwitchDisabled()"
+      (click)="switchObserverClick(false)"
+    >
+      {{ startEstimatingLabel | translate }}
+    </button>
+    <button *ngIf="canChangeNick" mat-menu-item (click)="changeNickClick()">{{ changeNickLabel | translate }}</button>
+    <button
+      *ngIf="canChangeScrumMaster()"
+      mat-menu-item
+      [disabled]="changeScrumMasterDisabled()"
+      (click)="changeScrumMasterClick()"
+    >
+      {{ changeScrumMasterLabel | translate }}
+    </button>
+    <button
+      *ngIf="canRemoveParticipant()"
+      mat-menu-item
+      [disabled]="removeParticipantDisabled()"
+      (click)="removeParticipantClick()"
+    >
+      {{ removeParticipantLabel | translate }}
+    </button>
+  </mat-menu>
+</div>

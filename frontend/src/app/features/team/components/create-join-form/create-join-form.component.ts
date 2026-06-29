@@ -35,6 +35,15 @@ export interface ICardSetSelectItem {
   styleUrl: './create-join-form.component.scss'
 })
 export class CreateJoinFormComponent {
+  //#region Input -------------------------------------------------------------
+  @Input({ required: true }) formMode!: ECreateJoinFormMode;
+  //#endregion
+
+  //#region Private Fields ----------------------------------------------------
+  private readonly sessionService: SessionService;
+  private _cardSetValues: Array<ICardSetSelectItem>;
+  //#endregion
+
   //#region Protected Read-only -----------------------------------------------
   protected readonly TEAM_LABEL = extract('Join.Component.Input.Team.Label');
   protected readonly TEAM_PLACEHOLDER = extract('Join.Component.Input.Team.PlaceHolder');
@@ -45,18 +54,9 @@ export class CreateJoinFormComponent {
   protected readonly EFormMode = ECreateJoinFormMode;
   //#endregion
 
-  //#region Input -------------------------------------------------------------
-  @Input({ required: true }) formMode!: ECreateJoinFormMode;
-  //#endregion
-
-  //#region private properties ------------------------------------------------
-  private readonly sessionService: SessionService;
-  private _cardSetValues: Array<ICardSetSelectItem>;
-  //#endregion
-
-  //#region Public properties -------------------------------------------------
-  public formData: FormGroup;
-  public observer: boolean;
+  //#region Protected Fields --------------------------------------------------
+  protected formData: FormGroup;
+  protected observer: boolean;
   //#endregion
 
   //#region Getters -----------------------------------------------------------
