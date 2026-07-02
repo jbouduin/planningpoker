@@ -2,20 +2,27 @@ import { effect, inject, Service } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, map } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
+import { ENVIRONMENT } from '../../../environments/environment';
 
 @Service()
 export class I18nService {
-  //#region Private readonly properties ---------------------------------------
+  //#region Private readonly fields -------------------------------------------
   private readonly localStorageSvc: LocalStorageService;
   private readonly translateSvc: TranslateService;
   //#endregion
 
-  // TODO use environment
-  public readonly supportedLanguages = ['de-DE', 'en-US'];
+  //#region Public readonly fields --------------------------------------------
+  public readonly supportedLanguages;
+  public readonly defaultLanguage;
+  //#endregion
+
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
     this.localStorageSvc = inject(LocalStorageService);
     this.translateSvc = inject(TranslateService);
+    this.supportedLanguages = ENVIRONMENT.supportedLanguages;
+    this.defaultLanguage = ENVIRONMENT.defaultLanguage;
+
     effect(() => {
       const currentLang = this.translateSvc.currentLang();
       if (currentLang !== null) {
@@ -44,10 +51,8 @@ export class I18nService {
   private getInitialLanguage(): string {
     const fromStorage = this.localStorageSvc.currentLang;
     let browser = navigator.language;
-    // TODO use environment.ts instead of hardcoding
-    const defaultLanguage = 'en-US';
     const toUse = fromStorage || browser || 'en-US';
-    return this.supportedLanguages.includes(toUse) ? toUse : defaultLanguage;
+    return this.supportedLanguages.includes(toUse) ? toUse : this.defaultLanguage;
   }
   //#endregion
 }

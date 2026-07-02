@@ -11,7 +11,7 @@ It is a playground to play with
 - multi-language (@ngx-translate)
 - di (inversify)
 - testing frameworks
-  - karma + jasmin
+  - vitest
   - jest
   - cucumber (wdio)
 

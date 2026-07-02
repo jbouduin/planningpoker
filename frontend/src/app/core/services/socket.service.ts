@@ -5,6 +5,7 @@ import { Logger } from './logger';
 import { MessageDispatcherService } from './message-dispatcher.service';
 import { ESocketState } from './socket-state.enum';
 import { UiEventsService } from './ui-events.service';
+import { ENVIRONMENT } from '../../../environments/environment';
 
 @Service()
 export class SocketService {
@@ -13,6 +14,8 @@ export class SocketService {
   private readonly localStorageSvc: LocalStorageService;
   private readonly log: Logger;
   private readonly uiEventsSvc: UiEventsService;
+  private readonly webSocketRoot: string;
+  private readonly webSocketPath: string;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -36,6 +39,8 @@ export class SocketService {
     this.log = new Logger('SocketService');
     this.uiEventsSvc = inject(UiEventsService);
     this.socketStatus = signal<ESocketState>(ESocketState.Disconnected);
+    this.webSocketRoot = ENVIRONMENT.webSocketHost;
+    this.webSocketPath = ENVIRONMENT.webSocketPath;
     this.resumeIn = 0;
     this.webSocket = null;
   }
@@ -63,9 +68,8 @@ export class SocketService {
 
   //#region Auxiliary methods: socket methods ---------------------------------
   private _connect(teamName: string, status: ESocketState.Reconnecting | ESocketState.Connecting): void {
-    // TODO const url = `${environment.ws}/${encodeURI(teamName)}`;
+    const url = `${this.webSocketRoot}/${this.webSocketPath}/${encodeURI(teamName)}`;
     this.socketStatus.set(status);
-    const url = `ws://localhost:3001/ws/game/${encodeURI(teamName)}`;
     this.log.debug('opening ws using url' + url);
     this.webSocket = new WebSocket(url);
     this.webSocket.onopen = this.onOpen.bind(this);
