@@ -10,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ECardSetType } from 'shared-lib';
 import { extract, SessionService } from '../../../../core';
-import { ECreateJoinFormMode } from './create-join-form-mode';
+import { CreateJoinFormMode } from './create-join-form-mode';
 
 export interface ICardSetSelectItem {
   set: ECardSetType;
@@ -36,7 +36,7 @@ export interface ICardSetSelectItem {
 })
 export class CreateJoinFormComponent {
   //#region Input -------------------------------------------------------------
-  @Input({ required: true }) formMode!: ECreateJoinFormMode;
+  @Input({ required: true }) formMode!: CreateJoinFormMode;
   //#endregion
 
   //#region Private Fields ----------------------------------------------------
@@ -51,7 +51,6 @@ export class CreateJoinFormComponent {
   protected readonly NICK_PLACEHOLDER = extract('Component.Input.Nick.PlaceHolder');
   protected readonly CARDSET_LABEL = extract('Component.Select.CardSet.Label');
   protected readonly OBSERVER_LABEL = extract('Join.Component.Checkbox.Observer.Label');
-  protected readonly EFormMode = ECreateJoinFormMode;
   //#endregion
 
   //#region Protected Fields --------------------------------------------------
@@ -65,13 +64,13 @@ export class CreateJoinFormComponent {
   }
 
   public get gameHeader(): string {
-    return this.formMode == ECreateJoinFormMode.Create
+    return this.formMode === 'create'
       ? extract('Join.Component.Header.Start_a_team')
       : extract('Join.Component.Header.Join_a_team');
   }
 
   public get submitButtonLabel(): string {
-    return this.formMode == ECreateJoinFormMode.Create
+    return this.formMode === 'create'
       ? extract('Join.Component.Button.Start.Label')
       : extract('Join.Component.Button.Join.Label');
   }
@@ -105,7 +104,7 @@ export class CreateJoinFormComponent {
 
   //#region Event triggers ----------------------------------------------------
   public submit(): void {
-    if (this.formMode == ECreateJoinFormMode.Create) {
+    if (this.formMode === 'create') {
       const cardSet = this.formData.get('cardSet')?.value as ECardSetType;
       if (cardSet === ECardSetType.Custom) {
         // const params: ICardSetDialogParams = {

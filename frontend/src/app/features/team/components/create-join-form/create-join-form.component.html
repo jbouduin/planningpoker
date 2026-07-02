@@ -31,7 +31,7 @@
           <mat-error>{{ getErrorMessage('nick') | translate }}</mat-error>
         </mat-form-field>
       </div>
-      <div *ngIf="formMode == EFormMode.Create">
+      <div *ngIf="formMode == 'create'">
         <mat-form-field appearance="fill">
           <mat-label>{{ CARDSET_LABEL | translate }}</mat-label>
           <mat-select formControlName="cardSet">
