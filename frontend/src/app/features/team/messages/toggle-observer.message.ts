@@ -1,5 +1,5 @@
 import { EClientMessageType, ToggleObserverDto, ToggleObserverMessageDto } from 'shared-lib';
-import { BaseClientMessage } from './base-client.message';
+import { BaseClientMessage } from '../../../core';
 
 export class ToggleObserverMessage extends BaseClientMessage<ToggleObserverDto> implements ToggleObserverMessageDto {
   //#region Constructor & C° --------------------------------------------------

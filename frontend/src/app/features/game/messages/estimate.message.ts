@@ -1,5 +1,5 @@
 import { EClientMessageType, EstimateMessageDto } from 'shared-lib';
-import { BaseClientMessage } from './base-client.message';
+import { BaseClientMessage } from '../../../core';
 
 export class EstimateMessage extends BaseClientMessage<number> implements EstimateMessageDto {
   //#region Constructor & C° --------------------------------------------------

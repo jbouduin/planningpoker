@@ -1,7 +1,7 @@
 import { computed, effect, inject, Service, Signal, signal, WritableSignal } from '@angular/core';
 import { CardDto, EGameState, EstimationDto } from 'shared-lib';
 import { Member, MessageDispatcherService, SessionService, SocketService } from '../../../core';
-import { EstimateMessage, RevealMessage, StartMessage, WithdrawEstimationMessage } from '../../../shared/dto';
+import { EstimateMessage, RevealMessage, StartMessage, WithdrawEstimationMessage } from '../messages';
 import { Estimation } from './estimation';
 import { GameService } from './game.service';
 

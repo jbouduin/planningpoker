@@ -1,5 +1,5 @@
 import { ChangeScrumMasterMessageDto, EClientMessageType } from 'shared-lib';
-import { BaseClientMessage } from './base-client.message';
+import { BaseClientMessage } from '../../../core';
 
 export class ChangeScrumMasterMessage extends BaseClientMessage<string> implements ChangeScrumMasterMessageDto {
   //#region Constructor & C° --------------------------------------------------

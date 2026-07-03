@@ -1,5 +1,5 @@
 import { EClientMessageType, StartMessageDto } from 'shared-lib';
-import { BaseClientMessage } from './base-client.message';
+import { BaseClientMessage } from '../../../core';
 
 export class StartMessage extends BaseClientMessage<void> implements StartMessageDto {
   //#region Constructor & C° --------------------------------------------------

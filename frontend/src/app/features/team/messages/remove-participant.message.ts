@@ -1,5 +1,5 @@
 import { EClientMessageType, RemoveParticipantMessageDto } from 'shared-lib';
-import { BaseClientMessage } from './base-client.message';
+import { BaseClientMessage } from '../../../core';
 
 export class RemoveParticipantMessage extends BaseClientMessage<string> implements RemoveParticipantMessageDto {
   //#region Constructor & C° --------------------------------------------------

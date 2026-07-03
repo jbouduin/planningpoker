@@ -4,4 +4,4 @@
 
 | Script    | Action                   | Used in CI |
 | --------- | ------------------------ | :--------: |
-| **build** | build the shared-library | ✅         |
+| **build** | build the shared-library |     ✅     |

@@ -116,7 +116,7 @@
   "Export": {
     "scope": "typescript",
     "prefix": "#export",
-    "body": "export * from '$1';",
+    "body": "export * from '.$1';",
     "description": "export statement"
   }
 }

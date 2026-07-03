@@ -9,8 +9,8 @@ import {
   ESessionEndedReason,
   ParticipantDto
 } from 'shared-lib';
-import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../../shared/dto';
 import { extract } from '../extract';
+import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../messages';
 import { ApiService } from './api.service';
 import { ICanRejoinResult } from './can-rejoin-result';
 import { LocalStorageService } from './local-storage.service';

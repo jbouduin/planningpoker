@@ -1,5 +1,5 @@
 import { CardSetDto, ChangeCardSetMessageDto, EClientMessageType } from 'shared-lib';
-import { BaseClientMessage } from './base-client.message';
+import { BaseClientMessage } from '../../../core';
 
 export class ChangeCardSetMessage extends BaseClientMessage<CardSetDto> implements ChangeCardSetMessageDto {
   //#region Constructor & C° --------------------------------------------------

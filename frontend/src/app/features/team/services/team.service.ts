@@ -21,7 +21,7 @@ import {
   ChangeScrumMasterMessage,
   RemoveParticipantMessage,
   ToggleObserverMessage
-} from '../../../shared/dto';
+} from '../messages';
 
 @Service()
 export class TeamService {

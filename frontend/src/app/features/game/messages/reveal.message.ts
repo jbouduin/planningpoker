@@ -1,5 +1,5 @@
 import { EClientMessageType, RevealMessageDto } from 'shared-lib';
-import { BaseClientMessage } from './base-client.message';
+import { BaseClientMessage } from '../../../core';
 
 export class RevealMessage extends BaseClientMessage<void> implements RevealMessageDto {
   //#region Constructor & C° --------------------------------------------------
