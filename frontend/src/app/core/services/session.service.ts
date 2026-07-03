@@ -1,4 +1,4 @@
-import { effect, inject, Service, signal, WritableSignal } from '@angular/core';
+import { effect, inject, Service, Signal, signal, WritableSignal } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 import {
   AClientMessageDto,
@@ -26,6 +26,7 @@ import { UiEventsService } from './ui-events.service';
 @Service()
 export class SessionService {
   //#region private readonly properties ---------------------------------------
+  private readonly _sessionState: WritableSignal<ESessionState>;
   private readonly apiSvc: ApiService;
   private readonly localStorageSvc: LocalStorageService;
   private readonly log: Logger;
@@ -42,7 +43,12 @@ export class SessionService {
   //#region Signals -----------------------------------------------------------
   public teamName: WritableSignal<string | null>;
   public me: WritableSignal<Member | null>;
-  public sessionState: WritableSignal<ESessionState>;
+  //#endregion
+
+  //#region Getters-Setters ---------------------------------------------------
+  public get sessionState(): Signal<ESessionState> {
+    return this._sessionState;
+  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -57,7 +63,7 @@ export class SessionService {
     // Initialize service signals
     this.teamName = signal<string | null>(null);
     this.me = signal<Member | null>(null);
-    this.sessionState = signal<ESessionState>(ESessionState.Inactive);
+    this._sessionState = signal<ESessionState>(ESessionState.Inactive);
     // register message handlers
     const dispatcherSvc = inject(MessageDispatcherService);
     this.registerMessageHandlers(dispatcherSvc);
@@ -77,7 +83,7 @@ export class SessionService {
     effect(() => {
       const init = dispatcherSvc.startHandshake();
       if (init) {
-        this.handleInit(init);
+        this.handleStartHandshake(init);
       }
     });
 
@@ -109,7 +115,7 @@ export class SessionService {
             this.handleDisbanded();
             break;
           case ESessionEndedReason.IdleTimeOut:
-            this.handleTeamOut();
+            this.handleIdleTimeOut();
             break;
           case ESessionEndedReason.ServerReset:
             this.handleServerReset();
@@ -124,7 +130,7 @@ export class SessionService {
     const nick = this.localStorageSvc.nick;
     const team = this.localStorageSvc.teamName;
     const participantId = this.localStorageSvc.participantId;
-    if (team && nick && participantId) {
+    if (team && nick && participantId && this._sessionState() != ESessionState.Ended) {
       // this.status = ESessionStatus.Suspended;
       return this.apiSvc.checkCanRejoin(team, participantId).pipe(
         map((can: boolean) => {
@@ -149,7 +155,7 @@ export class SessionService {
   }
 
   public clearSessionData(): void {
-    this.localStorageSvc.clear();
+    this.localStorageSvc.clearSessionData();
   }
 
   public createSession(
@@ -222,7 +228,7 @@ export class SessionService {
 
   //#region Auxiliary methods: message handling -------------------------------
   private handleEndInit(): void {
-    this.sessionState.set(ESessionState.Active);
+    this._sessionState.set(ESessionState.Active);
   }
 
   private handleDisbanded(): void {
@@ -238,19 +244,24 @@ export class SessionService {
 
   private handleServerReset(): void {
     const params: ISimpleDialogParams = {
-      dialogTitleKey: extract('Session.Message.Server_has_been_reset.Title'),
+      dialogTitleKey: extract('Session.Message.Team_idle_time_out.Text'),
       dialogMessageKey: extract('Session.Message.Server_has_been_reset.Text')
     };
     this.uiEventsSvc.showSimpleDialog(params);
     this.resetService();
   }
 
-  private handleTeamOut(): void {
+  private handleIdleTimeOut(): void {
+    const params: ISimpleDialogParams = {
+      dialogTitleKey: extract('Session.Message.Team_idle_time_out.Title'),
+      dialogMessageKey: extract('Session.Message.Team_idle_time_out.Text')
+    };
+    this.uiEventsSvc.showSimpleDialog(params);
     this.resetService();
   }
 
-  private handleInit(data: ParticipantDto): void {
-    this.sessionState.set(ESessionState.Entering);
+  private handleStartHandshake(data: ParticipantDto): void {
+    this._sessionState.set(ESessionState.Handshaking);
     if (this.initialMessage) {
       this.initialMessage.senderId = data.participantId;
       this.socketSvc.sendMessage(this.initialMessage);
@@ -263,8 +274,9 @@ export class SessionService {
 
   private handleSelf(data: ParticipantDto): void {
     if (data.state === EParticipantState.Left) {
-      this.localStorageSvc.clear();
+      this.localStorageSvc.clearSessionData();
       this.resetService();
+      this.socketSvc.disconnect();
     } else {
       if (this.currentRole == ERole.Developer && data.role == ERole.ScrumMaster) {
         this.uiEventsSvc.showInfo('Game.Snackbar.You_are_now_scrum-master');
@@ -275,7 +287,7 @@ export class SessionService {
       this.localStorageSvc.nick = data.nick;
       this.localStorageSvc.participantId = data.participantId;
       if (data.state === EParticipantState.Paused) {
-        this.sessionState.set(ESessionState.Suspended);
+        this._sessionState.set(ESessionState.Suspended);
         this.socketSvc.disconnect();
       }
     }
@@ -286,10 +298,13 @@ export class SessionService {
     this.localStorageSvc.teamName = data;
   }
 
+  /**
+   * Reset the signals to initial values and disconnect the socket
+   */
   private resetService(): void {
     this.me.set(null);
     this.teamName.set(null);
-    this.sessionState.set(ESessionState.Inactive);
+    this._sessionState.set(ESessionState.Ended);
     this.socketSvc.disconnect();
   }
   //#endregion

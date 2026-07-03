@@ -56,7 +56,7 @@ export class MessageService implements IMessageService {
     members: Array<IServerParticipant>,
     estimations: Array<EstimationDto>
   ): void {
-    members.forEach((p: IServerParticipant) => this.sendEstimation(gameState, p, estimations));
+    members.forEach((p: IServerParticipant) => this.sendEstimations(gameState, p, estimations));
   }
 
   public broadcastEstimationWithDrawn(members: Array<IServerParticipant>, participantId: string): void {
@@ -86,7 +86,7 @@ export class MessageService implements IMessageService {
     this.senderService.sendToSocket(ws, message);
   }
 
-  public sendEstimation(gameState: EGameState, to: IServerParticipant, estimations: Array<EstimationDto>): void {
+  public sendEstimations(gameState: EGameState, to: IServerParticipant, estimations: Array<EstimationDto>): void {
     const transformed: Array<EstimationDto> = estimations.map((e: EstimationDto) => {
       return {
         participantId: e.participantId,

@@ -1,6 +1,5 @@
 import { ClientMessageDto, EClientMessageType } from 'shared-lib';
 
-// TODO check if we should put messages in the features directory
 export abstract class BaseClientMessage<T> implements ClientMessageDto<T> {
   //#region public read-only properties ---------------------------------------
   public readonly senderId: string;

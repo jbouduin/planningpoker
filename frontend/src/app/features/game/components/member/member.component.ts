@@ -118,7 +118,7 @@ export class MemberComponent {
         return (
           me.role == ERole.ScrumMaster &&
           this.member.participantId !== me.participantId &&
-          // LATER shouldn't we allow the scrum master to kick out anyone
+          // FEATURE allow the scrum master to kick out anyone -> requires different handling on the server and EParticipantState
           this.member.state === EParticipantState.Disconnected
         );
       } else {
@@ -154,7 +154,7 @@ export class MemberComponent {
       return pokerSvc.gameState() == EGameState.Started;
     });
 
-    // LATER if status is revealed, switching automatically adds/remove an estimation → have a state observer change pending ?
+    // FEATURE if status is revealed, switching automatically adds/remove an estimation → have a state observer change pending ?
     this.obServerSwitchDisabled = computed(() => {
       return pokerSvc.gameState() == EGameState.Started;
     });

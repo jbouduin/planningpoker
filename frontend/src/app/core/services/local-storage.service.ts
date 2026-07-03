@@ -2,7 +2,7 @@ import { Service } from '@angular/core';
 
 @Service()
 export class LocalStorageService {
-  //#region Private readonly properties ---------------------------------------
+  //#region Private readonly fields -------------------------------------------
   private readonly currentLanguageKey: string = 'current_lang';
   private readonly nickKey: string = 'current_nick';
   private readonly teamNameKey: string = 'current_teamName';
@@ -79,10 +79,22 @@ export class LocalStorageService {
   //#endregion
 
   //#region public methods -----------------------------------------------------
-  public clear(): void {
+  /**
+   * Clear localstorage, except for the current language
+   */
+  public clearSessionData(): void {
     this.nick = null;
     this.teamName = null;
     this.participantId = null;
+  }
+  /**
+   * Clear complete local storage
+   */
+  public clearAll(): void {
+    this.nick = null;
+    this.teamName = null;
+    this.participantId = null;
+    this.currentLang = null;
   }
   //#endregion
 }

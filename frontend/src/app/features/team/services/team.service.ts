@@ -9,7 +9,6 @@ import {
 } from 'shared-lib';
 import {
   extract,
-  ISimpleDialogParams,
   Member,
   MessageDispatcherService,
   SnackbarParams,
@@ -70,11 +69,8 @@ export class TeamService {
       if (reason) {
         switch (reason) {
           case ESessionEndedReason.IdleTimeOut:
-            this.handleIdleTimeOut();
-            break;
           case ESessionEndedReason.ServerReset:
-            this.handleServerReset();
-            break;
+            this.resetService();
         }
       }
     });
@@ -224,19 +220,6 @@ export class TeamService {
         );
         break;
     }
-  }
-
-  private handleIdleTimeOut(): void {
-    const params: ISimpleDialogParams = {
-      dialogTitleKey: extract('Team.Message.Team_idle_time_out.Title'),
-      dialogMessageKey: extract('Team.Message.Team_idle_time_out.Text')
-    };
-    this.uiEventsSvc.showSimpleDialog(params);
-    this.resetService();
-  }
-
-  private handleServerReset(): void {
-    this.resetService();
   }
 
   private resetService(): void {

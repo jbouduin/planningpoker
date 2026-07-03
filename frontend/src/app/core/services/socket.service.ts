@@ -1,14 +1,37 @@
 import { inject, Service, signal, WritableSignal } from '@angular/core';
 import { AClientMessageDto, AServerMessageDto } from 'shared-lib';
+import { ENVIRONMENT } from '../../../environments/environment';
 import { LocalStorageService } from './local-storage.service';
 import { Logger } from './logger';
 import { MessageDispatcherService } from './message-dispatcher.service';
 import { ESocketState } from './socket-state.enum';
 import { UiEventsService } from './ui-events.service';
-import { ENVIRONMENT } from '../../../environments/environment';
 
 @Service()
 export class SocketService {
+  //#region Closure codes -----------------------------------------------------
+  /**
+   * **1000** (Normal Closure): The connection successfully completed the purpose for which it was created.
+   */
+  public static readonly CLOSE_CODE_NORMAL = 1000;
+  /**
+   * **1001** (Going away): The endpoint is going away, either because of a server failure or because the browser is navigating away from the page that opened the connection.
+   */
+  private static readonly CLOSE_CODE_GOING_AWAY = 1001;
+  /**
+   * **1006** (Abnormal closure): Reserved. Indicates that a connection was closed abnormally (that is, with no close frame being sent) when a status code is expected.
+   */
+  private static readonly CLOSE_CODE_ABNORMAL = 1006;
+  /**
+   * **1012** (Server restart): The server is terminating the connection because it is restarting.
+   */
+  private static readonly CLOSE_CODE_SERVER_RESTART = 1012;
+  /**
+   * **1013** (Try again later): The server is terminating the connection due to a temporary condition, e.g., it is overloaded and is casting off some of its clients.
+   */
+  private static readonly CLOSE_CODE_TRY_AGAIN = 1013;
+  //#endregion
+
   //#region private readonly properties ---------------------------------------
   private readonly messageAdapterSvc: MessageDispatcherService;
   private readonly localStorageSvc: LocalStorageService;
@@ -19,7 +42,7 @@ export class SocketService {
   //#endregion
 
   //#region private properties ------------------------------------------------
-  // TODO implement resuming
+  // TODO implement automatic resuming
   private resumeTimer?: number;
   private webSocket: WebSocket | null;
   //#endregion
@@ -51,10 +74,13 @@ export class SocketService {
     this._connect(teamName, ESocketState.Connecting);
   }
 
-  public disconnect(code?: number): void {
+  /**
+   * Close the socket with code 1000 (normal closure)
+   */
+  public disconnect(): void {
     if (this.webSocket?.readyState === WebSocket.OPEN) {
       this.socketStatus.set(ESocketState.Disconnecting);
-      this.webSocket.close(code);
+      this.webSocket.close(SocketService.CLOSE_CODE_NORMAL);
     }
   }
 
@@ -85,8 +111,21 @@ export class SocketService {
     this.socketStatus.set(ESocketState.Connected);
   }
 
+  /**
+   * Code to handle the socket close event.
+   *
+   * Expected codes:
+   *
+   * - **1000** (Normal Closure): The connection successfully completed the purpose for which it was created.
+   * - **1001** (Going away): The endpoint is going away, either because of a server failure or because the browser is navigating away from the page that opened the connection.
+   * - **1006** (Abnormal closure): Reserved. Indicates that a connection was closed abnormally (that is, with no close frame being sent) when a status code is expected.
+   * - **1012** (Server restart): The server is terminating the connection because it is restarting.
+   * - **1013** (Try again later): The server is terminating the connection due to a temporary condition, e.g., it is overloaded and is casting off some of its clients.
+   *
+   * @param event Close event see: https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
+   */
   private onClose(event: CloseEvent): void {
-    if (event.code == 1006) {
+    if (event.code == SocketService.CLOSE_CODE_ABNORMAL) {
       switch (this.socketStatus()) {
         case ESocketState.Connecting:
           this.log.debug('in onClose case: Starting');
@@ -104,7 +143,7 @@ export class SocketService {
           this.initiateAutomaticReconnect();
       }
     } else {
-      if (event.code !== 1000) {
+      if (event.code !== SocketService.CLOSE_CODE_NORMAL) {
         this.log.debug('in onClose event code', event);
         this.uiEventsSvc.showError('Socket.Error.You_Have_been_disconnected');
       }
@@ -116,8 +155,9 @@ export class SocketService {
     const message: AServerMessageDto = JSON.parse(event.data) as AServerMessageDto;
     this.log.debug(`<= ${message.type}`, message.data);
     const canContinue = this.messageAdapterSvc.processServerMessage(message);
+    // if we can not continue (team not found, etc...) → perform a normal close
     if (!canContinue) {
-      this.disconnect(1000);
+      this.disconnect();
     }
   }
 

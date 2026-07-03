@@ -56,7 +56,6 @@ export class SocketService implements ISocketService {
     });
 
     this.loggerService.info('Server', 'SocketService initialized');
-    // expressWs.app.use('/game', router);
   }
   //#endregion
 }

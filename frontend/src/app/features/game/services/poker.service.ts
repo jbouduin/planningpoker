@@ -1,6 +1,6 @@
 import { computed, effect, inject, Service, Signal, signal, WritableSignal } from '@angular/core';
 import { CardDto, EGameState, EstimationDto } from 'shared-lib';
-import { Member, MessageDispatcherService, SessionService, SocketService } from '../../../core';
+import { Member, MessageDispatcherService, SessionService, SocketService, UiEventsService } from '../../../core';
 import { EstimateMessage, RevealMessage, StartMessage, WithdrawEstimationMessage } from '../messages';
 import { Estimation } from './estimation';
 import { GameService } from './game.service';
@@ -10,6 +10,7 @@ export class PokerService {
   //#region private readonly fields -------------------------------------------
   private readonly sessionSvc: SessionService;
   private readonly socketSvc: SocketService;
+  private readonly UiEventsService: UiEventsService;
   private readonly _gameState: WritableSignal<EGameState>;
   //#endregion
 
@@ -34,6 +35,7 @@ export class PokerService {
     // --- Inject other services ---
     this.sessionSvc = inject(SessionService);
     this.socketSvc = inject(SocketService);
+    this.UiEventsService = inject(UiEventsService);
     // --- Initialize service signals ---
     this._gameState = signal(EGameState.Cleared);
     // --- Initialize mirroring signals ---
@@ -101,8 +103,9 @@ export class PokerService {
     if (me != null) {
       const message = new WithdrawEstimationMessage(me.participantId);
       this.socketSvc.sendMessage(message);
+    } else {
+      this.UiEventsService.showError('App.Snackbar.Invalid_Session_State');
     }
-    // TODO else error + end session + disconnect
   }
 
   public estimate(index: number): void {
@@ -110,8 +113,9 @@ export class PokerService {
     if (me != null) {
       const message = new EstimateMessage(me.participantId, index);
       this.socketSvc.sendMessage(message);
+    } else {
+      this.UiEventsService.showError('App.Snackbar.Invalid_Session_State');
     }
-    // TODO else error + end session + disconnect
   }
 
   public reveal(): void {
@@ -119,8 +123,9 @@ export class PokerService {
     if (me != null) {
       const message = new RevealMessage(me.participantId);
       this.socketSvc.sendMessage(message);
+    } else {
+      this.UiEventsService.showError('App.Snackbar.Invalid_Session_State');
     }
-    // TODO else error + end session + disconnect
   }
 
   public start(): void {
@@ -128,8 +133,9 @@ export class PokerService {
     if (me != null) {
       const message = new StartMessage(me.participantId);
       this.socketSvc.sendMessage(message);
+    } else {
+      this.UiEventsService.showError('App.Snackbar.Invalid_Session_State');
     }
-    // TODO else error + end session + disconnect
   }
   //#endregion
 

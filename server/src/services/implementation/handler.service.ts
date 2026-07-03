@@ -249,12 +249,14 @@ export class HandlerService implements IHandlerService {
 
   private handleChangeCardSet(teamName: string, message: ChangeCardSetMessageDto): void {
     this.storage.setCardSet(teamName, message.data);
+    // broad cast the new card set to all connected team members
     this.messageService.broadcastCardSet(this.storage.getConnectedTeamMembers(teamName), message.data);
   }
 
   private handleChangeNick(sender: IServerParticipant, teamName: string, message: ChangeNickMessageDto): void {
     if (sender.nick !== message.data) {
       sender.nick = message.data;
+      // broadcast the nick change to other participants
       this.messageService.broadcastMemberChange(
         this.storage
           .getConnectedTeamMembers(teamName)
@@ -279,6 +281,7 @@ export class HandlerService implements IHandlerService {
           sender,
           EParticipantChangeType.ChangedRole
         );
+        // broadcast the change to everyone, except the new scrum master
         this.messageService.broadcastMemberChange(
           this.storage
             .getConnectedTeamMembers(teamName)
@@ -286,7 +289,9 @@ export class HandlerService implements IHandlerService {
           newScrumMaster,
           EParticipantChangeType.ChangedRole
         );
+        // send self to the old scrum master
         this.messageService.sendSelf(sender);
+        // send self to the new scrum master
         this.messageService.sendSelf(newScrumMaster);
       }
     }
@@ -345,7 +350,7 @@ export class HandlerService implements IHandlerService {
       // send game info
       this.messageService.sendGameStateChanged(sender, team.gameState);
       const estimationsDtos = this.mapServerEstimationsToDtos(this.storage.getEstimations(team.teamName));
-      this.messageService.sendEstimation(team.gameState, sender, estimationsDtos);
+      this.messageService.sendEstimations(team.gameState, sender, estimationsDtos);
       // tell the others someone joined
       this.messageService.broadcastMemberChange(
         this.storage
@@ -375,7 +380,7 @@ export class HandlerService implements IHandlerService {
 
   private handleLeave(sender: IServerParticipant, teamName: string, message: LeaveMessageDto): void {
     if (sender.role === ERole.ScrumMaster) {
-      this.loggerService.info('Server', `End game: '${sender.nick}' is ending '${teamName}'`);
+      this.loggerService.info('Server', `'${sender.nick}' is disbanding '${teamName}'`);
       this.messageService.broadcastSessionEnded(
         this.storage.getConnectedTeamMembers(teamName),
         ESessionEndedReason.Disbanded
@@ -482,7 +487,7 @@ export class HandlerService implements IHandlerService {
       // send game info
       this.messageService.sendGameStateChanged(sender, team.gameState);
       const estimationDtos = this.mapServerEstimationsToDtos(this.storage.getEstimations(team.teamName));
-      this.messageService.sendEstimation(team.gameState, sender, estimationDtos);
+      this.messageService.sendEstimations(team.gameState, sender, estimationDtos);
       // if no one else is connected, make this one the new scrum master
       const connectedTeamMembers = this.storage
         .getConnectedTeamMembers(teamName)

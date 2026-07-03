@@ -6,6 +6,7 @@ on:
     branches:
       - master
       - v*.*.*
+    types: [opened, synchronize]
 
 env:
   NODE_VERSION: 22
