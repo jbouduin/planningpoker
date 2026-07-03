@@ -3,7 +3,7 @@
   <mat-icon *ngIf="isWarning" color="accent" class="snack-bar-icon">warning</mat-icon>
   <mat-icon *ngIf="isError" color="warn" class="snack-bar-icon">error</mat-icon>
   <span id="snackbar-message" class="span-message">
-    {{ params.message | translate }}
+    {{ params.messageKey | translate: params.messageParams }}
   </span>
   <button class="close-button" (click)="close()">
     <mat-icon>close</mat-icon>

@@ -17,7 +17,7 @@ export class SnackbarComponent {
   //#endregion
 
   //#region Public Fields -----------------------------------------------------
-  public params: SnackbarParams = inject<SnackbarParams>(MAT_SNACK_BAR_DATA);
+  public readonly params: SnackbarParams;
   //#endregion
 
   //#region Getters-Setters ---------------------------------------------------
@@ -37,6 +37,8 @@ export class SnackbarComponent {
   //#region Constructor & C° --------------------------------------------------
   public constructor(matSnackbarRef: MatSnackBarRef<SnackbarComponent>) {
     this.matSnackbarRef = matSnackbarRef;
+    this.params = inject<SnackbarParams>(MAT_SNACK_BAR_DATA);
+    console.log('snakbar component constructor - params', this.params);
   }
   //#endregion
 
