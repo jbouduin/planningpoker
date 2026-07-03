@@ -8,7 +8,7 @@ on:
       - v*.*.*
 
 env:
-  NODE_VERSION: 16
+  NODE_VERSION: 22
 
 jobs: # list of things to do
   validate-pull-request:
@@ -24,23 +24,59 @@ jobs: # list of things to do
       - name: Check out
         uses: actions/checkout@v3
 
-      - name: Install packages
-        run: |
-          npm ci
-          cd projects/server
-          npm ci
+      - name: Install packages in root
+        run: npm ci
 
-      - name: Lint and build shared
+      - name: Install packages in server
+        working-dir: 'server'
+        run: npm ci
+
+      - name: Install packages in frontend
+        working-dir: 'frontend'
+        run: npm ci
+
+      - name: Install packages in shared-lib
+        working-dir: 'shared-lib'
+        run: npm ci
+
+      - name: Install packages in tools
+        working-dir: 'tools'
+        run: npm ci
+
+      - name: Format (prettier) and Lint tools
+        working-dir: '.'
         run: |
+          npm run format:tools
+          npm run lint:tools
+
+      - name: Build tools
+        working-dir: 'tools'
+        run: npm run build
+
+      - name: Format (prettier) and Lint shared
+        working-dir: '.'
+        run: |
+          npm run format:shared
           npm run lint:shared
-          npm run build:shared
 
-      - name: Lint Site and check translations
-        run: |
-          npm run test:translations
-          npm run lint:site
+      - name: Build shared
+        working-dir: 'shared'
+        run: npm run build
 
-      - name: Lint and Test server
+      - name: Format (prettier) and Lint frontend
         run: |
+          npm run format:frontend
+          npm run lint:frontend
+
+      - name: Build frontend
+        working-dir: 'frontend'
+        run: npm run build
+
+      - name: Format (prettier) and Lint server
+        run: |
+          npm run format:server
           npm run lint:server
-          npm run test:server:ci
+
+      - name: Build and Test server
+        working-dir: 'server'
+        run: npm run test:server:ci

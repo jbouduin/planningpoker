@@ -5,5 +5,8 @@
     "source.fixAll.eslint": "never"
   },
   "eslint.validate": ["typescript", "html"],
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+  }
 }
