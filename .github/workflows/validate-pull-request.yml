@@ -28,39 +28,39 @@ jobs: # list of things to do
         run: npm ci
 
       - name: Install packages in server
-        working-dir: 'server'
+        working-directory: 'server'
         run: npm ci
 
       - name: Install packages in frontend
-        working-dir: 'frontend'
+        working-directory: 'frontend'
         run: npm ci
 
       - name: Install packages in shared-lib
-        working-dir: 'shared-lib'
+        working-directory: 'shared-lib'
         run: npm ci
 
       - name: Install packages in tools
-        working-dir: 'tools'
+        working-directory: 'tools'
         run: npm ci
 
       - name: Format (prettier) and Lint tools
-        working-dir: '.'
+        working-directory: '.'
         run: |
           npm run format:tools
           npm run lint:tools
 
       - name: Build tools
-        working-dir: 'tools'
+        working-directory: 'tools'
         run: npm run build
 
       - name: Format (prettier) and Lint shared
-        working-dir: '.'
+        working-directory: '.'
         run: |
           npm run format:shared
           npm run lint:shared
 
       - name: Build shared
-        working-dir: 'shared'
+        working-directory: 'shared'
         run: npm run build
 
       - name: Format (prettier) and Lint frontend
@@ -69,7 +69,7 @@ jobs: # list of things to do
           npm run lint:frontend
 
       - name: Build frontend
-        working-dir: 'frontend'
+        working-directory: 'frontend'
         run: npm run build
 
       - name: Format (prettier) and Lint server
@@ -78,5 +78,5 @@ jobs: # list of things to do
           npm run lint:server
 
       - name: Build and Test server
-        working-dir: 'server'
+        working-directory: 'server'
         run: npm run test:server:ci
