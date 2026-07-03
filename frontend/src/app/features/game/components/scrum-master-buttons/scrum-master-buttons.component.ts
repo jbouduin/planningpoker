@@ -17,10 +17,10 @@ export class ScrumMasterButtonsComponent {
   // or allow using change cardset when status is revealed, which triggers clear also when change committed
 
   //#region Translation Keys --------------------------------------------------
-  protected readonly CHANGE_CARDSET_LABEL = extract('ScrumMasterButtons.Component.Button.ChangeCardSet.Label');
-  protected readonly REVEAL_LABEL = extract('ScrumMasterButtons.Component.Button.Reveal.Label');
-  protected readonly FORCE_REVEAL_LABEL = extract('ScrumMasterButtons.Component.Button.ForceReveal.Label');
-  protected readonly START_LABEL = extract('ScrumMasterButtons.Component.Button.Start.Label');
+  protected readonly CHANGE_CARDSET_LABEL = extract('Game.ScrumMasterButtons.Component.Button.ChangeCardSet');
+  protected readonly REVEAL_LABEL = extract('Game.ScrumMasterButtons.Component.Button.Reveal');
+  protected readonly FORCE_REVEAL_LABEL = extract('Game.ScrumMasterButtons.Component.Button.ForceReveal');
+  protected readonly START_LABEL = extract('Game.ScrumMasterButtons.Component.Button.Start');
   //#endregion
 
   //#region Protected Fields --------------------------------------------------

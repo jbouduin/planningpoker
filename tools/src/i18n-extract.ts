@@ -83,6 +83,7 @@ function getCommand(): Command {
       .option('-r, --replace', 'Replace the contents of output file if it exists (Merges by default)', false)
       .option('-e, --enums <enums...>', 'an comma separated string of enums for which to extract keys')
       // TODO .option('-v, --verbose', 'remove existing keys', false)
+      // TODO allow a configuration file
       .allowUnknownOption(false)
       .showHelpAfterError()
   );
@@ -180,7 +181,7 @@ function extractEnumKeys(fileNames: Array<string>): Array<string> {
       const members = enumDecl.getMembers();
 
       const keys = members.map((m) => m.getName());
-      result.push(...keys.map((k: string) => `Enum.${enumName}.Message.${k}`));
+      result.push(...keys.map((k: string) => `Enum.${enumName}.${k}`));
     }
   }
   return result;

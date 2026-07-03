@@ -13,7 +13,7 @@ import { ENVIRONMENT } from '../../../../../environments/environment';
   styleUrl: './team-header.component.scss'
 })
 export class TeamHeaderComponent {
-  // FEATURE current backlog item name
+  // FEATURE Set current backlog item name
   //#region Private fields ----------------------------------------------------
   private readonly uiEventsSvc: UiEventsService;
   private readonly clipboard: Clipboard;
@@ -34,9 +34,9 @@ export class TeamHeaderComponent {
   //#region UI-triggers -------------------------------------------------------
   protected shareTeamClick(): void {
     if (this.clipboard.copy(`${ENVIRONMENT.webHost}/home?team=${this.sessionSvc.teamName()}`)) {
-      this.uiEventsSvc.showInfo(extract('MessageBox.Link_to_team_is_copied_to_clipboard.Text'));
+      this.uiEventsSvc.showInfo(extract('Game.Snackbar.Link_to_team_is_copied_to_clipboard.Text'));
     } else {
-      this.uiEventsSvc.showInfo(extract('MessageBox.Error_copying_Link_to_team_to_clipboard.Text'));
+      this.uiEventsSvc.showInfo(extract('Game.Snackbar.Error_copying_Link_to_team_to_clipboard.Text'));
     }
   }
   //#endregion

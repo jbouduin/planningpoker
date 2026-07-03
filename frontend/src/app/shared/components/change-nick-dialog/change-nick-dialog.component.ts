@@ -24,11 +24,11 @@ export class ChangeNickDialogComponent {
   }
 
   public get nickNameLabel(): string {
-    return extract('Component.Input.Nick.Label');
+    return extract('App.Input.Nick.Label');
   }
 
   public get nickNamePlaceHolder(): string {
-    return extract('Component.Input.Nick.PlaceHolder');
+    return extract('App.Input.Nick.Placeholder');
   }
 
   public get saveButtonLabel(): string {
@@ -61,7 +61,7 @@ export class ChangeNickDialogComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return extract('Component.Error.Mandatory');
+      return extract('App.Input.Error.Mandatory');
     }
     return undefined;
   }

@@ -45,12 +45,12 @@ export class CreateJoinFormComponent {
   //#endregion
 
   //#region Protected Read-only -----------------------------------------------
-  protected readonly TEAM_LABEL = extract('Join.Component.Input.Team.Label');
-  protected readonly TEAM_PLACEHOLDER = extract('Join.Component.Input.Team.PlaceHolder');
-  protected readonly NICK_LABEL = extract('Component.Input.Nick.Label');
-  protected readonly NICK_PLACEHOLDER = extract('Component.Input.Nick.PlaceHolder');
-  protected readonly CARDSET_LABEL = extract('Component.Select.CardSet.Label');
-  protected readonly OBSERVER_LABEL = extract('Join.Component.Checkbox.Observer.Label');
+  protected readonly TEAM_LABEL = extract('App.Input.Team.Label');
+  protected readonly TEAM_PLACEHOLDER = extract('App.Input.Team.Placeholder');
+  protected readonly NICK_LABEL = extract('App.Input.Nick.Label');
+  protected readonly NICK_PLACEHOLDER = extract('App.Input.Nick.Placeholder');
+  protected readonly CARDSET_LABEL = extract('App.Select.CardSet');
+  protected readonly OBSERVER_LABEL = extract('Team.Join.Component.Checkbox.Observer');
   //#endregion
 
   //#region Protected Fields --------------------------------------------------
@@ -65,14 +65,14 @@ export class CreateJoinFormComponent {
 
   public get gameHeader(): string {
     return this.formMode === 'create'
-      ? extract('Join.Component.Header.Start_a_team')
-      : extract('Join.Component.Header.Join_a_team');
+      ? extract('Team.Join.Component.Header.Create_a_team')
+      : extract('Team.Join.Component.Header.Join_a_team');
   }
 
   public get submitButtonLabel(): string {
     return this.formMode === 'create'
-      ? extract('Join.Component.Button.Start.Label')
-      : extract('Join.Component.Button.Join.Label');
+      ? extract('Team.Join.Component.Button.Create')
+      : extract('Team.Join.Component.Button.Join');
   }
   //#endregion
 
@@ -96,7 +96,7 @@ export class CreateJoinFormComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return extract('Component.Error.Mandatory');
+      return extract('App.Input.Error.Mandatory');
     }
     return undefined;
   }
@@ -145,11 +145,12 @@ export class CreateJoinFormComponent {
 
   //#region mock methods ------------------------------------------------------
   private getCardSetValues(): Array<ICardSetSelectItem> {
+    // TODO once custom card set is implemented, make this dynamic `Enum.ECardSetType.${ECardSetType[code]}
     return [
-      { set: ECardSetType.Cohn, label: extract('CardSet.DisplayName.Cohn') },
-      { set: ECardSetType.Fibonacci, label: extract('CardSet.DisplayName.Fibonacci') },
-      { set: ECardSetType.TShirt, label: extract('CardSet.DisplayName.TShirt') }
-      //{ set: ECardSetType.Custom, label: extract('CardSet.DisplayName.Custom') },
+      { set: ECardSetType.Cohn, label: extract('Enum.ECardSetType.Cohn') },
+      { set: ECardSetType.Fibonacci, label: extract('Enum.ECardSetType.Fibonacci') },
+      { set: ECardSetType.TShirt, label: extract('Enum.ECardSetType.TShirt') }
+      //{ set: ECardSetType.Custom, label: extract('Enum.ECardSetType.Custom') },
     ];
   }
 }

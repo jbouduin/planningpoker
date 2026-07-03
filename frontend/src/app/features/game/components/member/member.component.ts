@@ -3,11 +3,12 @@ import { Component, computed, Input, Signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EGameState, EParticipantState, ERole, ParticipantDto } from 'shared-lib';
-import { extract, Member, SessionService } from '../../../../core';
+import { EErrorCode, EGameState, EParticipantState, ERole, ParticipantDto } from 'shared-lib';
+import { ErrorHandlerService, extract, Member, SessionService } from '../../../../core';
 import { DialogService } from '../../../../shared';
 import {
   ChangeNickDialogComponent,
+  MessageDialogParams,
   SelectParticipantDialogComponent,
   SelectParticipantDialogParams
 } from '../../../../shared/components';
@@ -27,6 +28,7 @@ export class MemberComponent {
 
   //#region Private Fields ----------------------------------------------------
   private readonly dialogSvc: DialogService;
+  private readonly errorHandlerSvc: ErrorHandlerService;
   private readonly sessionSvc: SessionService;
   private readonly teamSvc: TeamService;
   //#endregion
@@ -67,35 +69,37 @@ export class MemberComponent {
 
   //#region Getters: Labels ---------------------------------------------------
   public get startEstimatingLabel(): string {
-    return extract('Member.Component.MenuItem.Start_estimating');
+    return extract('Game.Member.Component.MenuItem.Start_estimating');
   }
 
   public get stopEstimatingLabel(): string {
-    return extract('Member.Component.MenuItem.Stop_estimating');
+    return extract('Game.Member.Component.MenuItem.Stop_estimating');
   }
 
   public get changeNickLabel(): string {
-    return extract('Member.Component.MenuItem.Change_nick');
+    return extract('Game.Member.Component.MenuItem.Change_nick');
   }
 
   public get changeScrumMasterLabel(): string {
-    return extract('Member.Component.MenuItem.Change_scrummaster');
+    return extract('Game.Member.Component.MenuItem.Change_scrummaster');
   }
 
   public get removeParticipantLabel(): string {
-    return extract('Member.Component.MenuItem.Remove_participant');
+    return extract('Game.Member.Component.MenuItem.Remove_participant');
   }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(
     dialogSvc: DialogService,
+    errorHandlerSvc: ErrorHandlerService,
     pokerSvc: PokerService,
     sessionSvc: SessionService,
     teamSvc: TeamService
   ) {
     // --- Assign private fields ---
     this.dialogSvc = dialogSvc;
+    this.errorHandlerSvc = errorHandlerSvc;
     this.sessionSvc = sessionSvc;
     this.teamSvc = teamSvc;
 
@@ -114,7 +118,7 @@ export class MemberComponent {
         return (
           me.role == ERole.ScrumMaster &&
           this.member.participantId !== me.participantId &&
-          // TODO shouldn't we allow the scrum master to kick out anyone
+          // LATER shouldn't we allow the scrum master to kick out anyone
           this.member.state === EParticipantState.Disconnected
         );
       } else {
@@ -123,7 +127,6 @@ export class MemberComponent {
     });
     this.canSwitchToObserver = computed(() => {
       const me = sessionSvc.me();
-
       if (me) {
         return me.role == ERole.ScrumMaster ? !this.member.observer : !this.member.observer && this.member.me;
       } else {
@@ -207,9 +210,25 @@ export class MemberComponent {
 
   public removeParticipantClick(): void {
     const me = this.sessionSvc.me();
-    // TODO confirmation
     if (me) {
-      this.teamSvc.removeParticipant(me.participantId, this.member.participantId);
+      if (me.role != ERole.ScrumMaster) {
+        this.errorHandlerSvc.processError({
+          code: EErrorCode.ScrumMasterRequired,
+          message: null
+        });
+      } else {
+        const params = new MessageDialogParams();
+        params.cancelButtonLabelKey = extract('App.Button.No');
+        params.okButtonLabelKey = extract('App.Button.Yes');
+        params.textKey = extract('Game.Confirmation.Remove_$nick_from_team.Text');
+        params.textParams = { nick: this.member.nick };
+        params.titleKey = extract('Game.Confirmation.Remove_$nick_from_team.Text');
+        this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
+          if (confirmed) {
+            this.teamSvc.removeParticipant(me.participantId, this.member.participantId);
+          }
+        });
+      }
     }
   }
   //#endregion

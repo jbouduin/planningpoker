@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EGameState, ERole } from 'shared-lib';
 import { extract, Member, SessionService } from '../../../../core';
-import { DialogService, MessageBoxParams } from '../../../../shared';
+import { DialogService, MessageDialogParams } from '../../../../shared';
 import { GameService, PokerService } from '../../services';
 import { MemberComponent } from '../member/member.component';
 
@@ -22,12 +22,12 @@ export class MembersPanelComponent {
   //#endregion
 
   //#region Translation keys --------------------------------------------------
-  protected readonly LEAVE_LABEL = extract('MemberButtons.Component.Button.Leave.Label');
-  protected readonly PAUSE_LABEL = extract('MemberButtons.Component.Button.Pause.Label');
-  protected readonly END_SESSION_LABEL = extract('ScrumMasterButtons.Component.Button.EndSession.Label');
-  protected readonly SCRUM_MASTER_LABEL = extract('MemberPanel.Component.Header.ScrumMaster');
-  protected readonly DEVELOPERS_LABEL = extract('MemberPanel.Component.Header.Developers');
-  protected readonly OBSERVERS_LABEL = extract('MemberPanel.Component.Header.Observers');
+  protected readonly LEAVE_LABEL = extract('Game.MembersPanel.Component.Button.Leave');
+  protected readonly PAUSE_LABEL = extract('Game.MembersPanel.Component.Button.Pause');
+  protected readonly END_SESSION_LABEL = extract('Game.ScrumMasterButtons.Component.Button.DisbandTeam');
+  protected readonly SCRUM_MASTER_LABEL = extract('Game.MembersPanel.Component.Header.ScrumMaster');
+  protected readonly DEVELOPERS_LABEL = extract('Game.MembersPanel.Component.Header.Developers');
+  protected readonly OBSERVERS_LABEL = extract('Game.MembersPanel.Component.Header.Observers');
   //#endregion
 
   //#region Signals -----------------------------------------------------------
@@ -48,6 +48,7 @@ export class MembersPanelComponent {
     this.dialogSvc = dialogSvc;
     this.sessionSvc = sessionSvc;
     // --- set signals ---
+    // LATER replace canleave and canpause with messages in the UI triggers
     this.canLeave = computed(() => {
       return pokerService.gameState() != EGameState.Started;
     });
@@ -74,14 +75,17 @@ export class MembersPanelComponent {
 
   //#region UI Triggers -------------------------------------------------------
   protected leave(): void {
-    const params = new MessageBoxParams();
-    params.cancelButtonLabelKey = extract('Button.Generic.Label.No');
-    params.okButtonLabelKey = extract('Button.Generic.Label.Yes');
-    params.titleKey = extract('MessageBox.Generic_confirmation.Text');
+    const params = new MessageDialogParams();
+    params.cancelButtonLabelKey = extract('App.Button.No');
+    params.okButtonLabelKey = extract('App.Button.Yes');
+    params.titleKey = extract('App.Confirmation.Text');
+    // LATER implement messages in leave trigger
+    // - scrum master can not leave before assigning another scrum master
+    // - other participants: if has estimated, warn that estimation will dissapear
 
     params.textKey = this.scrumMaster()?.me
-      ? extract('MessageBox.Do_you_want_to_dissolve_the_team.Text')
-      : extract('MessageBox.Do_you_want_to_leave_the_team.Text');
+      ? extract('Game.Confirmation.Do_you_want_to_disband_the_team.Text')
+      : extract('Game.Confirmation.Do_you_want_to_leave_the_team.Text');
 
     this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
       if (confirmed) {
@@ -91,6 +95,16 @@ export class MembersPanelComponent {
   }
 
   protected pause(): void {
+    // LATER implement messages in pause trigger
+    // - scrum master can not pause before assigning another scrum master
+    // - other participants: if has estimated, warn that estimation will dissapear
+    // - confirmation dialog
+    extract('Game.Message.Assign_another_scrum_master_first.Title');
+    extract('Game.Message.Assign_another_scrum_master_first.Text');
+    extract('Game.Message.Pause_will_withdraw_your_estimation.Title');
+    extract('Game.Message.Pause_will_withdraw_your_estimation.Text');
+    extract('Game.Confirmation.Do_you_want_to_pause.Title');
+    extract('Game.Confirmation.Do_you_want_to_pause.Text');
     this.sessionSvc.pause();
   }
   //#endregion

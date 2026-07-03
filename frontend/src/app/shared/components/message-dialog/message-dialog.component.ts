@@ -3,19 +3,18 @@ import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MessageBoxParams } from './message-box.params';
+import { MessageDialogParams } from './message-dialog.params';
 
 @Component({
   selector: 'app-message-box',
   imports: [CommonModule, MatButtonModule, MatDialogModule, TranslatePipe],
-  templateUrl: './message-box.component.html',
-  styleUrls: ['./message-box.component.scss']
+  templateUrl: './message-dialog.component.html',
+  styleUrls: ['./message-dialog.component.scss']
 })
-export class MessageBoxComponent {
-  // TODO rename to MessageDialogComponent
+export class MessageDialogComponent {
   //#region private properties ------------------------------------------------
-  private readonly dialogRef: MatDialogRef<MessageBoxComponent>;
-  private readonly params: MessageBoxParams;
+  private readonly dialogRef: MatDialogRef<MessageDialogComponent>;
+  private readonly params: MessageDialogParams;
   //#endregion
 
   //#region getters -----------------------------------------------------------
@@ -61,7 +60,7 @@ export class MessageBoxComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  constructor(dialogRef: MatDialogRef<MessageBoxComponent>, @Inject(MAT_DIALOG_DATA) params: MessageBoxParams) {
+  constructor(dialogRef: MatDialogRef<MessageDialogComponent>, @Inject(MAT_DIALOG_DATA) params: MessageDialogParams) {
     this.dialogRef = dialogRef;
     this.params = params;
   }

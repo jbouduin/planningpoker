@@ -3,7 +3,7 @@
     <mat-icon>language</mat-icon>
   </button>
   <mat-menu #languageMenu="matMenu">
-    <!-- TODO check how to indicate the current language -->
+    <!-- LATER check how to indicate the current language -->
     <button id="{{ language }}" mat-menu-item *ngFor="let language of languages" (click)="setLanguage(language)">
       {{ language }}
     </button>

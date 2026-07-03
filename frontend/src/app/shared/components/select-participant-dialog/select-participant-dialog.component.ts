@@ -83,7 +83,7 @@ export class SelectParticipantDialogComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return extract('Component.Error.Mandatory');
+      return extract('App.Input.Error.Mandatory');
     }
     return undefined;
   }

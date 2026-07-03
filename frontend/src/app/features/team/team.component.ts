@@ -1,6 +1,6 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { extract, ICanRejoinResult, SessionService } from '../../core';
-import { MessageBoxParams } from '../../shared/components';
+import { MessageDialogParams } from '../../shared/components';
 import { DialogService } from '../../shared/services';
 import { CreateComponent } from './components/create/create.component';
 import { JoinComponent } from './components/join/join.component';
@@ -25,15 +25,15 @@ export class TeamComponent implements AfterViewInit {
   public ngAfterViewInit(): void {
     this.sessionSvc.canRejoin().subscribe((result: ICanRejoinResult) => {
       if (result.canRejoin) {
-        const params = new MessageBoxParams();
-        params.cancelButtonLabelKey = extract('Button.Generic.Label.No');
-        params.okButtonLabelKey = extract('Button.Generic.Label.Yes');
-        params.textKey = extract('MessageBox.Rejoin_$team_as_$nick.Text');
+        const params = new MessageDialogParams();
+        params.cancelButtonLabelKey = extract('App.Button.No');
+        params.okButtonLabelKey = extract('App.Button.Yes');
+        params.textKey = extract('Team.Message.Rejoin_$team_as_$nick.Text');
         params.textParams = {
           team: result.team,
           nick: result.nick
         };
-        params.titleKey = extract('MessageBox.Rejoin_$team_as_$nick.Title');
+        params.titleKey = extract('Team.Message.Rejoin_$team_as_$nick.Title');
         this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
           if (confirmed) {
             this.sessionSvc.rejoinSession(result.team!, result.participantId!);

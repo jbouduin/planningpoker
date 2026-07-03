@@ -5,8 +5,15 @@
   "type": "module",
   "scripts": {
     "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
+    "lint:frontend": "eslint frontend --ext .ts",
+    "lint:server": "eslint frontend --ext .ts",
+    "lint:shared-lib:": "eslint shared-lib --ext .ts",
+    "lint:tools:": "eslint tools --ext .ts",
     "format": "prettier . --check",
+    "format:fronted": "prettier fronted --check",
+    "format:server": "prettier server --check",
+    "format:shared-lib": "prettier shared-lib --check",
+    "format:tools": "prettier tools --check",
     "format:write": "prettier . --write --loglevel silent",
     "start:site": "cd frontend && npm run start",
     "start:server": "cd server && npm run dev"

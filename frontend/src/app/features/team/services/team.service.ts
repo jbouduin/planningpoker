@@ -12,6 +12,7 @@ import {
   ISimpleDialogParams,
   Member,
   MessageDispatcherService,
+  SnackbarParams,
   SocketService,
   UiEventsService
 } from '../../../core';
@@ -117,20 +118,43 @@ export class TeamService {
 
   private handleParticipantChanged(data: ParticipantChangeDto): void {
     const participant = data.member;
-    // TODO: snackbars if not self
     switch (data.changeType) {
       case EParticipantChangeType.ChangedNick:
+        let oldNick: string | null = null;
+        let newNick: string | null = null;
         this.participants.update((current: Array<ParticipantDto>) =>
-          current.map((p: ParticipantDto) =>
-            p.participantId === participant.participantId ? { ...p, nick: participant.nick } : p
-          )
+          current.map((p: ParticipantDto) => {
+            let result: ParticipantDto;
+            if (p.participantId === participant.participantId) {
+              oldNick = p.nick;
+              newNick = participant.nick;
+              result = { ...p, nick: participant.nick };
+            } else {
+              result = p;
+            }
+            return result;
+          })
         );
+        if (oldNick !== null && newNick !== null) {
+          this.uiEventsSvc.snackbar.set(
+            SnackbarParams.info(extract('Team.Snackbar.$oldNick_changed_to_$newNick'), {
+              oldNick: oldNick,
+              newNick: newNick
+            })
+          );
+        }
         break;
       case EParticipantChangeType.ChangedRole:
         this.participants.update((current: Array<ParticipantDto>) =>
           current.map((p: ParticipantDto) =>
             p.participantId === participant.participantId ? { ...p, role: participant.role } : p
           )
+        );
+        this.uiEventsSvc.snackbar.set(
+          SnackbarParams.info(extract('Team.Snackbar.$nick_is_now_$role'), {
+            nick: participant.nick,
+            role: participant.role
+          })
         );
         break;
       case EParticipantChangeType.Disconnected:
@@ -139,13 +163,28 @@ export class TeamService {
             p.participantId === participant.participantId ? { ...p, status: EParticipantState.Disconnected } : p
           )
         );
+        this.uiEventsSvc.snackbar.set(
+          SnackbarParams.info(extract('Team.Snackbar.$nick_was_disconnected'), {
+            nick: participant.nick
+          })
+        );
         break;
       case EParticipantChangeType.Joined:
         this.participants.update((current: Array<ParticipantDto>) => [...current, participant]);
+        this.uiEventsSvc.snackbar.set(
+          SnackbarParams.info(extract('Team.Snackbar.$nick_joined'), {
+            nick: participant.nick
+          })
+        );
         break;
       case EParticipantChangeType.Left:
         this.participants.update((current: Array<ParticipantDto>) =>
           current.filter((p: ParticipantDto) => p.participantId !== participant.participantId)
+        );
+        this.uiEventsSvc.snackbar.set(
+          SnackbarParams.info(extract('Team.Snackbar.$nick_left'), {
+            nick: participant.nick
+          })
         );
         break;
       case EParticipantChangeType.Observe:
@@ -154,12 +193,22 @@ export class TeamService {
             p.participantId === participant.participantId ? { ...p, observer: participant.observer } : p
           )
         );
+        const message =
+          participant.observer == true
+            ? extract('Team.Snackbar.$nick_stops_estimating')
+            : extract('Team.Snackbar.$nick_starts_estimating');
+        this.uiEventsSvc.snackbar.set(SnackbarParams.info(message, { nick: participant.nick }));
         break;
       case EParticipantChangeType.Paused:
         this.participants.update((current: Array<ParticipantDto>) =>
           current.map((p: ParticipantDto) =>
             p.participantId === participant.participantId ? { ...p, status: EParticipantState.Paused } : p
           )
+        );
+        this.uiEventsSvc.snackbar.set(
+          SnackbarParams.info(extract('Team.Snackbar.$nick_paused'), {
+            nick: participant.nick
+          })
         );
         break;
       case EParticipantChangeType.Rejoined:
@@ -168,25 +217,25 @@ export class TeamService {
             p.participantId === participant.participantId ? { ...p, status: EParticipantState.Connected } : p
           )
         );
+        this.uiEventsSvc.snackbar.set(
+          SnackbarParams.info(extract('Team.Snackbar.$nick_rejoined'), {
+            nick: participant.nick
+          })
+        );
         break;
     }
   }
 
   private handleIdleTimeOut(): void {
     const params: ISimpleDialogParams = {
-      dialogTitleKey: extract('MessageBox.The_was_idle_for_to_long.Title'),
-      dialogMessageKey: extract('MessageBox.The_was_idle_for_to_long.Text')
+      dialogTitleKey: extract('Team.Message.Team_idle_time_out.Title'),
+      dialogMessageKey: extract('Team.Message.Team_idle_time_out.Text')
     };
     this.uiEventsSvc.showSimpleDialog(params);
     this.resetService();
   }
 
   private handleServerReset(): void {
-    const params: ISimpleDialogParams = {
-      dialogTitleKey: extract('MessageBox.The_server_has_been_reset.Title'),
-      dialogMessageKey: extract('MessageBox.The_server_has_been_reset.Text')
-    };
-    this.uiEventsSvc.showSimpleDialog(params);
     this.resetService();
   }
 

@@ -1,5 +1,6 @@
 export * from './api.service';
 export * from './can-rejoin-result';
+export * from './error-handler.service';
 export * from './i18n.service';
 export * from './local-storage.service';
 export * from './logger';

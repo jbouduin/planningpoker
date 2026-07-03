@@ -18,9 +18,9 @@ import { LanguageSelectorComponent } from '../language-selector/language-selecto
 })
 export class HeaderComponent {
   //#region Translation keys --------------------------------------------------
-  protected readonly ROUTE_LABEL_HOME = extract('Navigation.RouteLabel.Home');
-  protected readonly ROUTE_LABEL_PRIVACY = extract('Navigation.RouteLabel.Privacy');
-  protected readonly ROUTE_LABEL_LEGAL = extract('Navigation.RouteLabel.Legal');
+  protected readonly ROUTE_LABEL_HOME = extract('App.Navigation.Route.Home');
+  protected readonly ROUTE_LABEL_PRIVACY = extract('App.Navigation.Route.Privacy');
+  protected readonly ROUTE_LABEL_LEGAL = extract('App.Navigation.Route.Legal');
   //#endregion
 
   //#region Signals -----------------------------------------------------------

@@ -1,6 +1,6 @@
 import { extract } from '../../../core';
 
-export class MessageBoxParams {
+export class MessageDialogParams {
   //#region Public properties -------------------------------------------------
   public showCancelButton: boolean;
   public cancelButtonLabelKey: string;
@@ -18,13 +18,13 @@ export class MessageBoxParams {
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
     this.showCancelButton = true;
-    this.cancelButtonLabelKey = extract('Button.Generic.Label.Cancel');
+    this.cancelButtonLabelKey = extract('App.Button.Cancel');
     this.cancelButtonParams = null;
-    this.okButtonLabelKey = extract('Button.Generic.Label.OK');
+    this.okButtonLabelKey = extract('App.Button.OK');
     this.okButtonParams = null;
-    this.textKey = extract('MessageBox.Generic_confirmation.Text');
+    this.textKey = extract('App.Confirmation.Text');
     this.textParams = null;
-    this.titleKey = extract('MessageBox.Generic_confirmation.Title');
+    this.titleKey = extract('App.Confirmation.Title');
     this.titleParams = null;
   }
   //#endregion

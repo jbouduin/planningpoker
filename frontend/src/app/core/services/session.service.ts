@@ -228,8 +228,8 @@ export class SessionService {
   private handleDisbanded(): void {
     if (this.currentRole != ERole.ScrumMaster) {
       const params: ISimpleDialogParams = {
-        dialogTitleKey: extract('MessageBox.The_scrummaster_has_ended_the_session.Title'),
-        dialogMessageKey: extract('MessageBox.The_scrummaster_has_ended_the_session.Text')
+        dialogTitleKey: extract('Session.Message.Team_disbanded.Title'),
+        dialogMessageKey: extract('Session.Message.Team_disbanded.Message')
       };
       this.uiEventsSvc.showSimpleDialog(params);
     }
@@ -237,6 +237,11 @@ export class SessionService {
   }
 
   private handleServerReset(): void {
+    const params: ISimpleDialogParams = {
+      dialogTitleKey: extract('Session.Message.Server_has_been_reset.Title'),
+      dialogMessageKey: extract('Session.Message.Server_has_been_reset.Text')
+    };
+    this.uiEventsSvc.showSimpleDialog(params);
     this.resetService();
   }
 

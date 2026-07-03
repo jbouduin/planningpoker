@@ -21,7 +21,7 @@ export class ErrorHandlerService {
     let canContinue =
       code != EErrorCode.TeamAlreadyExists && code != EErrorCode.TeamNotFound && code != EErrorCode.ParticipantNotFound;
 
-    const params = SnackbarParams.Error(`Enum.EErrorCode.Message.${EErrorCode[code]}`);
+    const params = SnackbarParams.error(`Enum.EErrorCode.${EErrorCode[code]}`);
     this.uiEventsSvc.snackbar.set(params);
 
     return canContinue;

@@ -102,7 +102,7 @@ export class PokerService {
       const message = new WithdrawEstimationMessage(me.participantId);
       this.socketSvc.sendMessage(message);
     }
-    // TODO else error
+    // TODO else error + end session + disconnect
   }
 
   public estimate(index: number): void {
@@ -111,7 +111,7 @@ export class PokerService {
       const message = new EstimateMessage(me.participantId, index);
       this.socketSvc.sendMessage(message);
     }
-    // TODO else error
+    // TODO else error + end session + disconnect
   }
 
   public reveal(): void {
@@ -120,7 +120,7 @@ export class PokerService {
       const message = new RevealMessage(me.participantId);
       this.socketSvc.sendMessage(message);
     }
-    // TODO else error
+    // TODO else error + end session + disconnect
   }
 
   public start(): void {
@@ -129,7 +129,7 @@ export class PokerService {
       const message = new StartMessage(me.participantId);
       this.socketSvc.sendMessage(message);
     }
-    // TODO else error
+    // TODO else error + end session + disconnect
   }
   //#endregion
 

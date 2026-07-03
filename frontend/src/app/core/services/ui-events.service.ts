@@ -18,15 +18,15 @@ export class UiEventsService {
 
   //#region Public helper methods ---------------------------------------------
   public showError(messageKey: string): void {
-    this.snackbar.set(SnackbarParams.Error(messageKey));
+    this.snackbar.set(SnackbarParams.error(messageKey));
   }
 
   public showWarning(messageKey: string): void {
-    this.snackbar.set(SnackbarParams.Warning(messageKey));
+    this.snackbar.set(SnackbarParams.warning(messageKey));
   }
 
   public showInfo(messageKey: string): void {
-    this.snackbar.set(SnackbarParams.Info(messageKey));
+    this.snackbar.set(SnackbarParams.info(messageKey));
   }
 
   public showSimpleDialog(params: ISimpleDialogParams): void {

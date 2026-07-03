@@ -3,25 +3,27 @@ import { ESnackbarType } from './snackbar-type.enum';
 export class SnackbarParams {
   //#region public readonly properties ----------------------------------------
   public readonly type: ESnackbarType;
-  public readonly message: string;
+  public readonly messageKey: string;
+  public readonly messageParams: Record<string, unknown> | null;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  private constructor(type: ESnackbarType, message: string) {
+  private constructor(type: ESnackbarType, messageKey: string, messageParams: Record<string, unknown> | null) {
     this.type = type;
-    this.message = message;
+    this.messageKey = messageKey;
+    this.messageParams = messageParams;
   }
 
-  public static Warning(messageKey: string): SnackbarParams {
-    return new SnackbarParams(ESnackbarType.Warning, messageKey);
+  public static warning(messageKey: string, messageParams?: Record<string, unknown>): SnackbarParams {
+    return new SnackbarParams(ESnackbarType.Warning, messageKey, messageParams ?? null);
   }
 
-  public static Error(messageKey: string): SnackbarParams {
-    return new SnackbarParams(ESnackbarType.Error, messageKey);
+  public static error(messageKey: string, messageParams?: Record<string, unknown>): SnackbarParams {
+    return new SnackbarParams(ESnackbarType.Error, messageKey, messageParams ?? null);
   }
 
-  public static Info(messageKey: string): SnackbarParams {
-    return new SnackbarParams(ESnackbarType.Info, messageKey);
+  public static info(messageKey: string, messageParams?: Record<string, unknown>): SnackbarParams {
+    return new SnackbarParams(ESnackbarType.Info, messageKey, messageParams ?? null);
   }
   //#endregion
 }
