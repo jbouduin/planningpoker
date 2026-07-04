@@ -1,5 +1,11 @@
-import { inject, Service, signal, WritableSignal } from '@angular/core';
-import { AClientMessageDto, AServerMessageDto } from 'shared-lib';
+import { inject, Service, Signal, signal, WritableSignal } from '@angular/core';
+import {
+  AClientMessageDto,
+  AServerMessageDto,
+  EServerMessageType,
+  ESessionEndedReason,
+  SessionEndedMessageDto
+} from 'shared-lib';
 import { ENVIRONMENT } from '../../../environments/environment';
 import { LocalStorageService } from './local-storage.service';
 import { Logger } from './logger';
@@ -33,7 +39,7 @@ export class SocketService {
   //#endregion
 
   //#region private readonly properties ---------------------------------------
-  private readonly messageAdapterSvc: MessageDispatcherService;
+  private readonly messageDispatcherSvc: MessageDispatcherService;
   private readonly localStorageSvc: LocalStorageService;
   private readonly log: Logger;
   private readonly uiEventsSvc: UiEventsService;
@@ -45,26 +51,30 @@ export class SocketService {
   // TODO implement automatic resuming
   private resumeTimer?: number;
   private webSocket: WebSocket | null;
+  private _resumeIn: WritableSignal<number>;
   //#endregion
 
   //#region Signal ------------------------------------------------------------
-  public readonly socketStatus: WritableSignal<ESocketState>;
+  public readonly socketState: WritableSignal<ESocketState>;
+
   //#endregion
 
   //#region public properties -------------------------------------------------
-  public resumeIn: number;
+  public get resumeIn(): Signal<number> {
+    return this._resumeIn;
+  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
-    this.messageAdapterSvc = inject(MessageDispatcherService);
+    this.messageDispatcherSvc = inject(MessageDispatcherService);
     this.localStorageSvc = inject(LocalStorageService);
     this.log = new Logger('SocketService');
     this.uiEventsSvc = inject(UiEventsService);
-    this.socketStatus = signal<ESocketState>(ESocketState.Disconnected);
+    this.socketState = signal<ESocketState>(ESocketState.Disconnected);
     this.webSocketRoot = ENVIRONMENT.webSocketHost;
     this.webSocketPath = ENVIRONMENT.webSocketPath;
-    this.resumeIn = 0;
+    this._resumeIn = signal<number>(-1);
     this.webSocket = null;
   }
   //#endregion
@@ -79,7 +89,7 @@ export class SocketService {
    */
   public disconnect(): void {
     if (this.webSocket?.readyState === WebSocket.OPEN) {
-      this.socketStatus.set(ESocketState.Disconnecting);
+      this.socketState.set(ESocketState.Disconnecting);
       this.webSocket.close(SocketService.CLOSE_CODE_NORMAL);
     }
   }
@@ -90,12 +100,22 @@ export class SocketService {
       this.webSocket?.send(JSON.stringify(message));
     }
   }
+
+  public giveUpReconnecting(): void {
+    window.clearInterval(this.resumeTimer);
+    this.socketState.set(ESocketState.Disconnected);
+    const sessionEndedMessageDto: SessionEndedMessageDto = {
+      data: ESessionEndedReason.SelfInflicted,
+      type: EServerMessageType.SessionEnded
+    };
+    this.messageDispatcherSvc.processServerMessage(sessionEndedMessageDto);
+  }
   //#endregion
 
   //#region Auxiliary methods: socket methods ---------------------------------
   private _connect(teamName: string, status: ESocketState.Reconnecting | ESocketState.Connecting): void {
     const url = `${this.webSocketRoot}/${this.webSocketPath}/${encodeURI(teamName)}`;
-    this.socketStatus.set(status);
+    this.socketState.set(status);
     this.log.debug('opening ws using url' + url);
     this.webSocket = new WebSocket(url);
     this.webSocket.onopen = this.onOpen.bind(this);
@@ -108,7 +128,7 @@ export class SocketService {
   //#region Auxiliary methods: Websocket events -------------------------------
   private onOpen(_event: Event): void {
     this.log.debug(`Successfully connected to ${this.webSocket?.url}`);
-    this.socketStatus.set(ESocketState.Connected);
+    this.socketState.set(ESocketState.Connected);
   }
 
   /**
@@ -125,12 +145,17 @@ export class SocketService {
    * @param event Close event see: https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
    */
   private onClose(event: CloseEvent): void {
-    if (event.code == SocketService.CLOSE_CODE_ABNORMAL) {
-      switch (this.socketStatus()) {
+    console.log('on close event', event);
+    if (
+      event.code == SocketService.CLOSE_CODE_ABNORMAL ||
+      event.code == SocketService.CLOSE_CODE_SERVER_RESTART ||
+      event.code == SocketService.CLOSE_CODE_TRY_AGAIN
+    ) {
+      switch (this.socketState()) {
         case ESocketState.Connecting:
           this.log.debug('in onClose case: Starting');
           this.uiEventsSvc.showError('Socket.Error.Could_not_connect');
-          this.socketStatus.set(ESocketState.Disconnected);
+          this.socketState.set(ESocketState.Disconnected);
           break;
         case ESocketState.Reconnecting:
           this.log.debug('in onClose case: Resuming');
@@ -143,8 +168,8 @@ export class SocketService {
           this.initiateAutomaticReconnect();
       }
     } else {
-      if (event.code !== SocketService.CLOSE_CODE_NORMAL) {
-        this.log.debug('in onClose event code', event);
+      if (event.code !== SocketService.CLOSE_CODE_NORMAL && event.code !== SocketService.CLOSE_CODE_GOING_AWAY) {
+        this.log.debug('in onClose event');
         this.uiEventsSvc.showError('Socket.Error.You_Have_been_disconnected');
       }
     }
@@ -154,7 +179,7 @@ export class SocketService {
   private onMessage(event: MessageEvent<string>): void {
     const message: AServerMessageDto = JSON.parse(event.data) as AServerMessageDto;
     this.log.debug(`<= ${message.type}`, message.data);
-    const canContinue = this.messageAdapterSvc.processServerMessage(message);
+    const canContinue = this.messageDispatcherSvc.processServerMessage(message);
     // if we can not continue (team not found, etc...) → perform a normal close
     if (!canContinue) {
       this.disconnect();
@@ -162,7 +187,7 @@ export class SocketService {
   }
 
   private onError(_event: Event): void {
-    const status = this.socketStatus();
+    const status = this.socketState();
     if (status !== ESocketState.Reconnecting && status != ESocketState.Connecting) {
       this.log.debug(`in onError not connecting and not reconnecting : ${status}`);
       this.uiEventsSvc.showError('Socket.Error.Communication_error');
@@ -172,14 +197,15 @@ export class SocketService {
 
   //#region Auxiliary methods: reconnect --------------------------------------
   private initiateAutomaticReconnect(): void {
-    this.resumeIn = 30;
-    this.socketStatus.set(ESocketState.ReconnectPending);
+    this._resumeIn.set(30);
+    this.socketState.set(ESocketState.ReconnectPending);
     this.resumeTimer = window.setInterval(this.reconnectTick.bind(this), 1000);
   }
 
   private reconnectTick(): void {
-    this.resumeIn--;
-    if (this.resumeIn === 0) {
+    this._resumeIn.update((prev: number) => prev--);
+    if (this.resumeIn() === 0) {
+      window.clearInterval(this.resumeTimer);
       this._connect(this.localStorageSvc.teamName!, ESocketState.Reconnecting);
     }
   }

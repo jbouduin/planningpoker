@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { UiEventsService } from './core';
 import { ShellComponent } from './features/shell';
@@ -13,7 +13,11 @@ import { DialogService, SnackbarService } from './shared/services';
 })
 export class AppComponent {
   //#region Constructor & C° --------------------------------------------------
-  public constructor(snackbarSvc: SnackbarService, uiEventsSvc: UiEventsService, dialogSvc: DialogService) {
+  public constructor() {
+    const snackbarSvc = inject(SnackbarService);
+    const uiEventsSvc = inject(UiEventsService);
+    const dialogSvc = inject(DialogService);
+
     effect(() => {
       const snackBarSignal = uiEventsSvc.snackbar();
       if (snackBarSignal !== null) {

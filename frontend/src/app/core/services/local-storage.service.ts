@@ -1,4 +1,7 @@
-import { Service } from '@angular/core';
+import { effect, inject, Service } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { Logger } from './logger';
+import { MessageDispatcherService } from './message-dispatcher.service';
 
 @Service()
 export class LocalStorageService {
@@ -7,94 +10,101 @@ export class LocalStorageService {
   private readonly nickKey: string = 'current_nick';
   private readonly teamNameKey: string = 'current_teamName';
   private readonly participantIdKey: string = 'current_participantId';
+  private readonly log: Logger;
   //#endregion
 
-  //#region Properties backing fields -----------------------------------------
-  private _currentLang: string | null;
-  private _nick: string | null;
-  private _teamName: string | null;
-  private _participantId: string | null;
-  //#endregion
-
-  //#region getters/setters ---------------------------------------------------
+  //#region getters -----------------------------------------------------------
   public get currentLang(): string | null {
-    return this._currentLang;
+    return localStorage.getItem(this.currentLanguageKey);
   }
 
-  public set currentLang(value: string | null) {
-    this._currentLang = value;
-    if (value) {
-      localStorage.setItem(this.currentLanguageKey, value);
-    } else {
-      localStorage.removeItem(this.currentLanguageKey);
-    }
-  }
   public get nick(): string | null {
-    return this._nick;
-  }
-
-  public set nick(value: string | null) {
-    this._nick = value;
-    if (value) {
-      localStorage.setItem(this.nickKey, value);
-    } else {
-      localStorage.removeItem(this.nickKey);
-    }
+    return localStorage.getItem(this.nickKey);
   }
 
   public get teamName(): string | null {
-    return this._teamName;
-  }
-
-  public set teamName(value: string | null) {
-    this._teamName = value;
-    if (value) {
-      localStorage.setItem(this.teamNameKey, value);
-    } else {
-      localStorage.removeItem(this.teamNameKey);
-    }
+    return localStorage.getItem(this.teamNameKey);
   }
 
   public get participantId(): string | null {
-    return this._participantId;
-  }
-
-  public set participantId(value: string | null) {
-    this._participantId = value;
-    if (value) {
-      localStorage.setItem(this.participantIdKey, value);
-    } else {
-      localStorage.removeItem(this.participantIdKey);
-    }
+    return localStorage.getItem(this.participantIdKey);
   }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
   constructor() {
-    this._currentLang = localStorage.getItem(this.currentLanguageKey);
-    this._nick = localStorage.getItem(this.nickKey);
-    this._teamName = localStorage.getItem(this.teamNameKey);
-    this._participantId = localStorage.getItem(this.participantIdKey);
+    const dispatcherSvc = inject(MessageDispatcherService);
+    const translateSvc = inject(TranslateService);
+    this.log = new Logger('LocalStorageService');
+    this.createEffects(dispatcherSvc, translateSvc);
+  }
+
+  private createEffects(dispatcherSvc: MessageDispatcherService, translateSvc: TranslateService): void {
+    effect(() => {
+      const startHandshake = dispatcherSvc.startHandshake();
+      if (startHandshake !== null) {
+        console.log(`Storing participantId: ${startHandshake.participantId}`);
+        localStorage.setItem(this.participantIdKey, startHandshake.participantId);
+      }
+    });
+
+    effect(() => {
+      const teamName = dispatcherSvc.teamName();
+      if (teamName !== null) {
+        this.log.debug(`Storing teamName: ${teamName}`);
+        localStorage.setItem(this.teamNameKey, teamName);
+      } else {
+        this.log.debug(`Removing teamName`);
+        localStorage.removeItem(this.teamNameKey);
+      }
+    });
+
+    effect(() => {
+      const self = dispatcherSvc.self();
+      if (self !== null) {
+        this.log.debug(`Storing nick: ${self.nick}`);
+        localStorage.setItem(this.nickKey, self.nick);
+      } else {
+        this.log.debug(`Removing nick`);
+        localStorage.removeItem(this.nickKey);
+      }
+    });
+
+    effect(() => {
+      const endSession = dispatcherSvc.sessionEnded();
+      if (endSession != null) {
+        this.clearSessionData();
+      }
+    });
+
+    effect(() => {
+      const currentLang = translateSvc.currentLang();
+      if (currentLang !== null) {
+        this.log.debug(`Storing language: ${currentLang}`);
+        localStorage.setItem(this.currentLanguageKey, currentLang);
+      }
+    });
   }
   //#endregion
 
   //#region public methods -----------------------------------------------------
   /**
-   * Clear localstorage, except for the current language
+   * Clear local storage, except for the current language
    */
   public clearSessionData(): void {
-    this.nick = null;
-    this.teamName = null;
-    this.participantId = null;
+    this.log.debug('clearing session data');
+    localStorage.removeItem(this.participantIdKey);
+    localStorage.removeItem(this.teamNameKey);
+    localStorage.removeItem(this.nickKey);
   }
   /**
    * Clear complete local storage
    */
   public clearAll(): void {
-    this.nick = null;
-    this.teamName = null;
-    this.participantId = null;
-    this.currentLang = null;
+    localStorage.removeItem(this.participantIdKey);
+    localStorage.removeItem(this.teamNameKey);
+    localStorage.removeItem(this.nickKey);
+    localStorage.removeItem(this.currentLanguageKey);
   }
   //#endregion
 }

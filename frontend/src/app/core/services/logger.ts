@@ -6,6 +6,7 @@ enum LogLevel {
   Debug
 }
 
+// TODO make a logger service who creates the logs
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export class Logger {
   //#region static ------------------------------------------------------------
@@ -13,7 +14,7 @@ export class Logger {
    * Current logging level.
    * Set it to LogLevel.Off to disable logs completely.
    */
-  private static level = LogLevel.Debug;
+  private level: LogLevel;
 
   /**
    * Additional log outputs.
@@ -23,8 +24,8 @@ export class Logger {
    * Enables production mode.
    * Sets logging level to LogLevel.Warning.
    */
-  public static enableProductionMode(): void {
-    Logger.level = LogLevel.Warning;
+  public enableProductionMode(): void {
+    this.level = LogLevel.Warning;
   }
   //#endregion
 
@@ -34,6 +35,7 @@ export class Logger {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor(source: string) {
+    this.level = LogLevel.Debug;
     this.source = source;
   }
   //#endregion
@@ -65,7 +67,7 @@ export class Logger {
     msg: string,
     objects: Array<any>
   ): void {
-    if (level <= Logger.level && objects.length > 0) {
+    if (level <= this.level) {
       // eslint-disable-next-line  @typescript-eslint/no-unsafe-assignment
       func.apply(console, [`[${this.source}] ${msg}`, ...objects]);
     }

@@ -1,8 +1,8 @@
-import { effect, inject, Service } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, map } from 'rxjs';
-import { LocalStorageService } from './local-storage.service';
 import { ENVIRONMENT } from '../../../environments/environment';
+import { LocalStorageService } from './local-storage.service';
 
 @Service()
 export class I18nService {
@@ -22,13 +22,6 @@ export class I18nService {
     this.translateSvc = inject(TranslateService);
     this.supportedLanguages = ENVIRONMENT.supportedLanguages;
     this.defaultLanguage = ENVIRONMENT.defaultLanguage;
-
-    effect(() => {
-      const currentLang = this.translateSvc.currentLang();
-      if (currentLang !== null) {
-        this.localStorageSvc.currentLang = currentLang;
-      }
-    });
   }
   //#endregion
 
@@ -51,7 +44,7 @@ export class I18nService {
   private getInitialLanguage(): string {
     const fromStorage = this.localStorageSvc.currentLang;
     let browser = navigator.language;
-    const toUse = fromStorage || browser || 'en-US';
+    const toUse = fromStorage || browser || this.defaultLanguage;
     return this.supportedLanguages.includes(toUse) ? toUse : this.defaultLanguage;
   }
   //#endregion

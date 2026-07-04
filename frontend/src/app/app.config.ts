@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { routes } from './app.routes';
-import { I18nService } from './core';
+import { I18nService, LocalStorageService } from './core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +21,7 @@ export const appConfig: ApplicationConfig = {
       })
     }),
     provideAppInitializer(() => {
+      inject(LocalStorageService);
       const i18n = inject(I18nService);
       return i18n.init();
     }),

@@ -402,9 +402,8 @@ export class HandlerService implements IHandlerService {
           leaving,
           EParticipantChangeType.Left
         );
-        // Acknowledge to the sender
-        sender.state = EParticipantState.Left;
-        this.messageService.sendSelf(sender);
+        // Acknowledge to the sender by sending him end-session
+        this.messageService.sendSessionEnded(sender, ESessionEndedReason.SelfInflicted);
       }
       if (message.data !== sender.participantId) {
         this.storage.deleteParticipant(sender.participantId, teamName);

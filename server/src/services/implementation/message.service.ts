@@ -117,6 +117,11 @@ export class MessageService implements IMessageService {
     this.senderService.sendToParticipant(to, message);
   }
 
+  public sendSessionEnded(to: IServerParticipant, reason: ESessionEndedReason): void {
+    const message: AServerMessageDto = new SessionEndedMessage(reason);
+    this.senderService.sendToParticipant(to, message);
+  }
+
   public sendHandshakeSequence(
     to: IServerParticipant,
     team: IServerTeam,
@@ -175,11 +180,6 @@ export class MessageService implements IMessageService {
       }
     };
     const message: AServerMessageDto = new ParticipantChangedMessage(data);
-    this.senderService.sendToParticipant(to, message);
-  }
-
-  private sendSessionEnded(to: IServerParticipant, reason: ESessionEndedReason): void {
-    const message: AServerMessageDto = new SessionEndedMessage(reason);
     this.senderService.sendToParticipant(to, message);
   }
   //#endregion

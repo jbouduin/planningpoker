@@ -1,21 +1,24 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, Signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { SessionService } from '../../core';
+import { ERole } from 'shared-lib';
+import { ESessionState, SessionService } from '../../core';
 import {
   MembersPanelComponent,
   MyHandComponent,
+  OverlayComponent,
   PlayfieldComponent,
   ScrumMasterButtonsComponent,
   TeamHeaderComponent
 } from './components';
-import { CommonModule } from '@angular/common';
-import { ERole } from 'shared-lib';
+import { GameComponentState } from './game-component-state';
 
 @Component({
   selector: 'app-game.component',
   imports: [
+    OverlayComponent,
     CommonModule,
     MatButtonModule,
     MatCardModule,
@@ -30,14 +33,34 @@ import { ERole } from 'shared-lib';
   styleUrl: './game.component.scss'
 })
 export class GameComponent {
-  //#region Protected fields --------------------------------------------------
-  protected readonly ROLE = ERole;
-  protected readonly sessionSvc: SessionService;
+  //#region Signals -----------------------------------------------------------
+  protected componentState: Signal<GameComponentState>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(sessionSvc: SessionService) {
-    this.sessionSvc = sessionSvc;
+  public constructor() {
+    const sessionSvc = inject(SessionService);
+    this.componentState = computed(() => {
+      const sessionState = sessionSvc.sessionState();
+      const me = sessionSvc.me();
+      let result: GameComponentState;
+      if (me !== null) {
+        result = {
+          showMyHand: !me.observer,
+          showOverlay: sessionState != ESessionState.Active && sessionState != ESessionState.Ended,
+          showScrumMasterButtons: me.role == ERole.ScrumMaster
+        };
+        // return ;
+      } else {
+        result = {
+          showMyHand: false,
+          showOverlay: false,
+          showScrumMasterButtons: false
+        };
+      }
+
+      return result;
+    });
   }
   //#endregion
 }

@@ -1,0 +1,21 @@
+<div class="overlay">
+  <mat-icon>{{ connectionIcon() }}</mat-icon>
+  <div class="div-reconnecting" *ngIf="countdownState().showCountdown">
+    {{ countdownState().reconnectingTextKey | translate: countdownState().reconnectingTextParams }}
+    <button mat-raised-button class="overlay-buttons" (click)="reconnectNowButtonClick()">
+      {{ reconnectNowButton | translate }}
+    </button>
+    <button mat-raised-button class="overlay-buttons" (click)="giveUpReconnectingButtonClick()">
+      {{ giveUpReconnectingButton | translate }}
+    </button>
+  </div>
+  <div class="div-reconnecting" *ngIf="showPause()">
+    {{ havingABreakTextLine | translate }}
+    <button mat-raised-button class="overlay-buttons" (click)="reconnectNowButtonClick()">
+      {{ rejoinNowButton | translate }}
+    </button>
+    <button mat-raised-button class="overlay-buttons" (click)="doNotRejoinButtonClick()">
+      {{ notRejoining | translate }}
+    </button>
+  </div>
+</div>

@@ -63,7 +63,7 @@ describe('Leaving when connected => OK', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIsMemberChange(EParticipantChangeType.Joined)
-      .expectNextMessageIsSelf({ state: EParticipantState.Left })
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.SelfInflicted)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -153,7 +153,7 @@ describe('Leaving when connected => OK', () => {
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         expect(m.data).toHaveLength(1)
       )
-      .expectNextMessageIsSelf({ state: EParticipantState.Left })
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.SelfInflicted)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -264,7 +264,7 @@ describe('Leaving after being disconnected', () => {
     reconnect
       .initializeMessageQueue(false)
       .expectNextMessageIsStartHandshake()
-      .expectNextMessageIsSelf({ participantId: reconnect.participantId, state: EParticipantState.Left })
+      .expectNextMessageIsSessionEnded(ESessionEndedReason.SelfInflicted)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected

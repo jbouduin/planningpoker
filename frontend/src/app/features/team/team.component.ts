@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, inject } from '@angular/core';
 import { extract, ICanRejoinResult, SessionService } from '../../core';
 import { MessageDialogParams } from '../../shared/components';
 import { DialogService } from '../../shared/services';
@@ -12,15 +12,16 @@ import { JoinComponent } from './components/join/join.component';
   styleUrl: './team.component.scss'
 })
 export class TeamComponent implements AfterViewInit {
+  //#region Private Fields ----------------------------------------------------
   private dialogSvc: DialogService;
   private sessionSvc: SessionService;
+  //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(dialogSvc: DialogService, sessionSvc: SessionService) {
-    this.dialogSvc = dialogSvc;
-    this.sessionSvc = sessionSvc;
+  public constructor() {
+    this.dialogSvc = inject(DialogService);
+    this.sessionSvc = inject(SessionService);
   }
-  //#endregion
 
   public ngAfterViewInit(): void {
     this.sessionSvc.canRejoin().subscribe((result: ICanRejoinResult) => {
@@ -41,9 +42,8 @@ export class TeamComponent implements AfterViewInit {
             this.sessionSvc.leaveDisconnectedSession(result.team!, result.participantId!);
           }
         });
-      } else {
-        this.sessionSvc.clearSessionData();
       }
     });
   }
+  //#endregion
 }

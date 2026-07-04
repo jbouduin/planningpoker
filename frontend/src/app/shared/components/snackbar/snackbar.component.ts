@@ -16,21 +16,21 @@ export class SnackbarComponent {
   private matSnackbarRef: MatSnackBarRef<SnackbarComponent>;
   //#endregion
 
-  //#region Public Fields -----------------------------------------------------
-  public readonly params: SnackbarParams;
+  //#region Protected Fields --------------------------------------------------
+  protected readonly params: SnackbarParams;
   //#endregion
 
   //#region Getters-Setters ---------------------------------------------------
   public get isInfo(): boolean {
-    return this.params.type === ESnackbarType.Info;
+    return this.params.type == ESnackbarType.Info;
   }
 
   public get isWarning(): boolean {
-    return this.params.type === ESnackbarType.Warning;
+    return this.params.type == ESnackbarType.Warning;
   }
 
   public get isError(): boolean {
-    return this.params.type === ESnackbarType.Error;
+    return this.params.type == ESnackbarType.Error;
   }
   //#endregion
 
@@ -38,7 +38,6 @@ export class SnackbarComponent {
   public constructor(matSnackbarRef: MatSnackBarRef<SnackbarComponent>) {
     this.matSnackbarRef = matSnackbarRef;
     this.params = inject<SnackbarParams>(MAT_SNACK_BAR_DATA);
-    console.log('snakbar component constructor - params', this.params);
   }
   //#endregion
 

@@ -198,7 +198,7 @@ export class TeamService {
       case EParticipantChangeType.Paused:
         this.participants.update((current: Array<ParticipantDto>) =>
           current.map((p: ParticipantDto) =>
-            p.participantId === participant.participantId ? { ...p, status: EParticipantState.Paused } : p
+            p.participantId === participant.participantId ? { ...p, state: participant.state } : p
           )
         );
         this.uiEventsSvc.snackbar.set(
@@ -210,7 +210,7 @@ export class TeamService {
       case EParticipantChangeType.Rejoined:
         this.participants.update((current: Array<ParticipantDto>) =>
           current.map((p: ParticipantDto) =>
-            p.participantId === participant.participantId ? { ...p, status: EParticipantState.Connected } : p
+            p.participantId === participant.participantId ? { ...p, state: EParticipantState.Connected } : p
           )
         );
         this.uiEventsSvc.snackbar.set(

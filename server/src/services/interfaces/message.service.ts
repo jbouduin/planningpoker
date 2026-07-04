@@ -46,6 +46,7 @@ export interface IMessageService {
   sendEstimations(gameState: EGameState, to: IServerParticipant, estimations: Array<EstimationDto>): void;
   sendException(socket: IWebSocket, errorMessage: string): void;
   sendGameStateChanged(to: IServerParticipant, gameState: EGameState): void;
+  sendSessionEnded(to: IServerParticipant, reason: ESessionEndedReason): void;
   sendStartHandshake(to: IServerParticipant): void;
   sendPing(to: IServerParticipant): void;
   sendSelf(to: IServerParticipant): void;

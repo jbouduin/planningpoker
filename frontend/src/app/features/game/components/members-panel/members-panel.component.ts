@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Signal } from '@angular/core';
+import { Component, computed, inject, Signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EGameState, ERole } from 'shared-lib';
@@ -39,21 +39,19 @@ export class MembersPanelComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    dialogSvc: DialogService,
-    gameSvc: GameService,
-    pokerService: PokerService,
-    sessionSvc: SessionService
-  ) {
-    this.dialogSvc = dialogSvc;
-    this.sessionSvc = sessionSvc;
+  public constructor() {
+    // --- dependency injection ---
+    this.dialogSvc = inject(DialogService);
+    this.sessionSvc = inject(SessionService);
+    const pokerService = inject(PokerService);
+    const gameSvc = inject(GameService);
+
     // --- set signals ---
-    // LATER replace canleave and canpause with messages in the UI triggers
     this.canLeave = computed(() => {
       return pokerService.gameState() != EGameState.Started;
     });
     this.canPause = computed(() => {
-      return sessionSvc.me()?.role != ERole.ScrumMaster && pokerService.gameState() != EGameState.Started;
+      return this.sessionSvc.me()?.role != ERole.ScrumMaster && pokerService.gameState() != EGameState.Started;
     });
     this.developers = computed(() => {
       return gameSvc
@@ -105,7 +103,7 @@ export class MembersPanelComponent {
     extract('Game.Message.Pause_will_withdraw_your_estimation.Text');
     extract('Game.Confirmation.Do_you_want_to_pause.Title');
     extract('Game.Confirmation.Do_you_want_to_pause.Text');
-    this.sessionSvc.pause();
+    this.sessionSvc.pause(this.sessionSvc.me()!.participantId);
   }
   //#endregion
 }

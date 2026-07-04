@@ -10,7 +10,7 @@ import {
   ParticipantDto
 } from 'shared-lib';
 import { extract } from '../extract';
-import { CreateMessage, JoinMessage, LeaveMessage, RejoinMessage } from '../messages';
+import { CreateMessage, JoinMessage, LeaveMessage, PauseMessage, RejoinMessage } from '../messages';
 import { ApiService } from './api.service';
 import { ICanRejoinResult } from './can-rejoin-result';
 import { LocalStorageService } from './local-storage.service';
@@ -69,7 +69,7 @@ export class SessionService {
     this.registerMessageHandlers(dispatcherSvc);
     // Create effects
     effect(() => {
-      const state = this.socketSvc.socketStatus();
+      const state = this.socketSvc.socketState();
       if (state === ESocketState.ReconnectPending) {
         const participantId = this.currentParticipantId || this.localStorageSvc.participantId;
         if (participantId) {
@@ -102,8 +102,8 @@ export class SessionService {
 
     effect(() => {
       const teamName = dispatcherSvc.teamName();
-      if (teamName) {
-        this.handleTeamName(teamName);
+      if (teamName !== null) {
+        this.teamName.set(teamName);
       }
     });
 
@@ -119,6 +119,9 @@ export class SessionService {
             break;
           case ESessionEndedReason.ServerReset:
             this.handleServerReset();
+            break;
+          case ESessionEndedReason.SelfInflicted:
+            this.resetService();
         }
       }
     });
@@ -126,12 +129,15 @@ export class SessionService {
   //#endregion
 
   //#region Public methods ----------------------------------------------------
+  public collectSessionGarbage(): void {
+    this.localStorageSvc.clearSessionData();
+  }
+
   public canRejoin(): Observable<ICanRejoinResult> {
     const nick = this.localStorageSvc.nick;
     const team = this.localStorageSvc.teamName;
     const participantId = this.localStorageSvc.participantId;
     if (team && nick && participantId && this._sessionState() != ESessionState.Ended) {
-      // this.status = ESessionStatus.Suspended;
       return this.apiSvc.checkCanRejoin(team, participantId).pipe(
         map((can: boolean) => {
           const result: ICanRejoinResult = {
@@ -140,10 +146,16 @@ export class SessionService {
             participantId: participantId,
             canRejoin: can
           };
+          if (!can) {
+            this.collectSessionGarbage();
+          }
           return result;
         })
       );
     } else {
+      if (team || nick || participantId) {
+        this.collectSessionGarbage();
+      }
       const result: ICanRejoinResult = {
         nick: nick,
         team: team,
@@ -152,10 +164,6 @@ export class SessionService {
       };
       return of(result);
     }
-  }
-
-  public clearSessionData(): void {
-    this.localStorageSvc.clearSessionData();
   }
 
   public createSession(
@@ -193,6 +201,7 @@ export class SessionService {
   public leaveSession(): void {
     const team = this.teamName() || this.localStorageSvc.teamName;
     const participantId = this.me()?.participantId || this.localStorageSvc.participantId;
+    console.log(team, participantId);
     if (team !== null && participantId !== null) {
       const message = new LeaveMessage(participantId, participantId);
       // switch (this.status) {
@@ -221,8 +230,8 @@ export class SessionService {
     this.socketSvc.connect(team);
   }
 
-  public pause(): void {
-    this.uiEventsSvc.showError('Not implemented');
+  public pause(participantId: string): void {
+    this.socketSvc.sendMessage(new PauseMessage(participantId));
   }
   //#endregion
 
@@ -268,34 +277,19 @@ export class SessionService {
       this.initialMessage = undefined;
     }
     this.me.set(new Member(data, true));
-    this.localStorageSvc.participantId = data.participantId;
-    this.localStorageSvc.nick = data.nick;
   }
 
   private handleSelf(data: ParticipantDto): void {
-    if (data.state === EParticipantState.Left) {
-      this.localStorageSvc.clearSessionData();
-      this.resetService();
-      this.socketSvc.disconnect();
-    } else {
-      if (this.currentRole == ERole.Developer && data.role == ERole.ScrumMaster) {
-        this.uiEventsSvc.showInfo('Game.Snackbar.You_are_now_scrum-master');
-      }
-      this.me.set(new Member(data, true));
-      this.currentRole = data.role;
-      this.currentParticipantId = data.participantId;
-      this.localStorageSvc.nick = data.nick;
-      this.localStorageSvc.participantId = data.participantId;
-      if (data.state === EParticipantState.Paused) {
-        this._sessionState.set(ESessionState.Suspended);
-        this.socketSvc.disconnect();
-      }
+    if (this.currentRole == ERole.Developer && data.role == ERole.ScrumMaster) {
+      this.uiEventsSvc.showInfo('Game.Snackbar.You_are_now_scrum-master');
     }
-  }
-
-  private handleTeamName(data: string): void {
-    this.teamName.set(data);
-    this.localStorageSvc.teamName = data;
+    this.me.set(new Member(data, true));
+    this.currentRole = data.role;
+    this.currentParticipantId = data.participantId;
+    if (data.state === EParticipantState.Paused) {
+      this._sessionState.set(ESessionState.Suspended);
+      this.socketSvc.disconnect();
+    }
   }
 
   /**

@@ -12,14 +12,16 @@
           <div class="game">
             <app-team-header></app-team-header>
             <app-playfield></app-playfield>
-            <app-my-hand *ngIf="!sessionSvc.me()?.observer"></app-my-hand>
+            <app-my-hand *ngIf="componentState().showMyHand"></app-my-hand>
             <mat-card>
-              <app-scrum-master-buttons *ngIf="sessionSvc.me()?.role == ROLE.ScrumMaster"></app-scrum-master-buttons>
+              <app-scrum-master-buttons *ngIf="componentState().showScrumMasterButtons"></app-scrum-master-buttons>
             </mat-card>
           </div>
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
   </div>
+  <div *ngIf="componentState().showOverlay" class="game-container-content overlay-container">
+    <app-overlay></app-overlay>
+  </div>
 </div>
-<div></div>

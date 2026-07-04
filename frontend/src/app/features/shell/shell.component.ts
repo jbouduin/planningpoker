@@ -17,7 +17,7 @@ export class ShellComponent {
       const sessionState = sessionSvc.sessionState();
       if (sessionState == ESessionState.Active) {
         void router.navigate(['game']);
-      } else if (sessionState == ESessionState.Ended) {
+      } else if (sessionState == ESessionState.Ended || sessionState == ESessionState.Inactive) {
         void router.navigate(['']);
       }
     });
