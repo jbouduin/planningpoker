@@ -8,8 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "prebuild": "node prebuild.js",
-    "translations:extract": "node ../tools/dist/i18n-extract.js --input ./src/**/*.{ts,html} -o ./src/translations/{de-DE,en-US}.json -e ../shared-lib/src/messages/error-code.enum.ts,../shared-lib/src/dto/card-set-type.enum.ts",
-    "translations:template": "node ../tools/dist/i18n-extract.js --input ./src/**/*.{ts,html} -o ./src/translations/template.json -e ../shared-lib/src/messages/error-code.enum.ts,../shared-lib/src/dto/card-set-type.enum.ts"
+    "translations:extract": "node ../tools/dist/i18n-extract.js"
   },
   "private": true,
   "packageManager": "npm@10.9.8",

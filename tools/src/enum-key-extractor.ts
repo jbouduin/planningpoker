@@ -43,7 +43,7 @@ export class EnumKeyExtractor {
  * This is a generated file. DO NOT change it.
  *****************************************************************************/
 `;
-    writeFileSync(targetFile, `${header}import { extract } from '../extract;'\n\n${this.buildEnumKeyLines(keys)}\n`);
+    writeFileSync(targetFile, `${header}import { extract } from '../extract';\n\n${this.buildEnumKeyLines(keys)}\n`);
   }
 
   private buildEnumKeyLines(keys: Array<string>): string {
