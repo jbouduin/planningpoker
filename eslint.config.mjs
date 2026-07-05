@@ -78,7 +78,8 @@ export default [
       '**/coverage/**',
       'old',
       'frontend/.angular',
-      'server/jest.*.config.ts'
+      'server/jest.*.config.ts',
+      '**/.deleteme/**'
       // 'frontend',
       // 'server',
       // 'shared-lib'

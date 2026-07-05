@@ -1,0 +1,11 @@
+{
+  "output": ".deleteme/out/out-{de,en}.json",
+  "sources": [
+    "../frontend/src/**/*.{ts,html}"
+  ],
+  "enums": [
+    "../shared-lib/src/dto/error-code.enum.ts",
+    "../shared-lib/src/dto/card-set-type.enum.ts"
+  ],
+  "enumOutput": ".deleteme/out/enum-keys.ts"
+}
