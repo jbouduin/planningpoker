@@ -33,7 +33,7 @@ export class TeamHeaderComponent {
 
   //#region UI-triggers -------------------------------------------------------
   protected shareTeamClick(): void {
-    if (this.clipboard.copy(`${ENVIRONMENT.webHost}/home?team=${this.sessionSvc.teamName()}`)) {
+    if (this.clipboard.copy(`${ENVIRONMENT.webHost}/home?team=${this.sessionSvc.team()!.teamName}`)) {
       this.uiEventsSvc.showInfo(extract('Game.Snackbar.Link_to_team_is_copied_to_clipboard.Text'));
     } else {
       this.uiEventsSvc.showInfo(extract('Game.Snackbar.Error_copying_Link_to_team_to_clipboard.Text'));

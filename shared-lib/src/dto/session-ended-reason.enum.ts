@@ -10,5 +10,9 @@ export enum ESessionEndedReason {
   /**
    * The server has been reset
    */
-  ServerReset = 'server-reset'
+  ServerReset = 'server-reset',
+  /**
+   * Self-inflicted end of session: used when user stops the automatic reconnecting
+   */
+  SelfInflicted = 'self-inflicted'
 }

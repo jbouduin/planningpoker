@@ -98,7 +98,7 @@ export class MessageService implements IMessageService {
   }
 
   public sendGameStateChanged(to: IServerParticipant, gameState: EGameState): void {
-    const message: AServerMessageDto = new GameStateChangedMessage(gameState);
+    const message: AServerMessageDto = new GameStateChangedMessage({ state: gameState });
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -118,7 +118,7 @@ export class MessageService implements IMessageService {
   }
 
   public sendSessionEnded(to: IServerParticipant, reason: ESessionEndedReason): void {
-    const message: AServerMessageDto = new SessionEndedMessage(reason);
+    const message: AServerMessageDto = new SessionEndedMessage({ reason: reason });
     this.senderService.sendToParticipant(to, message);
   }
 
@@ -130,7 +130,7 @@ export class MessageService implements IMessageService {
   ): void {
     let message: AServerMessageDto = new SelfMessage(this.prepareParticipantsData([to])[0]);
     this.senderService.sendToParticipant(to, message);
-    message = new TeamNameMessage(team.teamName);
+    message = new TeamNameMessage({ teamName: team.teamName, teamId: team.teamId });
     this.senderService.sendToParticipant(to, message);
     message = new CardSetMessage(cardSet);
     this.senderService.sendToParticipant(to, message);
@@ -153,7 +153,7 @@ export class MessageService implements IMessageService {
   }
 
   private sendEstimationWithDrawn(to: IServerParticipant, participantId: string): void {
-    const message: AServerMessageDto = new EstimationWithdrawnMessage(participantId);
+    const message: AServerMessageDto = new EstimationWithdrawnMessage({ participantId: participantId });
     this.senderService.sendToParticipant(to, message);
   }
 

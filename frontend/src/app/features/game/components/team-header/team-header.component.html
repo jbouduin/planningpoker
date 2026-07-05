@@ -3,7 +3,7 @@
     <mat-card-title>
       <div class="team-header-container">
         <span class="team-name-span">
-          {{ sessionSvc.teamName() }}
+          {{ sessionSvc.team()?.teamName }}
         </span>
         <button mat-icon-button (click)="shareTeamClick()">
           <mat-icon>share</mat-icon>

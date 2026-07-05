@@ -58,5 +58,5 @@ export enum EServerMessageType {
   /**
    * Send the team name
    */
-  TeamName = 'team-name'
+  Team = 'team'
 }

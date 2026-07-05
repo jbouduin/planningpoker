@@ -7,6 +7,7 @@ import {
   ChangeScrumMasterMessageDto,
   CreateDto,
   CreateMessageDto,
+  DisbandMessageDto,
   ECardSetType,
   EClientMessageType,
   EErrorCode,
@@ -207,6 +208,10 @@ export class HandlerService implements IHandlerService {
           this.handleEstimate(sender, teamName, <EstimateMessageDto>message);
           break;
         }
+        case EClientMessageType.Disband: {
+          this.handleDisband(sender, teamName, <DisbandMessageDto>message);
+          break;
+        }
         case EClientMessageType.Join: {
           this.handleJoin(sender, teamName, <JoinMessageDto>message);
           break;
@@ -329,6 +334,15 @@ export class HandlerService implements IHandlerService {
     }
   }
 
+  private handleDisband(sender: IServerParticipant, teamName: string, _message: DisbandMessageDto): void {
+    this.loggerService.info('Server', `'${sender.nick}' is disbanding '${teamName}'`);
+    this.messageService.broadcastSessionEnded(
+      this.storage.getConnectedTeamMembers(teamName),
+      ESessionEndedReason.Disbanded
+    );
+    this.storage.deleteTeam(teamName);
+  }
+
   private handleJoin(sender: IServerParticipant, teamName: string, message: JoinMessageDto): void {
     this.loggerService.info('Server', `Join: '${sender.nick}' is joining '${teamName}'`);
     const data = message.data as JoinDto;
@@ -379,44 +393,35 @@ export class HandlerService implements IHandlerService {
   }
 
   private handleLeave(sender: IServerParticipant, teamName: string, message: LeaveMessageDto): void {
-    if (sender.role === ERole.ScrumMaster) {
-      this.loggerService.info('Server', `'${sender.nick}' is disbanding '${teamName}'`);
-      this.messageService.broadcastSessionEnded(
-        this.storage.getConnectedTeamMembers(teamName),
-        ESessionEndedReason.Disbanded
+    // if the data is not equal to the senders participantId
+    // this is a previously disconnected user that does not want to come back
+    const leaving = message.data !== sender.participantId ? this.storage.getParticipant(message.data) : sender;
+    if (leaving) {
+      this.loggerService.info('Server', `Leave: '${leaving.nick}' is leaving '${teamName}'`);
+      this.storage.deleteParticipant(leaving.participantId, teamName);
+      // tell the others someone left
+      leaving.state = EParticipantState.Left;
+      this.messageService.broadcastMemberChange(
+        this.storage
+          .getConnectedTeamMembers(teamName)
+          .filter((p: IServerParticipant) => p.participantId !== leaving.participantId),
+        leaving,
+        EParticipantChangeType.Left
       );
-      this.storage.deleteTeam(teamName);
+      // Acknowledge to the sender by sending him end-session
+      this.messageService.sendSessionEnded(sender, ESessionEndedReason.SelfInflicted);
+    }
+    if (message.data !== sender.participantId) {
+      this.storage.deleteParticipant(sender.participantId, teamName);
     } else {
-      // if the data is not equal to the senders participantId
-      // this is a previously disconnected user that does not want to come back
-      const leaving = message.data !== sender.participantId ? this.storage.getParticipant(message.data) : sender;
-      if (leaving) {
-        this.loggerService.info('Server', `Leave: '${leaving.nick}' is leaving '${teamName}'`);
-        this.storage.deleteParticipant(leaving.participantId, teamName);
-        // tell the others someone left
-        leaving.state = EParticipantState.Left;
-        this.messageService.broadcastMemberChange(
-          this.storage
-            .getConnectedTeamMembers(teamName)
-            .filter((p: IServerParticipant) => p.participantId !== leaving.participantId),
-          leaving,
-          EParticipantChangeType.Left
+      const team = this.storage.getTeam(teamName);
+      if (team && team.gameState === EGameState.Started) {
+        const estimationDtos = this.mapServerEstimationsToDtos(this.storage.getEstimations(team.teamName));
+        this.messageService.broadcastEstimations(
+          team.gameState,
+          this.storage.getConnectedTeamMembers(teamName),
+          estimationDtos
         );
-        // Acknowledge to the sender by sending him end-session
-        this.messageService.sendSessionEnded(sender, ESessionEndedReason.SelfInflicted);
-      }
-      if (message.data !== sender.participantId) {
-        this.storage.deleteParticipant(sender.participantId, teamName);
-      } else {
-        const team = this.storage.getTeam(teamName);
-        if (team && team.gameState === EGameState.Started) {
-          const estimationDtos = this.mapServerEstimationsToDtos(this.storage.getEstimations(team.teamName));
-          this.messageService.broadcastEstimations(
-            team.gameState,
-            this.storage.getConnectedTeamMembers(teamName),
-            estimationDtos
-          );
-        }
       }
     }
   }

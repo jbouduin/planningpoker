@@ -115,7 +115,7 @@ describe('Estimate => OK', () => {
         validateEstimationListFn(m.data, null)
       )
       .expectNextMessageIs(EServerMessageType.EstimationWithdrawn, (m: EstimationWithdrawnMessageDto) => {
-        expect(m.data).toBe(participant.participantId);
+        expect(m.data.participantId).toBe(participant.participantId);
       })
       .expectNoMoreMessages();
 
@@ -128,7 +128,7 @@ describe('Estimate => OK', () => {
         validateEstimationListFn(m.data, 2)
       )
       .expectNextMessageIs(EServerMessageType.EstimationWithdrawn, (m: EstimationWithdrawnMessageDto) => {
-        expect(m.data).toBe(participant.participantId);
+        expect(m.data.participantId).toBe(participant.participantId);
       })
       .expectNoMoreMessages();
 

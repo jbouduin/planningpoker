@@ -9,6 +9,7 @@ import {
   ChangeScrumMasterMessageDto,
   CreateDto,
   CreateMessageDto,
+  DisbandMessageDto,
   EClientMessageType,
   EErrorCode,
   EGameState,
@@ -66,6 +67,10 @@ export class PreflightService implements IPreflightService {
       }
       case EClientMessageType.Estimate: {
         result = this.preflightEstimate(storageService, sender, teamName, <EstimateMessageDto>message);
+        break;
+      }
+      case EClientMessageType.Disband: {
+        result = this.preflightDisband(storageService, sender, teamName, <DisbandMessageDto>message);
         break;
       }
       case EClientMessageType.Join: {
@@ -248,6 +253,34 @@ export class PreflightService implements IPreflightService {
   }
 
   /**
+   *  - team must exist
+   *  - sender must be scrum master
+   *  - sender must be in the team
+   *  - team may not be estimating
+   */
+  private preflightDisband(
+    storage: IStorageService,
+    sender: IServerParticipant,
+    teamName: string,
+    _message: DisbandMessageDto
+  ): EErrorCode {
+    let result = EErrorCode.NoError;
+    if (!storage.teamExists(teamName)) {
+      result = EErrorCode.TeamNotFound;
+    } else {
+      const team = storage.getTeamOfParticipant(sender.participantId) || null;
+      if (team === null || teamName !== teamName) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (team.gameState == EGameState.Started) {
+        result = EErrorCode.DisbandNotAllowedDuringEstimation;
+      } else if (sender.role != ERole.ScrumMaster) {
+        result = EErrorCode.ScrumMasterRequired;
+      }
+    }
+    return result;
+  }
+
+  /**
    * - nickname may not be empty
    * - team must exist
    * - sender may not be in any team
@@ -275,9 +308,10 @@ export class PreflightService implements IPreflightService {
 
   /**
    * - team must exist
-   * - if sender is scrum master team may not be estimation
+   * - team may not be estimating
    * - if this is a normal leave
    *   - sender must be in team
+   *   - sender may not be scrum master
    * - if this is a leave after disconnect (participant is sending a leave on behalf of his previous participantId)
    *   - sender may not be in a team
    *   - leaving participant must exist
@@ -298,10 +332,10 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotInTeam;
       } else if (team.teamName !== teamName) {
         result = EErrorCode.ParticipantNotInTeam;
-      } else if (sender.role === ERole.ScrumMaster) {
-        if (team.gameState === EGameState.Started) {
-          result = EErrorCode.LeaveNotAllowedDuringEstimation;
-        }
+      } else if (team.gameState === EGameState.Started) {
+        result = EErrorCode.LeaveNotAllowedDuringEstimation;
+      } else if (sender.role == ERole.ScrumMaster) {
+        result = EErrorCode.ScrumMasterCanNotLeave;
       }
     } else {
       if (storage.getTeamOfParticipant(sender.participantId)) {
@@ -352,6 +386,7 @@ export class PreflightService implements IPreflightService {
   /**
    * - team must exist
    * - sender must be in the team
+   * - sender may not be scrum master
    */
   private preflightPause(storage: IStorageService, sender: IServerParticipant, teamName: string): EErrorCode {
     let result = EErrorCode.NoError;
@@ -359,6 +394,8 @@ export class PreflightService implements IPreflightService {
       result = EErrorCode.TeamNotFound;
     } else if (storage.getTeamOfParticipant(sender.participantId)?.teamName !== teamName) {
       result = EErrorCode.ParticipantNotInTeam;
+    } else if (sender.role == ERole.ScrumMaster) {
+      result = EErrorCode.ScrumMasterCanNotPause;
     }
     return result;
   }

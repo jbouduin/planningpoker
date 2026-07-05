@@ -91,8 +91,10 @@ export class Util {
     );
   }
   public static team1Name = 'team1';
+  public static team1Id = 'team1 UUID';
   public static getTeam1(status = EGameState.Cleared): IServerTeam {
     return {
+      teamId: Util.team1Id,
       teamName: Util.team1Name,
       lastAccessTime: Date.now(),
       gameState: status
@@ -100,8 +102,10 @@ export class Util {
   }
 
   public static team2Name = 'team2';
+  public static team2Id = 'team2 UUID';
   public static getTeam2(status = EGameState.Cleared): IServerTeam {
     return {
+      teamId: Util.team2Id,
       teamName: Util.team2Name,
       lastAccessTime: Date.now(),
       gameState: status

@@ -6,11 +6,13 @@ export class ServerTeam implements IServerTeam {
   public gameState: EGameState;
   public lastAccessTime: number;
   public readonly teamName: string;
+  public readonly teamId: string;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(teamName: string) {
+  public constructor(teamId: string, teamName: string) {
     this.lastAccessTime = Date.now();
+    this.teamId = teamId;
     this.teamName = teamName;
     this.gameState = EGameState.Cleared;
   }

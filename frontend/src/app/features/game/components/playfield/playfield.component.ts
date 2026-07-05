@@ -19,7 +19,7 @@ export class PlayfieldComponent {
   protected readonly displayCards: Signal<Array<IDisplayCard>>;
 
   //#region Protected Fields --------------------------------------------------
-  protected ME_LABEL = extract('Label.Generic.Me');
+  protected ME_LABEL = extract('App.Label.Me');
   protected readonly pokerSvc: PokerService;
   //#endregion
 

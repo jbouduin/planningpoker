@@ -1,5 +1,5 @@
 import { computed, effect, inject, Service, Signal, signal, WritableSignal } from '@angular/core';
-import { CardDto, EGameState, EstimationDto } from 'shared-lib';
+import { CardDto, EGameState, EstimationDto, GameStateChangedDto } from 'shared-lib';
 import { Member, MessageDispatcherService, SessionService, SocketService, UiEventsService } from '../../../core';
 import { EstimateMessage, RevealMessage, StartMessage, WithdrawEstimationMessage } from '../messages';
 import { Estimation } from './estimation';
@@ -88,11 +88,10 @@ export class PokerService {
       if (withdrawal !== null) {
         this.givenEstimations.update((oldMap: Map<string, EstimationDto>) => {
           const newMap = new Map(oldMap);
-          newMap.delete(withdrawal);
+          newMap.delete(withdrawal.participantId);
           return newMap;
         });
       }
-      dispatcherSvc.resetWithdrawnSignal();
     });
   }
   //#endregion
@@ -140,9 +139,9 @@ export class PokerService {
   //#endregion
 
   //#region Auxiliary methods: message handling -------------------------------
-  private handleGameState(data: EGameState): void {
-    this._gameState.set(data);
-    switch (data) {
+  private handleGameState(data: GameStateChangedDto): void {
+    this._gameState.set(data.state);
+    switch (data.state) {
       case EGameState.Cleared:
         this.givenEstimations.update(() => new Map());
         break;

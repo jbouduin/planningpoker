@@ -42,6 +42,12 @@ export type CreateMessageDto = ClientMessageDto<CreateDto>;
  */
 export type EstimateMessageDto = ClientMessageDto<number>;
 /**
+ * Message to disband a team.
+ *
+ * Contains the teamName
+ */
+export type DisbandMessageDto = ClientMessageDto<string>;
+/**
  * Message to join an existing session/team
  */
 export type JoinMessageDto = ClientMessageDto<JoinDto>;

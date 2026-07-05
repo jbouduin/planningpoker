@@ -90,7 +90,7 @@ export class OverlayComponent {
 
   //#region UI-Triggers -------------------------------------------------------
   public reconnectNowButtonClick(): void {
-    this.sessionSvc.rejoinSession(this.sessionSvc.teamName()!, this.sessionSvc.me()!.participantId);
+    this.sessionSvc.rejoinSession(this.sessionSvc.team()!.teamName, this.sessionSvc.me()!.participantId);
   }
 
   public giveUpReconnectingButtonClick(): void {
@@ -98,7 +98,7 @@ export class OverlayComponent {
   }
 
   public doNotRejoinButtonClick(): void {
-    this.sessionSvc.leaveDisconnectedSession(this.sessionSvc.teamName()!, this.sessionSvc.me()!.participantId);
+    this.sessionSvc.leaveDisconnectedSession(this.sessionSvc.team()!.teamName, this.sessionSvc.me()!.participantId);
   }
   //#endregion
 }

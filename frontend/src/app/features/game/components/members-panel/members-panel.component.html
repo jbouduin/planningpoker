@@ -2,15 +2,15 @@
   <!-- Scrum-master -->
   <div id="scrum-master" class="participants">
     <mat-card-title>{{ SCRUM_MASTER_LABEL | translate }}</mat-card-title>
-    <mat-card-content class="participant-list">
-      <app-member *ngIf="scrumMaster() != null" [member]="scrumMaster()!"></app-member>
+    <mat-card-content *ngIf="memberPanelState().scrumMaster != null" class="participant-list">
+      <app-member [member]="memberPanelState().scrumMaster!"></app-member>
     </mat-card-content>
   </div>
   <!-- Developers -->
   <div id="developers" class="participants">
     <mat-card-title>{{ DEVELOPERS_LABEL | translate }}</mat-card-title>
     <mat-card-content class="participant-list">
-      <div *ngFor="let developer of developers()">
+      <div *ngFor="let developer of memberPanelState().developers">
         <app-member [member]="developer"></app-member>
       </div>
     </mat-card-content>
@@ -19,7 +19,7 @@
   <div id="observers" class="participants">
     <mat-card-title>{{ OBSERVERS_LABEL | translate }}</mat-card-title>
     <mat-card-content class="participant-list">
-      <div *ngFor="let observer of observers()">
+      <div *ngFor="let observer of memberPanelState().observers">
         <app-member [member]="observer"></app-member>
       </div>
     </mat-card-content>
@@ -27,10 +27,27 @@
   <!-- Leave and pause -->
   <div id="actions" class="participants">
     <mat-card>
-      <button id="leave-button" mat-stroked-button color="primary" [disabled]="!canLeave()" (click)="leave()">
-        {{ (scrumMaster()?.me ? END_SESSION_LABEL : LEAVE_LABEL) | translate }}
+      <button
+        *ngIf="memberPanelState().leaveButtonMode === 'disband'"
+        id="disband-button"
+        mat-stroked-button
+        color="primary"
+        [disabled]="!canLeave()"
+        (click)="disband()"
+      >
+        {{ DISBAND_LABEL | translate }}
       </button>
-      <button id="leave-button" [disabled]="!canPause()" mat-stroked-button color="primary" (click)="pause()">
+      <button
+        *ngIf="memberPanelState().leaveButtonMode === 'leave'"
+        id="leave-button"
+        mat-stroked-button
+        color="primary"
+        [disabled]="!canLeave()"
+        (click)="leave()"
+      >
+        {{ LEAVE_LABEL | translate }}
+      </button>
+      <button id="pause-button" [disabled]="!canPause()" mat-stroked-button color="primary" (click)="pause()">
         {{ PAUSE_LABEL | translate }}
       </button>
     </mat-card>

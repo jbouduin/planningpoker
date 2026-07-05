@@ -10,7 +10,6 @@ import {
   EServerMessageType,
   EstimationDto,
   EstimationListMessageDto,
-  GameStateChangedMessageDto,
   ParticipantChangedMessageDto,
   RevealMessageDto,
   StartMessageDto
@@ -93,15 +92,11 @@ describe('Reveal => OK', () => {
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         checkFirstEstimationList(m.data, null)
       )
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Revealed)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Revealed)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         checkSecondEstimationList(m.data, givenEstimation)
       )
@@ -111,16 +106,11 @@ describe('Reveal => OK', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(
-        EServerMessageType.GameStateChanged,
-        (m: GameStateChangedMessageDto) => m.data === EGameState.Started
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         checkFirstEstimationList(m.data, givenEstimation)
       )
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Revealed)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Revealed)
       .expectNextMessageIs(EServerMessageType.EstimationList, (m: EstimationListMessageDto) =>
         checkSecondEstimationList(m.data, givenEstimation)
       )
@@ -166,9 +156,7 @@ describe('Reveal => Failure', () => {
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.Error, (m: ErrorMessageDto) =>
         expect(m.data.code).toBe(EErrorCode.ParticipantNotFound)
       )
@@ -178,9 +166,7 @@ describe('Reveal => Failure', () => {
     participant.initializeMessageQueue();
     participant
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -221,9 +207,7 @@ describe('Reveal => Failure', () => {
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIs(EServerMessageType.Error, (m: ErrorMessageDto) =>
         expect(m.data.code).toBe(EErrorCode.TeamNotFound)
       )
@@ -233,9 +217,7 @@ describe('Reveal => Failure', () => {
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: check if unaffected team is unaffected
@@ -277,18 +259,14 @@ describe('Reveal => Failure', () => {
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: teamless participant
@@ -337,18 +315,14 @@ describe('Reveal => Failure', () => {
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant1
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test participant 2
@@ -431,18 +405,14 @@ describe('Reveal => Failure', () => {
         expect(m.data.changeType).toBe(EParticipantChangeType.Joined)
       )
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNoMoreMessages();
 
     // Test: participant messages
     participant
       .initializeMessageQueue()
       .expectNextMessageIs(EServerMessageType.EstimationsCleared)
-      .expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-        expect(m.data).toBe(EGameState.Started)
-      )
+      .expectNextMessageIsGameStateChanged(EGameState.Started)
       .expectNextMessageIsError(EErrorCode.ScrumMasterRequired)
       .expectNoMoreMessages();
 

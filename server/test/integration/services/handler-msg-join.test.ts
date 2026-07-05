@@ -13,7 +13,7 @@ import {
   EstimationListMessageDto,
   JoinMessageDto,
   ParticipantListMessageDto,
-  TeamNameMessageDto
+  TeamMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -57,7 +57,7 @@ describe('Join => OK', () => {
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.Team, (m: TeamMessageDto) => expect(m.data.teamName).toBe(Util.team1Name))
       .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
@@ -100,7 +100,7 @@ describe('Join => OK', () => {
       .initializeMessageQueue(false)
       .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf({ observer: true })
-      .expectNextMessageIs(EServerMessageType.TeamName)
+      .expectNextMessageIs(EServerMessageType.Team)
       .expectNextMessageIs(EServerMessageType.CardSet)
       .expectNextMessageIs(EServerMessageType.ParticipantList)
       .expectNextMessageIs(EServerMessageType.EndHandshake)
@@ -132,7 +132,7 @@ describe('Join => OK', () => {
       .initializeMessageQueue(false)
       .expectNextMessageIsStartHandshake()
       .expectNextMessageIsSelf()
-      .expectNextMessageIs(EServerMessageType.TeamName)
+      .expectNextMessageIs(EServerMessageType.Team)
       .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(customizedCohn.cards.length);
@@ -257,7 +257,7 @@ describe('Join => OK', () => {
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.Team, (m: TeamMessageDto) => expect(m.data.teamName).toBe(Util.team1Name))
       .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);

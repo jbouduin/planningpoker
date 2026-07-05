@@ -4,6 +4,7 @@ coverage
 old
 # shared-lib
 # server
+server/reports
 # frontend
 # tools
 .angular

@@ -8,6 +8,7 @@ export class LocalStorageService {
   //#region Private readonly fields -------------------------------------------
   private readonly currentLanguageKey: string = 'current_lang';
   private readonly nickKey: string = 'current_nick';
+  private readonly teamIdKey: string = 'current_teamId';
   private readonly teamNameKey: string = 'current_teamName';
   private readonly participantIdKey: string = 'current_participantId';
   private readonly log: Logger;
@@ -43,20 +44,18 @@ export class LocalStorageService {
     effect(() => {
       const startHandshake = dispatcherSvc.startHandshake();
       if (startHandshake !== null) {
-        console.log(`Storing participantId: ${startHandshake.participantId}`);
         localStorage.setItem(this.participantIdKey, startHandshake.participantId);
       }
     });
 
     effect(() => {
-      const teamName = dispatcherSvc.teamName();
-      if (teamName !== null) {
-        this.log.debug(`Storing teamName: ${teamName}`);
-        localStorage.setItem(this.teamNameKey, teamName);
-      } else {
-        this.log.debug(`Removing teamName`);
-        localStorage.removeItem(this.teamNameKey);
+      const team = dispatcherSvc.team();
+      if (team !== null) {
+        this.log.debug(`Storing teamId, teamName: ${team.teamId}, ${team.teamName}`);
+        localStorage.setItem(this.teamNameKey, team.teamName);
+        localStorage.setItem(this.teamIdKey, team.teamId);
       }
+      // Removing is not executed -> it would disable automatic rejoin
     });
 
     effect(() => {
@@ -64,10 +63,8 @@ export class LocalStorageService {
       if (self !== null) {
         this.log.debug(`Storing nick: ${self.nick}`);
         localStorage.setItem(this.nickKey, self.nick);
-      } else {
-        this.log.debug(`Removing nick`);
-        localStorage.removeItem(this.nickKey);
       }
+      // Removing is not executed -> it would disable automatic rejoin
     });
 
     effect(() => {
@@ -79,7 +76,8 @@ export class LocalStorageService {
 
     effect(() => {
       const currentLang = translateSvc.currentLang();
-      if (currentLang !== null) {
+      const storedLang = this.currentLang;
+      if (currentLang !== null && currentLang !== storedLang) {
         this.log.debug(`Storing language: ${currentLang}`);
         localStorage.setItem(this.currentLanguageKey, currentLang);
       }
@@ -94,6 +92,7 @@ export class LocalStorageService {
   public clearSessionData(): void {
     this.log.debug('clearing session data');
     localStorage.removeItem(this.participantIdKey);
+    localStorage.removeItem(this.teamIdKey);
     localStorage.removeItem(this.teamNameKey);
     localStorage.removeItem(this.nickKey);
   }

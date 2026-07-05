@@ -1,6 +1,6 @@
 import { EServerMessageType, ServerMessageDto } from 'shared-lib';
 
-export abstract class ServerMessage<T> implements ServerMessageDto<T> {
+export abstract class ServerMessage<T extends object | void> implements ServerMessageDto<T> {
   public readonly data: T;
   public readonly type: EServerMessageType;
 

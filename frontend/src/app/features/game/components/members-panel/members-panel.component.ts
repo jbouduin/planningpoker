@@ -7,6 +7,7 @@ import { extract, Member, SessionService } from '../../../../core';
 import { DialogService, MessageDialogParams } from '../../../../shared';
 import { GameService, PokerService } from '../../services';
 import { MemberComponent } from '../member/member.component';
+import { MemberPanelState } from './member-panel-state';
 
 @Component({
   selector: 'app-members-panel',
@@ -24,7 +25,7 @@ export class MembersPanelComponent {
   //#region Translation keys --------------------------------------------------
   protected readonly LEAVE_LABEL = extract('Game.MembersPanel.Component.Button.Leave');
   protected readonly PAUSE_LABEL = extract('Game.MembersPanel.Component.Button.Pause');
-  protected readonly END_SESSION_LABEL = extract('Game.ScrumMasterButtons.Component.Button.DisbandTeam');
+  protected readonly DISBAND_LABEL = extract('Game.ScrumMasterButtons.Component.Button.DisbandTeam');
   protected readonly SCRUM_MASTER_LABEL = extract('Game.MembersPanel.Component.Header.ScrumMaster');
   protected readonly DEVELOPERS_LABEL = extract('Game.MembersPanel.Component.Header.Developers');
   protected readonly OBSERVERS_LABEL = extract('Game.MembersPanel.Component.Header.Observers');
@@ -33,9 +34,7 @@ export class MembersPanelComponent {
   //#region Signals -----------------------------------------------------------
   protected readonly canLeave: Signal<boolean>;
   protected readonly canPause: Signal<boolean>;
-  protected readonly developers: Signal<Array<Member>>;
-  protected readonly observers: Signal<Array<Member>>;
-  protected readonly scrumMaster: Signal<Member | null>;
+  protected readonly memberPanelState: Signal<MemberPanelState>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -53,37 +52,47 @@ export class MembersPanelComponent {
     this.canPause = computed(() => {
       return this.sessionSvc.me()?.role != ERole.ScrumMaster && pokerService.gameState() != EGameState.Started;
     });
-    this.developers = computed(() => {
-      return gameSvc
-        .allMembers()
-        .filter((m: Member) => !m.observer && m.role != ERole.ScrumMaster)
-        .sort((a, b) => a.nick.localeCompare(b.nick));
-    });
-    this.observers = computed(() => {
-      return gameSvc
-        .allMembers()
-        .filter((m: Member) => m.observer && m.role != ERole.ScrumMaster)
-        .sort((a, b) => a.nick.localeCompare(b.nick));
-    });
-    this.scrumMaster = computed(() => {
-      return gameSvc.allMembers().find((m) => m.role == ERole.ScrumMaster) || null;
+
+    this.memberPanelState = computed(() => {
+      const members = gameSvc.allMembers();
+      const scrumMaster = members.find((m) => m.role == ERole.ScrumMaster) || null;
+      return {
+        developers: members
+          .filter((m: Member) => !m.observer && m.role != ERole.ScrumMaster)
+          .sort((a, b) => a.nick.localeCompare(b.nick)),
+        observers: members
+          .filter((m: Member) => m.observer && m.role != ERole.ScrumMaster)
+          .sort((a, b) => a.nick.localeCompare(b.nick)),
+        scrumMaster: scrumMaster,
+        leaveButtonMode: scrumMaster?.me ? 'disband' : 'leave'
+      };
     });
   }
   //#endregion
 
   //#region UI Triggers -------------------------------------------------------
+  protected disband(): void {
+    const params = new MessageDialogParams();
+    params.cancelButtonLabelKey = extract('App.Button.No');
+    params.okButtonLabelKey = extract('App.Button.Yes');
+    params.titleKey = extract('App.Confirmation.Text');
+    params.textKey = extract('Game.Confirmation.Do_you_want_to_disband_the_team.Text');
+    this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.sessionSvc.disbandTeam();
+      }
+    });
+  }
+
   protected leave(): void {
     const params = new MessageDialogParams();
     params.cancelButtonLabelKey = extract('App.Button.No');
     params.okButtonLabelKey = extract('App.Button.Yes');
     params.titleKey = extract('App.Confirmation.Text');
+    params.textKey = extract('Game.Confirmation.Do_you_want_to_leave_the_team.Text');
     // LATER implement messages in leave trigger
     // - scrum master can not leave before assigning another scrum master
     // - other participants: if has estimated, warn that estimation will dissapear
-
-    params.textKey = this.scrumMaster()?.me
-      ? extract('Game.Confirmation.Do_you_want_to_disband_the_team.Text')
-      : extract('Game.Confirmation.Do_you_want_to_leave_the_team.Text');
 
     this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
       if (confirmed) {
@@ -103,7 +112,7 @@ export class MembersPanelComponent {
     extract('Game.Message.Pause_will_withdraw_your_estimation.Text');
     extract('Game.Confirmation.Do_you_want_to_pause.Title');
     extract('Game.Confirmation.Do_you_want_to_pause.Text');
-    this.sessionSvc.pause(this.sessionSvc.me()!.participantId);
+    this.sessionSvc.pause();
   }
   //#endregion
 }

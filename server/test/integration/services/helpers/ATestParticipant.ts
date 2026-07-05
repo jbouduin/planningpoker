@@ -243,6 +243,12 @@ export abstract class ATestParticipant implements IATestParticipant {
     return this;
   }
 
+  /**
+   *
+   * @param type The `EServerMessageType`
+   * @param validation The validation to run on the message. **Make sure to use `expect` in this method**
+   * @returns `this`
+   */
   public expectNextMessageIs<T extends AServerMessageDto>(
     type: EServerMessageType,
     validation?: (message: T) => void
@@ -277,7 +283,7 @@ export abstract class ATestParticipant implements IATestParticipant {
 
   public expectNextMessageIsGameStateChanged(status: EGameState): IATestParticipant {
     return this.expectNextMessageIs(EServerMessageType.GameStateChanged, (m: GameStateChangedMessageDto) =>
-      expect(m.data).toBe(status)
+      expect(m.data.state).toBe(status)
     );
   }
 
@@ -297,7 +303,7 @@ export abstract class ATestParticipant implements IATestParticipant {
 
   public expectNextMessageIsSessionEnded(reason: ESessionEndedReason): IATestParticipant {
     return this.expectNextMessageIs(EServerMessageType.SessionEnded, (m: SessionEndedMessageDto) =>
-      expect(m.data).toBe(reason)
+      expect(m.data.reason).toBe(reason)
     );
   }
 

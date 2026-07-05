@@ -67,7 +67,7 @@ export class TeamService {
     effect(() => {
       const reason = dispatcherSvc.sessionEnded();
       if (reason) {
-        switch (reason) {
+        switch (reason.reason) {
           case ESessionEndedReason.IdleTimeOut:
           case ESessionEndedReason.ServerReset:
             this.resetService();

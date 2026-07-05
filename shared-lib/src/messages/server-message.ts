@@ -1,9 +1,20 @@
-import { EGameState, CardSetDto, ErrorDto, EstimationDto, ParticipantDto } from '../dto';
+import {
+  CardSetDto,
+  ErrorDto,
+  EstimationDto,
+  EstimationWithdrawnDto,
+  GameStateChangedDto,
+  ParticipantDto,
+  SessionEndedDto,
+  TeamDto
+} from '../dto';
 import { ParticipantChangeDto } from '../dto/participant-change.dto';
 import { EServerMessageType } from './server-message-type.enum';
-import { ESessionEndedReason } from './session-ended-reason.enum';
 
-export interface ServerMessageDto<T> {
+/**
+ * Using primitives as T is not allowed, because it screws up the signals in the app.
+ */
+export interface ServerMessageDto<T extends object | void> {
   data: T;
   type: EServerMessageType;
 }
@@ -45,13 +56,13 @@ export type EstimationListMessageDto = ServerMessageDto<Array<EstimationDto>>;
  *
  * Contains the participant's id
  */
-export type EstimationWithdrawnMessageDto = ServerMessageDto<string>;
+export type EstimationWithdrawnMessageDto = ServerMessageDto<EstimationWithdrawnDto>;
 /**
  * Message __broadcasted__ after the game state changed
  *
  * Contains the new game state
  */
-export type GameStateChangedMessageDto = ServerMessageDto<EGameState>;
+export type GameStateChangedMessageDto = ServerMessageDto<GameStateChangedDto>;
 /**
  * Message __broadcasted__ to __other(!)__ participants if any participant's has changed
  *
@@ -84,7 +95,7 @@ export type SelfMessageDto = ServerMessageDto<ParticipantDto>;
  *
  * Contains the reason of the end.
  */
-export type SessionEndedMessageDto = ServerMessageDto<ESessionEndedReason>;
+export type SessionEndedMessageDto = ServerMessageDto<SessionEndedDto>;
 /**
  * Message __sent__ as start of the handshake
  *
@@ -96,7 +107,7 @@ export type StartHandshakeMessageDto = ServerMessageDto<ParticipantDto>;
  *
  * Contains the team name
  */
-export type TeamNameMessageDto = ServerMessageDto<string>;
+export type TeamMessageDto = ServerMessageDto<TeamDto>;
 
 export type AServerMessageDto =
   | CardSetMessageDto
@@ -112,4 +123,4 @@ export type AServerMessageDto =
   | SelfMessageDto
   | SessionEndedMessageDto
   | StartHandshakeMessageDto
-  | TeamNameMessageDto;
+  | TeamMessageDto;

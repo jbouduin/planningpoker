@@ -67,7 +67,9 @@ export class Util {
   public static observer1Name = '张三';
   public static observer2Name = '李四';
   public static team1Name = 'team1';
+  public static team1Id = 'team1 UUID';
   public static team2Name = 'team2';
+  public static team2Id = 'team2 UUID';
   public static nonExistingTeam = '假想组';
   public static unknownParticipantId = 'unknown participant id';
 

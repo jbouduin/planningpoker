@@ -19,6 +19,9 @@ export enum EErrorCode {
   InvalidEstimation = 405,
   LeaveNotAllowedDuringEstimation = 406,
   ChangeCardSetNotAllowedDuringEstimation = 407,
+  DisbandNotAllowedDuringEstimation = 408,
+  ScrumMasterCanNotLeave = 409,
+  ScrumMasterCanNotPause = 410,
   ServerError = 500,
   NotImplemented = 501,
   UnknownClientMessageType = 502

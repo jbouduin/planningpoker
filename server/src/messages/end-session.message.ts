@@ -1,8 +1,8 @@
-import { EServerMessageType, ESessionEndedReason, SessionEndedMessageDto } from 'shared-lib';
+import { EServerMessageType, SessionEndedDto, SessionEndedMessageDto } from 'shared-lib';
 import { ServerMessage } from './server.message.js';
 
-export class SessionEndedMessage extends ServerMessage<ESessionEndedReason> implements SessionEndedMessageDto {
-  public constructor(reason: ESessionEndedReason) {
-    super(EServerMessageType.SessionEnded, reason);
+export class SessionEndedMessage extends ServerMessage<SessionEndedDto> implements SessionEndedMessageDto {
+  public constructor(data: SessionEndedDto) {
+    super(EServerMessageType.SessionEnded, data);
   }
 }

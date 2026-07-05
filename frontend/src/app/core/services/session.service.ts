@@ -7,10 +7,11 @@ import {
   EParticipantState,
   ERole,
   ESessionEndedReason,
-  ParticipantDto
+  ParticipantDto,
+  TeamDto
 } from 'shared-lib';
 import { extract } from '../extract';
-import { CreateMessage, JoinMessage, LeaveMessage, PauseMessage, RejoinMessage } from '../messages';
+import { CreateMessage, DisbandMessage, JoinMessage, LeaveMessage, PauseMessage, RejoinMessage } from '../messages';
 import { ApiService } from './api.service';
 import { ICanRejoinResult } from './can-rejoin-result';
 import { LocalStorageService } from './local-storage.service';
@@ -41,7 +42,7 @@ export class SessionService {
   //#endregion
 
   //#region Signals -----------------------------------------------------------
-  public teamName: WritableSignal<string | null>;
+  public team: WritableSignal<TeamDto | null>;
   public me: WritableSignal<Member | null>;
   //#endregion
 
@@ -61,7 +62,7 @@ export class SessionService {
     // Create logger
     this.log = new Logger('SessionService');
     // Initialize service signals
-    this.teamName = signal<string | null>(null);
+    this.team = signal<TeamDto | null>(null);
     this.me = signal<Member | null>(null);
     this._sessionState = signal<ESessionState>(ESessionState.Inactive);
     // register message handlers
@@ -101,16 +102,16 @@ export class SessionService {
     });
 
     effect(() => {
-      const teamName = dispatcherSvc.teamName();
-      if (teamName !== null) {
-        this.teamName.set(teamName);
+      const team = dispatcherSvc.team();
+      if (team !== null) {
+        this.team.set(team);
       }
     });
 
     effect(() => {
       const reason = dispatcherSvc.sessionEnded();
       if (reason) {
-        switch (reason) {
+        switch (reason.reason) {
           case ESessionEndedReason.Disbanded:
             this.handleDisbanded();
             break;
@@ -134,6 +135,7 @@ export class SessionService {
   }
 
   public canRejoin(): Observable<ICanRejoinResult> {
+    // Can rejoin MUST go to local storage to retrieve possible values
     const nick = this.localStorageSvc.nick;
     const team = this.localStorageSvc.teamName;
     const participantId = this.localStorageSvc.participantId;
@@ -183,6 +185,19 @@ export class SessionService {
     this.socketSvc.connect(team);
   }
 
+  /**
+   * Send disband team message.
+   * Message parameters are the services' signals.
+   */
+  public disbandTeam(): void {
+    const team = this.team();
+    const me = this.me();
+    if (team !== null && me !== null) {
+      const message = new DisbandMessage(me.participantId, team.teamName);
+      this.socketSvc.sendMessage(message);
+    }
+  }
+
   public joinSession(team: string, nick: string, observer: boolean): void {
     this.log.debug(`joining: ${nick}@${team}`);
     this.initialMessage = new JoinMessage('', {
@@ -198,27 +213,16 @@ export class SessionService {
     this.socketSvc.connect(team);
   }
 
+  /**
+   * Send leave team message.
+   * Message parameters are the services' signals.
+   */
   public leaveSession(): void {
-    const team = this.teamName() || this.localStorageSvc.teamName;
-    const participantId = this.me()?.participantId || this.localStorageSvc.participantId;
-    console.log(team, participantId);
-    if (team !== null && participantId !== null) {
-      const message = new LeaveMessage(participantId, participantId);
-      // switch (this.status) {
-      //     case ESessionStatus.Active:
-      //       this.status = ESessionStatus.Stopping;
-      //       this.sendMessage(message);
-      //       break;
-      //     case ESessionStatus.ReconnectPending:
-      //       this.status = ESessionStatus.Inactive;
-      //       this.resetServices();
-      //       this.localStorage.clear();
-      //       break;
-      //     case ESessionStatus.Suspended:
-      //       this.initialMessage = message;
-      //       this.status = ESessionStatus.Resuming;
-      //       this.connect(team);
-      //   }
+    const team = this.team();
+    const me = this.me();
+
+    if (team !== null && me !== null) {
+      const message = new LeaveMessage(me.participantId, me.participantId);
       this.socketSvc.sendMessage(message);
     } else {
       this.resetService();
@@ -230,8 +234,15 @@ export class SessionService {
     this.socketSvc.connect(team);
   }
 
-  public pause(participantId: string): void {
-    this.socketSvc.sendMessage(new PauseMessage(participantId));
+  /**
+   * Send a pause message
+   * Message parameters are the services' signals.
+   */
+  public pause(): void {
+    const me = this.me();
+    if (me !== null) {
+      this.socketSvc.sendMessage(new PauseMessage(me.participantId));
+    }
   }
   //#endregion
 
@@ -297,7 +308,7 @@ export class SessionService {
    */
   private resetService(): void {
     this.me.set(null);
-    this.teamName.set(null);
+    this.team.set(null);
     this._sessionState.set(ESessionState.Ended);
     this.socketSvc.disconnect();
   }

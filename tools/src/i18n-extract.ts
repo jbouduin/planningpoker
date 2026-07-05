@@ -4,8 +4,6 @@ import fs, { existsSync, mkdirSync } from 'fs';
 import * as glob from 'glob';
 import path from 'path';
 
-// TODO move enum key generation to separate file
-
 /* eslint-disable no-console */
 
 //#region type definitions ----------------------------------------------------

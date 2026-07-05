@@ -17,9 +17,13 @@ export enum EClientMessageType {
    */
   ClearEstimations = 'clear-estimations',
   /**
-   * Create a session.
+   * Create a team
    */
   Create = 'create',
+  /**
+   * Disband a team
+   */
+  Disband = 'disband',
   /**
    * Give an estimation.
    * Can only be executed for self.

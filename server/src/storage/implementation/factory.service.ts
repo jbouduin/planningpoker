@@ -60,7 +60,7 @@ export class FactoryService implements IFactoryService {
   }
 
   public createTeam(teamName: string): IServerTeam {
-    return new ServerTeam(teamName);
+    return new ServerTeam(Uuid(), teamName);
   }
   //#endregion
 

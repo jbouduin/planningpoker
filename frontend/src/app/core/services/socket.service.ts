@@ -101,11 +101,15 @@ export class SocketService {
     }
   }
 
+  /**
+   * Give up reconnecting by making the dispatcher service dispatch a SessionEndedDto
+   * A case of *Listen to yourself* in the front end
+   */
   public giveUpReconnecting(): void {
     window.clearInterval(this.resumeTimer);
     this.socketState.set(ESocketState.Disconnected);
     const sessionEndedMessageDto: SessionEndedMessageDto = {
-      data: ESessionEndedReason.SelfInflicted,
+      data: { reason: ESessionEndedReason.SelfInflicted },
       type: EServerMessageType.SessionEnded
     };
     this.messageDispatcherSvc.processServerMessage(sessionEndedMessageDto);
@@ -145,7 +149,6 @@ export class SocketService {
    * @param event Close event see: https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
    */
   private onClose(event: CloseEvent): void {
-    console.log('on close event', event);
     if (
       event.code == SocketService.CLOSE_CODE_ABNORMAL ||
       event.code == SocketService.CLOSE_CODE_SERVER_RESTART ||

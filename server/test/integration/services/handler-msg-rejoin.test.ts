@@ -15,7 +15,7 @@ import {
   PauseMessageDto,
   RejoinMessageDto,
   StartMessageDto,
-  TeamNameMessageDto
+  TeamMessageDto
 } from 'shared-lib';
 import type { IHandlerService } from '../../../src/services/interfaces/index.js';
 import SERVICETYPES from '../../../src/services/service.types.js';
@@ -69,7 +69,7 @@ describe('Rejoin => OK', () => {
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.Team, (m: TeamMessageDto) => expect(m.data.teamName).toBe(Util.team1Name))
       .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
@@ -227,7 +227,7 @@ describe('Rejoin => OK', () => {
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.Team, (m: TeamMessageDto) => expect(m.data.teamName).toBe(Util.team1Name))
       .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);
@@ -331,7 +331,7 @@ describe('Rejoin => OK', () => {
         observer: false,
         state: EParticipantState.Connected
       })
-      .expectNextMessageIs(EServerMessageType.TeamName, (m: TeamNameMessageDto) => m.data === Util.team1Name)
+      .expectNextMessageIs(EServerMessageType.Team, (m: TeamMessageDto) => expect(m.data.teamName).toBe(Util.team1Name))
       .expectNextMessageIs(EServerMessageType.CardSet, (m: CardSetMessageDto) => {
         expect(m.data.cardSet).toBe(ECardSetType.Cohn);
         expect(m.data.cards).toHaveLength(cohn.cards.length);

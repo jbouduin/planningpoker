@@ -25,7 +25,6 @@ export class SocketService implements ISocketService {
 
   //#region Interface members -------------------------------------------------
   public initializeService(expressWs: expressWs.Instance): void {
-    // const router = expressWs.app.router;
     const app = expressWs.app;
     const wss = expressWs.getWss();
     wss.on('connection', (ws, req) => {
@@ -39,6 +38,10 @@ export class SocketService implements ISocketService {
       });
     });
 
+    // FEATURE: have separate routes /ws/create and /ws/join/:teamId
+    // '/ws/create' returns a freshly created TeamDto
+    // '//ws/join/' gets a TeamDto as input. This requires the join form to have two fields TeamName and TeamId.
+    // it also requires the landing page to accept these two as parameters
     app.ws('/ws/game/:team', (ws, req, _next) => {
       const team = req.params.team as string;
 
