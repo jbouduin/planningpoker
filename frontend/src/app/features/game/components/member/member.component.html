@@ -19,7 +19,7 @@
       [disabled]="obServerSwitchDisabled()"
       (click)="switchObserverClick(true)"
     >
-      {{ stopEstimatingLabel | translate }}
+      {{ STOP_ESTIMATING_LABEL | translate }}
     </button>
     <button
       *ngIf="canSwitchToNonObserver()"
@@ -27,16 +27,16 @@
       [disabled]="obServerSwitchDisabled()"
       (click)="switchObserverClick(false)"
     >
-      {{ startEstimatingLabel | translate }}
+      {{ START_ESTIMATING_LABEL | translate }}
     </button>
-    <button *ngIf="canChangeNick" mat-menu-item (click)="changeNickClick()">{{ changeNickLabel | translate }}</button>
+    <button *ngIf="canChangeNick" mat-menu-item (click)="changeNickClick()">{{ CHANGE_NICK_LABEL | translate }}</button>
     <button
       *ngIf="canChangeScrumMaster()"
       mat-menu-item
       [disabled]="changeScrumMasterDisabled()"
       (click)="changeScrumMasterClick()"
     >
-      {{ changeScrumMasterLabel | translate }}
+      {{ CHANGE_SCRUM_MASTER_LABEL | translate }}
     </button>
     <button
       *ngIf="canRemoveParticipant()"
@@ -44,7 +44,7 @@
       [disabled]="removeParticipantDisabled()"
       (click)="removeParticipantClick()"
     >
-      {{ removeParticipantLabel | translate }}
+      {{ REMOVE_PARTICIPANT_LABEL | translate }}
     </button>
   </mat-menu>
 </div>

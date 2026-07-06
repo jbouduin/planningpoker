@@ -7,11 +7,11 @@
     <mat-card-content>
       <div>
         <mat-form-field>
-          <mat-label>{{ TEAM_LABEL | translate }}</mat-label>
+          <mat-label>{{ translationKeys.INPUT_TEAM_LABEL | translate }}</mat-label>
           <input
             id="team-input"
             matInput
-            placeholder="{{ TEAM_PLACEHOLDER | translate }}"
+            placeholder="{{ translationKeys.INPUT_TEAM_PLACEHOLDER | translate }}"
             formControlName="team"
             required
           />
@@ -20,11 +20,11 @@
       </div>
       <div>
         <mat-form-field>
-          <mat-label>{{ NICK_LABEL | translate }}</mat-label>
+          <mat-label>{{ translationKeys.INPUT_NICK_NAME_LABEL | translate }}</mat-label>
           <input
             id="nick-input"
             matInput
-            placeholder="{{ NICK_PLACEHOLDER | translate }}"
+            placeholder="{{ translationKeys.INPUT_NICK_NAME_PLACEHOLDER | translate }}"
             formControlName="nick"
             required
           />
@@ -33,7 +33,7 @@
       </div>
       <div *ngIf="formMode == 'create'">
         <mat-form-field appearance="fill">
-          <mat-label>{{ CARDSET_LABEL | translate }}</mat-label>
+          <mat-label>{{ translationKeys.SELECT_CARDSET_LABEL | translate }}</mat-label>
           <mat-select formControlName="cardSet">
             <mat-option *ngFor="let cardSet of cardSetValues" [value]="cardSet.set">
               {{ cardSet.label | translate }}

@@ -16,10 +16,10 @@ export class ScrumMasterButtonsComponent {
   // FEATURE allow scrum master to clear estimations when status == revealed, without starting another round
 
   //#region Translation Keys --------------------------------------------------
-  protected readonly CHANGE_CARDSET_LABEL = extract('Game.ScrumMasterButtons.Component.Button.ChangeCardSet');
-  protected readonly REVEAL_LABEL = extract('Game.ScrumMasterButtons.Component.Button.Reveal');
-  protected readonly FORCE_REVEAL_LABEL = extract('Game.ScrumMasterButtons.Component.Button.ForceReveal');
-  protected readonly START_LABEL = extract('Game.ScrumMasterButtons.Component.Button.Start');
+  protected readonly CHANGE_CARDSET_LABEL = extract('Game.ScrumMasterButtons.Button.ChangeCardSet');
+  protected readonly REVEAL_LABEL = extract('Game.ScrumMasterButtons.Button.Reveal');
+  protected readonly FORCE_REVEAL_LABEL = extract('Game.ScrumMasterButtons.Button.ForceReveal');
+  protected readonly START_LABEL = extract('Game.ScrumMasterButtons.Button.Start');
   //#endregion
 
   //#region Protected Fields --------------------------------------------------

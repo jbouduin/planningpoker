@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
 import { extract } from '../../../core';
+import { AppTranslationKeys } from '../app-translation-keys';
 
 @Component({
   selector: 'app-change-nick-dialog',
@@ -13,31 +14,14 @@ import { extract } from '../../../core';
   styleUrl: './change-nick-dialog.component.scss'
 })
 export class ChangeNickDialogComponent {
+  //#region Translation keys --------------------------------------------------
+  protected readonly DIALOG_TITLE = extract('ChangeNickDialog.Title');
+  protected readonly translationKeys = AppTranslationKeys;
+  //#endregion
+
   //#region Protected Fields --------------------------------------------------
   protected dialogRef: MatDialogRef<ChangeNickDialogComponent, string>;
   protected formData: FormGroup;
-  //#endregion
-
-  //#region Getters: Labels ---------------------------------------------------
-  public get cancelButtonLabel(): string {
-    return extract('App.Button.Cancel');
-  }
-
-  public get nickNameLabel(): string {
-    return extract('App.Input.Nick.Label');
-  }
-
-  public get nickNamePlaceHolder(): string {
-    return extract('App.Input.Nick.Placeholder');
-  }
-
-  public get saveButtonLabel(): string {
-    return extract('App.Button.Save');
-  }
-
-  public get title(): string {
-    return extract('ChangeNickDialog.Component.Title');
-  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -61,7 +45,7 @@ export class ChangeNickDialogComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return extract('App.Input.Error.Mandatory');
+      return AppTranslationKeys.INPUT_ERROR_MANDATORY;
     }
     return undefined;
   }

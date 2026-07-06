@@ -11,6 +11,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ECardSetType } from 'shared-lib';
 import { extract, SessionService } from '../../../../core';
 import { CreateJoinFormMode } from './create-join-form-mode';
+import { AppTranslationKeys } from '../../../../shared';
 
 export interface ICardSetSelectItem {
   set: ECardSetType;
@@ -45,12 +46,9 @@ export class CreateJoinFormComponent {
   //#endregion
 
   //#region Protected Read-only -----------------------------------------------
-  protected readonly TEAM_LABEL = extract('App.Input.Team.Label');
-  protected readonly TEAM_PLACEHOLDER = extract('App.Input.Team.Placeholder');
-  protected readonly NICK_LABEL = extract('App.Input.Nick.Label');
-  protected readonly NICK_PLACEHOLDER = extract('App.Input.Nick.Placeholder');
   protected readonly CARDSET_LABEL = extract('App.Select.CardSet');
-  protected readonly OBSERVER_LABEL = extract('Team.Join.Component.Checkbox.Observer');
+  protected readonly OBSERVER_LABEL = extract('Team.Join.Checkbox.Observer');
+  protected readonly translationKeys = AppTranslationKeys;
   //#endregion
 
   //#region Protected Fields --------------------------------------------------
@@ -65,14 +63,12 @@ export class CreateJoinFormComponent {
 
   public get gameHeader(): string {
     return this.formMode === 'create'
-      ? extract('Team.Join.Component.Header.Create_a_team')
-      : extract('Team.Join.Component.Header.Join_a_team');
+      ? extract('Team.Join.Header.Create_a_team')
+      : extract('Team.Join.Header.Join_a_team');
   }
 
   public get submitButtonLabel(): string {
-    return this.formMode === 'create'
-      ? extract('Team.Join.Component.Button.Create')
-      : extract('Team.Join.Component.Button.Join');
+    return this.formMode === 'create' ? extract('Team.Join.Button.Create') : extract('Team.Join.Button.Join');
   }
   //#endregion
 
@@ -96,7 +92,7 @@ export class CreateJoinFormComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return extract('App.Input.Error.Mandatory');
+      return AppTranslationKeys.INPUT_ERROR_MANDATORY;
     }
     return undefined;
   }

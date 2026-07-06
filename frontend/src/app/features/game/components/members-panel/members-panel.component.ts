@@ -5,7 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EGameState, ERole } from 'shared-lib';
 import { extract, Member, SessionService } from '../../../../core';
-import { DialogService, MessageDialogParams } from '../../../../shared';
+import { AppTranslationKeys, DialogService, MessageDialogParams } from '../../../../shared';
 import { GameService, PokerService } from '../../services';
 import { MemberComponent } from '../member/member.component';
 import { MemberPanelState } from './member-panel-state';
@@ -80,9 +80,9 @@ export class MembersPanelComponent {
   //#region UI Triggers -------------------------------------------------------
   protected disband(): void {
     const params = new MessageDialogParams();
-    params.cancelButtonLabelKey = extract('App.Button.No');
-    params.okButtonLabelKey = extract('App.Button.Yes');
-    params.titleKey = extract('App.Confirmation.Text');
+    params.cancelButtonLabelKey = AppTranslationKeys.BUTTON_NO_LABEL;
+    params.okButtonLabelKey = AppTranslationKeys.BUTTON_YES_LABEL;
+    params.titleKey = AppTranslationKeys.CONFIRMATION_DIALOG_TITLE;
     params.textKey = extract('Game.Confirmation.Do_you_want_to_disband_the_team.Text');
     this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
       if (confirmed) {
@@ -93,9 +93,9 @@ export class MembersPanelComponent {
 
   protected leave(): void {
     const params = new MessageDialogParams();
-    params.cancelButtonLabelKey = extract('App.Button.No');
-    params.okButtonLabelKey = extract('App.Button.Yes');
-    params.titleKey = extract('App.Confirmation.Text');
+    params.cancelButtonLabelKey = AppTranslationKeys.BUTTON_NO_LABEL;
+    params.okButtonLabelKey = AppTranslationKeys.BUTTON_YES_LABEL;
+    params.titleKey = AppTranslationKeys.CONFIRMATION_DIALOG_TITLE;
     params.textKey = extract('Game.Confirmation.Do_you_want_to_leave_the_team.Text');
 
     this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {
@@ -107,9 +107,9 @@ export class MembersPanelComponent {
 
   protected pause(): void {
     const params = new MessageDialogParams();
-    params.cancelButtonLabelKey = extract('App.Button.No');
-    params.okButtonLabelKey = extract('App.Button.Yes');
-    params.titleKey = extract('App.Confirmation.Text');
+    params.cancelButtonLabelKey = AppTranslationKeys.BUTTON_NO_LABEL;
+    params.okButtonLabelKey = AppTranslationKeys.BUTTON_YES_LABEL;
+    params.titleKey = AppTranslationKeys.CONFIRMATION_DIALOG_TITLE;
     params.textKey = extract('Game.Confirmation.Do_you_want_to_pause.Text');
 
     this.dialogSvc.showConfirmationDialog(params).subscribe((confirmed: boolean) => {

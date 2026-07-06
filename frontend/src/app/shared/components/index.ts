@@ -1,3 +1,4 @@
+export * from './app-translation-keys';
 export * from './card-set-dialog/card-set-dialog.component';
 export * from './card/card.component';
 export * from './change-nick-dialog/change-nick-dialog.component';

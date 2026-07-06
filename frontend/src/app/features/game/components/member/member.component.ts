@@ -7,6 +7,7 @@ import { EErrorCode, EGameState, EParticipantState, ERole, ParticipantDto } from
 import { ErrorHandlerService, extract, Member, SessionService } from '../../../../core';
 import { DialogService } from '../../../../shared';
 import {
+  AppTranslationKeys,
   ChangeNickDialogComponent,
   MessageDialogParams,
   SelectParticipantDialogComponent,
@@ -24,6 +25,14 @@ import { PokerService } from '../../services';
 export class MemberComponent {
   //#region Component Inputs --------------------------------------------------
   @Input({ required: true }) public member!: Member;
+  //#endregion
+
+  //#region Translation keys --------------------------------------------------
+  protected readonly START_ESTIMATING_LABEL = extract('Game.Member.MenuItem.Start_estimating');
+  protected readonly STOP_ESTIMATING_LABEL = extract('Game.Member.MenuItem.Stop_estimating');
+  protected readonly CHANGE_NICK_LABEL = extract('Game.Member.MenuItem.Change_nick');
+  protected readonly CHANGE_SCRUM_MASTER_LABEL = extract('Game.Member.MenuItem.Change_scrummaster');
+  protected readonly REMOVE_PARTICIPANT_LABEL = extract('Game.Member.MenuItem.Remove_participant');
   //#endregion
 
   //#region Private Fields ----------------------------------------------------
@@ -64,28 +73,6 @@ export class MemberComponent {
   //#region Getters: Menu enabling/disabling ----------------------------------
   protected get canChangeNick(): boolean {
     return this.member.me;
-  }
-  //#endregion
-
-  //#region Getters: Labels ---------------------------------------------------
-  public get startEstimatingLabel(): string {
-    return extract('Game.Member.Component.MenuItem.Start_estimating');
-  }
-
-  public get stopEstimatingLabel(): string {
-    return extract('Game.Member.Component.MenuItem.Stop_estimating');
-  }
-
-  public get changeNickLabel(): string {
-    return extract('Game.Member.Component.MenuItem.Change_nick');
-  }
-
-  public get changeScrumMasterLabel(): string {
-    return extract('Game.Member.Component.MenuItem.Change_scrummaster');
-  }
-
-  public get removeParticipantLabel(): string {
-    return extract('Game.Member.Component.MenuItem.Remove_participant');
   }
   //#endregion
 
@@ -179,7 +166,7 @@ export class MemberComponent {
     const me = this.sessionSvc.me();
     if (me) {
       const params: SelectParticipantDialogParams = {
-        titleKey: extract('ChangeScrumMasterDialog.Component.Title'),
+        titleKey: extract('ChangeScrumMasterDialog..Title'),
         participantLabelKey: extract('ChangeScrumMasterDialog.Select.ScrumMaster.Label'),
         participants: this.teamSvc
           .participants()
@@ -218,8 +205,8 @@ export class MemberComponent {
         });
       } else {
         const params = new MessageDialogParams();
-        params.cancelButtonLabelKey = extract('App.Button.No');
-        params.okButtonLabelKey = extract('App.Button.Yes');
+        params.cancelButtonLabelKey = AppTranslationKeys.BUTTON_NO_LABEL;
+        params.okButtonLabelKey = AppTranslationKeys.BUTTON_YES_LABEL;
         params.textKey = extract('Game.Confirmation.Remove_$nick_from_team.Text');
         params.textParams = { nick: this.member.nick };
         params.titleKey = extract('Game.Confirmation.Remove_$nick_from_team.Text');

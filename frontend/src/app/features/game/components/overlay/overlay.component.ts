@@ -12,6 +12,14 @@ import { OverlayComponentState } from './overlay-component-state';
   styleUrl: './overlay.component.scss'
 })
 export class OverlayComponent {
+  //#region Translation keys --------------------------------------------------
+  protected readonly RECONNECT_NOW_LABEL = extract('Game.Overlay.Button.Reconnect_now');
+  protected readonly GIVE_UP_RECONNECTING_LABEL = extract('Game.Overlay.Button.Give_up_reconnecting');
+  protected readonly HAVING_A_BREAK_TEXT = extract('Game.Overlay.Text.Enjoy_your_break');
+  protected readonly REJOIN_NOW_LABEL = extract('Game.Overlay.Button.Rejoin_now');
+  protected readonly NOT_REJOINING_LABEL = extract('Game.Overlay.Button.Not_rejoining');
+  //#endregion
+
   //#region Private readonly Fields -------------------------------------------
   private readonly sessionSvc: SessionService;
   private readonly socketSvc: SocketService;
@@ -21,27 +29,6 @@ export class OverlayComponent {
   protected showPause: Signal<boolean>;
   protected connectionIcon: Signal<string>;
   protected countdownState: Signal<OverlayComponentState>;
-  //#endregion
-
-  //#region Getters: Labels ----------------------------------------------------
-  public get reconnectNowButton(): string {
-    return extract('Team.Overlay.Component.Button.Reconnect_now');
-  }
-
-  public get giveUpReconnectingButton(): string {
-    return extract('Team.Overlay.Component.Button.Give_up_reconnecting');
-  }
-
-  public get havingABreakTextLine(): string {
-    return extract('Team.Overlay.Component.Text.Enjoy_your_break');
-  }
-  public get rejoinNowButton(): string {
-    return extract('Team.Overlay.Component.Button.Rejoin_now');
-  }
-
-  public get notRejoining(): string {
-    return extract('Team.Overlay.Component.Button.Not_rejoining');
-  }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -75,8 +62,8 @@ export class OverlayComponent {
           showCountdown: true,
           reconnectingTextKey:
             resumeIn > 1
-              ? extract('Overlay.Component.Text.Reconnect_in_$seconds_seconds')
-              : extract('Overlay.Component.Text.Reconnect_in_1_second')
+              ? extract('Game.Overlay.Text.Reconnect_in_$seconds_seconds')
+              : extract('Game.Overlay.Text.Reconnect_in_1_second')
         };
       } else {
         result = {

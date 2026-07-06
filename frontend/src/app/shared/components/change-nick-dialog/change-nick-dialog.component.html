@@ -1,16 +1,21 @@
-<h1 mat-dialog-title>{{ title | translate }}</h1>
+<h1 mat-dialog-title>{{ DIALOG_TITLE | translate }}</h1>
 
 <mat-dialog-content [formGroup]="formData">
   <mat-form-field>
-    <mat-label>{{ nickNameLabel | translate }}</mat-label>
-    <input matInput placeholder="{{ nickNamePlaceHolder | translate }}" formControlName="nick" required />
+    <mat-label>{{ translationKeys.INPUT_NICK_NAME_LABEL | translate }}</mat-label>
+    <input
+      matInput
+      placeholder="{{ translationKeys.INPUT_NICK_NAME_PLACEHOLDER | translate }}"
+      formControlName="nick"
+      required
+    />
     <mat-error>{{ getErrorMessage('nick') }}</mat-error>
   </mat-form-field>
 </mat-dialog-content>
 
 <div mat-dialog-actions>
-  <button mat-button (click)="cancel()">{{ cancelButtonLabel | translate }}</button>
+  <button mat-button (click)="cancel()">{{ translationKeys.BUTTON_CANCEL_LABEL | translate }}</button>
   <button mat-button [mat-dialog-close]="true" [disabled]="formData.invalid" (click)="save()">
-    {{ saveButtonLabel | translate }}
+    {{ translationKeys.BUTTON_SAVE_LABEL | translate }}
   </button>
 </div>

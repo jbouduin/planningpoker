@@ -3,19 +3,19 @@
   <div class="div-reconnecting" *ngIf="countdownState().showCountdown">
     {{ countdownState().reconnectingTextKey | translate: countdownState().reconnectingTextParams }}
     <button mat-raised-button class="overlay-buttons" (click)="reconnectNowButtonClick()">
-      {{ reconnectNowButton | translate }}
+      {{ RECONNECT_NOW_LABEL | translate }}
     </button>
     <button mat-raised-button class="overlay-buttons" (click)="giveUpReconnectingButtonClick()">
-      {{ giveUpReconnectingButton | translate }}
+      {{ GIVE_UP_RECONNECTING_LABEL | translate }}
     </button>
   </div>
   <div class="div-reconnecting" *ngIf="showPause()">
-    {{ havingABreakTextLine | translate }}
+    {{ HAVING_A_BREAK_TEXT | translate }}
     <button mat-raised-button class="overlay-buttons" (click)="reconnectNowButtonClick()">
-      {{ rejoinNowButton | translate }}
+      {{ REJOIN_NOW_LABEL | translate }}
     </button>
     <button mat-raised-button class="overlay-buttons" (click)="doNotRejoinButtonClick()">
-      {{ notRejoining | translate }}
+      {{ NOT_REJOINING_LABEL | translate }}
     </button>
   </div>
 </div>

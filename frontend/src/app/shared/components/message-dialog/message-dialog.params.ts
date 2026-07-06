@@ -1,4 +1,4 @@
-import { extract } from '../../../core';
+import { AppTranslationKeys } from '../app-translation-keys';
 
 export class MessageDialogParams {
   //#region Public properties -------------------------------------------------
@@ -18,13 +18,13 @@ export class MessageDialogParams {
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
     this.showCancelButton = true;
-    this.cancelButtonLabelKey = extract('App.Button.Cancel');
+    this.cancelButtonLabelKey = AppTranslationKeys.BUTTON_CANCEL_LABEL;
     this.cancelButtonParams = null;
-    this.okButtonLabelKey = extract('App.Button.OK');
+    this.okButtonLabelKey = AppTranslationKeys.BUTTON_OK_LABEL;
     this.okButtonParams = null;
-    this.textKey = extract('App.Confirmation.Text');
+    this.textKey = AppTranslationKeys.CONFIRMATION_DIALOG_TEXT;
     this.textParams = null;
-    this.titleKey = extract('App.Confirmation.Title');
+    this.titleKey = AppTranslationKeys.CONFIRMATION_DIALOG_TITLE;
     this.titleParams = null;
   }
   //#endregion

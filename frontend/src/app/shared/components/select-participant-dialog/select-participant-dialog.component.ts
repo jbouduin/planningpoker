@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ParticipantDto } from 'shared-lib';
-import { extract } from '../../../core';
+import { AppTranslationKeys } from '../app-translation-keys';
 import { SelectParticipantDialogParams } from './select-participant-dialog.params';
 
 @Component({
@@ -31,25 +31,21 @@ export class SelectParticipantDialogComponent {
   private readonly params: SelectParticipantDialogParams;
   //#endregion
 
+  //#region Translation keys --------------------------------------------------
+  protected readonly translationKeys = AppTranslationKeys;
+  //#endregion
+
   //#region Protected Fields --------------------------------------------------
   protected readonly formData: FormGroup;
   //#endregion
 
-  //#region Getters: Labels ---------------------------------------------------
-  protected get cancelButtonLabel(): string {
-    return extract('App.Button.Cancel');
-  }
-
+  //#region Getters: Label Translation keys -----------------------------------
   protected get participants(): Array<ParticipantDto> {
     return this.params.participants;
   }
 
   protected get participantLabel(): string {
     return this.params.participantLabelKey;
-  }
-
-  protected get saveButtonLabel(): string {
-    return extract('App.Button.Save');
   }
 
   protected get title(): string {
@@ -83,7 +79,7 @@ export class SelectParticipantDialogComponent {
   public getErrorMessage(name: string): string | undefined {
     const formControl = this.formData.get(name);
     if (formControl?.hasError('required')) {
-      return extract('App.Input.Error.Mandatory');
+      return AppTranslationKeys.INPUT_ERROR_MANDATORY;
     }
     return undefined;
   }
