@@ -15,7 +15,9 @@ export class SourceKeyExtractor {
     const keys = new Set<string>();
 
     for (const file of files) {
-      const regex = /extract\(['"`]([^'"`]+)['"`]\)/g;
+      // const regex = /extract\(['"`]([^'"`]+)['"`]\)/g;
+      const regex = /extract\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/g;
+
       console.log(`reading file ${file}`);
       const content = readFileSync(file, 'utf-8');
       let match;

@@ -18,25 +18,22 @@ import { MemberPanelState } from './member-panel-state';
 })
 export class MembersPanelComponent {
   //#region Translation keys --------------------------------------------------
-  // TODO shorten the translation keys
-  protected readonly LEAVE_LABEL = extract('Game.MembersPanel.Component.Button.Leave');
-  protected readonly LEAVE_LABEL_TOOLTIP = extract(
-    'Game.MembersPanel.Component.Tooltip.You_can_not_leave_during_estimations'
-  );
-  protected readonly PAUSE_LABEL = extract('Game.MembersPanel.Component.Button.Pause');
+  protected readonly LEAVE_LABEL = extract('Game.MembersPanel.Button.Leave');
+  protected readonly LEAVE_LABEL_TOOLTIP = extract('Game.MembersPanel.Tooltip.You_can_not_leave_during_estimations');
+  protected readonly PAUSE_LABEL = extract('Game.MembersPanel.Button.Pause');
   protected readonly PAUSE_LABEL_TOOLTIP_ESTIMATIONS = extract(
-    'Game.MembersPanel.Component.Tooltip.You_can_not_pause_during_estimations'
+    'Game.MembersPanel.Tooltip.You_can_not_pause_during_estimations'
   );
   protected readonly PAUSE_LABEL_TOOLTIP_SCRUM_MASTER = extract(
-    'Game.MembersPanel.Component.Tooltip.Assign_an_other_scrum_master_before_pausing'
+    'Game.MembersPanel.Tooltip.Assign_an_other_scrum_master_before_pausing'
   );
-  protected readonly DISBAND_LABEL = extract('Game.MembersPanel.Component.Button.DisbandTeam');
+  protected readonly DISBAND_LABEL = extract('Game.MembersPanel.Button.DisbandTeam');
   protected readonly DISBAND_TOOLTIP = extract(
-    'Game.MembersPanel.Component.Tooltip.DisbandTeam.You_can_not_disband_during_estimations'
+    'Game.MembersPanel.Tooltip.DisbandTeam.You_can_not_disband_during_estimations'
   );
-  protected readonly SCRUM_MASTER_LABEL = extract('Game.MembersPanel.Component.Header.ScrumMaster');
-  protected readonly DEVELOPERS_LABEL = extract('Game.MembersPanel.Component.Header.Developers');
-  protected readonly OBSERVERS_LABEL = extract('Game.MembersPanel.Component.Header.Observers');
+  protected readonly SCRUM_MASTER_LABEL = extract('Game.MembersPanel.Header.ScrumMaster');
+  protected readonly DEVELOPERS_LABEL = extract('Game.MembersPanel.Header.Developers');
+  protected readonly OBSERVERS_LABEL = extract('Game.MembersPanel.Header.Observers');
   //#endregion
 
   //#region Private fields ----------------------------------------------------
