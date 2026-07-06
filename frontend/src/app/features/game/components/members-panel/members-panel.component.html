@@ -27,29 +27,50 @@
   <!-- Leave and pause -->
   <div id="actions" class="participants">
     <mat-card>
-      <button
+      <div
         *ngIf="memberPanelState().leaveButtonMode === 'disband'"
-        id="disband-button"
-        mat-stroked-button
-        color="primary"
-        [disabled]="!canLeave()"
-        (click)="disband()"
+        matTooltip="{{ DISBAND_TOOLTIP | translate }}"
+        [matTooltipDisabled]="memberPanelState().canLeave"
       >
-        {{ DISBAND_LABEL | translate }}
-      </button>
-      <button
+        <button
+          id="disband-button"
+          mat-stroked-button
+          class="member-panel-button"
+          color="primary"
+          [disabled]="!memberPanelState().canLeave"
+          (click)="disband()"
+        >
+          {{ DISBAND_LABEL | translate }}
+        </button>
+      </div>
+      <div
         *ngIf="memberPanelState().leaveButtonMode === 'leave'"
-        id="leave-button"
-        mat-stroked-button
-        color="primary"
-        [disabled]="!canLeave()"
-        (click)="leave()"
+        matTooltip="{{ LEAVE_LABEL_TOOLTIP | translate }}"
+        [matTooltipDisabled]="memberPanelState().canLeave"
       >
-        {{ LEAVE_LABEL | translate }}
-      </button>
-      <button id="pause-button" [disabled]="!canPause()" mat-stroked-button color="primary" (click)="pause()">
-        {{ PAUSE_LABEL | translate }}
-      </button>
+        <button
+          id="leave-button"
+          mat-stroked-button
+          class="member-panel-button"
+          color="primary"
+          [disabled]="!memberPanelState().canLeave"
+          (click)="leave()"
+        >
+          {{ LEAVE_LABEL | translate }}
+        </button>
+      </div>
+      <div matTooltip="{{ memberPanelState().pauseButtonTooltip }}" [matTooltipDisabled]="memberPanelState().canPause">
+        <button
+          id="pause-button"
+          mat-stroked-button
+          class="member-panel-button"
+          color="primary"
+          [disabled]="!memberPanelState().canPause"
+          (click)="pause()"
+        >
+          {{ PAUSE_LABEL | translate }}
+        </button>
+      </div>
     </mat-card>
   </div>
 </div>

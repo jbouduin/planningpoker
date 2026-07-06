@@ -3,8 +3,11 @@ import { Member } from '../../../../core';
 export type LeaveButtonMode = 'leave' | 'disband';
 
 export interface MemberPanelState {
+  canLeave: boolean;
+  canPause: boolean;
   developers: Array<Member>;
-  observers: Array<Member>;
-  scrumMaster: Member | null;
   leaveButtonMode: LeaveButtonMode;
+  observers: Array<Member>;
+  pauseButtonTooltip: string;
+  scrumMaster: Member | null;
 }

@@ -20,7 +20,7 @@ export class ChangeNickDialogComponent {
 
   //#region Getters: Labels ---------------------------------------------------
   public get cancelButtonLabel(): string {
-    return extract('Button.Generic.Label.Cancel');
+    return extract('App.Button.Cancel');
   }
 
   public get nickNameLabel(): string {
@@ -32,7 +32,7 @@ export class ChangeNickDialogComponent {
   }
 
   public get saveButtonLabel(): string {
-    return extract('Button.Generic.Label.Save');
+    return extract('App.Button.Save');
   }
 
   public get title(): string {

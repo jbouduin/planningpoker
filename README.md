@@ -1,15 +1,13 @@
 # planningpoker
 
-This project was originally generated with [ngX-Rocket](https://github.com/ngx-rocket/generator-ngx-rocket/) version 8.0.1
-
-It is a playground to play with
+This project, which evolved from a simple POC, is my playground to play with:
 
 - expresjs
 - websockets
 - angular
 - winston
 - multi-language (@ngx-translate)
-- di (inversify)
+- inversify dependency injection
 - testing frameworks
   - vitest
   - jest
@@ -36,7 +34,7 @@ cd shared-lib
 npm run build
 ```
 
-### Run prebuild for fronted
+### Run prebuild for frontend
 
 ```sh
 cd frontend

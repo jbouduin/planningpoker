@@ -83,7 +83,7 @@ node dist/i18n-extract.js src shared-lib/src
 
 ### `-o --output <file>`
 
-Target file wheree extracted translation keys sho*** be written.
+Target file where the extracted translation keys should be written.
 
 Example:
 
@@ -131,7 +131,7 @@ node dist/i18n-extract.js \
   -e role.enum.ts
 ```
 
--***
+---
 
 ### `--enum-output <file>`
 
@@ -180,7 +180,7 @@ Example:
 node dist/i18n-extract.js -c i18n-config.json
 ```
 
-If no file is specified, the tool may automatically discove*** local `.i18n-extractrc` file.
+If no file is specified, the tool may automatically discover a local `.i18n-extractrc` file.
 
 ---
 
@@ -210,21 +210,13 @@ Example `.i18n-extractrc`:
 
 ```json
 {
-  "output": "translations.json",
+  "output": "public/i18n/{en,de,fr}.json",
   "purge": false,
   "replace": false,
-  "ignore": [
-    "node_modules/**",
-    "dist/**"
-  ],
-  "enums": [
-    "status.enum.ts",
-    "role.enum.ts"
-  ],
+  "ignore": ["node_modules/**", "dist/**"],
+  "enums": ["status.enum.ts", "role.enum.ts"],
   "enumOutput": "enums.json",
-  "paths": [
-    "src/**/*"
-  ]
+  "paths": ["src/**/*"]
 }
 ```
 

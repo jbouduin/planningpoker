@@ -37,7 +37,7 @@ export class SelectParticipantDialogComponent {
 
   //#region Getters: Labels ---------------------------------------------------
   protected get cancelButtonLabel(): string {
-    return extract('Button.Generic.Label.Cancel');
+    return extract('App.Button.Cancel');
   }
 
   protected get participants(): Array<ParticipantDto> {
@@ -49,7 +49,7 @@ export class SelectParticipantDialogComponent {
   }
 
   protected get saveButtonLabel(): string {
-    return extract('Button.Generic.Label.Save');
+    return extract('App.Button.Save');
   }
 
   protected get title(): string {
