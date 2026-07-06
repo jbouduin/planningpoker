@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, inject } from '@angular/core';
 import { extract, ICanRejoinResult, SessionService } from '../../core';
-import { AppTranslationKeys, MessageDialogParams } from '../../shared/components';
+import { AppTranslationKeys, MessageDialogComponentParams } from '../../shared/components';
 import { DialogService } from '../../shared/services';
 import { CreateComponent } from './components/create/create.component';
 import { JoinComponent } from './components/join/join.component';
@@ -26,7 +26,7 @@ export class TeamComponent implements AfterViewInit {
   public ngAfterViewInit(): void {
     this.sessionSvc.canRejoin().subscribe((result: ICanRejoinResult) => {
       if (result.canRejoin) {
-        const params = new MessageDialogParams();
+        const params = new MessageDialogComponentParams();
         params.cancelButtonLabelKey = AppTranslationKeys.BUTTON_NO_LABEL;
         params.okButtonLabelKey = AppTranslationKeys.BUTTON_YES_LABEL;
         params.textKey = extract('Team.Message.Rejoin_$team_as_$nick.Text');

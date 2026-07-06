@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ESnackbarType, SnackbarParams } from '../../../core';
+import { ESnackbarType, SnackbarComponentParams } from '../../../core';
 
 @Component({
   selector: 'app-snackbar',
@@ -17,7 +17,7 @@ export class SnackbarComponent {
   //#endregion
 
   //#region Protected Fields --------------------------------------------------
-  protected readonly params: SnackbarParams;
+  protected readonly params: SnackbarComponentParams;
   //#endregion
 
   //#region Getters-Setters ---------------------------------------------------
@@ -37,7 +37,7 @@ export class SnackbarComponent {
   //#region Constructor & C° --------------------------------------------------
   public constructor(matSnackbarRef: MatSnackBarRef<SnackbarComponent>) {
     this.matSnackbarRef = matSnackbarRef;
-    this.params = inject<SnackbarParams>(MAT_SNACK_BAR_DATA);
+    this.params = inject<SnackbarComponentParams>(MAT_SNACK_BAR_DATA);
   }
   //#endregion
 

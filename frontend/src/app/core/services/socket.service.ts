@@ -25,6 +25,10 @@ export class SocketService {
    */
   private static readonly CLOSE_CODE_GOING_AWAY = 1001;
   /**
+   * **1005** (No Status Received): Reserved. Indicates that no status code was provided even though one was expected.
+   */
+  private static readonly CLOSE_CODE_NO_STATUS = 1005;
+  /**
    * **1006** (Abnormal closure): Reserved. Indicates that a connection was closed abnormally (that is, with no close frame being sent) when a status code is expected.
    */
   private static readonly CLOSE_CODE_ABNORMAL = 1006;
@@ -56,7 +60,6 @@ export class SocketService {
 
   //#region Signal ------------------------------------------------------------
   public readonly socketState: WritableSignal<ESocketState>;
-
   //#endregion
 
   //#region public properties -------------------------------------------------
@@ -94,6 +97,12 @@ export class SocketService {
     }
   }
 
+  public simulateDisconnection(): void {
+    if (ENVIRONMENT.environment === 'development' && this.webSocket?.readyState === WebSocket.OPEN) {
+      this.webSocket.close();
+    }
+  }
+
   public sendMessage(message: AClientMessageDto): void {
     if (this.canPerformActionOnSocket()) {
       this.log.debug(`=> ${message.type}`, message.data);
@@ -118,6 +127,8 @@ export class SocketService {
 
   //#region Auxiliary methods: socket methods ---------------------------------
   private _connect(teamName: string, status: ESocketState.Reconnecting | ESocketState.Connecting): void {
+    window.clearInterval(this.resumeTimer);
+    this._resumeIn.set(-1);
     const url = `${this.webSocketRoot}/${this.webSocketPath}/${encodeURI(teamName)}`;
     this.socketState.set(status);
     this.log.debug('opening ws using url' + url);
@@ -146,13 +157,18 @@ export class SocketService {
    * - **1012** (Server restart): The server is terminating the connection because it is restarting.
    * - **1013** (Try again later): The server is terminating the connection due to a temporary condition, e.g., it is overloaded and is casting off some of its clients.
    *
+   * In development environment, when simulating a disconnection the Code is
+   *
+   * - **1005** (No Status Received): Reserved. Indicates that no status code was provided even though one was expected.
+   *
    * @param event Close event see: https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
    */
   private onClose(event: CloseEvent): void {
     if (
       event.code == SocketService.CLOSE_CODE_ABNORMAL ||
       event.code == SocketService.CLOSE_CODE_SERVER_RESTART ||
-      event.code == SocketService.CLOSE_CODE_TRY_AGAIN
+      event.code == SocketService.CLOSE_CODE_TRY_AGAIN ||
+      event.code == SocketService.CLOSE_CODE_NO_STATUS
     ) {
       switch (this.socketState()) {
         case ESocketState.Connecting:
@@ -172,7 +188,7 @@ export class SocketService {
       }
     } else {
       if (event.code !== SocketService.CLOSE_CODE_NORMAL && event.code !== SocketService.CLOSE_CODE_GOING_AWAY) {
-        this.log.debug('in onClose event');
+        this.log.debug('in onClose event: non catched code');
         this.uiEventsSvc.showError('Socket.Error.You_Have_been_disconnected');
       }
     }
@@ -206,7 +222,8 @@ export class SocketService {
   }
 
   private reconnectTick(): void {
-    this._resumeIn.update((prev: number) => prev--);
+    this._resumeIn.update((prev: number) => prev - 1);
+
     if (this.resumeIn() === 0) {
       window.clearInterval(this.resumeTimer);
       this._connect(this.localStorageSvc.teamName!, ESocketState.Reconnecting);

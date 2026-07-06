@@ -10,7 +10,7 @@ export * from './session-state.enum';
 export * from './session.service';
 export * from './simple-dialog.params';
 export * from './snackbar-type.enum';
-export * from './snackbar.params';
+export * from './snackbar.component.params';
 export * from './socket-state.enum';
 export * from './socket.service';
 export * from './ui-events.service';

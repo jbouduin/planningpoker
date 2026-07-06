@@ -71,6 +71,17 @@
           {{ PAUSE_LABEL | translate }}
         </button>
       </div>
+      <div *ngIf="isDevelopment">
+        <button
+          id="disconnect-button"
+          mat-stroked-button
+          class="member-panel-button"
+          color="primary"
+          (click)="disconnect()"
+        >
+          Disconnect
+        </button>
+      </div>
     </mat-card>
   </div>
 </div>

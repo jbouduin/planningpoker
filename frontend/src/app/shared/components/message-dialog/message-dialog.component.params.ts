@@ -1,6 +1,6 @@
 import { AppTranslationKeys } from '../app-translation-keys';
 
-export class MessageDialogParams {
+export class MessageDialogComponentParams {
   //#region Public properties -------------------------------------------------
   public showCancelButton: boolean;
   public cancelButtonLabelKey: string;

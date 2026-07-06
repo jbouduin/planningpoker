@@ -13,7 +13,7 @@ import {
   ScrumMasterButtonsComponent,
   TeamHeaderComponent
 } from './components';
-import { GameComponentState } from './game-component-state';
+import { GameComponentState } from './game.component.state';
 
 @Component({
   selector: 'app-game.component',
@@ -50,7 +50,6 @@ export class GameComponent {
           showOverlay: sessionState != ESessionState.Active && sessionState != ESessionState.Ended,
           showScrumMasterButtons: me.role == ERole.ScrumMaster
         };
-        // return ;
       } else {
         result = {
           showMyHand: false,

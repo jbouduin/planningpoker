@@ -2,7 +2,7 @@ import { Member } from '../../../../core';
 
 export type LeaveButtonMode = 'leave' | 'disband';
 
-export interface MemberPanelState {
+export interface MembersPanelState {
   canLeave: boolean;
   canPause: boolean;
   developers: Array<Member>;

@@ -6,4 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './card-set-dialog.component.html',
   styleUrl: './card-set-dialog.component.scss'
 })
-export class CardSetDialogComponent {}
+export class CardSetDialogComponent {
+  // TODO implement
+}

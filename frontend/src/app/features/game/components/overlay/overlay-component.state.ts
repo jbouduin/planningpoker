@@ -1,5 +1,6 @@
 export interface OverlayComponentState {
+  showPause: boolean;
   showCountdown: boolean;
   reconnectingTextKey?: string;
-  reconnectingTextParams?: number;
+  reconnectingTextParams?: Record<string, unknown>;
 }

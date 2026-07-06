@@ -6,4 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './content.component.html',
   styleUrl: './content.component.scss'
 })
-export class ContentComponent {}
+export class ContentComponent {
+  // TODO Implement
+}

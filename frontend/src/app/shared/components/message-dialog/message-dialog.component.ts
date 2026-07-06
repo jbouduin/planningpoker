@@ -3,7 +3,7 @@ import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MessageDialogParams } from './message-dialog.params';
+import { MessageDialogComponentParams } from './message-dialog.component.params';
 
 @Component({
   selector: 'app-message-box',
@@ -14,7 +14,7 @@ import { MessageDialogParams } from './message-dialog.params';
 export class MessageDialogComponent {
   //#region private properties ------------------------------------------------
   private readonly dialogRef: MatDialogRef<MessageDialogComponent>;
-  private readonly params: MessageDialogParams;
+  private readonly params: MessageDialogComponentParams;
   //#endregion
 
   //#region getters -----------------------------------------------------------
@@ -60,7 +60,10 @@ export class MessageDialogComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  constructor(dialogRef: MatDialogRef<MessageDialogComponent>, @Inject(MAT_DIALOG_DATA) params: MessageDialogParams) {
+  constructor(
+    dialogRef: MatDialogRef<MessageDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) params: MessageDialogComponentParams
+  ) {
     this.dialogRef = dialogRef;
     this.params = params;
   }

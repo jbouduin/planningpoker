@@ -5,7 +5,7 @@
   </div>
   <mat-icon class="member-icon">{{ connectionStatusIcon }}</mat-icon>
   <button
-    *ngIf="canSwitchToObserver() || canSwitchToNonObserver()"
+    *ngIf="componentState().canSwitchToObserver || componentState().canSwitchToNonObserver"
     mat-icon-button
     class="small-icon-button"
     [matMenuTriggerFor]="menu"
@@ -14,34 +14,34 @@
   </button>
   <mat-menu #menu="matMenu">
     <button
-      *ngIf="canSwitchToObserver()"
+      *ngIf="componentState().canSwitchToObserver"
       mat-menu-item
-      [disabled]="obServerSwitchDisabled()"
+      [disabled]="componentState().obServerSwitchDisabled"
       (click)="switchObserverClick(true)"
     >
       {{ STOP_ESTIMATING_LABEL | translate }}
     </button>
     <button
-      *ngIf="canSwitchToNonObserver()"
+      *ngIf="componentState().canSwitchToNonObserver"
       mat-menu-item
-      [disabled]="obServerSwitchDisabled()"
+      [disabled]="componentState().obServerSwitchDisabled"
       (click)="switchObserverClick(false)"
     >
       {{ START_ESTIMATING_LABEL | translate }}
     </button>
     <button *ngIf="canChangeNick" mat-menu-item (click)="changeNickClick()">{{ CHANGE_NICK_LABEL | translate }}</button>
     <button
-      *ngIf="canChangeScrumMaster()"
+      *ngIf="componentState().canChangeScrumMaster"
       mat-menu-item
-      [disabled]="changeScrumMasterDisabled()"
+      [disabled]="componentState().changeScrumMasterDisabled"
       (click)="changeScrumMasterClick()"
     >
       {{ CHANGE_SCRUM_MASTER_LABEL | translate }}
     </button>
     <button
-      *ngIf="canRemoveParticipant()"
+      *ngIf="componentState().canRemoveParticipant"
       mat-menu-item
-      [disabled]="removeParticipantDisabled()"
+      [disabled]="componentState().removeParticipantDisabled"
       (click)="removeParticipantClick()"
     >
       {{ REMOVE_PARTICIPANT_LABEL | translate }}

@@ -9,12 +9,13 @@ import { DialogService } from '../../../../shared';
 import {
   AppTranslationKeys,
   ChangeNickDialogComponent,
-  MessageDialogParams,
+  MessageDialogComponentParams,
   SelectParticipantDialogComponent,
-  SelectParticipantDialogParams
+  SelectParticipantDialogComponentParams
 } from '../../../../shared/components';
 import { TeamService } from '../../../team';
 import { PokerService } from '../../services';
+import { MemberComponentState } from './member.component.state';
 
 @Component({
   selector: 'app-member',
@@ -43,13 +44,7 @@ export class MemberComponent {
   //#endregion
 
   //#region Signals -----------------------------------------------------------
-  protected readonly canChangeScrumMaster: Signal<boolean>;
-  protected readonly canRemoveParticipant: Signal<boolean>;
-  protected readonly canSwitchToObserver: Signal<boolean>;
-  protected readonly canSwitchToNonObserver: Signal<boolean>;
-  protected readonly changeScrumMasterDisabled: Signal<boolean>;
-  protected readonly obServerSwitchDisabled: Signal<boolean>;
-  protected readonly removeParticipantDisabled: Signal<boolean>;
+  protected readonly componentState: Signal<MemberComponentState>;
   //#endregion
 
   //#region Getters: Icons ----------------------------------------------------
@@ -90,60 +85,42 @@ export class MemberComponent {
     this.sessionSvc = sessionSvc;
     this.teamSvc = teamSvc;
 
-    // --- Set permission signals ---
-    this.canChangeScrumMaster = computed(() => {
+    // --- Set signals ---
+    this.componentState = computed(() => {
       const me = sessionSvc.me();
-      if (me) {
-        return me.role == ERole.ScrumMaster && this.member.me;
-      } else {
-        return false;
-      }
-    });
-    this.canRemoveParticipant = computed(() => {
-      const me = sessionSvc.me();
-      if (me) {
-        return (
-          me.role == ERole.ScrumMaster &&
-          this.member.participantId !== me.participantId &&
-          // FEATURE allow the scrum master to kick out anyone -> requires different handling on the server and EParticipantState
-          this.member.state === EParticipantState.Disconnected
-        );
-      } else {
-        return false;
-      }
-    });
-    this.canSwitchToObserver = computed(() => {
-      const me = sessionSvc.me();
-      if (me) {
-        return me.role == ERole.ScrumMaster ? !this.member.observer : !this.member.observer && this.member.me;
-      } else {
-        return false;
-      }
-    });
-    this.canSwitchToNonObserver = computed(() => {
-      const me = sessionSvc.me();
-      if (me) {
-        return me.role == ERole.ScrumMaster ? this.member.observer : this.member.observer && this.member.me;
-      } else {
-        return false;
-      }
-    });
+      const gameState = pokerSvc.gameState();
 
-    // --- Set disabled signals ---
-    this.changeScrumMasterDisabled = computed(() => {
-      return (
-        pokerSvc.gameState() == EGameState.Started ||
-        teamSvc.participants().filter((p: ParticipantDto) => p.state == EParticipantState.Connected).length < 1
-      );
-    });
-
-    this.removeParticipantDisabled = computed(() => {
-      return pokerSvc.gameState() == EGameState.Started;
-    });
-
-    // FEATURE if status is revealed, switching automatically adds/remove an estimation → have a state observer change pending ?
-    this.obServerSwitchDisabled = computed(() => {
-      return pokerSvc.gameState() == EGameState.Started;
+      let result: MemberComponentState;
+      if (me) {
+        result = {
+          canChangeScrumMaster: me.role == ERole.ScrumMaster && this.member.me,
+          canRemoveParticipant:
+            me.role == ERole.ScrumMaster &&
+            this.member.participantId !== me.participantId &&
+            // FEATURE allow the scrum master to kick out anyone -> requires different handling on the server and EParticipantState (which is required anyway)
+            this.member.state === EParticipantState.Disconnected,
+          canSwitchToObserver:
+            me.role == ERole.ScrumMaster ? !this.member.observer : !this.member.observer && this.member.me,
+          canSwitchToNonObserver:
+            me.role == ERole.ScrumMaster ? this.member.observer : this.member.observer && this.member.me,
+          removeParticipantDisabled: gameState == EGameState.Started,
+          changeScrumMasterDisabled:
+            gameState == EGameState.Started ||
+            teamSvc.participants().filter((p: ParticipantDto) => p.state == EParticipantState.Connected).length < 1,
+          obServerSwitchDisabled: gameState == EGameState.Started
+        };
+      } else {
+        result = {
+          canChangeScrumMaster: false,
+          canRemoveParticipant: false,
+          canSwitchToObserver: false,
+          canSwitchToNonObserver: false,
+          removeParticipantDisabled: false,
+          changeScrumMasterDisabled: false,
+          obServerSwitchDisabled: false
+        };
+      }
+      return result;
     });
   }
   //#endregion
@@ -165,7 +142,7 @@ export class MemberComponent {
   public changeScrumMasterClick(): void {
     const me = this.sessionSvc.me();
     if (me) {
-      const params: SelectParticipantDialogParams = {
+      const params: SelectParticipantDialogComponentParams = {
         titleKey: extract('ChangeScrumMasterDialog..Title'),
         participantLabelKey: extract('ChangeScrumMasterDialog.Select.ScrumMaster.Label'),
         participants: this.teamSvc
@@ -173,7 +150,7 @@ export class MemberComponent {
           .filter((participant: ParticipantDto) => participant.participantId !== me.participantId)
       };
       this.dialogSvc
-        .openDialog<SelectParticipantDialogComponent, SelectParticipantDialogParams, string>(
+        .openDialog<SelectParticipantDialogComponent, SelectParticipantDialogComponentParams, string>(
           SelectParticipantDialogComponent,
           {
             width: '350px',
@@ -204,7 +181,7 @@ export class MemberComponent {
           message: null
         });
       } else {
-        const params = new MessageDialogParams();
+        const params = new MessageDialogComponentParams();
         params.cancelButtonLabelKey = AppTranslationKeys.BUTTON_NO_LABEL;
         params.okButtonLabelKey = AppTranslationKeys.BUTTON_YES_LABEL;
         params.textKey = extract('Game.Confirmation.Remove_$nick_from_team.Text');

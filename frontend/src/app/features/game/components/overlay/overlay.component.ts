@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, Signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ESessionState, ESocketState, extract, SessionService, SocketService } from '../../../../core';
-import { OverlayComponentState } from './overlay-component-state';
+import { ESocketState, extract, SessionService, SocketService } from '../../../../core';
+import { OverlayComponentState } from './overlay-component.state';
 
 @Component({
   selector: 'app-overlay',
@@ -26,9 +26,8 @@ export class OverlayComponent {
   //#endregion
 
   //#region Signals -----------------------------------------------------------
-  protected showPause: Signal<boolean>;
   protected connectionIcon: Signal<string>;
-  protected countdownState: Signal<OverlayComponentState>;
+  protected componentState: Signal<OverlayComponentState>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
@@ -50,24 +49,24 @@ export class OverlayComponent {
       }
     });
 
-    this.showPause = computed(() => {
-      return sessionSvc.sessionState() == ESessionState.Suspended;
-    });
-
-    this.countdownState = computed(() => {
+    this.componentState = computed(() => {
       const resumeIn = socketSvc.resumeIn();
+
       let result: OverlayComponentState;
       if (resumeIn > 0) {
         result = {
           showCountdown: true,
+          showPause: false,
           reconnectingTextKey:
             resumeIn > 1
               ? extract('Game.Overlay.Text.Reconnect_in_$seconds_seconds')
-              : extract('Game.Overlay.Text.Reconnect_in_1_second')
+              : extract('Game.Overlay.Text.Reconnect_in_1_second'),
+          reconnectingTextParams: { seconds: resumeIn }
         };
       } else {
         result = {
-          showCountdown: false
+          showCountdown: false,
+          showPause: true
         };
       }
       return result;

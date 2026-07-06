@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ParticipantDto } from 'shared-lib';
 import { AppTranslationKeys } from '../app-translation-keys';
-import { SelectParticipantDialogParams } from './select-participant-dialog.params';
+import { SelectParticipantDialogComponentParams } from './select-participant-dialog.component.params';
 
 @Component({
   selector: 'app-select-participant-dialog',
@@ -28,7 +28,7 @@ import { SelectParticipantDialogParams } from './select-participant-dialog.param
 export class SelectParticipantDialogComponent {
   //#region Private Fields ----------------------------------------------------
   private readonly dialogRef: MatDialogRef<SelectParticipantDialogComponent>;
-  private readonly params: SelectParticipantDialogParams;
+  private readonly params: SelectParticipantDialogComponentParams;
   //#endregion
 
   //#region Translation keys --------------------------------------------------
@@ -57,7 +57,7 @@ export class SelectParticipantDialogComponent {
   public constructor(
     dialogRef: MatDialogRef<SelectParticipantDialogComponent>,
     formBuilder: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) params: SelectParticipantDialogParams
+    @Inject(MAT_DIALOG_DATA) params: SelectParticipantDialogComponentParams
   ) {
     this.params = params;
     this.dialogRef = dialogRef;

@@ -11,7 +11,7 @@ import {
   extract,
   Member,
   MessageDispatcherService,
-  SnackbarParams,
+  SnackbarComponentParams,
   SocketService,
   UiEventsService
 } from '../../../core';
@@ -133,7 +133,7 @@ export class TeamService {
         );
         if (oldNick !== null && newNick !== null) {
           this.uiEventsSvc.snackbar.set(
-            SnackbarParams.info(extract('Team.Snackbar.$oldNick_changed_to_$newNick'), {
+            SnackbarComponentParams.info(extract('Team.Snackbar.$oldNick_changed_to_$newNick'), {
               oldNick: oldNick,
               newNick: newNick
             })
@@ -147,7 +147,7 @@ export class TeamService {
           )
         );
         this.uiEventsSvc.snackbar.set(
-          SnackbarParams.info(extract('Team.Snackbar.$nick_is_now_$role'), {
+          SnackbarComponentParams.info(extract('Team.Snackbar.$nick_is_now_$role'), {
             nick: participant.nick,
             role: participant.role
           })
@@ -156,11 +156,11 @@ export class TeamService {
       case EParticipantChangeType.Disconnected:
         this.participants.update((current: Array<ParticipantDto>) =>
           current.map((p: ParticipantDto) =>
-            p.participantId === participant.participantId ? { ...p, status: EParticipantState.Disconnected } : p
+            p.participantId === participant.participantId ? { ...p, state: EParticipantState.Disconnected } : p
           )
         );
         this.uiEventsSvc.snackbar.set(
-          SnackbarParams.info(extract('Team.Snackbar.$nick_was_disconnected'), {
+          SnackbarComponentParams.info(extract('Team.Snackbar.$nick_was_disconnected'), {
             nick: participant.nick
           })
         );
@@ -168,7 +168,7 @@ export class TeamService {
       case EParticipantChangeType.Joined:
         this.participants.update((current: Array<ParticipantDto>) => [...current, participant]);
         this.uiEventsSvc.snackbar.set(
-          SnackbarParams.info(extract('Team.Snackbar.$nick_joined'), {
+          SnackbarComponentParams.info(extract('Team.Snackbar.$nick_joined'), {
             nick: participant.nick
           })
         );
@@ -178,7 +178,7 @@ export class TeamService {
           current.filter((p: ParticipantDto) => p.participantId !== participant.participantId)
         );
         this.uiEventsSvc.snackbar.set(
-          SnackbarParams.info(extract('Team.Snackbar.$nick_left'), {
+          SnackbarComponentParams.info(extract('Team.Snackbar.$nick_left'), {
             nick: participant.nick
           })
         );
@@ -193,7 +193,7 @@ export class TeamService {
           participant.observer == true
             ? extract('Team.Snackbar.$nick_stops_estimating')
             : extract('Team.Snackbar.$nick_starts_estimating');
-        this.uiEventsSvc.snackbar.set(SnackbarParams.info(message, { nick: participant.nick }));
+        this.uiEventsSvc.snackbar.set(SnackbarComponentParams.info(message, { nick: participant.nick }));
         break;
       case EParticipantChangeType.Paused:
         this.participants.update((current: Array<ParticipantDto>) =>
@@ -202,7 +202,7 @@ export class TeamService {
           )
         );
         this.uiEventsSvc.snackbar.set(
-          SnackbarParams.info(extract('Team.Snackbar.$nick_paused'), {
+          SnackbarComponentParams.info(extract('Team.Snackbar.$nick_paused'), {
             nick: participant.nick
           })
         );
@@ -214,7 +214,7 @@ export class TeamService {
           )
         );
         this.uiEventsSvc.snackbar.set(
-          SnackbarParams.info(extract('Team.Snackbar.$nick_rejoined'), {
+          SnackbarComponentParams.info(extract('Team.Snackbar.$nick_rejoined'), {
             nick: participant.nick
           })
         );

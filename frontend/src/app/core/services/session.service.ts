@@ -23,6 +23,7 @@ import { ISimpleDialogParams } from './simple-dialog.params';
 import { ESocketState } from './socket-state.enum';
 import { SocketService } from './socket.service';
 import { UiEventsService } from './ui-events.service';
+import { ENVIRONMENT } from '../../../environments/environment';
 
 @Service()
 export class SessionService {
@@ -76,6 +77,7 @@ export class SessionService {
         if (participantId) {
           this.initialMessage = new RejoinMessage('', participantId);
         }
+        this._sessionState.set(ESessionState.Suspended);
       }
     });
   }
@@ -242,6 +244,12 @@ export class SessionService {
     const me = this.me();
     if (me !== null) {
       this.socketSvc.sendMessage(new PauseMessage(me.participantId));
+    }
+  }
+
+  public simulateDisconnection(): void {
+    if (ENVIRONMENT.environment === 'development') {
+      this.socketSvc.simulateDisconnection();
     }
   }
   //#endregion

@@ -1,7 +1,7 @@
 import { ParticipantDto } from 'shared-lib';
 import { extract } from '../../../core';
 
-export class SelectParticipantDialogParams {
+export class SelectParticipantDialogComponentParams {
   //#region Public properties -------------------------------------------------
   public titleKey: string;
   public participantLabelKey: string;

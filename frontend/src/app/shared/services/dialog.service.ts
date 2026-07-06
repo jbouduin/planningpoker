@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { map, Observable } from 'rxjs';
 import { ISimpleDialogParams } from '../../core';
-import { MessageDialogComponent, MessageDialogParams } from '../components';
+import { MessageDialogComponent, MessageDialogComponentParams } from '../components';
 
 @Service()
 export class DialogService {
@@ -18,7 +18,7 @@ export class DialogService {
   //#endregion
 
   //#region Public methods ----------------------------------------------------
-  public showConfirmationDialog(params: MessageDialogParams): Observable<boolean> {
+  public showConfirmationDialog(params: MessageDialogComponentParams): Observable<boolean> {
     const dialogRef = this.dialog.open(MessageDialogComponent, {
       width: '250px',
       data: params
@@ -36,7 +36,7 @@ export class DialogService {
   }
 
   public showSimpleDialog(params: ISimpleDialogParams): void {
-    const messageBoxParams = new MessageDialogParams();
+    const messageBoxParams = new MessageDialogComponentParams();
     messageBoxParams.showCancelButton = false;
     messageBoxParams.titleKey = params.dialogTitleKey;
     messageBoxParams.textKey = params.dialogMessageKey;

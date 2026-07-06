@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { UiEventsService } from './ui-events.service';
 import { EErrorCode, ErrorDto } from 'shared-lib';
-import { SnackbarParams } from './snackbar.params';
+import { SnackbarComponentParams } from './snackbar.component.params';
 
 @Service()
 export class ErrorHandlerService {
@@ -21,7 +21,7 @@ export class ErrorHandlerService {
     let canContinue =
       code != EErrorCode.TeamAlreadyExists && code != EErrorCode.TeamNotFound && code != EErrorCode.ParticipantNotFound;
 
-    const params = SnackbarParams.error(`Enum.EErrorCode.${EErrorCode[code]}`);
+    const params = SnackbarComponentParams.error(`Enum.EErrorCode.${EErrorCode[code]}`);
     this.uiEventsSvc.snackbar.set(params);
 
     return canContinue;
