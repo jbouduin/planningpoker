@@ -2,6 +2,7 @@ import { effect, inject, Service } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Logger } from './logger';
 import { MessageDispatcherService } from './message-dispatcher.service';
+import { LoggerService } from './logger.service';
 
 @Service()
 export class LocalStorageService {
@@ -33,10 +34,13 @@ export class LocalStorageService {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  constructor() {
+  public constructor() {
+    // --- Dependency Injection ---
     const dispatcherSvc = inject(MessageDispatcherService);
     const translateSvc = inject(TranslateService);
-    this.log = new Logger('LocalStorageService');
+
+    // --- Initialization ---
+    this.log = LoggerService.getLogger('LocalStorageService');
     this.createEffects(dispatcherSvc, translateSvc);
   }
 

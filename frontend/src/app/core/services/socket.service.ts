@@ -12,6 +12,7 @@ import { Logger } from './logger';
 import { MessageDispatcherService } from './message-dispatcher.service';
 import { ESocketState } from './socket-state.enum';
 import { UiEventsService } from './ui-events.service';
+import { LoggerService } from './logger.service';
 
 @Service()
 export class SocketService {
@@ -69,14 +70,17 @@ export class SocketService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
+    // --- Dependency injection ---
     this.messageDispatcherSvc = inject(MessageDispatcherService);
     this.localStorageSvc = inject(LocalStorageService);
-    this.log = new Logger('SocketService');
+
+    // --- Initialization ---
+    this.log = LoggerService.getLogger('SocketService');
     this.uiEventsSvc = inject(UiEventsService);
     this.socketState = signal<ESocketState>(ESocketState.Disconnected);
+    this._resumeIn = signal<number>(-1);
     this.webSocketRoot = ENVIRONMENT.webSocketHost;
     this.webSocketPath = ENVIRONMENT.webSocketPath;
-    this._resumeIn = signal<number>(-1);
     this.webSocket = null;
   }
   //#endregion

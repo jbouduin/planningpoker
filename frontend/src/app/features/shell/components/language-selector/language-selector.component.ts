@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { I18nService } from '../../../../core';
@@ -16,18 +16,18 @@ export class LanguageSelectorComponent {
   //#endregion
 
   //#region Public getters ----------------------------------------------------
-  get currentLanguage(): string {
+  public get currentLanguage(): string {
     return this.i18nSvc.currentLang;
   }
 
-  get languages(): Array<string> {
+  public get languages(): Array<string> {
     return this.i18nSvc.supportedLanguages;
   }
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(i18nSvc: I18nService) {
-    this.i18nSvc = i18nSvc;
+  public constructor() {
+    this.i18nSvc = inject(I18nService);
   }
   //#endregion
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -60,12 +60,10 @@ export class MessageDialogComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  constructor(
-    dialogRef: MatDialogRef<MessageDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) params: MessageDialogComponentParams
-  ) {
-    this.dialogRef = dialogRef;
-    this.params = params;
+  public constructor() {
+    // --- Dependency Injection ---
+    this.dialogRef = inject(MatDialogRef<MessageDialogComponent>) as MatDialogRef<MessageDialogComponent>;
+    this.params = inject(MAT_DIALOG_DATA) as MessageDialogComponentParams;
   }
   //#endregion
 

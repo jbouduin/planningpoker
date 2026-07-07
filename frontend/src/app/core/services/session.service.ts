@@ -34,6 +34,7 @@ import { ISimpleDialogParams } from './simple-dialog.params';
 import { ESocketState } from './socket-state.enum';
 import { SocketService } from './socket.service';
 import { UiEventsService } from './ui-events.service';
+import { LoggerService } from './logger.service';
 
 @Service()
 export class SessionService {
@@ -72,16 +73,15 @@ export class SessionService {
     this.messageDispatcher = inject(MessageDispatcherService);
     this.socketSvc = inject(SocketService);
     this.uiEventsSvc = inject(UiEventsService);
-    // Create logger
-    this.log = new Logger('SessionService');
 
     // --- Initialize ---
     this.team = signal<TeamDto | null>(null);
     this.me = signal<Member | null>(null);
     this._sessionState = signal<ESessionState>(ESessionState.Inactive);
+    this.log = LoggerService.getLogger('SessionService');
 
     this.registerMessageHandlers(this.messageDispatcher);
-    // Create effects
+
     effect(() => {
       const state = this.socketSvc.socketState();
       if (state === ESocketState.ReconnectPending) {

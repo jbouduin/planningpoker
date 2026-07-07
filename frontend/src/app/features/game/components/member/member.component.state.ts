@@ -1,4 +1,4 @@
-export interface MemberComponentState {
+export type MemberComponentState = {
   // Visibility of menu Items
   canChangeScrumMaster: boolean;
   canRemoveParticipant: boolean;
@@ -8,4 +8,4 @@ export interface MemberComponentState {
   removeParticipantDisabled: boolean;
   changeScrumMasterDisabled: boolean;
   obServerSwitchDisabled: boolean;
-}
+};

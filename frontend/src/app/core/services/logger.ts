@@ -6,7 +6,6 @@ enum LogLevel {
   Debug
 }
 
-// TODO make a logger service who creates the logs
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export class Logger {
   //#region static ------------------------------------------------------------

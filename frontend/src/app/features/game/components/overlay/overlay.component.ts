@@ -3,7 +3,7 @@ import { Component, computed, Signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ESocketState, extract, SessionService, SocketService } from '../../../../core';
-import { OverlayComponentState } from './overlay-component.state';
+import { OverlayComponentState } from './overlay.component.state';
 
 @Component({
   selector: 'app-overlay',

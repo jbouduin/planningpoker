@@ -1,14 +1,13 @@
 import { ParticipantDto, EParticipantState, ERole } from 'shared-lib';
 
 export class Member {
-  // TODO check if these props can be readonly
   //#region Public properties -------------------------------------------------
-  public state: EParticipantState;
-  public nick: string;
-  public participantId: string;
-  public role: ERole;
-  public me: boolean;
-  public observer: boolean;
+  public readonly state: EParticipantState;
+  public readonly nick: string;
+  public readonly participantId: string;
+  public readonly role: ERole;
+  public readonly me: boolean;
+  public readonly observer: boolean;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------

@@ -37,7 +37,7 @@ import { CreateJoinFormMode } from './create-join-form-mode';
 })
 export class CreateJoinFormComponent {
   //#region Input -------------------------------------------------------------
-  @Input({ required: true }) formMode!: CreateJoinFormMode;
+  @Input({ required: true }) public formMode!: CreateJoinFormMode;
   //#endregion
 
   //#region Private Fields ----------------------------------------------------
