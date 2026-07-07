@@ -11,8 +11,8 @@ import {
   extract,
   Member,
   MessageDispatcherService,
+  SessionService,
   SnackbarComponentParams,
-  SocketService,
   UiEventsService
 } from '../../../core';
 import {
@@ -25,7 +25,7 @@ import {
 @Service()
 export class TeamService {
   //#region private readonly fields -------------------------------------------
-  private readonly socketSvc: SocketService;
+  private readonly sessionSvc: SessionService;
   private readonly uiEventsSvc: UiEventsService;
   //#endregion
 
@@ -38,13 +38,13 @@ export class TeamService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
-    // --- Inject other service ---
-    this.socketSvc = inject(SocketService);
+    // --- Dependency Injection ---
+    this.sessionSvc = inject(SessionService);
     this.uiEventsSvc = inject(UiEventsService);
-    // --- Initialize service signals ---
-    this.participants = signal<Array<ParticipantDto>>(new Array<ParticipantDto>());
-    // --- register message handlers ---
     const dispatcherSvc = inject(MessageDispatcherService);
+
+    // --- Initialize ---
+    this.participants = signal<Array<ParticipantDto>>(new Array<ParticipantDto>());
     this.registerMessageHandlers(dispatcherSvc);
   }
 
@@ -79,18 +79,15 @@ export class TeamService {
 
   //#region Public Methods ----------------------------------------------------
   public changeScrumMaster(myParticipantId: string, participantId: string): void {
-    const message = new ChangeScrumMasterMessage(myParticipantId, participantId);
-    this.socketSvc.sendMessage(message);
+    this.sessionSvc.sendMessage(ChangeScrumMasterMessage, participantId);
   }
 
   public changeNick(myParticipantId: string, nick: string): void {
-    const message = new ChangeNickMessage(myParticipantId, nick);
-    this.socketSvc.sendMessage(message);
+    this.sessionSvc.sendMessage(ChangeNickMessage, nick);
   }
 
   public removeParticipant(myParticipantId: string, participantId: string): void {
-    const message = new RemoveParticipantMessage(myParticipantId, participantId);
-    this.socketSvc.sendMessage(message);
+    this.sessionSvc.sendMessage(RemoveParticipantMessage, participantId);
   }
 
   public switchObserving(myParticipantId: string, participantId: string, observe: boolean): void {
@@ -98,8 +95,7 @@ export class TeamService {
       participantId: participantId,
       observer: observe
     };
-    const message = new ToggleObserverMessage(myParticipantId, data);
-    this.socketSvc.sendMessage(message);
+    this.sessionSvc.sendMessage(ToggleObserverMessage, data);
   }
   //#endregion
 

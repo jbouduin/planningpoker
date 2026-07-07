@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { firstValueFrom, map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ENVIRONMENT } from '../../../environments/environment';
 import { LocalStorageService } from './local-storage.service';
 
@@ -26,9 +26,9 @@ export class I18nService {
   //#endregion
 
   //#region public methods -----------------------------------------------------
-  public init(): Promise<void> {
+  public init(): Observable<void> {
     const lang = this.getInitialLanguage();
-    return firstValueFrom<void>(this.translateSvc.use(lang).pipe(map(() => void 0)));
+    return this.translateSvc.use(lang).pipe(map(() => void 0));
   }
 
   public changeLang(newLang: string): void {

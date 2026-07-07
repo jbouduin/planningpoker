@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Signal } from '@angular/core';
+import { Component, computed, inject, Signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { CardDto, EGameState } from 'shared-lib';
+import { CardSetService } from '../../../../core';
 import { CardComponent } from '../../../../shared/components';
 import { IDisplayCard } from '../../../../shared/components/card/display-card';
-import { GameService, PokerService } from '../../services';
+import { PokerService } from '../../services';
 
 @Component({
   selector: 'app-my-hand',
@@ -13,8 +14,7 @@ import { GameService, PokerService } from '../../services';
   styleUrl: './my-hand.component.scss'
 })
 export class MyHandComponent {
-  //#region Protected Fields --------------------------------------------------
-  protected readonly gameSvc: GameService;
+  //#region Private Fields ----------------------------------------------------
   protected readonly pokerSvc: PokerService;
   //#endregion
 
@@ -24,14 +24,16 @@ export class MyHandComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(gameSvc: GameService, pokerSvc: PokerService) {
-    this.gameSvc = gameSvc;
-    this.pokerSvc = pokerSvc;
-    this.canEstimate = computed(() => gameSvc.cards() != null && pokerSvc.gameState() == EGameState.Started);
+  public constructor() {
+    // --- Dependency injections ---
+    this.pokerSvc = inject(PokerService);
+    const cardSetSvc = inject(CardSetService);
+    // --- Initialize ---
+    this.canEstimate = computed(() => this.pokerSvc.gameState() == EGameState.Started);
     this.displayCards = computed(() => {
       let result = new Array<IDisplayCard>();
-      const cards = gameSvc.cards();
-      const gameState = pokerSvc.gameState();
+      const cards = cardSetSvc.currentCardSet().cards;
+      const gameState = this.pokerSvc.gameState();
       if (cards !== null && cards.length > 0) {
         result = cards.map((c: CardDto) => {
           const displayCard: IDisplayCard = {

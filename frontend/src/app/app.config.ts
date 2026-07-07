@@ -4,8 +4,9 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { forkJoin } from 'rxjs';
 import { routes } from './app.routes';
-import { I18nService, LocalStorageService } from './core';
+import { CardSetService, I18nService, LocalStorageService } from './core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,9 +22,11 @@ export const appConfig: ApplicationConfig = {
       })
     }),
     provideAppInitializer(() => {
-      inject(LocalStorageService);
+      inject(LocalStorageService); // not sure if this is required
       const i18n = inject(I18nService);
-      return i18n.init();
+      const cardSetSvc = inject(CardSetService);
+
+      return forkJoin([i18n.init(), cardSetSvc.init()]);
     }),
     provideAnimations()
   ]

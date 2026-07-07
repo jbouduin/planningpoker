@@ -1,21 +1,27 @@
 <div class="button-row">
-  <div *ngIf="showStart()" class="game-button">
+  <div *ngIf="componentState().showStart" class="game-button">
     <button id="start-button" mat-stroked-button color="primary" (click)="start()">
       {{ START_LABEL | translate }}
     </button>
   </div>
-  <div *ngIf="showReveal()">
-    <button id="reveal-button" mat-stroked-button color="primary" (click)="reveal()" [disabled]="disableReveal()">
+  <div *ngIf="componentState().showReveal">
+    <button
+      id="reveal-button"
+      mat-stroked-button
+      color="primary"
+      (click)="reveal()"
+      [disabled]="componentState().disableReveal"
+    >
       {{ REVEAL_LABEL | translate }}
     </button>
   </div>
-  <div *ngIf="showReveal()">
+  <div *ngIf="componentState().showReveal">
     <button
       id="force-reveal-button"
       mat-stroked-button
       color="primary"
       (click)="reveal()"
-      [disabled]="disableForceReveal()"
+      [disabled]="componentState().disableForceReveal"
     >
       {{ FORCE_REVEAL_LABEL | translate }}
     </button>
@@ -27,7 +33,7 @@
       mat-stroked-button
       color="primary"
       (click)="changeCardSet()"
-      [disabled]="disableChangeCardSet()"
+      [disabled]="componentState().disableChangeCardSet"
     >
       {{ CHANGE_CARDSET_LABEL | translate }}
     </button>

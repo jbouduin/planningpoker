@@ -52,7 +52,6 @@ export class SocketService {
   //#endregion
 
   //#region private properties ------------------------------------------------
-  // TODO implement automatic resuming
   private resumeTimer?: number;
   private webSocket: WebSocket | null;
   private _resumeIn: WritableSignal<number>;

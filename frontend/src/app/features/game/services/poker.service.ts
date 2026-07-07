@@ -1,6 +1,6 @@
 import { computed, effect, inject, Service, Signal, signal, WritableSignal } from '@angular/core';
-import { CardDto, EGameState, EstimationDto, GameStateChangedDto } from 'shared-lib';
-import { Member, MessageDispatcherService, SessionService, SocketService, UiEventsService } from '../../../core';
+import { CardDto, CardSetDto, EGameState, EstimationDto, GameStateChangedDto } from 'shared-lib';
+import { CardSetService, Member, MessageDispatcherService, SessionService } from '../../../core';
 import { EstimateMessage, RevealMessage, StartMessage, WithdrawEstimationMessage } from '../messages';
 import { Estimation } from './estimation';
 import { GameService } from './game.service';
@@ -9,14 +9,12 @@ import { GameService } from './game.service';
 export class PokerService {
   //#region private readonly fields -------------------------------------------
   private readonly sessionSvc: SessionService;
-  private readonly socketSvc: SocketService;
-  private readonly UiEventsService: UiEventsService;
   private readonly _gameState: WritableSignal<EGameState>;
   //#endregion
 
   //#region Private Signals ---------------------------------------------------
   private allMembers: Signal<Array<Member>>;
-  private cards: Signal<Array<CardDto> | null>;
+  private cardSet: Signal<CardSetDto>;
   private givenEstimations: WritableSignal<Map<string, EstimationDto>>;
   //#endregion
 
@@ -34,14 +32,16 @@ export class PokerService {
   public constructor() {
     // --- Inject other services ---
     this.sessionSvc = inject(SessionService);
-    this.socketSvc = inject(SocketService);
-    this.UiEventsService = inject(UiEventsService);
+    const cardSetSvc = inject(CardSetService);
+    const gameSvc = inject(GameService);
+
     // --- Initialize service signals ---
     this._gameState = signal(EGameState.Cleared);
+
     // --- Initialize mirroring signals ---
-    const gameSvc = inject(GameService);
     this.allMembers = gameSvc.allMembers;
-    this.cards = gameSvc.cards;
+    this.cardSet = cardSetSvc.currentCardSet;
+
     // --- initialize own signals ---
     this.givenEstimations = signal<Map<string, EstimationDto>>(new Map());
     this.estimations = computed(() => {
@@ -98,43 +98,19 @@ export class PokerService {
 
   //#region Public Methods ----------------------------------------------------
   public withDraw(): void {
-    const me = this.sessionSvc.me();
-    if (me != null) {
-      const message = new WithdrawEstimationMessage(me.participantId);
-      this.socketSvc.sendMessage(message);
-    } else {
-      this.UiEventsService.showError('App.Snackbar.Invalid_Session_State');
-    }
+    this.sessionSvc.sendMessage(WithdrawEstimationMessage);
   }
 
   public estimate(index: number): void {
-    const me = this.sessionSvc.me();
-    if (me != null) {
-      const message = new EstimateMessage(me.participantId, index);
-      this.socketSvc.sendMessage(message);
-    } else {
-      this.UiEventsService.showError('App.Snackbar.Invalid_Session_State');
-    }
+    this.sessionSvc.sendMessage(EstimateMessage, index);
   }
 
   public reveal(): void {
-    const me = this.sessionSvc.me();
-    if (me != null) {
-      const message = new RevealMessage(me.participantId);
-      this.socketSvc.sendMessage(message);
-    } else {
-      this.UiEventsService.showError('App.Snackbar.Invalid_Session_State');
-    }
+    this.sessionSvc.sendMessage(RevealMessage);
   }
 
   public start(): void {
-    const me = this.sessionSvc.me();
-    if (me != null) {
-      const message = new StartMessage(me.participantId);
-      this.socketSvc.sendMessage(message);
-    } else {
-      this.UiEventsService.showError('App.Snackbar.Invalid_Session_State');
-    }
+    this.sessionSvc.sendMessage(StartMessage);
   }
   //#endregion
 
@@ -160,7 +136,7 @@ export class PokerService {
   private calculateEstimationList(): Array<Estimation> {
     const currentState = this._gameState();
     const members = this.allMembers();
-    const cards = this.cards();
+    const cards = this.cardSet().cards;
     const givenEstimations = this.givenEstimations();
     let result = new Array<Estimation>();
     if (cards != null && cards.length > 0 && members.length > 0 && currentState != EGameState.Cleared) {

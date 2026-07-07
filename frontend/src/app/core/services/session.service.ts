@@ -6,12 +6,23 @@ import {
   ECardSetType,
   EParticipantState,
   ERole,
+  EServerMessageType,
   ESessionEndedReason,
   ParticipantDto,
+  SessionEndedMessageDto,
   TeamDto
 } from 'shared-lib';
+import { ENVIRONMENT } from '../../../environments/environment';
 import { extract } from '../extract';
-import { CreateMessage, DisbandMessage, JoinMessage, LeaveMessage, PauseMessage, RejoinMessage } from '../messages';
+import {
+  BaseClientMessage,
+  CreateMessage,
+  DisbandMessage,
+  JoinMessage,
+  LeaveMessage,
+  PauseMessage,
+  RejoinMessage
+} from '../messages';
 import { ApiService } from './api.service';
 import { ICanRejoinResult } from './can-rejoin-result';
 import { LocalStorageService } from './local-storage.service';
@@ -23,7 +34,6 @@ import { ISimpleDialogParams } from './simple-dialog.params';
 import { ESocketState } from './socket-state.enum';
 import { SocketService } from './socket.service';
 import { UiEventsService } from './ui-events.service';
-import { ENVIRONMENT } from '../../../environments/environment';
 
 @Service()
 export class SessionService {
@@ -34,6 +44,7 @@ export class SessionService {
   private readonly log: Logger;
   private readonly socketSvc: SocketService;
   private readonly uiEventsSvc: UiEventsService;
+  private readonly messageDispatcher: MessageDispatcherService;
   //#endregion
 
   //#region private properties ------------------------------------------------
@@ -55,20 +66,21 @@ export class SessionService {
 
   //#region Constructor & C° --------------------------------------------------
   public constructor() {
-    // Inject other services
+    // --- Dependency injection ---
     this.apiSvc = inject(ApiService);
     this.localStorageSvc = inject(LocalStorageService);
+    this.messageDispatcher = inject(MessageDispatcherService);
     this.socketSvc = inject(SocketService);
     this.uiEventsSvc = inject(UiEventsService);
     // Create logger
     this.log = new Logger('SessionService');
-    // Initialize service signals
+
+    // --- Initialize ---
     this.team = signal<TeamDto | null>(null);
     this.me = signal<Member | null>(null);
     this._sessionState = signal<ESessionState>(ESessionState.Inactive);
-    // register message handlers
-    const dispatcherSvc = inject(MessageDispatcherService);
-    this.registerMessageHandlers(dispatcherSvc);
+
+    this.registerMessageHandlers(this.messageDispatcher);
     // Create effects
     effect(() => {
       const state = this.socketSvc.socketState();
@@ -193,10 +205,10 @@ export class SessionService {
    */
   public disbandTeam(): void {
     const team = this.team();
-    const me = this.me();
-    if (team !== null && me !== null) {
-      const message = new DisbandMessage(me.participantId, team.teamName);
-      this.socketSvc.sendMessage(message);
+    if (team !== null) {
+      this.sendMessage(DisbandMessage, team.teamName);
+    } else {
+      this.handleInvalidState(true);
     }
   }
 
@@ -222,12 +234,10 @@ export class SessionService {
   public leaveSession(): void {
     const team = this.team();
     const me = this.me();
-
     if (team !== null && me !== null) {
-      const message = new LeaveMessage(me.participantId, me.participantId);
-      this.socketSvc.sendMessage(message);
+      this.sendMessage(LeaveMessage, me.participantId);
     } else {
-      this.resetService();
+      this.handleInvalidState(true);
     }
   }
 
@@ -241,9 +251,21 @@ export class SessionService {
    * Message parameters are the services' signals.
    */
   public pause(): void {
+    this.sendMessage(PauseMessage);
+  }
+
+  public sendMessage<TArgs extends Array<unknown>, TMessage extends BaseClientMessage<unknown>>(
+    ctor: new (sender: string, ...args: TArgs) => TMessage,
+    ...args: TArgs
+  ): void {
     const me = this.me();
+
     if (me !== null) {
-      this.socketSvc.sendMessage(new PauseMessage(me.participantId));
+      const message = new ctor(me.participantId, ...args);
+      this.socketSvc.sendMessage(message as AClientMessageDto);
+      return;
+    } else {
+      this.handleInvalidState(false);
     }
   }
 
@@ -309,6 +331,19 @@ export class SessionService {
       this._sessionState.set(ESessionState.Suspended);
       this.socketSvc.disconnect();
     }
+  }
+  //#endregion
+
+  //#region Auxiliary Methods -------------------------------------------------
+  private handleInvalidState(silent: boolean): void {
+    if (!silent) {
+      this.uiEventsSvc.showError(extract('App.Snackbar.Invalid_Session_State'));
+    }
+    const sessionEndedMessageDto: SessionEndedMessageDto = {
+      data: { reason: ESessionEndedReason.SelfInflicted },
+      type: EServerMessageType.SessionEnded
+    };
+    this.messageDispatcher.processServerMessage(sessionEndedMessageDto);
   }
 
   /**

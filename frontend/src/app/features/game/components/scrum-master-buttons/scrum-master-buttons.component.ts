@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Signal } from '@angular/core';
+import { Component, computed, inject, Signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EGameState } from 'shared-lib';
-import { extract } from '../../../../core';
+import { CardSetDto, EGameState } from 'shared-lib';
+import { CardSetService, extract } from '../../../../core';
+import { CardSetDialogComponent, CardSetDialogComponentParams, DialogService } from '../../../../shared';
 import { PokerService } from '../../services';
 import { Estimation } from '../../services/estimation';
+import { ScrumMasterButtonsComponentState } from './scrum-master-buttons.component.state';
 
 @Component({
   selector: 'app-scrum-master-buttons',
@@ -15,6 +17,12 @@ import { Estimation } from '../../services/estimation';
 export class ScrumMasterButtonsComponent {
   // FEATURE allow scrum master to clear estimations when status == revealed, without starting another round
 
+  //#region Protected Fields --------------------------------------------------
+  private readonly cardSetSvc: CardSetService;
+  private readonly dialogSvc: DialogService;
+  private readonly pokerSvc: PokerService;
+  //#endregion
+
   //#region Translation Keys --------------------------------------------------
   protected readonly CHANGE_CARDSET_LABEL = extract('Game.ScrumMasterButtons.Button.ChangeCardSet');
   protected readonly REVEAL_LABEL = extract('Game.ScrumMasterButtons.Button.Reveal');
@@ -22,39 +30,28 @@ export class ScrumMasterButtonsComponent {
   protected readonly START_LABEL = extract('Game.ScrumMasterButtons.Button.Start');
   //#endregion
 
-  //#region Protected Fields --------------------------------------------------
-  protected readonly pokerSvc: PokerService;
-  //#endregion
-
   //#region Signals -----------------------------------------------------------
-  protected readonly disableChangeCardSet: Signal<boolean>;
-  protected readonly disableForceReveal: Signal<boolean>;
-  protected readonly disableReveal: Signal<boolean>;
-  protected readonly showReveal: Signal<boolean>;
-  protected readonly showStart: Signal<boolean>;
+  protected readonly componentState: Signal<ScrumMasterButtonsComponentState>;
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(pokerSvc: PokerService) {
-    this.pokerSvc = pokerSvc;
-    this.disableChangeCardSet = computed(() => {
+  public constructor() {
+    // --- Dependency injection ---
+    this.cardSetSvc = inject(CardSetService);
+    this.dialogSvc = inject(DialogService);
+    this.pokerSvc = inject(PokerService);
+
+    // --- Initialize ---
+    this.componentState = computed(() => {
       const gameState = this.pokerSvc.gameState();
-      return gameState == EGameState.Started || gameState == EGameState.Revealed;
-    });
-    this.disableForceReveal = computed(() => {
       const estimations = this.pokerSvc.estimations();
-      return estimations.findIndex((e: Estimation) => e.hasEstimated == false) == -1;
-    });
-    this.disableReveal = computed(() => {
-      const estimations = this.pokerSvc.estimations();
-      return estimations.findIndex((e: Estimation) => e.hasEstimated == false) >= 0;
-    });
-    this.showReveal = computed(() => {
-      return this.pokerSvc.gameState() == EGameState.Started;
-    });
-    this.showStart = computed(() => {
-      const gameState = this.pokerSvc.gameState();
-      return gameState == EGameState.Cleared || gameState == EGameState.Revealed;
+      return {
+        disableChangeCardSet: gameState == EGameState.Started || gameState == EGameState.Revealed,
+        disableForceReveal: estimations.findIndex((e: Estimation) => e.hasEstimated == false) == -1,
+        disableReveal: estimations.findIndex((e: Estimation) => e.hasEstimated == false) >= 0,
+        showReveal: this.pokerSvc.gameState() == EGameState.Started,
+        showStart: gameState == EGameState.Cleared || gameState == EGameState.Revealed
+      };
     });
   }
   //#endregion
@@ -69,7 +66,19 @@ export class ScrumMasterButtonsComponent {
   }
 
   public changeCardSet(): void {
-    // this.cardService.changeCardSet();
+    const params: CardSetDialogComponentParams = {
+      currentCardSet: this.cardSetSvc.currentCardSet()
+    };
+    this.dialogSvc
+      .openDialog<CardSetDialogComponent, CardSetDialogComponentParams, CardSetDto | null>(CardSetDialogComponent, {
+        width: '600px',
+        data: params
+      })
+      .subscribe((result: CardSetDto | null) => {
+        if (result !== null) {
+          this.cardSetSvc.changeCardSet(result);
+        }
+      });
   }
   //#endregion
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -8,15 +8,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ECardSetType } from 'shared-lib';
-import { extract, SessionService } from '../../../../core';
+import { CardSetDto, ECardSetType } from 'shared-lib';
+import { CardSetSelectItem, CardSetService, extract, SessionService } from '../../../../core';
+import {
+  AppTranslationKeys,
+  CardSetDialogComponent,
+  CardSetDialogComponentParams,
+  DialogService
+} from '../../../../shared';
 import { CreateJoinFormMode } from './create-join-form-mode';
-import { AppTranslationKeys } from '../../../../shared';
-
-export interface ICardSetSelectItem {
-  set: ECardSetType;
-  label: string;
-}
 
 @Component({
   selector: 'app-create-join-form',
@@ -41,26 +41,24 @@ export class CreateJoinFormComponent {
   //#endregion
 
   //#region Private Fields ----------------------------------------------------
-  private readonly sessionService: SessionService;
-  private _cardSetValues: Array<ICardSetSelectItem>;
+  private readonly cardSetSvc: CardSetService;
+  private readonly dialogSvc: DialogService;
+  private readonly sessionSvc: SessionService;
   //#endregion
 
   //#region Protected Read-only -----------------------------------------------
   protected readonly CARDSET_LABEL = extract('App.Select.CardSet');
   protected readonly OBSERVER_LABEL = extract('Team.Join.Checkbox.Observer');
   protected readonly translationKeys = AppTranslationKeys;
+  protected readonly cardSetValues: Array<CardSetSelectItem>;
   //#endregion
 
   //#region Protected Fields --------------------------------------------------
-  protected formData: FormGroup;
+  protected readonly formData: FormGroup;
   protected observer: boolean;
   //#endregion
 
   //#region Getters -----------------------------------------------------------
-  public get cardSetValues(): Array<ICardSetSelectItem> {
-    return this._cardSetValues;
-  }
-
   public get gameHeader(): string {
     return this.formMode === 'create'
       ? extract('Team.Join.Header.Create_a_team')
@@ -73,13 +71,16 @@ export class CreateJoinFormComponent {
   //#endregion
 
   //#region Constructor & C° --------------------------------------------------
-  public constructor(
-    sessionService: SessionService,
-    private formBuilder: FormBuilder
-  ) {
-    this.sessionService = sessionService;
-    this._cardSetValues = this.getCardSetValues();
-    this.formData = this.formBuilder.group({
+  public constructor() {
+    // --- Dependency injection ---
+    this.sessionSvc = inject(SessionService);
+    this.dialogSvc = inject(DialogService);
+    this.cardSetSvc = inject(CardSetService);
+    const formBuilder = inject(FormBuilder);
+
+    // --- Initialization ---
+    this.cardSetValues = this.cardSetSvc.getCardSetSelectItems(true);
+    this.formData = formBuilder.group({
       team: new FormControl('', [Validators.required]),
       nick: new FormControl('', [Validators.required]),
       cardSet: new FormControl(ECardSetType.Cohn, [Validators.required])
@@ -103,25 +104,27 @@ export class CreateJoinFormComponent {
     if (this.formMode === 'create') {
       const cardSet = this.formData.get('cardSet')?.value as ECardSetType;
       if (cardSet === ECardSetType.Custom) {
-        // const params: ICardSetDialogParams = {
-        //   cardSets: [ECardSetType.Cohn, ECardSetType.Fibonacci, ECardSetType.TShirt],
-        //   currentCards: null,
-        //   currentCardSet: null
-        // };
-        // const dialogRef = this.matDialog.open(CardSetDialogComponent, { data: params });
-        // dialogRef.afterClosed().subscribe((result: ICardSet) => {
-        //   if (result) {
-        //     this.sessionService.createSession(
-        //       this.formData.get('team')?.value,
-        //       this.formData.get('nick')?.value,
-        //       this.observer,
-        //       this.formData.get('cardSet')?.value,
-        //       result
-        //     );
-        //   }
-        // });
+        const params: CardSetDialogComponentParams = {
+          currentCardSet: this.cardSetSvc.allCardSets[0]
+        };
+        this.dialogSvc
+          .openDialog<CardSetDialogComponent, CardSetDialogComponentParams, CardSetDto | null>(CardSetDialogComponent, {
+            width: '600px',
+            data: params
+          })
+          .subscribe((result: CardSetDto | null) => {
+            if (result !== null) {
+              this.sessionSvc.createSession(
+                this.formData.get('team')?.value,
+                this.formData.get('nick')?.value,
+                this.observer,
+                this.formData.get('cardSet')?.value,
+                result
+              );
+            }
+          });
       } else {
-        this.sessionService.createSession(
+        this.sessionSvc.createSession(
           this.formData.get('team')?.value,
           this.formData.get('nick')?.value,
           this.observer,
@@ -130,23 +133,8 @@ export class CreateJoinFormComponent {
         );
       }
     } else {
-      this.sessionService.joinSession(
-        this.formData.get('team')?.value,
-        this.formData.get('nick')?.value,
-        this.observer
-      );
+      this.sessionSvc.joinSession(this.formData.get('team')?.value, this.formData.get('nick')?.value, this.observer);
     }
   }
   //#endregion
-
-  //#region mock methods ------------------------------------------------------
-  private getCardSetValues(): Array<ICardSetSelectItem> {
-    // TODO once custom card set is implemented, make this dynamic `Enum.ECardSetType.${ECardSetType[code]}
-    return [
-      { set: ECardSetType.Cohn, label: extract('Enum.ECardSetType.Cohn') },
-      { set: ECardSetType.Fibonacci, label: extract('Enum.ECardSetType.Fibonacci') },
-      { set: ECardSetType.TShirt, label: extract('Enum.ECardSetType.TShirt') }
-      //{ set: ECardSetType.Custom, label: extract('Enum.ECardSetType.Custom') },
-    ];
-  }
 }
