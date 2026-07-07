@@ -38,9 +38,9 @@ export class LocalStorageService {
     // --- Dependency Injection ---
     const dispatcherSvc = inject(MessageDispatcherService);
     const translateSvc = inject(TranslateService);
+    this.log = inject(LoggerService).getLogger('LocalStorageService');
 
     // --- Initialization ---
-    this.log = LoggerService.getLogger('LocalStorageService');
     this.createEffects(dispatcherSvc, translateSvc);
   }
 

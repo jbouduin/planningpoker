@@ -6,15 +6,21 @@ export class LoggerService {
   // FEATURE: change loglevels at runtime
 
   //#region Private Fields ----------------------------------------------------
-  private static readonly loggers: Map<string, Logger>;
+  private readonly loggers: Map<string, Logger>;
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor() {
+    this.loggers = new Map<string, Logger>();
+  }
   //#endregion
 
   //#region Public Methods ----------------------------------------------------
-  public static getLogger(source: string): Logger {
-    let result = LoggerService.loggers.get(source);
+  public getLogger(source: string): Logger {
+    let result = this.loggers.get(source);
     if (!result) {
       result = new Logger(source);
-      LoggerService.loggers.set(source, result);
+      this.loggers.set(source, result);
     }
     return result;
   }

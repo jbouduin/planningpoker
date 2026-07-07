@@ -73,12 +73,12 @@ export class SessionService {
     this.messageDispatcher = inject(MessageDispatcherService);
     this.socketSvc = inject(SocketService);
     this.uiEventsSvc = inject(UiEventsService);
+    this.log = inject(LoggerService).getLogger('SessionService');
 
     // --- Initialize ---
     this.team = signal<TeamDto | null>(null);
     this.me = signal<Member | null>(null);
     this._sessionState = signal<ESessionState>(ESessionState.Inactive);
-    this.log = LoggerService.getLogger('SessionService');
 
     this.registerMessageHandlers(this.messageDispatcher);
 

@@ -73,9 +73,9 @@ export class SocketService {
     // --- Dependency injection ---
     this.messageDispatcherSvc = inject(MessageDispatcherService);
     this.localStorageSvc = inject(LocalStorageService);
+    this.log = inject(LoggerService).getLogger('SocketService');
 
     // --- Initialization ---
-    this.log = LoggerService.getLogger('SocketService');
     this.uiEventsSvc = inject(UiEventsService);
     this.socketState = signal<ESocketState>(ESocketState.Disconnected);
     this._resumeIn = signal<number>(-1);

@@ -7,6 +7,7 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { forkJoin } from 'rxjs';
 import { routes } from './app.routes';
 import { CardSetService, I18nService, LocalStorageService } from './core';
+import { LoggerService } from './core/services/logger.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +24,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideAppInitializer(() => {
       inject(LocalStorageService); // not sure if this is required
+
       const i18n = inject(I18nService);
       const cardSetSvc = inject(CardSetService);
 
