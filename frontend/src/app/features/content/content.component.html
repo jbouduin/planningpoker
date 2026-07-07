@@ -1,1 +1,7 @@
-<p>content.component works!</p>
+<div class="content-container">
+  <mat-card *ngFor="let c of content()" appearance="outlined">
+    <mat-card-content>
+      <div [innerHTML]="c | markdown"></div>
+    </mat-card-content>
+  </mat-card>
+</div>

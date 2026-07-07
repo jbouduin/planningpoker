@@ -43,5 +43,10 @@ export class ApiService {
         })
       );
   }
+
+  public loadContent(language: string, path: string): Observable<string> {
+    const url = `/content/${language}/${path}`;
+    return this.httpClient.get(url, { responseType: 'text' });
+  }
   //#endregion
 }
