@@ -5,10 +5,23 @@
   inset: 0;
 }
 
+.header {
+  width: 100%;
+}
+
+.shell-content {
+  height: 100%;
+}
+
 .mat-toolbar {
   min-height: 64px;
+  background-color: var(--color-blue);
+  color: var(--color-whitegrey);
 }
 
 .content-container {
   overflow: auto;
+  :hover {
+    color: unset;
+  }
 }

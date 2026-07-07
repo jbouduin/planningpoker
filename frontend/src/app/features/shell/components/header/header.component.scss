@@ -11,9 +11,13 @@
 }
 
 .version-text {
-  font-size: 14px;
+  font-size: 16px;
   display: flex;
   align-content: center;
   flex-wrap: wrap;
-  margin-right: 10px;
+  margin-right: 16px;
+}
+
+.header-button {
+  color: var(--color-whitegrey);
 }
