@@ -1,14 +1,14 @@
 <div class="header-container">
   <div>
-    <button mat-button [disabled]="!canNavigate()" routerLink="/" routerLinkActive="active" class="header-button">
+    <button mat-button [disabled]="!canNavigate()" routerLink="/" routerLinkActive="active">
       <mat-icon>home</mat-icon>
       {{ ROUTE_LABEL_HOME | translate }}
     </button>
-    <button mat-button [disabled]="!canNavigate()" routerLink="legal" routerLinkActive="active" class="header-button">
+    <button mat-button [disabled]="!canNavigate()" routerLink="legal" routerLinkActive="active">
       <mat-icon>gavel</mat-icon>
       {{ ROUTE_LABEL_LEGAL | translate }}
     </button>
-    <button mat-button [disabled]="!canNavigate()" routerLink="privacy" routerLinkActive="active" class="header-button">
+    <button mat-button [disabled]="!canNavigate()" routerLink="privacy" routerLinkActive="active">
       <mat-icon>security</mat-icon>
       {{ ROUTE_LABEL_PRIVACY | translate }}
     </button>

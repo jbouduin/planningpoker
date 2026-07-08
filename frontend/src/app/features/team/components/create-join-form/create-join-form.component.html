@@ -1,38 +1,42 @@
 <div class="create-join-form-container">
   <mat-card appearance="outlined" [formGroup]="formData">
-    <mat-card-title>
-      {{ gameHeader | translate }}
-    </mat-card-title>
+    <mat-card-header>
+      <mat-card-title>
+        <div>
+          {{ gameHeader | translate }}
+        </div>
+      </mat-card-title>
+    </mat-card-header>
+
+    <app-divider></app-divider>
 
     <mat-card-content>
-      <div>
-        <mat-form-field>
-          <mat-label>{{ translationKeys.INPUT_TEAM_LABEL | translate }}</mat-label>
-          <input
-            id="team-input"
-            matInput
-            placeholder="{{ translationKeys.INPUT_TEAM_PLACEHOLDER | translate }}"
-            formControlName="team"
-            required
-          />
-          <mat-error>{{ getErrorMessage('team') | translate }}</mat-error>
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field>
-          <mat-label>{{ translationKeys.INPUT_NICK_NAME_LABEL | translate }}</mat-label>
-          <input
-            id="nick-input"
-            matInput
-            placeholder="{{ translationKeys.INPUT_NICK_NAME_PLACEHOLDER | translate }}"
-            formControlName="nick"
-            required
-          />
-          <mat-error>{{ getErrorMessage('nick') | translate }}</mat-error>
-        </mat-form-field>
-      </div>
-      <div *ngIf="formMode == 'create'">
-        <mat-form-field appearance="fill">
+      <mat-form-field class="full-width margin-bottom-8">
+        <mat-label>{{ translationKeys.INPUT_TEAM_LABEL | translate }}</mat-label>
+        <input
+          id="team-input"
+          matInput
+          placeholder="{{ translationKeys.INPUT_TEAM_PLACEHOLDER | translate }}"
+          formControlName="team"
+          required
+        />
+        <mat-error>{{ getErrorMessage('team') | translate }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="full-width margin-bottom-8">
+        <mat-label>{{ translationKeys.INPUT_NICK_NAME_LABEL | translate }}</mat-label>
+        <input
+          id="nick-input"
+          matInput
+          placeholder="{{ translationKeys.INPUT_NICK_NAME_PLACEHOLDER | translate }}"
+          formControlName="nick"
+          required
+        />
+        <mat-error>{{ getErrorMessage('nick') | translate }}</mat-error>
+      </mat-form-field>
+
+      <ng-container *ngIf="formMode == 'create'">
+        <mat-form-field class="full-width">
           <mat-label>{{ translationKeys.SELECT_CARDSET_LABEL | translate }}</mat-label>
           <mat-select formControlName="cardSet">
             <mat-option *ngFor="let cardSet of cardSetValues" [value]="cardSet.set">
@@ -40,16 +44,17 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-      </div>
-      <div>
-        <mat-checkbox id="observe" [(ngModel)]="observer" [ngModelOptions]="{ standalone: true }">
-          {{ OBSERVER_LABEL | translate }}
-        </mat-checkbox>
-      </div>
+      </ng-container>
+
+      <mat-checkbox formControlName="observer">
+        {{ OBSERVER_LABEL | translate }}
+      </mat-checkbox>
     </mat-card-content>
 
-    <mat-card-actions class="action-wrapper">
-      <button mat-stroked-button color="primary" [disabled]="formData.invalid" (click)="submit()">
+    <app-divider></app-divider>
+
+    <mat-card-actions class="create-join-form-actions">
+      <button matButton="outlined" [disabled]="formData.invalid" (click)="submit()">
         <span>{{ submitButtonLabel | translate }}</span>
       </button>
     </mat-card-actions>

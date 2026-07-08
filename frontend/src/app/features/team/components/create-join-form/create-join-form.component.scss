@@ -1,4 +1,10 @@
 .create-join-form-container {
   width: 450px;
   margin: 10px;
+  text-align: left;
+}
+
+.create-join-form-actions {
+  display: flex;
+  justify-content: center;
 }

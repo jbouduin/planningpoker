@@ -47,9 +47,9 @@ OR
       tertiary-fixed-dim: #f2afff,
       on-tertiary-fixed: #340043,
       on-tertiary-fixed-variant: #780097,
-      background: #fcf8f9,
-      on-background: #1c1b1c,
-      surface: #fcf8f9,
+      background: var(--color-white-background),
+      on-background: #ff0000,
+      surface: var(--color-white-background),
       surface-dim: #ddd9da,
       surface-bright: #fcf8f9,
       surface-container-lowest: #ffffff,
@@ -57,7 +57,8 @@ OR
       surface-container: #f1edee,
       surface-container-high: #ebe7e8,
       surface-container-highest: #e5e1e2,
-      on-surface: #1c1b1c,
+      on-surface: var(--color-darkgrey),
+      // #1c1b1c,
       shadow: #000000,
       scrim: #000000,
       surface-tint: #5d5d6a,
@@ -148,7 +149,6 @@ OR
 :root,
 :host {
   font-family: Philosopher;
-  // background: var(--color-whitegrey);
 
   /* core typography tokens are not generating css variables, hence below */
   --mat-sys-brand-font-family: Philosopher;
@@ -157,6 +157,9 @@ OR
   --mat-sys-medium-font-weight: 500;
   --mat-sys-regular-font-weight: 400;
 
+  --mat-menu-item-label-text-font: Philosopher;
+  --mat-form-field-state-layer-color: var(--color-whitegrey);
+
   @include mat.theme-overrides(
     (
       brand-family: Philosopher,
@@ -164,6 +167,7 @@ OR
       bold-weight: 700,
       medium-weight: 500,
       regular-weight: 400,
+      error: var(--color-red),
       headline-large-font: var(--mat-sys-brand-font-family),
       headline-medium-font: var(--mat-sys-brand-font-family),
       headline-small-font: var(--mat-sys-brand-font-family),
@@ -203,4 +207,57 @@ OR
         var(--mat-sys-display-small-line-height) var(--mat-sys-display-small-font)
     )
   );
+}
+
+/* Overrides */
+:root,
+:host {
+  @include mat.button-overrides(
+    (
+      // Outlined buttons -> used in cards, dialogs, etc...
+      outlined-disabled-state-layer-color: var(--color-midgrey),
+      outlined-disabled-label-text-color: var(--color-midgrey),
+      outlined-outline-color: var(--color-blue),
+      outlined-label-text-color: var(--color-blue),
+      // Text buttons -> used in toolbar
+      text-state-layer-color: var(--color-midgrey),
+      text-disabled-label-text-color: var(--color-lightgrey)
+    )
+  );
+
+  @include mat.form-field-overrides(
+    (
+      filled-container-color: color-mix(in srgb, var(--color-darkgrey) 18%, transparent),
+      subscript-text-size: 14px
+    )
+  );
+
+  @include mat.toolbar-overrides(
+    (
+      container-background-color: var(--color-darkgrey),
+      container-text-color: var(--color-whitegrey)
+    )
+  );
+
+  @include mat.checkbox-overrides(
+    (
+      selected-hover-state-layer-opacity: 0.18,
+      unselected-hover-state-layer-opacity: 0.18,
+      selected-focus-state-layer-color: color-mix(in srgb, var(--color-blue) 18%, transparent),
+      unselected-focus-state-layer-color: color-mix(in srgb, var(--color-darkgrey) 18%, transparent)
+    )
+  );
+
+  @include mat.card-overrides(
+    (
+      elevated-container-color: orange,
+      elevated-container-elevation: red,
+      title-text-size: 24px
+    )
+  );
+}
+
+html,
+body {
+  background-color: var(--color-whitegrey);
 }

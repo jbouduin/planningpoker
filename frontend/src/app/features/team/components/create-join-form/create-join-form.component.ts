@@ -17,12 +17,16 @@ import {
   DialogService
 } from '../../../../shared';
 import { CreateJoinFormMode } from './create-join-form-mode';
+import { MatButtonModule } from '@angular/material/button';
+import { DividerComponent } from '../../../../shared/components/divider/divider.component';
 
 @Component({
   selector: 'app-create-join-form',
   imports: [
+    DividerComponent,
     CommonModule,
     FormsModule,
+    MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -46,16 +50,15 @@ export class CreateJoinFormComponent {
   private readonly sessionSvc: SessionService;
   //#endregion
 
-  //#region Protected Read-only -----------------------------------------------
+  //#region Protected: Translations -------------------------------------------
   protected readonly CARDSET_LABEL = extract('App.Select.CardSet');
   protected readonly OBSERVER_LABEL = extract('Team.Join.Checkbox.Observer');
   protected readonly translationKeys = AppTranslationKeys;
-  protected readonly cardSetValues: Array<CardSetSelectItem>;
   //#endregion
 
   //#region Protected Fields --------------------------------------------------
+  protected readonly cardSetValues: Array<CardSetSelectItem>;
   protected readonly formData: FormGroup;
-  protected observer: boolean;
   //#endregion
 
   //#region Getters -----------------------------------------------------------
@@ -83,9 +86,9 @@ export class CreateJoinFormComponent {
     this.formData = formBuilder.group({
       team: new FormControl('', [Validators.required]),
       nick: new FormControl('', [Validators.required]),
-      cardSet: new FormControl(ECardSetType.Cohn, [Validators.required])
+      cardSet: new FormControl(ECardSetType.Cohn, [Validators.required]),
+      observer: new FormControl(false)
     });
-    this.observer = false;
   }
   //#endregion
 
@@ -117,7 +120,7 @@ export class CreateJoinFormComponent {
               this.sessionSvc.createSession(
                 this.formData.get('team')?.value,
                 this.formData.get('nick')?.value,
-                this.observer,
+                this.formData.get('observer')?.value,
                 this.formData.get('cardSet')?.value,
                 result
               );
@@ -127,13 +130,17 @@ export class CreateJoinFormComponent {
         this.sessionSvc.createSession(
           this.formData.get('team')?.value,
           this.formData.get('nick')?.value,
-          this.observer,
+          this.formData.get('observer')?.value,
           this.formData.get('cardSet')?.value,
           undefined
         );
       }
     } else {
-      this.sessionSvc.joinSession(this.formData.get('team')?.value, this.formData.get('nick')?.value, this.observer);
+      this.sessionSvc.joinSession(
+        this.formData.get('team')?.value,
+        this.formData.get('nick')?.value,
+        this.formData.get('observer')?.value
+      );
     }
   }
   //#endregion
