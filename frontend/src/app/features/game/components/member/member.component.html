@@ -6,8 +6,7 @@
   <mat-icon class="member-icon">{{ connectionStatusIcon }}</mat-icon>
   <button
     *ngIf="componentState().canSwitchToObserver || componentState().canSwitchToNonObserver"
-    mat-icon-button
-    class="small-icon-button"
+    matIconButton
     [matMenuTriggerFor]="menu"
   >
     <mat-icon>more_horiz</mat-icon>

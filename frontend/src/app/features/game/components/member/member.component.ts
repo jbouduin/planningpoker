@@ -16,10 +16,11 @@ import {
 import { TeamService } from '../../../team';
 import { PokerService } from '../../services';
 import { MemberComponentState } from './member.component.state';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-member',
-  imports: [MatMenuModule, CommonModule, MatIconModule, TranslatePipe],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule, TranslatePipe],
   templateUrl: './member.component.html',
   styleUrl: './member.component.scss'
 })

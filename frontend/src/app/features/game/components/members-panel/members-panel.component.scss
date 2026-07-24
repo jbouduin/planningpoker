@@ -1,3 +1,30 @@
+.side-nav-container {
+  display: flex;
+  flex-direction: column;
+  // max-width: 300px;
+  min-width: 150px;
+  margin: 6px;
+}
+
+.participants {
+  margin: 6px;
+}
+
+.participant-list {
+  padding-right: 0;
+}
+
+.participant-list:last-child {
+  padding-bottom: 0;
+}
+
+.participants-header {
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
 .member-panel-button {
   width: 100%;
+  margin-bottom: 6px;
 }

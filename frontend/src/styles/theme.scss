@@ -221,7 +221,14 @@ OR
       outlined-label-text-color: var(--color-blue),
       // Text buttons -> used in toolbar
       text-state-layer-color: var(--color-midgrey),
-      text-disabled-label-text-color: var(--color-lightgrey)
+      text-disabled-label-text-color: var(--color-lightgrey),
+      outlined-state-layer-color: color-mix(in srgb, var(--color-blue) 18%, transparent)
+    )
+  );
+
+  @include mat.icon-button-overrides(
+    (
+      state-layer-color: color-mix(in srgb, var(--color-blue) 18%, transparent)
     )
   );
 
@@ -250,8 +257,8 @@ OR
 
   @include mat.card-overrides(
     (
-      elevated-container-color: orange,
-      elevated-container-elevation: red,
+      elevated-container-color: white,
+      // elevated-container-elevation: red,
       title-text-size: 24px
     )
   );

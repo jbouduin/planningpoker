@@ -10,10 +10,11 @@ import { AppTranslationKeys, DialogService, MessageDialogComponentParams } from 
 import { GameService, PokerService } from '../../services';
 import { MemberComponent } from '../member/member.component';
 import { MembersPanelState } from './members-panel.component.state';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-members-panel',
-  imports: [CommonModule, MatCardModule, MatTooltipModule, MemberComponent, TranslatePipe],
+  imports: [CommonModule, MatButtonModule, MatCardModule, MatTooltipModule, MemberComponent, TranslatePipe],
   templateUrl: './members-panel.component.html',
   styleUrl: './members-panel.component.scss'
 })

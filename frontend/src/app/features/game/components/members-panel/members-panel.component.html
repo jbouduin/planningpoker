@@ -1,14 +1,14 @@
 <div class="side-nav-container">
   <!-- Scrum-master -->
   <div id="scrum-master" class="participants">
-    <mat-card-title>{{ SCRUM_MASTER_LABEL | translate }}</mat-card-title>
+    <mat-card-subtitle class="participants-header">{{ SCRUM_MASTER_LABEL | translate }}</mat-card-subtitle>
     <mat-card-content *ngIf="memberPanelState().scrumMaster != null" class="participant-list">
       <app-member [member]="memberPanelState().scrumMaster!"></app-member>
     </mat-card-content>
   </div>
   <!-- Developers -->
   <div id="developers" class="participants">
-    <mat-card-title>{{ DEVELOPERS_LABEL | translate }}</mat-card-title>
+    <mat-card-title class="participants-header">{{ DEVELOPERS_LABEL | translate }}</mat-card-title>
     <mat-card-content class="participant-list">
       <div *ngFor="let developer of memberPanelState().developers">
         <app-member [member]="developer"></app-member>
@@ -17,7 +17,7 @@
   </div>
   <!-- Observers -->
   <div id="observers" class="participants">
-    <mat-card-title>{{ OBSERVERS_LABEL | translate }}</mat-card-title>
+    <mat-card-title class="participants-header">{{ OBSERVERS_LABEL | translate }}</mat-card-title>
     <mat-card-content class="participant-list">
       <div *ngFor="let observer of memberPanelState().observers">
         <app-member [member]="observer"></app-member>
@@ -34,7 +34,8 @@
       >
         <button
           id="disband-button"
-          mat-stroked-button
+          matButton="outlined"
+          color="primary"
           class="member-panel-button"
           color="primary"
           [disabled]="!memberPanelState().canLeave"
@@ -50,7 +51,7 @@
       >
         <button
           id="leave-button"
-          mat-stroked-button
+          matButton="outlined"
           class="member-panel-button"
           color="primary"
           [disabled]="!memberPanelState().canLeave"
@@ -59,10 +60,13 @@
           {{ LEAVE_LABEL | translate }}
         </button>
       </div>
-      <div matTooltip="{{ memberPanelState().pauseButtonTooltip }}" [matTooltipDisabled]="memberPanelState().canPause">
+      <div
+        matTooltip="{{ memberPanelState().pauseButtonTooltip | translate }}"
+        [matTooltipDisabled]="memberPanelState().canPause"
+      >
         <button
           id="pause-button"
-          mat-stroked-button
+          matButton="outlined"
           class="member-panel-button"
           color="primary"
           [disabled]="!memberPanelState().canPause"
@@ -74,7 +78,7 @@
       <div *ngIf="isDevelopment">
         <button
           id="disconnect-button"
-          mat-stroked-button
+          matButton="outlined"
           class="member-panel-button"
           color="primary"
           (click)="disconnect()"
