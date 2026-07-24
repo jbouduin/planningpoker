@@ -6,10 +6,19 @@ import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
 import { extract } from '../../../core';
 import { AppTranslationKeys } from '../app-translation-keys';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-change-nick-dialog',
-  imports: [FormsModule, MatDialogModule, MatInputModule, MatFormFieldModule, TranslatePipe, ReactiveFormsModule],
+  imports: [
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatInputModule,
+    MatFormFieldModule,
+    TranslatePipe,
+    ReactiveFormsModule
+  ],
   templateUrl: './change-nick-dialog.component.html',
   styleUrl: './change-nick-dialog.component.scss'
 })

@@ -12,6 +12,7 @@ import { AppTranslationKeys } from '../app-translation-keys';
 import { CardComponent } from '../card/card.component';
 import { IDisplayCard } from '../card/display-card';
 import { CardSetDialogComponentParams } from './card-set-dialog.component.params';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-card-set-dialog',
@@ -19,8 +20,9 @@ import { CardSetDialogComponentParams } from './card-set-dialog.component.params
     CommonModule,
     CardComponent,
     FormsModule,
-    MatFormFieldModule,
+    MatButtonModule,
     MatDialogModule,
+    MatFormFieldModule,
     MatOptionModule,
     MatSelectModule,
     ReactiveFormsModule,

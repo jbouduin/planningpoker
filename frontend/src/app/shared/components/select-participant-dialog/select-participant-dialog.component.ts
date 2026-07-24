@@ -9,12 +9,14 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ParticipantDto } from 'shared-lib';
 import { AppTranslationKeys } from '../app-translation-keys';
 import { SelectParticipantDialogComponentParams } from './select-participant-dialog.component.params';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-select-participant-dialog',
   imports: [
     CommonModule,
     FormsModule,
+    MatButtonModule,
     MatDialogModule,
     MatOptionModule,
     MatFormFieldModule,

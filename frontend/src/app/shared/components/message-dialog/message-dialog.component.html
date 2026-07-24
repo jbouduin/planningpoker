@@ -3,10 +3,10 @@
   {{ text | translate: textParams }}
 </div>
 <div mat-dialog-actions>
-  <button id="cancel-button" mat-button *ngIf="showCancelButton" (click)="cancel()">
+  <button id="cancel-button" matButton="outlined" *ngIf="showCancelButton" (click)="cancel()">
     {{ cancelButtonLabel | translate: cancelButtonParams }}
   </button>
-  <button id="submit-button" mat-button [mat-dialog-close]="true">
+  <button id="submit-button" matButton="outlined" [mat-dialog-close]="true">
     {{ okButtonLabel | translate: okButtonParams }}
   </button>
 </div>

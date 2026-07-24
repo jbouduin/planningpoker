@@ -7,10 +7,11 @@ import { CardSetDialogComponent, CardSetDialogComponentParams, DialogService } f
 import { PokerService } from '../../services';
 import { Estimation } from '../../services/estimation';
 import { ScrumMasterButtonsComponentState } from './scrum-master-buttons.component.state';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-scrum-master-buttons',
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, MatButtonModule, TranslatePipe],
   templateUrl: './scrum-master-buttons.component.html',
   styleUrl: './scrum-master-buttons.component.scss'
 })
