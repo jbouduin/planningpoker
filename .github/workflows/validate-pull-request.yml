@@ -64,6 +64,10 @@ jobs: # list of things to do
         working-directory: 'shared-lib'
         run: npm run build
 
+      - name: prebuild frontend
+        working-directory: 'frontend'
+        run: npm run prebuild
+
       - name: Format (prettier) and Lint frontend
         run: |
           npm run format:frontend
