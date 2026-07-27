@@ -1,4 +1,4 @@
-<div class="header-container">
+<div class="stretch-container">
   <div>
     <button mat-button [disabled]="!canNavigate()" routerLink="/" routerLinkActive="active">
       <mat-icon>home</mat-icon>
@@ -13,7 +13,7 @@
       {{ ROUTE_LABEL_PRIVACY | translate }}
     </button>
   </div>
-  <div class="header-right">
+  <div class="stretch-container-right">
     <div class="version-text">{{ version }}</div>
     <app-language-selector></app-language-selector>
   </div>

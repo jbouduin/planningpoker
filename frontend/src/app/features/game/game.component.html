@@ -6,17 +6,15 @@
       </mat-sidenav>
       <mat-sidenav-content>
         <div>
-          <div class="toggle-container">
-            <button (click)="sidenav.toggle()" class="toggle">T</button>
-          </div>
-          <div class="game">
+          <button class="sidenav-toggle" (click)="sidenav.toggle()">
+            {{ sidenav.opened ? '«' : '»' }}
+          </button>
+          <mat-card>
             <app-team-header></app-team-header>
             <app-playfield></app-playfield>
             <app-my-hand *ngIf="componentState().showMyHand"></app-my-hand>
-            <mat-card>
-              <app-scrum-master-buttons *ngIf="componentState().showScrumMasterButtons"></app-scrum-master-buttons>
-            </mat-card>
-          </div>
+            <app-scrum-master-buttons *ngIf="componentState().showScrumMasterButtons"></app-scrum-master-buttons>
+          </mat-card>
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>

@@ -48,7 +48,7 @@ OR
       on-tertiary-fixed: #340043,
       on-tertiary-fixed-variant: #780097,
       background: var(--color-white-background),
-      on-background: #ff0000,
+      on-background: var(--color-darkgrey),
       surface: var(--color-white-background),
       surface-dim: #ddd9da,
       surface-bright: #fcf8f9,
@@ -228,7 +228,8 @@ OR
 
   @include mat.icon-button-overrides(
     (
-      state-layer-color: color-mix(in srgb, var(--color-blue) 18%, transparent)
+      state-layer-color: color-mix(in srgb, var(--color-blue) 18%, transparent),
+      touch-target-size: 32px
     )
   );
 

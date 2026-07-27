@@ -19,7 +19,7 @@
 
 .content-container {
   overflow: auto;
-  :hover {
+  &:hover {
     color: unset;
   }
 }

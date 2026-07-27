@@ -6,7 +6,16 @@
 }
 
 .team-name-span {
-  display: flex;
   align-content: center;
-  flex-wrap: wrap;
+  font-style: bold;
+  margin-right: 8px;
+}
+
+.share-button {
+  color: var(--color-blue);
+}
+
+.mat-mdc-icon-button .mat-mdc-button-touch-target {
+  width: 32px;
+  height: 32px;
 }

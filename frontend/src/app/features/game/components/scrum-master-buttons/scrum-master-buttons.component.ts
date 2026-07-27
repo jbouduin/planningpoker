@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, Signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CardSetDto, EGameState } from 'shared-lib';
 import { CardSetService, extract } from '../../../../core';
@@ -7,11 +9,10 @@ import { CardSetDialogComponent, CardSetDialogComponentParams, DialogService } f
 import { PokerService } from '../../services';
 import { Estimation } from '../../services/estimation';
 import { ScrumMasterButtonsComponentState } from './scrum-master-buttons.component.state';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-scrum-master-buttons',
-  imports: [CommonModule, MatButtonModule, TranslatePipe],
+  imports: [CommonModule, MatButtonModule, MatCardModule, TranslatePipe],
   templateUrl: './scrum-master-buttons.component.html',
   styleUrl: './scrum-master-buttons.component.scss'
 })

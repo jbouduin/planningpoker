@@ -1,14 +1,14 @@
-<mat-card>
+<mat-card-content>
   <div class="mat-card-inner-container">
     <mat-card-title>
       <div class="team-header-container">
         <span class="team-name-span">
           {{ sessionSvc.team()?.teamName }}
         </span>
-        <button mat-icon-button (click)="shareTeamClick()">
+        <button mat-icon-button (click)="shareTeamClick()" class="share-button">
           <mat-icon>share</mat-icon>
         </button>
       </div>
     </mat-card-title>
   </div>
-</mat-card>
+</mat-card-content>
