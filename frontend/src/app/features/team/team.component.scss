@@ -1,0 +1,18 @@
+.landing-container {
+  text-align: center;
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-logo {
+  width: 25%;
+  min-width: 130px;
+  margin: 0 auto;
+}
+
+.forms-container {
+  display: flex;
+  justify-content: center;
+  flex-flow: row wrap;
+}

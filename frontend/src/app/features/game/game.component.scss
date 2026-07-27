@@ -1,0 +1,37 @@
+.game-container {
+  display: grid;
+}
+
+.game-container-content {
+  grid-area: 1 / 1;
+}
+
+.mat-sidenav {
+  box-shadow: 1px 0 2px var(--mat-button-outlined-state-layer-color);
+}
+
+.overlay-container {
+  background-color: rgb(0 0 0 / 75%);
+  height: 100%;
+  z-index: 1000;
+  position: relative;
+}
+
+.sidenav-toggle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 64px;
+  z-index: 1000;
+  padding-left: 1px;
+  border-radius: 0 4px 4px 0;
+  border: 1px solid;
+  border-color: var(--mat-button-outlined-outline-color);
+  background-color: var(--mat-sys-background);
+  color: var(--mat-button-outlined-label-text-color);
+
+  &:hover {
+    background-color: var(--mat-button-outlined-state-layer-color);
+  }
+}

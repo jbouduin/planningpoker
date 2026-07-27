@@ -1,0 +1,46 @@
+{
+  "name": "Planning poker API server",
+  "version": "0.0.1",
+  "description": "The planning poker back-end",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build:prod": "tsc -p tsconfig.prod.json",
+    "build:test": "tsc -p tsconfig.test.json",
+    "dev": "nodemon",
+    "test:ci": "npm run build:test && cross-env NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/jest/bin/jest.js -c jest.ci.config.ts",
+    "test:integration": "npm run build:test && cross-env NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/jest/bin/jest.js -c jest.integration.config.ts --coverage",
+    "test:unit": "npm run build:test && cross-env NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/jest/bin/jest.js -c jest.unit.config.ts --coverage"
+  },
+  "author": "Johan Bouduin",
+  "license": "UNLICENSED",
+  "repository": "secret",
+  "dependencies": {
+    "@types/cors": "^2.8.12",
+    "body-parser": "^2.3.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-winston": "^4.2.0",
+    "express-ws": "^5.0.2",
+    "inversify": "^8.1.0",
+    "shared-lib": "file:../shared-lib",
+    "uuid": "^14.0.0",
+    "winston": "^3.19.0",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.4.1",
+    "@types/express": "^5.0.6",
+    "@types/express-ws": "^3.0.6",
+    "@types/node": "^18.19.130",
+    "@types/qs": "^6.9.7",
+    "@types/ws": "^8.2.0",
+    "cross-env": "^10.1.0",
+    "jest": "^30.4.2",
+    "jest-html-reporter": "^4.4.0",
+    "moq.ts": "^10.0.2",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.1",
+    "typescript": "^6.0.3"
+  }
+}

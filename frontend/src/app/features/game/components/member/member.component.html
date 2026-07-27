@@ -1,0 +1,49 @@
+<div class="member">
+  <mat-icon class="member-icon">{{ personIcon }}</mat-icon>
+  <div class="member-nick-container">
+    <span id="{{ member.nick }}" class="member-nick">{{ member.nick }}</span>
+  </div>
+  <mat-icon class="member-icon">{{ connectionStatusIcon }}</mat-icon>
+  <button
+    *ngIf="componentState().canSwitchToObserver || componentState().canSwitchToNonObserver"
+    matIconButton
+    [matMenuTriggerFor]="menu"
+  >
+    <mat-icon>more_horiz</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button
+      *ngIf="componentState().canSwitchToObserver"
+      mat-menu-item
+      [disabled]="componentState().obServerSwitchDisabled"
+      (click)="switchObserverClick(true)"
+    >
+      {{ STOP_ESTIMATING_LABEL | translate }}
+    </button>
+    <button
+      *ngIf="componentState().canSwitchToNonObserver"
+      mat-menu-item
+      [disabled]="componentState().obServerSwitchDisabled"
+      (click)="switchObserverClick(false)"
+    >
+      {{ START_ESTIMATING_LABEL | translate }}
+    </button>
+    <button *ngIf="canChangeNick" mat-menu-item (click)="changeNickClick()">{{ CHANGE_NICK_LABEL | translate }}</button>
+    <button
+      *ngIf="componentState().canChangeScrumMaster"
+      mat-menu-item
+      [disabled]="componentState().changeScrumMasterDisabled"
+      (click)="changeScrumMasterClick()"
+    >
+      {{ CHANGE_SCRUM_MASTER_LABEL | translate }}
+    </button>
+    <button
+      *ngIf="componentState().canRemoveParticipant"
+      mat-menu-item
+      [disabled]="componentState().removeParticipantDisabled"
+      (click)="removeParticipantClick()"
+    >
+      {{ REMOVE_PARTICIPANT_LABEL | translate }}
+    </button>
+  </mat-menu>
+</div>

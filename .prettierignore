@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+old
+# shared-lib
+# server
+server/reports
+# frontend
+# tools
+.angular
+.vscode
+version-info.ts

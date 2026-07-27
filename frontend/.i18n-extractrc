@@ -1,0 +1,11 @@
+{
+  "output": "./public/i18n/{de-DE,en-US}.json",
+  "sources": [
+    "./src/**/*.{ts,html}"
+  ],
+  "enums": [
+    "../shared-lib/src/dto/error-code.enum.ts",
+    "../shared-lib/src/dto/card-set-type.enum.ts"
+  ],
+  "enumOutput": "./src/app/core/services/enum-translation-keys.ts"
+}

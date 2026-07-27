@@ -1,0 +1,46 @@
+import { inject, injectable } from 'inversify';
+import { AServerMessageDto } from 'shared-lib';
+import type { IServerParticipant } from '../../objects/interfaces/index.js';
+import type { ILoggerService, ISenderService } from '../interfaces/index.js';
+import SERVICETYPES from '../service.types.js';
+import { IWebSocket, ReadyState } from '../websocket.js';
+
+@injectable()
+export class SenderService implements ISenderService {
+  //#region private properties ------------------------------------------------
+  private readonly loggerService: ILoggerService;
+  //#endregion
+
+  //#region Constructor & C° --------------------------------------------------
+  public constructor(@inject(SERVICETYPES.LoggerService) loggerService: ILoggerService) {
+    this.loggerService = loggerService;
+  }
+  //#endregion
+
+  //#region ISenderService methods --------------------------------------------
+  public sendToParticipant(to: IServerParticipant, message: AServerMessageDto): void {
+    this.loggerService.info('Socket', `${to.nick} => ${message.type} - ${JSON.stringify(message)}`);
+    this.send(to.socket, message);
+  }
+
+  public sendToSocket(socket: IWebSocket, message: AServerMessageDto): void {
+    this.loggerService.info('Socket', `socket => ${message.type} - ${JSON.stringify(message)}`);
+    this.send(socket, message);
+  }
+  //#endregion
+
+  //#region private methods ---------------------------------------------------
+  private send(socket: IWebSocket, message: AServerMessageDto): void {
+    if (socket.readyState === ReadyState.OPEN) {
+      try {
+        socket.send(JSON.stringify(message));
+      } catch (err: unknown) {
+        //eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        this.loggerService.error('Socket', `${err}`);
+      }
+    } else {
+      this.loggerService.error('Socket', `Readystate is ${ReadyState[socket.readyState]}`);
+    }
+  }
+  //#endregion
+}

@@ -1,0 +1,7 @@
+<mat-card-content>
+  <div class="my-hand mat-card-inner-container">
+    <div *ngFor="let card of displayCards()">
+      <app-card [displayCard]="card" (cardClicked)="cardClicked($event)"></app-card>
+    </div>
+  </div>
+</mat-card-content>

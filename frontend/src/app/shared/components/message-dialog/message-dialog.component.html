@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>{{ title | translate: titleParams }}</h1>
+<div mat-dialog-content>
+  {{ text | translate: textParams }}
+</div>
+<div mat-dialog-actions>
+  <button id="cancel-button" matButton="outlined" *ngIf="showCancelButton" (click)="cancel()">
+    {{ cancelButtonLabel | translate: cancelButtonParams }}
+  </button>
+  <button id="submit-button" matButton="outlined" [mat-dialog-close]="true">
+    {{ okButtonLabel | translate: okButtonParams }}
+  </button>
+</div>

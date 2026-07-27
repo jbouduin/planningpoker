@@ -6,9 +6,10 @@ on:
     branches:
       - master
       - v*.*.*
+    types: [opened, synchronize]
 
 env:
-  NODE_VERSION: 16
+  NODE_VERSION: 22
 
 jobs: # list of things to do
   validate-pull-request:
@@ -18,29 +19,69 @@ jobs: # list of things to do
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-         node-version: ${{ env.NODE_VERSION }}
-         registry-url: https://registry.npmjs.org/
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: https://registry.npmjs.org/
 
       - name: Check out
         uses: actions/checkout@v3
 
-      - name: Install packages
-        run: |
-          npm ci
-          cd projects/server
-          npm ci
+      - name: Install packages in root
+        run: npm ci
 
-      - name: Lint and build shared
-        run: |
-          npm run lint:shared
-          npm run build:shared
+      - name: Install packages in server
+        working-directory: 'server'
+        run: npm ci
 
-      - name: Lint Site and check translations
-        run: |
-          npm run test:translations
-          npm run lint:site
+      - name: Install packages in frontend
+        working-directory: 'frontend'
+        run: npm ci
 
-      - name: Lint and Test server
+      - name: Install packages in shared-lib
+        working-directory: 'shared-lib'
+        run: npm ci
+
+      - name: Install packages in tools
+        working-directory: 'tools'
+        run: npm ci
+
+      - name: Format (prettier) and Lint tools
+        working-directory: '.'
         run: |
+          npm run format:tools
+          npm run lint:tools
+
+      - name: Build tools
+        working-directory: 'tools'
+        run: npm run build
+
+      - name: Format (prettier) and Lint shared
+        working-directory: '.'
+        run: |
+          npm run format:shared-lib
+          npm run lint:shared-lib
+
+      - name: Build shared
+        working-directory: 'shared-lib'
+        run: npm run build
+
+      - name: prebuild frontend
+        working-directory: 'frontend'
+        run: npm run prebuild
+
+      - name: Format (prettier) and Lint frontend
+        run: |
+          npm run format:frontend
+          npm run lint:frontend
+
+      - name: Build frontend
+        working-directory: 'frontend'
+        run: npm run build
+
+      - name: Format (prettier) and Lint server
+        run: |
+          npm run format:server
           npm run lint:server
-          npm run test:server:ci
+
+      - name: Build and Test server
+        working-directory: 'server'
+        run: npm run test:ci

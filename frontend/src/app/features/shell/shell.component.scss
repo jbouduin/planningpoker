@@ -1,0 +1,25 @@
+.shell-container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  inset: 0;
+}
+
+.header {
+  width: 100%;
+}
+
+.shell-content {
+  height: 100%;
+}
+
+.mat-toolbar {
+  min-height: 64px;
+}
+
+.content-container {
+  overflow: auto;
+  &:hover {
+    color: unset;
+  }
+}

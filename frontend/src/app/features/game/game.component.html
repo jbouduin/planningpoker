@@ -1,0 +1,25 @@
+<div class="game-container">
+  <div class="game-container-content">
+    <mat-sidenav-container>
+      <mat-sidenav #sidenav opened="true" mode="side">
+        <app-members-panel></app-members-panel>
+      </mat-sidenav>
+      <mat-sidenav-content>
+        <div>
+          <button class="sidenav-toggle" (click)="sidenav.toggle()">
+            {{ sidenav.opened ? '«' : '»' }}
+          </button>
+          <mat-card>
+            <app-team-header></app-team-header>
+            <app-playfield></app-playfield>
+            <app-my-hand *ngIf="componentState().showMyHand"></app-my-hand>
+            <app-scrum-master-buttons *ngIf="componentState().showScrumMasterButtons"></app-scrum-master-buttons>
+          </mat-card>
+        </div>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </div>
+  <div *ngIf="componentState().showOverlay" class="game-container-content overlay-container">
+    <app-overlay></app-overlay>
+  </div>
+</div>

@@ -1,0 +1,78 @@
+// Style the card in general
+.card-button {
+  border-radius: 2px;
+  height: 132px;
+  width: 93px;
+  background: white;
+  margin: 2px;
+  padding: 6px;
+}
+
+// Style the available cards
+button.isAvailableCard {
+  border-color: black;
+  color: black;
+
+  &.disabled {
+    border-color: lightgray;
+    color: lightgray;
+  }
+
+  &.intent-primary {
+    color: #002cff;
+    border-color: #002cff;
+  }
+}
+
+// Style the estimations
+button:not(.isAvailableCard) {
+  border-color: black;
+  color: black;
+
+  // &.hasNoEstimation {
+  //   border-color: lightgray;
+  //   color: lightgray;
+  // }
+
+  &.intent-primary {
+    color: #002cff;
+    border-color: #002cff;
+  }
+}
+
+// style card contents
+.value-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.top-value {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.center-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  font-size: xx-large;
+  flex: 1 1 100%;
+}
+
+.bottom-value {
+  display: flex;
+  justify-content: flex-end;
+}
+
+// Grey out the logo
+.greyed {
+  // -webkit-filter: grayscale(100%);
+  // -moz-filter: grayscale(100%);
+  // -o-filter: grayscale(100%);
+  // -ms-filter: grayscale(100%);
+  filter: grayscale(100%);
+  opacity: 0.4;
+}

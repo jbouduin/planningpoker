@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>{{ DIALOG_TITLE | translate }}</h1>
+
+<mat-dialog-content [formGroup]="formData">
+  <mat-form-field appearance="fill">
+    <mat-label>{{ translationKeys.SELECT_CARDSET_LABEL | translate }}</mat-label>
+    <mat-select formControlName="cardSet">
+      <mat-option *ngFor="let cardSet of cardSetSelectItems" [value]="cardSet.set">
+        {{ cardSet.label | translate }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <div class="cards-wrapper">
+    <div *ngFor="let card of displayCards()">
+      <app-card [displayCard]="card" (cardClicked)="cardClicked(card)"></app-card>
+    </div>
+  </div>
+  <mat-error *ngIf="!canSave()">
+    {{ CARD_SELECTION_ERROR | translate }}
+  </mat-error>
+</mat-dialog-content>
+
+<div mat-dialog-actions>
+  <button matButton="outlined" (click)="cancel()">{{ translationKeys.BUTTON_CANCEL_LABEL | translate }}</button>
+  <button matButton="outlined" [mat-dialog-close]="true" [disabled]="formData.invalid || !canSave()" (click)="save()">
+    {{ translationKeys.BUTTON_SAVE_LABEL | translate }}
+  </button>
+</div>

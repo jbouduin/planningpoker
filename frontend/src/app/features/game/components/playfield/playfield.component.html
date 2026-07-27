@@ -1,0 +1,14 @@
+<mat-card-content>
+  <div class="estimations mat-card-inner-container">
+    <ng-container *ngFor="let card of displayCards()">
+      <div class="cards">
+        <app-card [displayCard]="card" (cardClicked)="cardClicked()"></app-card>
+        <div *ngIf="card.member !== null" class="nick-wrapper" [class.mine]="card.member.me">
+          <div class="nick">
+            <span>{{ card.member.me ? (ME_LABEL | translate) : card.member.nick }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</mat-card-content>

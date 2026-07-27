@@ -1,0 +1,59 @@
+<mat-card-content class="stretch-container">
+  <div class="stretch-container">
+    <div class="scrum-master-button-row">
+      <button
+        *ngIf="componentState().showStart"
+        class="scrum-master-button"
+        id="start-button"
+        matButton="outlined"
+        color="primary"
+        (click)="start()"
+      >
+        {{ START_LABEL | translate }}
+      </button>
+      <button
+        *ngIf="componentState().showClear"
+        class="scrum-master-button"
+        id="start-button"
+        matButton="outlined"
+        color="primary"
+        (click)="clear()"
+      >
+        {{ CLEAR_LABEL | translate }}
+      </button>
+      <button
+        *ngIf="componentState().showReveal"
+        class="scrum-master-button"
+        id="reveal-button"
+        matButton="outlined"
+        color="primary"
+        (click)="reveal()"
+        [disabled]="componentState().disableReveal"
+      >
+        {{ REVEAL_LABEL | translate }}
+      </button>
+      <button
+        *ngIf="componentState().showReveal"
+        id="force-reveal-button"
+        class="scrum-master-button"
+        matButton="outlined"
+        color="primary"
+        (click)="reveal()"
+        [disabled]="componentState().disableForceReveal"
+      >
+        {{ FORCE_REVEAL_LABEL | translate }}
+      </button>
+    </div>
+    <div class="stretch-container-right">
+      <button
+        id="change-card-set-button"
+        matButton="outlined"
+        color="primary"
+        (click)="changeCardSet()"
+        [disabled]="componentState().disableChangeCardSet"
+      >
+        {{ CHANGE_CARDSET_LABEL | translate }}
+      </button>
+    </div>
+  </div>
+</mat-card-content>
