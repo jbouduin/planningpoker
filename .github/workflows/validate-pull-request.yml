@@ -61,7 +61,7 @@ jobs: # list of things to do
           npm run lint:shared
 
       - name: Build shared
-        working-directory: 'shared'
+        working-directory: 'shared-lib'
         run: npm run build
 
       - name: Format (prettier) and Lint frontend
