@@ -9,3 +9,4 @@ server/reports
 # tools
 .angular
 .vscode
+version-info.ts
