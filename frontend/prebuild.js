@@ -7,8 +7,8 @@ console.log(`writing version to ${versionInfoFile}`);
 fs.writeFileSync(
   versionInfoFile,
   `export const versionInfo = {
-  version: '${packageJson.version};\n'
-}`
+  version: '${packageJson.version}'
+};\n`
 );
 
 console.log('prebuild finished');
