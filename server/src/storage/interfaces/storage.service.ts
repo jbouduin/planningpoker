@@ -1,4 +1,4 @@
-import { EErrorCode, EGameState, CardSetDto } from 'shared-lib';
+import { CardSetDto, EErrorCode, EGameState } from 'shared-lib';
 import type { IServerEstimation, IServerParticipant, IServerTeam } from '../../objects/interfaces/index.js';
 
 export interface IStorageService {
@@ -63,6 +63,7 @@ export interface IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
+  clear(teamName: string): void;
   deleteEstimation(teamName: string, participantId: string): void;
   getEstimations(teamName: string): Array<IServerEstimation>;
   reveal(teamName: string): void;

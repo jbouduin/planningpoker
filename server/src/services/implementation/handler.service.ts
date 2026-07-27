@@ -204,6 +204,10 @@ export class HandlerService implements IHandlerService {
           this.handleChangeScrumMaster(sender, teamName, <ChangeScrumMasterMessageDto>message);
           break;
         }
+        case EClientMessageType.ClearEstimations: {
+          this.handleClear(sender, teamName);
+          break;
+        }
         case EClientMessageType.Estimate: {
           this.handleEstimate(sender, teamName, <EstimateMessageDto>message);
           break;
@@ -299,6 +303,15 @@ export class HandlerService implements IHandlerService {
         // send self to the new scrum master
         this.messageService.sendSelf(newScrumMaster);
       }
+    }
+  }
+
+  private handleClear(sender: IServerParticipant, teamName: string): void {
+    const team = this.storage.getTeam(teamName);
+    if (team) {
+      this.storage.clear(teamName);
+      this.messageService.broadcastGameState(this.storage.getConnectedTeamMembers(teamName), EGameState.Cleared);
+      this.messageService.broadcastClearEstimations(this.storage.getConnectedTeamMembers(teamName));
     }
   }
 

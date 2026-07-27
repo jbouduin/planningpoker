@@ -148,6 +148,10 @@ export class StorageService implements IStorageService {
   //#endregion
 
   //#region estimations -------------------------------------------------------
+  public clear(teamName: string): void {
+    this.teamRepository.setGameState(teamName, EGameState.Cleared);
+    this.estimationRepository.clearEstimations(teamName);
+  }
   public deleteEstimation(teamName: string, participantId: string): void {
     this.teamRepository.setLastAccessTime(teamName);
     this.estimationRepository.deleteEstimation(teamName, participantId);

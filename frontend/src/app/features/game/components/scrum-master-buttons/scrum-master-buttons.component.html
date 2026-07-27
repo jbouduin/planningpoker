@@ -12,6 +12,16 @@
         {{ START_LABEL | translate }}
       </button>
       <button
+        *ngIf="componentState().showClear"
+        class="scrum-master-button"
+        id="start-button"
+        matButton="outlined"
+        color="primary"
+        (click)="clear()"
+      >
+        {{ CLEAR_LABEL | translate }}
+      </button>
+      <button
         *ngIf="componentState().showReveal"
         class="scrum-master-button"
         id="reveal-button"
@@ -34,7 +44,6 @@
         {{ FORCE_REVEAL_LABEL | translate }}
       </button>
     </div>
-    <!-- </div> -->
     <div class="stretch-container-right">
       <button
         id="change-card-set-button"

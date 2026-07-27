@@ -65,12 +65,16 @@ export class PreflightService implements IPreflightService {
         );
         break;
       }
-      case EClientMessageType.Estimate: {
-        result = this.preflightEstimate(storageService, sender, teamName, <EstimateMessageDto>message);
+      case EClientMessageType.ClearEstimations: {
+        result = this.preflightClear(storageService, sender, teamName);
         break;
       }
       case EClientMessageType.Disband: {
         result = this.preflightDisband(storageService, sender, teamName, <DisbandMessageDto>message);
+        break;
+      }
+      case EClientMessageType.Estimate: {
+        result = this.preflightEstimate(storageService, sender, teamName, <EstimateMessageDto>message);
         break;
       }
       case EClientMessageType.Join: {
@@ -210,6 +214,32 @@ export class PreflightService implements IPreflightService {
         result = EErrorCode.ParticipantNotInTeam;
       }
     }
+    return result;
+  }
+
+  /**
+   * - team must exist
+   * - sender must be in the team
+   * - user must be scrum master
+   * - game must be revealed
+   */
+  private preflightClear(storage: IStorageService, sender: IServerParticipant, teamName: string): EErrorCode {
+    let result = EErrorCode.NoError;
+    if (!storage.teamExists(teamName)) {
+      result = EErrorCode.TeamNotFound;
+    } else if (sender.role !== ERole.ScrumMaster) {
+      result = EErrorCode.ScrumMasterRequired;
+    } else {
+      const team = storage.getTeamOfParticipant(sender.participantId);
+      if (!team) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (team.teamName !== teamName) {
+        result = EErrorCode.ParticipantNotInTeam;
+      } else if (team.gameState !== EGameState.Revealed) {
+        result = EErrorCode.EstimationAlreadyStarted;
+      }
+    }
+
     return result;
   }
 

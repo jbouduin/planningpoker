@@ -4,6 +4,7 @@ import { CardSetService, Member, MessageDispatcherService, SessionService } from
 import { EstimateMessage, RevealMessage, StartMessage, WithdrawEstimationMessage } from '../messages';
 import { Estimation } from './estimation';
 import { GameService } from './game.service';
+import { ClearEstimationMessage } from '../../../core/messages/clear-estimations.message';
 
 @Service()
 export class PokerService {
@@ -97,6 +98,10 @@ export class PokerService {
   //#endregion
 
   //#region Public Methods ----------------------------------------------------
+  public clear(): void {
+    this.sessionSvc.sendMessage(ClearEstimationMessage);
+  }
+
   public withDraw(): void {
     this.sessionSvc.sendMessage(WithdrawEstimationMessage);
   }

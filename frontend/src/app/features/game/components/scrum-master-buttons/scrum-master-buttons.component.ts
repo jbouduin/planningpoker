@@ -17,8 +17,6 @@ import { ScrumMasterButtonsComponentState } from './scrum-master-buttons.compone
   styleUrl: './scrum-master-buttons.component.scss'
 })
 export class ScrumMasterButtonsComponent {
-  // FEATURE allow scrum master to clear estimations when status == revealed, without starting another round
-
   //#region Protected Fields --------------------------------------------------
   private readonly cardSetSvc: CardSetService;
   private readonly dialogSvc: DialogService;
@@ -27,8 +25,9 @@ export class ScrumMasterButtonsComponent {
 
   //#region Translation Keys --------------------------------------------------
   protected readonly CHANGE_CARDSET_LABEL = extract('Game.ScrumMasterButtons.Button.ChangeCardSet');
-  protected readonly REVEAL_LABEL = extract('Game.ScrumMasterButtons.Button.Reveal');
+  protected readonly CLEAR_LABEL = extract('Game.ScrumMasterButtons.Button.Clear');
   protected readonly FORCE_REVEAL_LABEL = extract('Game.ScrumMasterButtons.Button.ForceReveal');
+  protected readonly REVEAL_LABEL = extract('Game.ScrumMasterButtons.Button.Reveal');
   protected readonly START_LABEL = extract('Game.ScrumMasterButtons.Button.Start');
   //#endregion
 
@@ -48,9 +47,12 @@ export class ScrumMasterButtonsComponent {
       const gameState = this.pokerSvc.gameState();
       const estimations = this.pokerSvc.estimations();
       return {
-        disableChangeCardSet: gameState == EGameState.Started || gameState == EGameState.Revealed,
-        disableForceReveal: estimations.findIndex((e: Estimation) => e.hasEstimated == false) == -1,
+        disableChangeCardSet: gameState != EGameState.Cleared,
+        disableForceReveal:
+          (this.pokerSvc.gameState() == EGameState.Started &&
+            estimations.findIndex((e: Estimation) => e.hasEstimated == false)) == -1,
         disableReveal: estimations.findIndex((e: Estimation) => e.hasEstimated == false) >= 0,
+        showClear: gameState == EGameState.Revealed,
         showReveal: this.pokerSvc.gameState() == EGameState.Started,
         showStart: gameState == EGameState.Cleared || gameState == EGameState.Revealed
       };
@@ -59,7 +61,7 @@ export class ScrumMasterButtonsComponent {
   //#endregion
 
   //#region UI-Triggers -------------------------------------------------------
-  public reveal(): void {
+  protected reveal(): void {
     this.pokerSvc.reveal();
   }
 
@@ -67,7 +69,11 @@ export class ScrumMasterButtonsComponent {
     this.pokerSvc.start();
   }
 
-  public changeCardSet(): void {
+  protected clear(): void {
+    this.pokerSvc.clear();
+  }
+
+  protected changeCardSet(): void {
     const params: CardSetDialogComponentParams = {
       currentCardSet: this.cardSetSvc.currentCardSet()
     };

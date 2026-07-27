@@ -1,6 +1,7 @@
 import type { IServerEstimation } from '../../objects/interfaces/index.js';
 
 export interface IEstimationRepository {
+  clearEstimations(teamName: string): void;
   deleteEstimation(teamName: string, participantId: string): void;
   getEstimations(teamName: string): Array<IServerEstimation>;
   removeTeam(teamName: string): void;

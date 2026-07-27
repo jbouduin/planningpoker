@@ -16,6 +16,10 @@ export class EstimationRepository implements IEstimationRepository {
   //#endregion
 
   //#region EstimationDtoRepository methods -------------------------------------
+  public clearEstimations(teamName: string): void {
+    this.estimations.set(teamName, new Map<string, IServerEstimation>());
+  }
+
   public deleteEstimation(teamName: string, participantId: string): void {
     const teamEstimations = this.estimations.get(teamName);
     if (teamEstimations) {
