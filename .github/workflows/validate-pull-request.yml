@@ -84,4 +84,4 @@ jobs: # list of things to do
 
       - name: Build and Test server
         working-directory: 'server'
-        run: npm run test:server:ci
+        run: npm run test:ci
