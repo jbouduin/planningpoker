@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "format": "prettier . --check",
-    "format:fronted": "prettier frontend --check",
+    "format:frontend": "prettier frontend --check",
     "format:server": "prettier server --check",
     "format:shared-lib": "prettier shared-lib --check",
     "format:tools": "prettier tools --check",
